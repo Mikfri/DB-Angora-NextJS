@@ -12,6 +12,7 @@ export default function Home() {
       <h1 className="text-4xl font-bold bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
         Velkommen til DenBlå-Angora
       </h1>
+      <p>Vi er igang med vores afgangsprojekt, som fortsat udvikles efter eksamen. Med tiden vil der komme flere funtioner i takt med vi tager imod jeres feedback.</p>
       <Button className="bg-emerald-600 hover:bg-emerald-700">
         Click me
       </Button>
