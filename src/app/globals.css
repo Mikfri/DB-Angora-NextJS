@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #6a818f;
+  --foreground: #e4e4e7;
+  --primary: #4ade80; 
+  --secondary: #2dd4bf;  
+}
+
+@layer components {
+  .vertical-center {
+    height: calc(100vh - 64px);
+  }
+}
+
+
+@layer components {
+  .rabbit-card-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4;
+  }
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  min-height: 100vh;
+  font-family: Arial, Helvetica, sans-serif;
+}
