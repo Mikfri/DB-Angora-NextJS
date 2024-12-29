@@ -1,8 +1,8 @@
 // src/app/rabbits/forsale-profile/[earCombId]/page.tsx
 import { Metadata } from 'next'
-import { GetRabbitForsaleProfile } from "@/services/AngoraDbService";
 import RabbitForsaleProfile from './rabbitForsaleProfile'; 
 import { notFound } from 'next/navigation';
+import { GetRabbitForsaleProfile } from '@/Services/AngoraDbService';
 
 interface PageProps {
     params: { earCombId: string };
