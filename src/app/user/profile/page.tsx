@@ -1,4 +1,4 @@
-import { GetUserProfile } from "@/services/AngoraDbService";
+import { GetUserProfile } from "@/Services/AngoraDbService";
 import { cookies } from "next/headers";
 import UserProfile from "./userProfile";
 

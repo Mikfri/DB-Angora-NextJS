@@ -1,6 +1,6 @@
 // src/hooks/rabbits/useRabbitOwnFilter.ts
 import { useState } from 'react';
-import { Rabbit_PreviewDTO } from '@/types/backendTypes';
+import { Rabbit_PreviewDTO } from '@/Types/backendTypes';
 
 export interface OwnFilters {
     search: string;

@@ -1,5 +1,5 @@
 'use client';
-import { User_ProfileDTO } from "@/types/backendTypes";
+import { User_ProfileDTO } from "@/Types/backendTypes";
 import { useUserProfile } from "@/hooks/users/useUserProfile";
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Button, Input, Switch } from "@nextui-org/react";
 

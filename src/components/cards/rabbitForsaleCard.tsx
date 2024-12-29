@@ -1,7 +1,7 @@
 // src/components/cards/rabbitForsaleCard.tsx
 'use client';
 
-import { Rabbit_ForsalePreviewDTO } from '@/types/backendTypes';
+import { Rabbit_ForsalePreviewDTO } from '@/Types/backendTypes';
 import { Card, CardHeader, CardBody } from '@nextui-org/react';
 import Image from 'next/image';
 import { useState } from 'react';

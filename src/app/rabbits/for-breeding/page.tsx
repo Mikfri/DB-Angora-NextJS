@@ -1,14 +1,14 @@
 // app/rabbits/for-breeding/page.tsx
 'use client';
-import { GetRabbitsForBreeding } from '@/services/AngoraDbService'
+import { GetRabbitsForBreeding } from '@/Services/AngoraDbService'
+import { Rabbit_ForsalePreviewDTO } from '@/Types/backendTypes';
 import RabbitCard from '@/components/cards/rabbitForsaleCard';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { Rabbit_PreviewDTO } from '@/types/backendTypes';
 
 export default function ForBreedingPage() {
     const router = useRouter();
-    const [rabbitsForBreeding, setRabbitsForBreeding] = useState<Rabbit_PreviewDTO[]>([]);
+    const [rabbitsForBreeding, setRabbitsForBreeding] = useState<Rabbit_ForsalePreviewDTO[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     
     useEffect(() => {

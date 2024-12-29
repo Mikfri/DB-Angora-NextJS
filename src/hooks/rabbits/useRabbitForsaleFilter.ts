@@ -1,7 +1,7 @@
 // src/hooks/rabbits/useRabbitForsaleFilters.ts
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ForSaleFilters } from '@/types/filterTypes';
+import { ForSaleFilters } from '@/Types/filterTypes';
 import { useRabbitsForSale } from './useRabbitsData';
 
 export function useFilteredRabbits() {

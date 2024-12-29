@@ -2,7 +2,7 @@
 "use client"
 import { Autocomplete, AutocompleteItem } from "@nextui-org/react";
 import { useEffect, useState } from 'react';
-import { RabbitEnum, GetEnumValues } from '@/services/AngoraDbService';
+import { RabbitEnum, GetEnumValues } from '@/Services/AngoraDbService';
 interface Props {
     enumType: RabbitEnum;
     value: string | null;

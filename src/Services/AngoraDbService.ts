@@ -1,6 +1,6 @@
 // src/services/AngoraDbService.ts
-import { Rabbit_UpdateDTO, Rabbit_ProfileDTO, Rabbits_ForsalePreviewList, Rabbit_CreateDTO, LoginResponse, Rabbits_PreviewList, Rabbit_PreviewDTO, Rabbit_ForsaleProfileDTO, User_ProfileDTO } from "@/types/backendTypes";
-import { ForSaleFilters } from "@/types/filterTypes";
+import { Rabbit_UpdateDTO, Rabbit_ProfileDTO, Rabbits_ForsalePreviewList, Rabbit_CreateDTO, LoginResponse, Rabbits_PreviewList, Rabbit_PreviewDTO, Rabbit_ForsaleProfileDTO, User_ProfileDTO } from "@/Types/backendTypes";
+import { ForSaleFilters } from "@/Types/filterTypes";
 import { getApiUrl } from '@/config/apiConfig';
 
 export async function CreateRabbit(rabbitData: Rabbit_CreateDTO, accessToken: string): Promise<Rabbit_ProfileDTO> {

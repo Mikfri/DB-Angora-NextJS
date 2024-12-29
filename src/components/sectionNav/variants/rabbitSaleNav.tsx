@@ -1,6 +1,6 @@
 // src/components/sectionNav/variants/forSaleNav.tsx
 import { Input, Button } from "@nextui-org/react";
-import { ForSaleFilters } from "@/types/filterTypes";
+import { ForSaleFilters } from "@/Types/filterTypes";
 import SectionNav from '../base/baseSideNav';
 import { useState } from 'react';
 import { IoMdClose } from "react-icons/io";

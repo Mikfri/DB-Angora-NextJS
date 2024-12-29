@@ -2,8 +2,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
-import { CreateRabbit } from '@/services/AngoraDbService';
-import { Rabbit_CreateDTO } from '@/types/backendTypes';
+import { CreateRabbit } from '@/Services/AngoraDbService';
+import { Rabbit_CreateDTO } from '@/Types/backendTypes';
 
 export function useCreateRabbit() { // Changed from useRabbit
     const router = useRouter();

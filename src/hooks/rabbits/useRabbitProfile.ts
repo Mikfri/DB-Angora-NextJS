@@ -1,7 +1,7 @@
 // src/hooks/rabbits/useRabbitProfile.ts
 import { useState } from 'react';
-import { Rabbit_ProfileDTO, Rabbit_UpdateDTO } from '@/types/backendTypes';
-import { EditRabbit, DeleteRabbit } from '@/services/AngoraDbService';
+import { Rabbit_ProfileDTO, Rabbit_UpdateDTO } from '@/Types/backendTypes';
+import { EditRabbit, DeleteRabbit } from '@/Services/AngoraDbService';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
 

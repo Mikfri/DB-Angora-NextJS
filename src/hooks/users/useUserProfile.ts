@@ -1,6 +1,6 @@
 'use client';
 import { useState } from "react";
-import { User_ProfileDTO } from "@/types/backendTypes";
+import { User_ProfileDTO } from "@/Types/backendTypes";
 import { toast } from "react-toastify";
 
 export function useUserProfile(initialProfile: User_ProfileDTO) {

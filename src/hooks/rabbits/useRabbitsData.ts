@@ -1,8 +1,8 @@
 // src/hooks/rabbits/useRabbitsData.ts
 import { useState, useEffect } from 'react';
-import { GetRabbitsForSale } from '@/services/AngoraDbService';
-import { ForSaleFilters } from '@/types/filterTypes';
-import { Rabbits_ForsalePreviewList } from '@/types/backendTypes';
+import { GetRabbitsForSale } from '@/Services/AngoraDbService';
+import { ForSaleFilters } from '@/Types/filterTypes';
+import { Rabbits_ForsalePreviewList } from '@/Types/backendTypes';
 
 export function useRabbitsForSale(filters: ForSaleFilters) {
     const [rabbits, setRabbits] = useState<Rabbits_ForsalePreviewList>([]);

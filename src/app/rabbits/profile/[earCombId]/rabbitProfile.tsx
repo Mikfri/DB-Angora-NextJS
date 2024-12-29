@@ -1,6 +1,6 @@
 // src/app/rabbits/profile/[earCombId]/rabbitProfile.tsx
 "use client"
-import { Rabbit_ProfileDTO } from "@/types/backendTypes";
+import { Rabbit_ProfileDTO } from "@/Types/backendTypes";
 import { Tabs, Tab, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Button, Input, Switch } from "@nextui-org/react";
 import EnumAutocomplete from '@/components/enumHandlers/enumAutocomplete';  // Fix pathimport RabbitProfileNav from '@/components/sectionNav/variants/rabbitProfileNav';
 import { useRabbitProfile } from '@/hooks/rabbits/useRabbitProfile';
