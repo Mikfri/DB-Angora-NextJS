@@ -31,7 +31,10 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: node-app
-          path: .
+          path: |
+            ./
+            !node_modules/**
+            !.next/**
 
   deploy:
     runs-on: ubuntu-latest
@@ -51,9 +54,9 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_81AB96DD83DE4F7F810638ABF4E9DE71 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_66A7E18DA2444400A5A563E67A6E57ED }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_9A21B191FDF44244B9C10AC12FF0D869 }}
+          client-id: ${{ secrets.__clientidsecretname__ }}
+          tenant-id: ${{ secrets.__tenantidsecretname__ }}
+          subscription-id: ${{ secrets.__subscriptionidsecretname__ }}
 
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v3
@@ -62,4 +65,3 @@ jobs:
           app-name: 'DB-Angora-dk'
           slot-name: 'Production'
           package: .
-          
