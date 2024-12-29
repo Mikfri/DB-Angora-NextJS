@@ -28,16 +28,16 @@ jobs:
         run: |
           pnpm install
           pnpm run build
-          if [ -f package.json ] && grep -q '"test"' package.json; then pnpm run test; fi
+          if (Test-Path package.json -and (Get-Content package.json | Select-String -Pattern '"test"')) {
+            pnpm run test
+          }
+        shell: pwsh
       
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: node-app
-          path: |
-            ./
-            !node_modules/**
-            !.next/**
+          path: .
 
   deploy:
     runs-on: ubuntu-latest
