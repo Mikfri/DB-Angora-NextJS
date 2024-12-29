@@ -28,8 +28,10 @@ jobs:
         run: |
           pnpm install
           pnpm run build
-          if (Test-Path package.json -and (Get-Content package.json | Select-String -Pattern '"test"')) {
-            pnpm run test
+          if (Test-Path package.json) {
+            if ((Get-Content package.json) -match '"test"') {
+              pnpm run test
+            }
           }
         shell: pwsh
       
