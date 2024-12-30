@@ -1,11 +1,14 @@
 // src/app/rabbits/forsale-profile/[earCombId]/page.tsx
-import { Metadata } from 'next';
+import { Metadata } from 'next'
 import RabbitForsaleProfile from './rabbitForsaleProfile'; 
 import { notFound } from 'next/navigation';
 import { GetRabbitForsaleProfile } from '@/Services/AngoraDbService';
 
+interface PageProps {
+    params: Promise<{ earCombId: string }>;
+}
 
-export async function generateMetadata({ params }: { params: Promise<{ earCombId: string }> }): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
     const { earCombId } = await params;
     
     try {
@@ -16,16 +19,16 @@ export async function generateMetadata({ params }: { params: Promise<{ earCombId
             openGraph: {
                 images: rabbit.profilePicture ? [rabbit.profilePicture] : [],
             },
-        };
+        }
     } catch {
         return {
             title: 'Kanin ikke fundet',
             description: 'Den efterspurgte kanin kunne ikke findes'
-        };
+        }
     }
 }
 
-export default async function RabbitForsaleProfilePage({ params }: { params: Promise<{ earCombId: string }> }) {
+export default async function RabbitForsaleProfilePage({ params }: PageProps) {
     const { earCombId } = await params;
     
     try {
