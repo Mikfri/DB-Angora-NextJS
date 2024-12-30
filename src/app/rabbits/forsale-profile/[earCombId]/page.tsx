@@ -5,19 +5,11 @@ import { notFound } from 'next/navigation'
 import { GetRabbitForsaleProfile } from '@/Services/AngoraDbService'
 
 interface PageProps {
-<<<<<<< HEAD
-    params: Promise<{ earCombId: string }>
+    params: { earCombId: string };
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-    const { earCombId } = await params
-=======
-    params: Promise<{ earCombId: string }>;
-}
-
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-    const { earCombId } = await params;
->>>>>>> b45811fb4df992d13c7e78b35b5791c908169cc4
+    const { earCombId } = params;
     
     try {
         const rabbit = await GetRabbitForsaleProfile(earCombId)
@@ -36,14 +28,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     }
 }
 
-<<<<<<< HEAD
-export default async function Page({ params }: PageProps) {
-    const { earCombId } = await params
-    const profile = await GetRabbitForsaleProfile(earCombId).catch(() => notFound())
-    return <RabbitForsaleProfile rabbitProfile={profile} />
-=======
 export default async function RabbitForsaleProfilePage({ params }: PageProps) {
-    const { earCombId } = await params;
+    const { earCombId } = params;
     
     try {
         const rabbitProfile = await GetRabbitForsaleProfile(earCombId);
@@ -51,5 +37,4 @@ export default async function RabbitForsaleProfilePage({ params }: PageProps) {
     } catch {
         notFound();
     }
->>>>>>> b45811fb4df992d13c7e78b35b5791c908169cc4
 }
