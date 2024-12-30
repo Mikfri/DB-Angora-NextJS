@@ -7,13 +7,17 @@ interface ApiConfig {
 export const apiConfig: ApiConfig = {
   env: process.env.NEXT_PUBLIC_API_ENV || 'production',
   get baseUrl() {
-    if (!process.env.NEXT_PUBLIC_API_BASE_URL) {
-      throw new Error('API_BASE_URL must be defined in environment variables');
+    const url = process.env.NEXT_PUBLIC_API_BASE_URL;
+    if (!url) {
+      console.error('API_BASE_URL not found, using fallback URL');
+      return 'https://db-angora.dk/api'; // Fallback URL
     }
-    return process.env.NEXT_PUBLIC_API_BASE_URL;
+    return url;
   }
 };
 
 export const getApiUrl = (endpoint: string): string => {
-  return `${apiConfig.baseUrl}/${endpoint.replace(/^\//, '')}`;
+  const base = apiConfig.baseUrl.replace(/\/$/, '');
+  const path = endpoint.replace(/^\//, '');
+  return `${base}/${path}`;
 };
