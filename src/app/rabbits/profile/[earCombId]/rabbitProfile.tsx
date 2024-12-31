@@ -2,7 +2,7 @@
 "use client"
 import { Rabbit_ProfileDTO } from "@/Types/backendTypes";
 import { Tabs, Tab, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Button, Input, Switch } from "@nextui-org/react";
-import EnumAutocomplete from '@/components/enumHandlers/enumAutocomplete';  // Fix pathimport RabbitProfileNav from '@/components/sectionNav/variants/rabbitProfileNav';
+import EnumAutocomplete from '@/components/enumHandlers/enumAutocomplete';
 import { useRabbitProfile } from '@/hooks/rabbits/useRabbitProfile';
 import { toast } from "react-toastify";
 import RabbitProfileNav from "@/components/sectionNav/variants/rabbitProfileNav";
@@ -191,12 +191,12 @@ export default function RabbitProfile({ rabbitProfile }: Props) {
                             {rabbitProfile.nickName || rabbitProfile.earCombId}
                         </h1>
                         {!isEditing ? (
-                            <Button onClick={() => setIsEditing(true)}>Rediger</Button>
+                            <Button onPress={() => setIsEditing(true)}>Rediger</Button>
                         ) : (
                             <div className="space-x-2">
                                 <Button
                                     color="success"
-                                    onClick={handleSave}
+                                    onPress={handleSave}
                                     isLoading={isSaving}
                                     disabled={isSaving}
                                 >
@@ -204,7 +204,7 @@ export default function RabbitProfile({ rabbitProfile }: Props) {
                                 </Button>
                                 <Button
                                     color="danger"
-                                    onClick={() => setIsEditing(false)}
+                                    onPress={() => setIsEditing(false)}
                                     disabled={isSaving}
                                 >
                                     Annuller

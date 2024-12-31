@@ -77,13 +77,13 @@ export default function UserProfile({ userProfile }: Props) {
                         {userProfile.firstName || userProfile.lastName}
                     </h1>
                     {!isEditing ? (
-                        <Button onClick={() => setIsEditing(true)}>Rediger</Button>
+                        <Button onPress={() => setIsEditing(true)}>Rediger</Button>
                     ) : (
                         <div className="space-x-2">
-                            <Button color="success" onClick={handleSave} isLoading={isSaving} disabled={isSaving}>
+                            <Button color="success" onPress={handleSave} isLoading={isSaving} disabled={isSaving}>
                                 {isSaving ? "Gemmer..." : "Gem"}
                             </Button>
-                            <Button color="danger" onClick={() => setIsEditing(false)} disabled={isSaving}>
+                            <Button color="danger" onPress={() => setIsEditing(false)} disabled={isSaving}>
                                 Annuller
                             </Button>
                         </div>

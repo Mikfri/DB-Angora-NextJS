@@ -75,12 +75,12 @@ export default function TopNav() {
                                 </div>
                             </DropdownTrigger>
                             <DropdownMenu aria-label="Profil handlinger" className='text-zinc-600'>
-                                <DropdownItem key="mine-kaniner">
+                                <DropdownItem key="mine-kaniner" textValue="Mine Kaniner">
                                     <NextLink href="/rabbits/own" className="w-full block">
                                         Mine Kaniner
                                     </NextLink>
                                 </DropdownItem>
-                                <DropdownItem key="user-profile">
+                                <DropdownItem key="user-profile" textValue="UserProfile">
                                     <NextLink href="/user/profile" className="w-full block">
                                         UserProfile
                                     </NextLink>
@@ -89,7 +89,7 @@ export default function TopNav() {
                                     key="logout"
                                     className="text-danger"
                                     textValue="Log ud"
-                                    onClick={logout}
+                                    onPress={logout}
                                 >
                                     Log ud
                                 </DropdownItem>

@@ -17,8 +17,9 @@ export default function RabbitForsaleProfile({ rabbitProfile }: Props) {
                         <Image
                             src={rabbitProfile.profilePicture || '/images/default-rabbit.jpg'}
                             alt={`${rabbitProfile.nickName || 'Unavngivet kanin'}`}
-                            fill
                             className="object-cover rounded-lg"
+                            width={128} // Add width
+                            height={128} // Add height
                         />
                     </div>
                     <div>

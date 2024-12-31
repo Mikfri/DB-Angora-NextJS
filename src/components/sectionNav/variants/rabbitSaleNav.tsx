@@ -49,7 +49,7 @@ export default function ForSaleNav({ activeFilters, onFilterChange }: Props) {
                                     isIconOnly
                                     size="sm"
                                     variant="light"
-                                    onClick={() => handleClear('RightEarId')}
+                                    onPress={() => handleClear('RightEarId')}
                                 >
                                     <IoMdClose />
                                 </Button>
@@ -71,7 +71,7 @@ export default function ForSaleNav({ activeFilters, onFilterChange }: Props) {
                             isIconOnly
                             size="sm"
                             variant="light"
-                            onClick={() => handleClear('Race')}
+                            onPress={() => handleClear('Race')}
                         >
                             <IoMdClose />
                         </Button>
@@ -90,7 +90,7 @@ export default function ForSaleNav({ activeFilters, onFilterChange }: Props) {
                             isIconOnly
                             size="sm"
                             variant="light"
-                            onClick={() => handleClear('Color')}
+                            onPress={() => handleClear('Color')}
                         >
                             <IoMdClose />
                         </Button>
@@ -109,7 +109,7 @@ export default function ForSaleNav({ activeFilters, onFilterChange }: Props) {
                             isIconOnly
                             size="sm"
                             variant="light"
-                            onClick={() => handleClear('Gender')}
+                            onPress={() => handleClear('Gender')}
                         >
                             <IoMdClose />
                         </Button>
@@ -129,7 +129,7 @@ export default function ForSaleNav({ activeFilters, onFilterChange }: Props) {
                                     isIconOnly
                                     size="sm"
                                     variant="light"
-                                    onClick={() => handleClear('MinZipCode')}
+                                    onPress={() => handleClear('MinZipCode')}
                                 >
                                     <IoMdClose />
                                 </Button>
@@ -151,7 +151,7 @@ export default function ForSaleNav({ activeFilters, onFilterChange }: Props) {
                                     isIconOnly
                                     size="sm"
                                     variant="light"
-                                    onClick={() => handleClear('MaxZipCode')}
+                                    onPress={() => handleClear('MaxZipCode')}
                                 >
                                     <IoMdClose />
                                 </Button>

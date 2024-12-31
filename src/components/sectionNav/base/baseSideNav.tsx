@@ -29,7 +29,7 @@ export default function SectionNav({ title, actions = [], children }: SectionNav
                             <Button
                                 key={index}
                                 color={action.color || "primary"}
-                                onClick={action.onClick}
+                                onPress={action.onClick}
                                 className={`w-full ${action.className || ''}`} // Kombiner classes
                                 disabled={action.disabled}
                             >
