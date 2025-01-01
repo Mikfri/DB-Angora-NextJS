@@ -11,23 +11,20 @@ interface Props {
     onFilterChange: (filters: ForSaleFilters) => void;
 }
 
+type FilterValue = string | number | undefined | null;
+
 export default function ForSaleNav({ activeFilters, onFilterChange }: Props) {
     const [localFilters, setLocalFilters] = useState<ForSaleFilters>(activeFilters);
 
-    const handleLocalFilter = (key: keyof ForSaleFilters, value: string | number | null) => {
-        setLocalFilters(prev => ({
-            ...prev,
-            [key]: value === null ? undefined : value
-        }));
+    const handleLocalFilter = (key: keyof ForSaleFilters, value: FilterValue) => {
+        setLocalFilters(prev => ({ ...prev, [key]: value }));
     };
 
-    const handleSearch = () => onFilterChange(localFilters);
     const handleClear = (key: keyof ForSaleFilters) => {
-        setLocalFilters(prev => {
-            const newFilters = { ...prev };
-            delete newFilters[key];
-            return newFilters;
-        });
+        setLocalFilters(prev => ({ ...prev, [key]: undefined }));
+    };
+
+    const handleSearch = () => {
         onFilterChange(localFilters);
     };
 
@@ -36,25 +33,33 @@ export default function ForSaleNav({ activeFilters, onFilterChange }: Props) {
             title="Kaniner til salg"
             actions={[{ label: "Søg", onClick: handleSearch, color: "primary" as const }]}
         >
-            <div className="flex flex-wrap gap-4">
-                <div className="flex items-center gap-2">
+            <div className="flex flex-wrap gap-6">
+                <div className="flex items-center gap-2 min-w-[200px]">
                     <Input
-                        placeholder="Søg ID..."
+                        placeholder="ID"
                         value={localFilters.RightEarId ?? ''}
                         onChange={(e) => handleLocalFilter('RightEarId', e.target.value || null)}
                         className="max-w-xs"
-                        endContent={
-                            localFilters.RightEarId && (
-                                <Button
-                                    isIconOnly
-                                    size="sm"
-                                    variant="light"
-                                    onPress={() => handleClear('RightEarId')}
-                                >
-                                    <IoMdClose />
-                                </Button>
-                            )
-                        }
+                        endContent={localFilters.RightEarId && (
+                            <Button isIconOnly size="sm" variant="light" onPress={() => handleClear('RightEarId')}>
+                                <IoMdClose />
+                            </Button>
+                        )}
+                    />
+                </div>
+
+                <div className="flex items-center gap-2 min-w-[200px]">
+                    <Input
+                        placeholder="Født efter..."
+                        type="date"
+                        value={localFilters.BornAfter ?? ''}
+                        onChange={(e) => handleLocalFilter('BornAfter', e.target.value || null)}
+                        className="max-w-xs"
+                        endContent={localFilters.BornAfter && (
+                            <Button isIconOnly size="sm" variant="light" onPress={() => handleClear('BornAfter')}>
+                                <IoMdClose />
+                            </Button>
+                        )}
                     />
                 </div>
 
@@ -64,18 +69,7 @@ export default function ForSaleNav({ activeFilters, onFilterChange }: Props) {
                         value={localFilters.Race ?? null}
                         onChange={(value) => handleLocalFilter('Race', value)}
                         label="Race"
-                        id="race-select"
                     />
-                    {localFilters.Race && (
-                        <Button
-                            isIconOnly
-                            size="sm"
-                            variant="light"
-                            onPress={() => handleClear('Race')}
-                        >
-                            <IoMdClose />
-                        </Button>
-                    )}
                 </div>
 
                 <div className="flex items-center gap-2 min-w-[200px]">
@@ -85,17 +79,8 @@ export default function ForSaleNav({ activeFilters, onFilterChange }: Props) {
                         onChange={(value) => handleLocalFilter('Color', value)}
                         label="Farve"
                     />
-                    {localFilters.Color && (
-                        <Button
-                            isIconOnly
-                            size="sm"
-                            variant="light"
-                            onPress={() => handleClear('Color')}
-                        >
-                            <IoMdClose />
-                        </Button>
-                    )}
                 </div>
+                
 
                 <div className="flex items-center gap-2 min-w-[200px]">
                     <EnumAutocomplete
@@ -104,59 +89,35 @@ export default function ForSaleNav({ activeFilters, onFilterChange }: Props) {
                         onChange={(value) => handleLocalFilter('Gender', value)}
                         label="Køn"
                     />
-                    {localFilters.Gender && (
-                        <Button
-                            isIconOnly
-                            size="sm"
-                            variant="light"
-                            onPress={() => handleClear('Gender')}
-                        >
-                            <IoMdClose />
-                        </Button>
-                    )}
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 min-w-[200px]">
                     <Input
                         placeholder="Min Postnummer"
                         type="number"
                         value={localFilters.MinZipCode?.toString() ?? ''}
                         onChange={(e) => handleLocalFilter('MinZipCode', e.target.value ? parseInt(e.target.value) : null)}
                         className="max-w-xs"
-                        endContent={
-                            localFilters.MinZipCode && (
-                                <Button
-                                    isIconOnly
-                                    size="sm"
-                                    variant="light"
-                                    onPress={() => handleClear('MinZipCode')}
-                                >
-                                    <IoMdClose />
-                                </Button>
-                            )
-                        }
+                        endContent={localFilters.MinZipCode && (
+                            <Button isIconOnly size="sm" variant="light" onPress={() => handleClear('MinZipCode')}>
+                                <IoMdClose />
+                            </Button>
+                        )}
                     />
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 min-w-[200px]">
                     <Input
                         placeholder="Max Postnummer"
                         type="number"
                         value={localFilters.MaxZipCode?.toString() ?? ''}
                         onChange={(e) => handleLocalFilter('MaxZipCode', e.target.value ? parseInt(e.target.value) : null)}
                         className="max-w-xs"
-                        endContent={
-                            localFilters.MaxZipCode && (
-                                <Button
-                                    isIconOnly
-                                    size="sm"
-                                    variant="light"
-                                    onPress={() => handleClear('MaxZipCode')}
-                                >
-                                    <IoMdClose />
-                                </Button>
-                            )
-                        }
+                        endContent={localFilters.MaxZipCode && (
+                            <Button isIconOnly size="sm" variant="light" onPress={() => handleClear('MaxZipCode')}>
+                                <IoMdClose />
+                            </Button>
+                        )}
                     />
                 </div>
             </div>

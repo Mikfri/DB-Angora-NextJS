@@ -9,6 +9,16 @@
   --secondary: #2dd4bf;  
 }
 
+@layer base {
+  input[type="date"] {
+    color: #71717a;
+  }
+
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.7);
+  }
+}
+
 @layer components {
   .vertical-center {
     height: calc(100vh - 64px);

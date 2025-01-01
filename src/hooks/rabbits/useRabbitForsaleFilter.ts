@@ -1,44 +1,55 @@
 // src/hooks/rabbits/useRabbitForsaleFilters.ts
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ForSaleFilters } from '@/Types/filterTypes';
-import { useRabbitsForSale } from './useRabbitsData';
+import { GetRabbitsForSale } from '@/Services/AngoraDbService';
+import { Rabbits_ForsalePreviewList } from '@/Types/backendTypes';
 
 export function useFilteredRabbits() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    
-    // Initialize filters from URL
-    const initialFilters: ForSaleFilters = {
-        RightEarId: searchParams.get('rightEarId') || undefined,
-        BornAfter: searchParams.get('bornAfter') || undefined,
-        MinZipCode: searchParams.get('minZipCode') ? parseInt(searchParams.get('minZipCode')!) : undefined,
-        MaxZipCode: searchParams.get('maxZipCode') ? parseInt(searchParams.get('maxZipCode')!) : undefined,
-        Race: searchParams.get('race') || undefined,
-        Color: searchParams.get('color') || undefined,
-        Gender: searchParams.get('gender') || undefined,
-    };
+    const [rabbits, setRabbits] = useState<Rabbits_ForsalePreviewList>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<Error | null>(null);
 
-    const [filters, setFilters] = useState<ForSaleFilters>(initialFilters);
-    const { rabbits, isLoading, error } = useRabbitsForSale(filters);
+    // Parse URL params to filters
+    const [filters, setFilters] = useState<ForSaleFilters>({
+        RightEarId: searchParams.get('RightEarId') || undefined,
+        BornAfter: searchParams.get('BornAfter') || undefined,
+        MinZipCode: searchParams.get('MinZipCode') ? parseInt(searchParams.get('MinZipCode')!) : undefined,
+        MaxZipCode: searchParams.get('MaxZipCode') ? parseInt(searchParams.get('MaxZipCode')!) : undefined,
+        Race: searchParams.get('Race') || undefined,
+        Color: searchParams.get('Color') || undefined,
+        Gender: searchParams.get('Gender') || undefined,
+    });
 
+    // Fetch data when filters change
+    useEffect(() => {
+        const fetchData = async () => {
+            setIsLoading(true);
+            try {
+                const data = await GetRabbitsForSale(filters);
+                setRabbits(data);
+                setError(null);
+            } catch (err) {
+                setError(err as Error);
+            }
+            setIsLoading(false);
+        };
+        fetchData();
+    }, [filters]);
+
+    // Update filters and URL
     const updateFilters = (newFilters: ForSaleFilters) => {
         setFilters(newFilters);
-        const params = new URLSearchParams(
-            Object.entries(newFilters)
-                .filter(([, value]) => value !== undefined)
-                .map(([key, value]) => [key, value.toString()])
-        );
+        const params = new URLSearchParams();
+        Object.entries(newFilters).forEach(([key, value]) => {
+            if (value) params.append(key, value.toString());
+        });
         router.replace(`/rabbits/for-sale${params.toString() ? `?${params}` : ''}`);
     };
 
-    return { 
-        rabbits, 
-        filters,
-        isLoading, 
-        error,
-        updateFilters 
-    };
+    return { rabbits, filters, isLoading, error, updateFilters };
 }
 /*
 useFilteredRabbits
