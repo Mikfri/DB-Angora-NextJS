@@ -1,7 +1,11 @@
 // src/app/rabbits/profile/[earCombId]/rabbitProfile.tsx
 "use client"
 import { Rabbit_ProfileDTO } from "@/Types/backendTypes";
-import { Tabs, Tab, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Button, Input, Switch } from "@nextui-org/react";
+import {
+    Tabs, Tab, Table, TableHeader, TableColumn,
+    TableBody, TableRow, TableCell, Button,
+    Input, Switch
+} from "@nextui-org/react";
 import EnumAutocomplete from '@/components/enumHandlers/enumAutocomplete';
 import { useRabbitProfile } from '@/hooks/rabbits/useRabbitProfile';
 import { toast } from "react-toastify";
@@ -61,14 +65,14 @@ export default function RabbitProfile({ rabbitProfile }: Props) {
                 <span>{value || 'Ikke angivet'}</span>
                 {value && (
                     isValid ? (
-                        <PiRabbitFill 
-                            className="w-5 h-5 text-green-500" 
-                            title="Forælder findes i systemet" 
+                        <PiRabbitFill
+                            className="w-5 h-5 text-green-500"
+                            title="Forælder findes i systemet"
                         />
                     ) : (
-                        <PiRabbit 
-                            className="w-5 h-5 text-zinc-400" 
-                            title="Forælder findes ikke i systemet" 
+                        <PiRabbit
+                            className="w-5 h-5 text-zinc-400"
+                            title="Forælder findes ikke i systemet"
                         />
                     )
                 )}
@@ -217,8 +221,8 @@ export default function RabbitProfile({ rabbitProfile }: Props) {
                 <Tabs
                     aria-label="Kanin information"
                     className="content-card"
-                    variant="bordered"
-                    color="success"
+                    variant="solid"
+                    color="primary"
                 >
                     <Tab key="details" title="Detaljer">
                         <Table
@@ -278,7 +282,7 @@ export default function RabbitProfile({ rabbitProfile }: Props) {
                                         <TableCell>{child.gender}</TableCell>
                                         <TableCell>{child.color}</TableCell>
                                         <TableCell>
-                                            {child.dateOfBirth ? new Date(child.dateOfBirth).toLocaleDateString('da-DK') : '-'}
+                                            {child.dateOfBirth ? new Date(child.dateOfBirth).toLocaleDateString() : '-'}
                                         </TableCell>
                                     </TableRow>
                                 )) ?? (

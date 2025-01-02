@@ -5,8 +5,8 @@
 :root {
   --background: #6a818f;
   --foreground: #e4e4e7;
-  --primary: #4ade80; 
-  --secondary: #2dd4bf;  
+  --primary: #4a7ddd; 
+  --secondary: #41daf5;  
 }
 
 @layer base {
