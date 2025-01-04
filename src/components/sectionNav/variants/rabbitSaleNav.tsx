@@ -50,8 +50,9 @@ export default function ForSaleNav({ activeFilters, onFilterChange }: Props) {
 
                 <div className="flex items-center gap-2 min-w-[200px]">
                     <Input
-                        placeholder="Født efter..."
                         type="date"
+                        label="Født efter"
+                        variant="faded"
                         value={localFilters.BornAfter ?? ''}
                         onChange={(e) => handleLocalFilter('BornAfter', e.target.value || null)}
                         className="max-w-xs"
@@ -80,7 +81,7 @@ export default function ForSaleNav({ activeFilters, onFilterChange }: Props) {
                         label="Farve"
                     />
                 </div>
-                
+
 
                 <div className="flex items-center gap-2 min-w-[200px]">
                     <EnumAutocomplete
