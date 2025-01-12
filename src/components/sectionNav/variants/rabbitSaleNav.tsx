@@ -52,7 +52,7 @@ export default function ForSaleNav({ activeFilters, onFilterChange }: Props) {
                     <Input
                         type="date"
                         label="Født efter"
-                        variant="faded"
+                        variant="flat"
                         value={localFilters.BornAfter ?? ''}
                         onChange={(e) => handleLocalFilter('BornAfter', e.target.value || null)}
                         className="max-w-xs"

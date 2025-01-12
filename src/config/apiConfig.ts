@@ -17,7 +17,7 @@ export const apiConfig: ApiConfig = {
 };
 
 export const getApiUrl = (endpoint: string): string => {
-  const base = apiConfig.baseUrl.replace(/\/$/, '');
-  const path = endpoint.replace(/^\//, '');
+  const base = apiConfig.baseUrl.replace(/\/$/, ''); // fjerner trailing slash
+  const path = endpoint.replace(/^\//, '');          // fjerner leading slash
   return `${base}/${path}`;
 };
