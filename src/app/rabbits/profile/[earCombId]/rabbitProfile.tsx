@@ -188,50 +188,50 @@ export default function RabbitProfile({ rabbitProfile }: Props) {
 
                 <Tabs aria-label="Kanin information" className="content-card" variant="solid" color="primary">
                     <Tab key="details" title="Detaljer">
-                        <div className="space-y-4">
-                            <div className="flex justify-between items-center py-2 px-4 bg-zinc-800/80 rounded-lg">
-                                <span className="font-bold text-zinc-100">DETALJER</span>
-                                {!isEditing ? (
-                                    <Button size="sm" onPress={() => setIsEditing(true)}>Rediger</Button>
-                                ) : (
-                                    <div className="space-x-2">
-                                        <Button size="sm" color="success" onPress={handleSave} isLoading={isSaving} disabled={isSaving}>
-                                            {isSaving ? 'Gemmer...' : 'Gem'}
-                                        </Button>
-                                        <Button size="sm" color="danger" onPress={() => setIsEditing(false)} disabled={isSaving}>
-                                            Annuller
-                                        </Button>
+                        <Table
+                            aria-label="Kanin detaljer"
+                            removeWrapper
+                            className="p-0"
+                            classNames={{
+                                table: "bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-lg border-zinc-700/50",
+                                th: "bg-zinc-900/50 text-zinc-300 border-zinc-700/50",
+                                td: "text-zinc-100",
+                                tr: "hover:bg-zinc-700/30 border-b border-zinc-700/30 last:border-0",
+                            }}
+                        >
+                            <TableHeader>
+                                <TableColumn className="w-1/3">
+                                    FELT
+                                </TableColumn>
+                                <TableColumn className="w-2/3">
+                                    <div className="flex justify-between items-center">
+                                        <span>VÆRDI</span>
+                                        {!isEditing ? (
+                                            <Button size="sm" onPress={() => setIsEditing(true)}>Rediger</Button>
+                                        ) : (
+                                            <div className="space-x-2">
+                                                <Button size="sm" color="success" onPress={handleSave} isLoading={isSaving} disabled={isSaving}>
+                                                    {isSaving ? 'Gemmer...' : 'Gem'}
+                                                </Button>
+                                                <Button size="sm" color="danger" onPress={() => setIsEditing(false)} disabled={isSaving}>
+                                                    Annuller
+                                                </Button>
+                                            </div>
+                                        )}
                                     </div>
-                                )}
-                            </div>
-
-                            <Table
-                                aria-label="Kanin detaljer"
-                                removeWrapper
-                                className="p-0"
-                                classNames={{
-                                    table: "bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-lg border-zinc-700/50",
-                                    th: "bg-zinc-900/50 text-zinc-300 border-zinc-700/50",
-                                    td: "text-zinc-100",
-                                    tr: "hover:bg-zinc-700/30 border-b border-zinc-700/30 last:border-0",
-                                }}
-                            >
-                                <TableHeader>
-                                    <TableColumn>FELT</TableColumn>
-                                    <TableColumn>VÆRDI</TableColumn>
-                                </TableHeader>
-                                <TableBody>
-                                    {Object.entries(propertyLabels).map(([key, label]) => (
-                                        <TableRow key={key}>
-                                            <TableCell className="font-medium">{label}</TableCell>
-                                            <TableCell>
-                                                {renderCell(key as keyof Rabbit_ProfileDTO, rabbitProfile[key as keyof Rabbit_ProfileDTO])}
-                                            </TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </div>
+                                </TableColumn>
+                            </TableHeader>
+                            <TableBody>
+                                {Object.entries(propertyLabels).map(([key, label]) => (
+                                    <TableRow key={key}>
+                                        <TableCell className="font-medium">{label}</TableCell>
+                                        <TableCell>
+                                            {renderCell(key as keyof Rabbit_ProfileDTO, rabbitProfile[key as keyof Rabbit_ProfileDTO])}
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
                     </Tab>
 
                     <Tab key="children" title="Afkom">
@@ -277,7 +277,7 @@ export default function RabbitProfile({ rabbitProfile }: Props) {
                         </Table>
                     </Tab>
                 </Tabs>
-            </div>
+            </div >
         </>
     );
 }
