@@ -37,7 +37,6 @@ export default function RabbitProfile({ rabbitProfile }: Props) {
         toast.info('Skift ejer funktionalitet kommer snart');
     };
 
-
     const propertyLabels: Record<keyof Omit<Rabbit_ProfileDTO, "father_EarCombId" | "mother_EarCombId" | "children">, string> = {
         earCombId: "Øremærke ID",
         nickName: "Navn",
@@ -96,7 +95,6 @@ export default function RabbitProfile({ rabbitProfile }: Props) {
             }
             return value?.toString() || 'Ikke angivet';
         }
-
         if (key === 'nickName') {
             return (
                 <Input
@@ -106,7 +104,6 @@ export default function RabbitProfile({ rabbitProfile }: Props) {
                 />
             );
         }
-
         if (key === 'race') {
             return (
                 <EnumAutocomplete
@@ -117,7 +114,6 @@ export default function RabbitProfile({ rabbitProfile }: Props) {
                 />
             );
         }
-
         if (key === 'color') {
             return (
                 <EnumAutocomplete
@@ -128,7 +124,6 @@ export default function RabbitProfile({ rabbitProfile }: Props) {
                 />
             );
         }
-
         if (key === 'gender') {
             return (
                 <EnumAutocomplete
@@ -139,7 +134,6 @@ export default function RabbitProfile({ rabbitProfile }: Props) {
                 />
             );
         }
-
         if (key === 'forSale' || key === 'forBreeding') {
             return (
                 <Switch
@@ -154,7 +148,6 @@ export default function RabbitProfile({ rabbitProfile }: Props) {
                 </Switch>
             );
         }
-
         if (key === 'dateOfBirth' || key === 'dateOfDeath') {
             return (
                 <Input
@@ -165,7 +158,6 @@ export default function RabbitProfile({ rabbitProfile }: Props) {
                 />
             );
         }
-
         if (key === 'fatherId_Placeholder' || key === 'motherId_Placeholder') {
             return (
                 <Input
@@ -176,7 +168,6 @@ export default function RabbitProfile({ rabbitProfile }: Props) {
                 />
             );
         }
-
         return value?.toString() || 'Ikke angivet';
     };
 
@@ -190,67 +181,57 @@ export default function RabbitProfile({ rabbitProfile }: Props) {
             />
             <div className="w-full max-w-5xl mx-auto p-4">
                 <div className="content-card mb-4">
-                    <div className="flex justify-between items-center">
-                        <h1 className="text-2xl font-bold text-zinc-100">
-                            {rabbitProfile.nickName || rabbitProfile.earCombId}
-                        </h1>
-                        {!isEditing ? (
-                            <Button onPress={() => setIsEditing(true)}>Rediger</Button>
-                        ) : (
-                            <div className="space-x-2">
-                                <Button
-                                    color="success"
-                                    onPress={handleSave}
-                                    isLoading={isSaving}
-                                    disabled={isSaving}
-                                >
-                                    {isSaving ? 'Gemmer...' : 'Gem'}
-                                </Button>
-                                <Button
-                                    color="danger"
-                                    onPress={() => setIsEditing(false)}
-                                    disabled={isSaving}
-                                >
-                                    Annuller
-                                </Button>
-                            </div>
-                        )}
-                    </div>
+                    <h1 className="text-2xl font-bold text-zinc-100">
+                        {rabbitProfile.nickName || rabbitProfile.earCombId}
+                    </h1>
                 </div>
 
-                <Tabs
-                    aria-label="Kanin information"
-                    className="content-card"
-                    variant="solid"
-                    color="primary"
-                >
+                <Tabs aria-label="Kanin information" className="content-card" variant="solid" color="primary">
                     <Tab key="details" title="Detaljer">
-                        <Table
-                            aria-label="Kanin detaljer"
-                            removeWrapper
-                            className="p-0"
-                            classNames={{
-                                table: "bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-lg border-zinc-700/50",
-                                th: "bg-zinc-900/50 text-zinc-300 border-zinc-700/50",
-                                td: "text-zinc-100",
-                                tr: "hover:bg-zinc-700/30 border-b border-zinc-700/30 last:border-0",
-                            }}
-                        >
-                            <TableHeader>
-                                <TableColumn>FELT</TableColumn>
-                                <TableColumn>VÆRDI</TableColumn>
-                            </TableHeader>
-                            <TableBody>
-                                {Object.entries(propertyLabels).map(([key, label]) => (
-                                    <TableRow key={key}>
-                                        <TableCell className="font-medium">{label}</TableCell>
-                                        <TableCell>
-                                            {renderCell(key as keyof Rabbit_ProfileDTO, rabbitProfile[key as keyof Rabbit_ProfileDTO])}
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
+                        <div className="space-y-4">
+                            <div className="flex justify-between items-center py-2 px-4 bg-zinc-800/80 rounded-lg">
+                                <span className="font-bold text-zinc-100">DETALJER</span>
+                                {!isEditing ? (
+                                    <Button size="sm" onPress={() => setIsEditing(true)}>Rediger</Button>
+                                ) : (
+                                    <div className="space-x-2">
+                                        <Button size="sm" color="success" onPress={handleSave} isLoading={isSaving} disabled={isSaving}>
+                                            {isSaving ? 'Gemmer...' : 'Gem'}
+                                        </Button>
+                                        <Button size="sm" color="danger" onPress={() => setIsEditing(false)} disabled={isSaving}>
+                                            Annuller
+                                        </Button>
+                                    </div>
+                                )}
+                            </div>
+
+                            <Table
+                                aria-label="Kanin detaljer"
+                                removeWrapper
+                                className="p-0"
+                                classNames={{
+                                    table: "bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-lg border-zinc-700/50",
+                                    th: "bg-zinc-900/50 text-zinc-300 border-zinc-700/50",
+                                    td: "text-zinc-100",
+                                    tr: "hover:bg-zinc-700/30 border-b border-zinc-700/30 last:border-0",
+                                }}
+                            >
+                                <TableHeader>
+                                    <TableColumn>FELT</TableColumn>
+                                    <TableColumn>VÆRDI</TableColumn>
+                                </TableHeader>
+                                <TableBody>
+                                    {Object.entries(propertyLabels).map(([key, label]) => (
+                                        <TableRow key={key}>
+                                            <TableCell className="font-medium">{label}</TableCell>
+                                            <TableCell>
+                                                {renderCell(key as keyof Rabbit_ProfileDTO, rabbitProfile[key as keyof Rabbit_ProfileDTO])}
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </div>
                     </Tab>
 
                     <Tab key="children" title="Afkom">
