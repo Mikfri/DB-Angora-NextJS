@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { PiRabbitFill } from "react-icons/pi";
 import EnumAutocomplete from '@/components/enumHandlers/enumAutocomplete';
 import { OwnFilters } from '@/hooks/rabbits/useRabbitOwnFilter';
+import EnumLocalAutocomplete, { RaceColorApproval } from "@/components/enumHandlers/enumLocalAutocomplete";
 
 interface Props {
     activeFilters: OwnFilters;
@@ -35,8 +36,15 @@ export default function OwnNav({ activeFilters, onFilterChange }: Props) {
                 <Input
                     value={activeFilters.search}
                     onChange={(e) => onFilterChange({ search: e.target.value })}
-                    placeholder="Søg efter navn, øremærke eller race..."
+                    placeholder="Navn, øremærke eller race"
                     aria-label="Søg efter kaniner"
+                />
+                <Input
+                    type="date"
+                    label="Født efter"
+                    value={activeFilters.bornAfterDate || ''}
+                    onChange={(e) => onFilterChange({ bornAfterDate: e.target.value || null })}
+                    placeholder="Vælg dato"
                 />
                 <EnumAutocomplete
                     enumType="Gender"
@@ -55,6 +63,12 @@ export default function OwnNav({ activeFilters, onFilterChange }: Props) {
                     value={activeFilters.Color ?? null}
                     onChange={(value) => onFilterChange({ Color: value })}
                     label="Farve"
+                />
+                <EnumLocalAutocomplete
+                    enumType={RaceColorApproval}
+                    value={activeFilters.raceColorApproval ?? null}
+                    onChange={(value) => onFilterChange({ raceColorApproval: value })}
+                    label="Godkendt race/farve"
                 />
                 <Switch
                     isSelected={activeFilters.ForSale}
