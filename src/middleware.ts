@@ -6,8 +6,8 @@ export function middleware(request: NextRequest) {
   const token = request.cookies.get('accessToken')
 
   if (!token || isTokenExpired(token.value)) {
-      // Instead of redirecting, let the client handle showing login modal
-      return NextResponse.redirect(new URL('/', request.url))
+      // Redirect to login page if token is missing or expired
+      return NextResponse.redirect(new URL('/login', request.url))
   }
 
   return NextResponse.next()
@@ -24,10 +24,7 @@ function isTokenExpired(token: string): boolean {
 
 export const config = {
   matcher: [
-    '/rabbits/own/:path*',
-    //'/rabbits/profile/:path*',
-    '/rabbits/create/:path*',
-    '/rabbits/for-breeding/:path*'
+    '/account/:path*'  // Protects all routes under /account
   ]
 }
 

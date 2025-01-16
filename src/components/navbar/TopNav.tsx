@@ -79,12 +79,12 @@ export default function TopNav() {
                             </DropdownTrigger>
                             <DropdownMenu aria-label="Profil handlinger" className="nav-dropdown text-zinc-600">
                                 <DropdownItem key="mine-kaniner" textValue="Mine kaniner">
-                                    <NextLink href="/rabbits/own" className="w-full block nav-text">
+                                    <NextLink href="/account/myRabbits" className="w-full block nav-text">
                                         Mine kaniner
                                     </NextLink>
                                 </DropdownItem>
                                 <DropdownItem key="user-profile" textValue="Bruger profil">
-                                    <NextLink href="/user/profile" className="w-full block nav-text">
+                                    <NextLink href="/account/profile" className="w-full block nav-text">
                                         Bruger profil
                                     </NextLink>
                                 </DropdownItem>

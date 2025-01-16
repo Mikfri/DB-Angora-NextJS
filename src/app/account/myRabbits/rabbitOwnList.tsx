@@ -1,4 +1,4 @@
-// src/app/rabbits/own/rabbitOwnList.tsx
+// src/app/account/myRabbits/rabbitOwnList.tsx
 'use client';
 import { Rabbit_PreviewDTO } from '@/Types/backendTypes';
 import { useRouter } from 'next/navigation';

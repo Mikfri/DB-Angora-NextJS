@@ -1,4 +1,4 @@
-// app/rabbits/page.tsx (server component)
+// src/app/account/myRabbits/page.tsx
 import { GetOwnRabbits } from '@/Services/AngoraDbService';
 import { cookies } from 'next/headers';
 import RabbitOwnList from './rabbitOwnList';

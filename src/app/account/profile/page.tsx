@@ -1,3 +1,4 @@
+// src/account/profile.tsx
 import { GetUserProfile } from "@/Services/AngoraDbService";
 import { cookies } from "next/headers";
 import UserProfile from "./userProfile";
