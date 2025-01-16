@@ -17,6 +17,7 @@ interface Props {
 export default function EnumLocalAutocomplete({ enumType, value, onChange, label, id }: Props) {
     return (
         <Autocomplete
+            size="sm"
             id={id || `local-enum-select`}
             label={label}
             labelPlacement="outside"

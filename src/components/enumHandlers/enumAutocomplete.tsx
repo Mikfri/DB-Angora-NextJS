@@ -14,7 +14,7 @@ interface Props {
 export default function EnumAutocomplete({ enumType, value, onChange, label, id }: Props) {
     const [options, setOptions] = useState<string[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    
+
     useEffect(() => {
         const loadOptions = async () => {
             try {
@@ -31,6 +31,7 @@ export default function EnumAutocomplete({ enumType, value, onChange, label, id 
 
     return (
         <Autocomplete
+            size="sm"
             id={id || `${enumType.toLowerCase()}-select`}
             label={label}
             labelPlacement="outside"
@@ -48,8 +49,8 @@ export default function EnumAutocomplete({ enumType, value, onChange, label, id 
             }}
         >
             {options.map((option) => (
-                <AutocompleteItem 
-                    key={option} 
+                <AutocompleteItem
+                    key={option}
                     textValue={option}
                     className="text-zinc-100 data-[selected=true]:bg-zinc-700/50"
                 >

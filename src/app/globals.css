@@ -32,7 +32,40 @@
   }
 }
 
+@layer components {
+  /* Base text sizes */
+  .app-text {
+    @apply text-sm;  /* Default size for most content */
+  }
+
+  .app-text-lg {
+    @apply text-base;  /* For headers and important content */
+  }
+
+  .app-text-xl {
+    @apply text-lg font-semibold;  /* For main titles */
+  }
+
+  /* Component specific - inheriting from base */
+  .nav-text {
+    @apply app-text;
+  }
+
+  .card-text {
+    @apply app-text;
+  }
+
+  .card-title {
+    @apply app-text-lg;
+  }
+
+  .section-title {
+    @apply app-text-xl;
+  }
+}
+
 body {
+  @apply text-sm;  /* Sets default size for entire app */
   color: var(--foreground);
   background: var(--background);
   min-height: 100vh;

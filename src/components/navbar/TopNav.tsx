@@ -30,7 +30,7 @@ export default function TopNav() {
 
     return (
         <>
-            <Navbar isBordered className="bg-zinc-900/70 backdrop-blur-md backdrop-saturate-150 max-w-7xl mx-auto rounded-lg" maxWidth="xl">
+            <Navbar isBordered className="bg-zinc-900/70 backdrop-blur-md backdrop-saturate-150 max-w-7xl mx-auto rounded-lg nav-text" maxWidth="xl">
                 <NavbarContent justify="start">
                     <NavbarBrand>
                         <NextLink href="/" className="flex items-center gap-2">
@@ -49,7 +49,7 @@ export default function TopNav() {
                         <NavbarItem isActive={pathname === '/rabbits/for-sale'}>
                             <NextLink
                                 href="/rabbits/for-sale"
-                                className={pathname === '/rabbits/for-sale' ? 'text-primary' : 'text-foreground'}
+                                className={pathname === '/rabbits/for-sale' ? 'text-primary nav-text' : 'text-foreground nav-text'}
                             >
                                 Til Salg
                             </NextLink>
@@ -57,7 +57,7 @@ export default function TopNav() {
                         <NavbarItem isActive={pathname === '/rabbits/for-breeding'}>
                             <NextLink
                                 href="/rabbits/for-breeding"
-                                className={pathname === '/rabbits/for-breeding' ? 'text-primary' : 'text-foreground'}
+                                className={pathname === '/rabbits/for-breeding' ? 'text-primary nav-text' : 'text-foreground nav-text'}
                             >
                                 Til Avl
                             </NextLink>
@@ -70,27 +70,27 @@ export default function TopNav() {
                         <Dropdown placement="bottom-end">
                             <DropdownTrigger>
                                 <div className="flex items-center gap-5">
-                                    <span className="text-slate-300"> {userName} </span>
+                                    <span className="text-slate-300 nav-text">{userName}</span>
                                     <PiUserCircleCheckFill
                                         size={32}
                                         className="text-primary hover:text-primary-400"
                                     />
                                 </div>
                             </DropdownTrigger>
-                            <DropdownMenu aria-label="Profil handlinger" className='text-zinc-600'>
+                            <DropdownMenu aria-label="Profil handlinger" className="nav-dropdown text-zinc-600">
                                 <DropdownItem key="mine-kaniner" textValue="Mine kaniner">
-                                    <NextLink href="/rabbits/own" className="w-full block">
+                                    <NextLink href="/rabbits/own" className="w-full block nav-text">
                                         Mine kaniner
                                     </NextLink>
                                 </DropdownItem>
                                 <DropdownItem key="user-profile" textValue="Bruger profil">
-                                    <NextLink href="/user/profile" className="w-full block">
+                                    <NextLink href="/user/profile" className="w-full block nav-text">
                                         Bruger profil
                                     </NextLink>
                                 </DropdownItem>
                                 <DropdownItem
                                     key="logout"
-                                    className="text-danger"
+                                    className="text-danger nav-text"
                                     textValue="Log ud"
                                     onPress={logout}
                                 >
@@ -103,7 +103,7 @@ export default function TopNav() {
                             className="flex items-center gap-2 cursor-pointer"
                             onClick={() => setIsLoginOpen(true)}
                         >
-                            <span className="text-zinc-400 hover:text-zinc-200">
+                            <span className="text-zinc-400 hover:text-zinc-200 nav-text">
                                 Login
                             </span>
                             <PiUserCircleFill

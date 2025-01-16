@@ -40,6 +40,7 @@ export default function OwnNav({ activeFilters, onFilterChange }: Props) {
                     aria-label="Søg efter kaniner"
                 />
                 <Input
+                    size="sm"
                     type="date"
                     label="Født efter"
                     value={activeFilters.bornAfterDate || ''}
@@ -71,14 +72,15 @@ export default function OwnNav({ activeFilters, onFilterChange }: Props) {
                     label="Godkendt race/farve"
                 />
                 <Switch
+                    size="sm"
                     isSelected={activeFilters.ForSale}
                     onValueChange={(checked) => onFilterChange({ ForSale: checked })}
                     aria-label="Vis kun til salg"
                 >
                     Til Salg
                 </Switch>
-
                 <Switch
+                    size="sm"
                     isSelected={activeFilters.ForBreeding}
                     onValueChange={(checked) => onFilterChange({ ForBreeding: checked })}
                     aria-label="Vis kun til avl"
@@ -87,6 +89,7 @@ export default function OwnNav({ activeFilters, onFilterChange }: Props) {
                 </Switch>
 
                 <Switch
+                    size="sm"
                     isSelected={activeFilters.showDeceased}
                     onValueChange={(checked) => onFilterChange({ showDeceased: checked })}
                     aria-label="Vis afdøde kaniner"

@@ -36,6 +36,7 @@ export default function ForSaleNav({ activeFilters, onFilterChange }: Props) {
             <div className="flex flex-wrap gap-6">
                 <div className="flex items-center gap-2 min-w-[200px]">
                     <Input
+                    size="sm"
                         placeholder="ID"
                         value={localFilters.RightEarId ?? ''}
                         onChange={(e) => handleLocalFilter('RightEarId', e.target.value || null)}
@@ -50,6 +51,7 @@ export default function ForSaleNav({ activeFilters, onFilterChange }: Props) {
 
                 <div className="flex items-center gap-2 min-w-[200px]">
                     <Input
+                        size="sm"
                         type="date"
                         label="Født efter"
                         variant="flat"
@@ -94,6 +96,7 @@ export default function ForSaleNav({ activeFilters, onFilterChange }: Props) {
 
                 <div className="flex items-center gap-2 min-w-[200px]">
                     <Input
+                        size="sm"
                         placeholder="Min Postnummer"
                         type="number"
                         value={localFilters.MinZipCode?.toString() ?? ''}
@@ -109,6 +112,7 @@ export default function ForSaleNav({ activeFilters, onFilterChange }: Props) {
 
                 <div className="flex items-center gap-2 min-w-[200px]">
                     <Input
+                    size="sm"
                         placeholder="Max Postnummer"
                         type="number"
                         value={localFilters.MaxZipCode?.toString() ?? ''}
