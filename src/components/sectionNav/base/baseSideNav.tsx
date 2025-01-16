@@ -18,7 +18,7 @@ interface SectionNavProps {
 
 export default function SectionNav({ title, actions = [], children }: SectionNavProps) {
     return (
-        <nav className="fixed left-4 lg:left-[max(1rem,calc(50%-36rem))] top-[200px] min-h-fit 
+        <nav className="fixed left-4 lg:left-[max(1rem,calc(50%-36rem))] top-[190px] min-h-fit 
     max-h-[calc(100vh-220px)] w-64 bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 
     p-4 rounded-xl border border-zinc-700/50 shadow-lg overflow-y-auto">
             <div className="flex flex-col gap-4">
