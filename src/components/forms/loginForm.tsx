@@ -5,6 +5,7 @@ import { Input, Button } from "@nextui-org/react";
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
 import { useAuth } from '@/hooks/useAuth';
+import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
 
 interface LoginFormProps {
     onSuccess?: () => void;
@@ -14,6 +15,7 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
     const [userName, setUserName] = useState('');
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
     const router = useRouter();
     const { refresh } = useAuth();
 
@@ -22,15 +24,15 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
         if (!isValid) return;
-        
+
         setIsLoading(true);
         try {
             const response = await fetch('/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    userName: userName.trim(), 
-                    password 
+                body: JSON.stringify({
+                    userName: userName.trim(),
+                    password
                 })
             });
 
@@ -61,22 +63,43 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
                 required
                 minLength={2}
             />
-            <Input
-                label="Password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                isDisabled={isLoading}
-                required
-                minLength={6}
-            />
-            <Button 
-                type="submit" 
+            <div className="relative">
+                <Input
+                    label="Password"
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    isDisabled={isLoading}
+                    required
+                    minLength={6}
+                />
+                <button
+                    type="button"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    className='absolute right-2 top-2 text-sm text-gray-600'
+                >
+                    {showPassword ? (
+                        <>
+                            <FaRegEyeSlash size={25} />
+                            <span>Skjul</span>
+                        </>
+
+                    ) : (
+                        <>
+                            <FaRegEye size={25} />
+                            <span>Vis</span>
+                        </>
+
+                    )}
+                </button>
+            </div>
+            <Button
+                type="submit"
                 color="success"
                 isLoading={isLoading}
                 isDisabled={!isValid || isLoading}
             >
-                {isLoading ? 'Logger ind...' : 'Login'}
+                {isLoading ? 'Logger ind...' : 'Log ind'}
             </Button>
         </form>
     );

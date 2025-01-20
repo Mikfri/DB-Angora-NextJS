@@ -104,7 +104,7 @@ export default function TopNav() {
                             onClick={() => setIsLoginOpen(true)}
                         >
                             <span className="text-zinc-400 hover:text-zinc-200 nav-text">
-                                Login
+                                Log ind
                             </span>
                             <PiUserCircleFill
                                 size={32}
