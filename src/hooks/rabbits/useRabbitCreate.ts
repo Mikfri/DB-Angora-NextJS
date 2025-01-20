@@ -28,7 +28,7 @@ export function useCreateRabbit() { // Changed from useRabbit
 
             await CreateRabbit(formData as Rabbit_CreateDTO, accessToken);
             toast.success('Kanin oprettet');
-            router.push('/rabbits/own');
+            router.push('/account/myRabbits');
         } catch (error) {
             console.error('Create failed:', error);
             toast.error('Der skete en fejl ved oprettelse af kaninen');

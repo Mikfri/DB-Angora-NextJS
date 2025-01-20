@@ -46,7 +46,7 @@ export function useFilteredRabbits() {
         Object.entries(newFilters).forEach(([key, value]) => {
             if (value) params.append(key, value.toString());
         });
-        router.replace(`/rabbits/for-sale${params.toString() ? `?${params}` : ''}`);
+        router.replace(`/sale/rabbits${params.toString() ? `?${params}` : ''}`);
     };
 
     return { rabbits, filters, isLoading, error, updateFilters };
