@@ -76,18 +76,16 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
                 <button
                     type="button"
                     onClick={() => setShowPassword((prev) => !prev)}
-                    className='absolute right-2 top-2 text-sm text-gray-600'
+                    className='absolute right-2 top-5 text-sm text-gray-600'
                 >
                     {showPassword ? (
                         <>
-                            <FaRegEyeSlash size={25} />
-                            <span>Skjul</span>
+                            <FaRegEyeSlash size={20} />
                         </>
 
                     ) : (
                         <>
-                            <FaRegEye size={25} />
-                            <span>Vis</span>
+                            <FaRegEye size={20} />
                         </>
 
                     )}
