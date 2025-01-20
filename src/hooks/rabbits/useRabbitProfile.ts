@@ -59,7 +59,7 @@ export function useRabbitProfile(initialProfile: Rabbit_ProfileDTO) {
 
             await DeleteRabbit(initialProfile.earCombId, accessToken);
             toast.success('Kaninen blev slettet');
-            router.push('/rabbits/own');
+            router.push('/account/myRabbits');
         } catch (error) {
             console.error('Delete failed:', error);
             toast.error('Der skete en fejl ved sletning af kaninen');
