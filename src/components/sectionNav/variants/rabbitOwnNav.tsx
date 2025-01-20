@@ -26,7 +26,7 @@ export default function OwnNav({ activeFilters, onFilterChange }: Props) {
                             Opret kanin
                         </>
                     ),
-                    onClick: () => router.push('/rabbits/create'),
+                    onClick: () => router.push('/account/myRabbits/create'),
                     color: "success",
                     className: "text-white"
                 }

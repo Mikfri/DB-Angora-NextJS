@@ -1,8 +1,8 @@
-// src/app/rabbits/forsale-profile/[earCombId]/page.tsx
+// src/app/rabbits/profile/[earCombId]/page.tsx
 import { Metadata } from 'next'
-import RabbitForsaleProfile from './rabbitForsaleProfile'
 import { notFound } from 'next/navigation'
 import { GetRabbitForsaleProfile } from '@/Services/AngoraDbService'
+import RabbitForsaleProfile from './rabbitSaleProfile';
 
 type PageProps = {
     params: Promise<{ earCombId: string }>;

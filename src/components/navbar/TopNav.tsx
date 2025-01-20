@@ -46,10 +46,10 @@ export default function TopNav() {
                     </NavbarBrand>
 
                     <NavbarContent className="hidden sm:flex gap-4">
-                        <NavbarItem isActive={pathname === '/rabbits/for-sale'}>
+                        <NavbarItem isActive={pathname === '/sale/rabbits'}>
                             <NextLink
-                                href="/rabbits/for-sale"
-                                className={pathname === '/rabbits/for-sale' ? 'text-primary nav-text' : 'text-foreground nav-text'}
+                                href="/sale/rabbits"
+                                className={pathname === '/sale/rabbits' ? 'text-primary nav-text' : 'text-foreground nav-text'}
                             >
                                 Til Salg
                             </NextLink>

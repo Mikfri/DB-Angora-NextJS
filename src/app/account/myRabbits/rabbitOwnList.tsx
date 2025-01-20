@@ -27,7 +27,7 @@ export default function RabbitOwnList({ rabbits }: Props) {
                     <RabbitPreviewCard
                         key={rabbit.earCombId}
                         rabbit={rabbit}
-                        onClick={() => router.push(`/rabbits/profile/${rabbit.earCombId}`)}
+                        onClick={() => router.push(`/account/myRabbits/rabbitProfile/${rabbit.earCombId}`)}
                     />
                 ))}
             </div>

@@ -1,4 +1,4 @@
-// src/app/rabbits/forsale-profile/[earCombId]/rabbitForsaleProfile.tsx
+// src/app/sale/rabbits/profile/[earCombId]/rabbitSaleProfile.tsx
 'use client'
 import { Rabbit_ForsaleProfileDTO } from '@/Types/backendTypes';
 import { Card, CardBody, CardHeader } from '@nextui-org/react';

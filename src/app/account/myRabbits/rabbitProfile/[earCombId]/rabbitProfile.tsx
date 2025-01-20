@@ -1,4 +1,4 @@
-// src/app/rabbits/profile/[earCombId]/rabbitProfile.tsx
+// src/app/account/myRabbis/rabbitProfile/rabbitProfile.tsx
 "use client"
 import { Rabbit_ProfileDTO } from "@/Types/backendTypes";
 import {

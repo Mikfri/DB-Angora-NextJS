@@ -1,4 +1,4 @@
-// src/app/rabbits/for-sale/rabbitsForSale.tsx
+// src/app/sale/rabbits/rabbitSaleProfile.tsx
 'use client'
 import { useRouter } from 'next/navigation';
 import { useFilteredRabbits } from '@/hooks/rabbits/useRabbitForsaleFilter';
@@ -10,7 +10,7 @@ export default function RabbitsForSalePage() {
     const { rabbits, filters, isLoading, updateFilters } = useFilteredRabbits();
 
     const handleCardClick = (earCombId: string) => {
-        router.push(`/rabbits/forsale-profile/${earCombId}`);
+        router.push(`/sale/rabbits/profile/${earCombId}`);
     };
 
     if (isLoading) {
