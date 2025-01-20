@@ -18,7 +18,7 @@ const geistMono = localFont({
 
 export const metadata: Metadata = {
   title: "DenBlå-Angora",
-  description: "Registrer dine kaniner og find kaniner til salg eller avl",
+  description: "Det nemme kaninregister. Find kaniner til salg eller avl",
   icons: {
     icon: '/images/DB-Angora.png'
   }
