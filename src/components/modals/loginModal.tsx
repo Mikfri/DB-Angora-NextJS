@@ -17,7 +17,7 @@ export default function LoginModal({ isOpen, onClose }: Props) {
             backdrop="blur"
         >
             <ModalContent>
-                <ModalHeader className="flex flex-col gap-1">Login</ModalHeader>
+                <ModalHeader className="flex flex-col gap-1 text-2xl text-gray-700">Log ind</ModalHeader>
                 <ModalBody>
                     <LoginForm onSuccess={onClose} />
                 </ModalBody>

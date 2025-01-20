@@ -18,12 +18,12 @@ export default function DeleteRabbitModal({ isOpen, onClose, onConfirm, rabbitNa
             backdrop="blur"
         >
             <ModalContent>
-                <ModalHeader className="flex flex-col gap-1">
+                <ModalHeader className="flex flex-col gap-1 text-gray-700">
                     Bekræft sletning
                 </ModalHeader>
                 <ModalBody>
-                    <p>Er du sikker på, at du vil slette kaninen &quot;{rabbitName}&quot;?</p>
-                    <p className="text-danger">Denne handling kan ikke fortrydes.</p>
+                    <p className="text-gray-700 font-bold">Er du sikker på, at du vil slette kaninen &quot;{rabbitName}&quot;?</p>
+                    <p className="text-danger font-bold">Denne handling kan ikke fortrydes.</p>
                 </ModalBody>
                 <ModalFooter>
                     <Button
