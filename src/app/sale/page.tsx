@@ -17,7 +17,7 @@ export default function SalePage() {
       </Head>
       <div className="p-4 flex flex-col justify-center items-center mt-20 gap-6">
         <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-950 to-sky-800 bg-clip-text text-transparent">
-          Til Salg
+          Til salg
         </h1>
         <p className="text-zinc-100">Se hvad vi har til salg hos DenBlå-Angora. Kaniner, uld og mere.</p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl w-full p-4">
@@ -31,7 +31,8 @@ export default function SalePage() {
             href="/sale/wool"
             imageSrc="/images/sideNavigationCard_SaleWool.jpg"
             title="Uld"
-            description="Køb høj kvalitets uld- ren eller som blandingsproduk, som fx: satin-angora eller angorauld, direkte fra sitets registrerede avlere. Gå på opdagelse iblandt brugernes hjemmekartede uld her! (Kommer snart)"
+            description="Køb hjemmeproduceret uld. 1'ste, 2'den og 3'de sortering, kartet eller u-kartet, farvet eller ikke farvet. Rent eller som blandingsprodukt. Heraf 'Satin-angora'- eller 'Angora' uld, direkte fra sitets registrerede avlere. Gå på opdagelse iblandt avlernes sortementer, det bedste Danmark har at byde på! (Kommer snart)"
+            isDisabled
           />
         </div>
       </div>

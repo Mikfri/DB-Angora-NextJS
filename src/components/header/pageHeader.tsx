@@ -5,6 +5,9 @@ import Link from 'next/link';
 
 const pageTitles: Record<string, string> = {
   '/': 'Forside',
+  '/account': 'Min side',
+  '/account/profile': 'Min profil',
+  '/sale': 'Salg',
   '/sale/rabbits': 'Kaniner til salg',
   '/sale/rabbits/profile': 'Kanin profil',
   '/account/myRabbits': 'Mine kaniner',
@@ -16,6 +19,13 @@ export default function Breadcrumbs() {
   const pathname = usePathname();
   const pathSegments = pathname.split('/').filter(Boolean); // URL splittes i segmenter uden empty strings
   
+  //Håndter root path
+  const initialSegments = pathname === '/' ? [{ 
+    path: '/', 
+    label: 'Forside',
+    isProfilePage: false 
+  }] : [];
+
 // reduce har 3 parametre: acc/accumulator, segment/current value, index/current index
 const filteredSegments = pathSegments.reduce((acc, segment, index) => {
   // Hvis segment matcher et rabbit ID format (f.eks. 4977-213), ignoreres det og acc returneres uændret
@@ -30,7 +40,7 @@ const filteredSegments = pathSegments.reduce((acc, segment, index) => {
   const isProfilePage = segment === 'rabbitProfile';
   // Tilføjer det nuværende segment til acc og returnerer det opdaterede acc
   return [...acc, { path, label, isProfilePage }];
-}, [] as Array<{ path: string; label: string; isProfilePage: boolean }>);
+}, initialSegments as Array<{ path: string; label: string; isProfilePage: boolean }>);
 // Initialiserer acc som en tom array af objekter med path, label og isProfilePage
 
   return (

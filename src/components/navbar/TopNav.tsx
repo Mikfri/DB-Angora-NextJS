@@ -78,9 +78,9 @@ export default function TopNav() {
                                 </div>
                             </DropdownTrigger>
                             <DropdownMenu aria-label="Profil handlinger" className="nav-dropdown text-zinc-600">
-                                <DropdownItem key="mine-kaniner" textValue="Mine kaniner">
-                                    <NextLink href="/account/myRabbits" className="w-full block nav-text">
-                                        Mine kaniner
+                                <DropdownItem key="min-side" textValue="Min side">
+                                    <NextLink href="/account" className="w-full block nav-text">
+                                        Min side
                                     </NextLink>
                                 </DropdownItem>
                                 <DropdownItem key="user-profile" textValue="Bruger profil">

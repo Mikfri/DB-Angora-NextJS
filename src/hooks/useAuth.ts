@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 export function useAuth() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [userName, setUserName] = useState('');
+    const [isLoading, setIsLoading] = useState(true);
     const router = useRouter();
 
     const checkAuth = async () => {
@@ -26,6 +27,8 @@ export function useAuth() {
             console.error('❌ Auth check failed:', error);
             setIsLoggedIn(false);
             return false;
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -49,5 +52,5 @@ export function useAuth() {
         checkAuth();
     }, []);
 
-    return { isLoggedIn, userName, logout, refresh: checkAuth };
+    return { isLoggedIn, userName, isLoading, logout, refresh: checkAuth };
 }

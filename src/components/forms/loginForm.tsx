@@ -40,7 +40,7 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
                 await refresh();
                 toast.success('Login succesfuld');
                 onSuccess?.();
-                router.push('/account/myRabbits');
+                router.push('/account');
             } else {
                 const error = await response.json();
                 toast.error(error.error || 'Ugyldigt login');

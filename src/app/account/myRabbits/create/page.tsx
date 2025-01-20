@@ -1,4 +1,4 @@
-// src/app/rabbits/create/page.tsx
+// src/app/account/myRabbits/create/page.tsx
 'use client';
 import { useCreateRabbit } from '@/hooks/rabbits/useRabbitCreate';
 import { Input, Button } from '@nextui-org/react';
