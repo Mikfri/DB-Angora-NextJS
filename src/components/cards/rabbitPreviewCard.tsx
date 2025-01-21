@@ -11,6 +11,15 @@ interface Props {
     onClick?: () => void;
 }
 
+const formatDate = (dateString: string | null) => {
+    if (!dateString) return 'Ukendt dato';
+    return new Intl.DateTimeFormat('da-DK', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+    }).format(new Date(dateString));
+};
+
 export default function RabbitPreviewCard({ rabbit, onClick }: Props) {
     const [imageError, setImageError] = useState(false);
     const defaultImage = '/images/default-rabbit.jpg';
@@ -41,8 +50,8 @@ export default function RabbitPreviewCard({ rabbit, onClick }: Props) {
                 </div>
             </CardHeader>
             <CardBody className="text-zinc-300">
-                <p>Fødselsdato: {rabbit.dateOfBirth}</p>
-                <p>Død-pr: {rabbit.dateOfDeath}</p>
+                <p>Fødselsdato: {formatDate(rabbit.dateOfBirth)}</p>
+                <p>Død-pr: {formatDate(rabbit.dateOfDeath)}</p>
                 <p>Race: {rabbit.race}</p>
                 <p>Farve: {rabbit.color}</p>
                 <p>Køn: {rabbit.gender}</p>

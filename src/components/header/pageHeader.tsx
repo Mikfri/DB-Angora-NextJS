@@ -7,12 +7,14 @@ const pageTitles: Record<string, string> = {
   '/': 'Forside',
   '/account': 'Min side',
   '/account/profile': 'Min profil',
-  '/sale': 'Salg',
-  '/sale/rabbits': 'Kaniner til salg',
-  '/sale/rabbits/profile': 'Kanin profil',
+  '/account/rabbitsForbreeding': 'Find avlskaniner',
   '/account/myRabbits': 'Mine kaniner',
   '/account/myRabbits/create': 'Opret kanin',
   '/account/myRabbits/rabbitProfile': 'Kanin profil',
+
+  '/sale': 'Salg',
+  '/sale/rabbits': 'Kaniner til salg',
+  '/sale/rabbits/profile': 'Kanin profil',
 };
 
 export default function Breadcrumbs() {

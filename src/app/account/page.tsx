@@ -38,7 +38,13 @@ export default function AccountPage() {
                     href="/account/myRabbits"
                     imageSrc="/images/sideNavigationCard_MyRabbits.jpg"
                     title="Mine kaniner"
-                    description="Administrer dine kaniner. Opret nye, rediger eksisterende eller slet kaniner fra dit register."
+                    description="Administrer dine kaniner. Opret nye, rediger eksisterende eller slet kaniner fra dit register"
+                />
+                <PageNavigationCard
+                    href="/account/rabbitsForbreeding"
+                    imageSrc="/images/sideNavigationCard_RabbitsForbreeding.jpg"
+                    title="Find avlskaniner"
+                    description="Find kaniner tilgængelig for avl blandt sitets andre avlere. Kontakt avleren og hør nærmere (Delvist klar, kan ikke tilgå profil)"
                 />
                 <PageNavigationCard
                     href="/account/profile"
@@ -52,7 +58,7 @@ export default function AccountPage() {
                     href="/account/transferRequests"
                     imageSrc="/images/sideNavigationCard_OwnershipExchanges.jpg"
                     title="Ejerskifts anmodninger"
-                    description="Se indkommende og udgående ejeskabsoverdragelser af kaniner"
+                    description="Se indkommende og udgående ejeskabsoverdragelser af kaniner (Under udvikling)"
                     isDisabled
                     onDisabledClick={handleComingSoon}
                 />

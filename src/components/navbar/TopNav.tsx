@@ -54,14 +54,14 @@ export default function TopNav() {
                                 Til Salg
                             </NextLink>
                         </NavbarItem>
-                        <NavbarItem isActive={pathname === '/rabbits/for-breeding'}>
+                        {/* <NavbarItem isActive={pathname === '/account/rabbitsForBreeding'}>
                             <NextLink
-                                href="/rabbits/for-breeding"
-                                className={pathname === '/rabbits/for-breeding' ? 'text-primary nav-text' : 'text-foreground nav-text'}
+                                href="/account/rabbitsForBreeding"
+                                className={pathname === '/account/rabbitsForBreeding' ? 'text-primary nav-text' : 'text-foreground nav-text'}
                             >
                                 Til Avl
                             </NextLink>
-                        </NavbarItem>
+                        </NavbarItem> */}
                     </NavbarContent>
                 </NavbarContent>
 

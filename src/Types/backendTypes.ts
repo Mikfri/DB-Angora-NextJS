@@ -1,4 +1,14 @@
 // src>types>backendTypes.ts
+interface RabbitPhoto {
+    id: number;
+    filePath: string;
+    fileName: string;
+    uploadDate: string;
+    rabbitId: string;
+    userId: string;
+    isProfilePicture: boolean;
+}
+
 export interface Rabbit_ForsalePreviewDTO {
     earCombId: string;
     nickName: string;
@@ -12,16 +22,6 @@ export interface Rabbit_ForsalePreviewDTO {
     userOwner: string;
 }
 export type Rabbits_ForsalePreviewList = Rabbit_ForsalePreviewDTO[];
-
-interface RabbitPhoto {
-    id: number;
-    filePath: string;
-    fileName: string;
-    uploadDate: string;
-    rabbitId: string;
-    userId: string;
-    isProfilePicture: boolean;
-}
 
 export interface Rabbit_ForsaleProfileDTO {
     earCombId: string;
@@ -39,6 +39,29 @@ export interface Rabbit_ForsaleProfileDTO {
     ownerEmail: string;
 }
 
+export interface Rabbit_ForbreedingPreviewDTO {    // Preview for avlerer
+    earCombId: string;
+    nickName: string | null;
+    originFullName: string | null;
+    ownerFullName: string | null;
+    race: string | null;
+    color: string | null;
+    approvedRaceColorCombination: boolean | null;
+    dateOfBirth: string | null;
+    //dateOfDeath: string | null;
+    isJuvenile: boolean | null;
+    gender: string | null;
+    forSale: string | null;
+    forBreeding: string | null;
+    zipCode: number;
+    city: string;
+    fatherId_Placeholder: string | null;
+    father_EarCombId: string | null;
+    motherId_Placeholder: string | null;
+    mother_EarCombId: string | null;
+    profilePicture: string;
+}
+export type Rabbits_ForbreedingPreviewList = Rabbit_ForbreedingPreviewDTO[];
 
 export interface Rabbit_PreviewDTO {    // Preview for avlerer
     earCombId: string;

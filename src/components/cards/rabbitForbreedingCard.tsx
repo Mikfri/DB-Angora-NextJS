@@ -1,13 +1,13 @@
-// src/components/cards/rabbitForsaleCard.tsx
+// src/components/cards/rabbitForbreedingCard.tsx
 'use client';
 
-import { Rabbit_ForsalePreviewDTO } from '@/Types/backendTypes';
+import { Rabbit_ForbreedingPreviewDTO } from '@/Types/backendTypes';
 import { Card, CardHeader, CardBody } from '@nextui-org/react';
 import Image from 'next/image';
 import { useState } from 'react';
 
 interface Props {
-    rabbit: Rabbit_ForsalePreviewDTO;
+    rabbit: Rabbit_ForbreedingPreviewDTO;
     onClick?: () => void;
 }
 
@@ -20,7 +20,7 @@ const formatDate = (dateString: string | null) => {
     }).format(new Date(dateString));
 };
 
-export default function RabbitForsaleCard({ rabbit, onClick }: Props) {
+export default function RabbitForbreedingCard({ rabbit, onClick }: Props) {
     const [imageError, setImageError] = useState(false);
     const defaultImage = '/images/default-rabbit.jpg';
     const profileImage = (!imageError && rabbit.profilePicture) || defaultImage;
@@ -56,7 +56,8 @@ export default function RabbitForsaleCard({ rabbit, onClick }: Props) {
                 <p>Køn: {rabbit.gender}</p>
                 <p>Postnummer: {rabbit.zipCode}</p>
                 <p>By: {rabbit.city}</p>
-                <p>Ejer: {rabbit.userOwner}</p>
+                <p>Ejer: {rabbit.ownerFullName}</p>
+                <p>Oprdrætter: {rabbit.originFullName}</p>
             </CardBody>
         </Card>
     );

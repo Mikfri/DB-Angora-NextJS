@@ -1,5 +1,5 @@
 // src/services/AngoraDbService.ts
-import { Rabbit_UpdateDTO, Rabbit_ProfileDTO, Rabbits_ForsalePreviewList, Rabbit_CreateDTO, LoginResponse, Rabbits_PreviewList, Rabbit_PreviewDTO, Rabbit_ForsaleProfileDTO, User_ProfileDTO } from "@/Types/backendTypes";
+import { Rabbit_UpdateDTO, Rabbit_ProfileDTO, Rabbits_ForsalePreviewList, Rabbit_CreateDTO, LoginResponse, Rabbits_PreviewList, Rabbit_PreviewDTO, Rabbit_ForsaleProfileDTO, User_ProfileDTO, Rabbits_ForbreedingPreviewList } from "@/Types/backendTypes";
 import { ForSaleFilters } from "@/Types/filterTypes";
 import { getApiUrl } from '@/config/apiConfig';
 
@@ -58,9 +58,13 @@ export async function GetRabbitForsaleProfile(earCombId: string): Promise<Rabbit
     return response.json();
 }
 
-export async function GetRabbitsForBreeding(): Promise<Rabbits_ForsalePreviewList> {
-    const data = await fetch(getApiUrl('Rabbit/Forbreeding'));
-    return data.json();
+export async function GetRabbitsForBreeding(accessToken: string): Promise<Rabbits_ForbreedingPreviewList> {
+    const data = await fetch(getApiUrl('Rabbit/Forbreeding'), {
+        headers: { Authorization: `Bearer ${accessToken}` }
+    });
+    const forbreedingRabbits = await data.json();
+    //console.log('API Response:', forbreedingRabbits); // Debug log
+    return forbreedingRabbits;
 }
 
 export async function GetOwnRabbits(accessToken: string): Promise<Rabbits_PreviewList> {
