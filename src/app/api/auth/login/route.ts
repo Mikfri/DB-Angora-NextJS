@@ -37,8 +37,17 @@ export async function POST(request: NextRequest) {
         const AccessTokenFragmentAsJSON = JSON.parse(DecodedBase64AccessTokenFragment)
         // Her kalder vi på nameidentifier for at få userProfileId 
         const userProfileId = AccessTokenFragmentAsJSON["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"]
+        const userRole = AccessTokenFragmentAsJSON["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"]
+
 
         response.cookies.set('userProfileId', userProfileId, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            path: '/'
+        });
+
+        response.cookies.set('userRole', userRole, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax',

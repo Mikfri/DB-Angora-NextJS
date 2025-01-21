@@ -6,10 +6,13 @@ export async function HEAD() {  // Denne del er til for at kunne vise om man er 
     const cookieStore = await cookies();
     const accessToken = cookieStore.get('accessToken');
     const userName = cookieStore.get('userName');
+    const userRole = cookieStore.get('userRole');
+
     
     const response = NextResponse.json({});
     response.headers.set('X-Is-Authenticated', accessToken ? 'true' : 'false');
     response.headers.set('X-User-Name', userName ? userName.value : '');
+    response.headers.set('X-User-Role', userRole ? userRole.value : '');
     
     return response;
 }

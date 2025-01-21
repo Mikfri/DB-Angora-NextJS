@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 export function useAuth() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [userName, setUserName] = useState('');
+    const [userRole, setUserRole] = useState('');
     const [isLoading, setIsLoading] = useState(true);
     const router = useRouter();
 
@@ -18,10 +19,13 @@ export function useAuth() {
 
             const isAuthenticated = response.headers.get('X-Is-Authenticated') === 'true';
             const username = response.headers.get('X-User-Name') || '';
+            const role = response.headers.get('X-User-Role') || '';
+
 
             //console.log('🔒 Auth state:', { isAuthenticated, username });
             setIsLoggedIn(isAuthenticated);
             setUserName(username);
+            setUserRole(role);
             return isAuthenticated;
         } catch (error) {
             console.error('❌ Auth check failed:', error);
@@ -52,5 +56,5 @@ export function useAuth() {
         checkAuth();
     }, []);
 
-    return { isLoggedIn, userName, isLoading, logout, refresh: checkAuth };
+    return { isLoggedIn, userName, userRole, isLoading, logout, refresh: checkAuth };
 }
