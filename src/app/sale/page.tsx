@@ -19,7 +19,7 @@ export default function SalePage() {
             <meta property="og:url" content="https://www.db-angora.dk/sale" />
             <link rel="canonical" href="https://www.db-angora.dk/sale" />
           </Head>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-950 to-sky-800 bg-clip-text text-transparent">
+          <h1 className="site-title">
             Til salg
           </h1>
           <p className="text-zinc-100">Se hvad vi har til salg hos DenBlå-Angora. Kaniner, uld og mere.</p>

@@ -17,8 +17,8 @@ export default function Footer() {
                         <h3 className="text-lg font-semibold mb-4">Hurtige Links</h3>
                         <div className="flex flex-col gap-2">
                             <Link href="/sale" className="text-sm text-zinc-400 hover:text-zinc-200">Til Salg</Link>
-                            <Link href="/about" className="text-sm text-zinc-400 hover:text-zinc-200">Om Os</Link>
-                            <Link href="/contact" className="text-sm text-zinc-400 hover:text-zinc-200">Kontakt</Link>
+                            {/* <Link href="/about" className="text-sm text-zinc-400 hover:text-zinc-200">Om Os</Link>
+                            <Link href="/contact" className="text-sm text-zinc-400 hover:text-zinc-200">Kontakt</Link> */}
                         </div>
                     </div>
                     <div>

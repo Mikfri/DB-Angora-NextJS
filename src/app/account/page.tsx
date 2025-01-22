@@ -34,7 +34,7 @@ export default function AccountPage() {
             <MyNav />
             <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-6">
                 <div className="flex flex-col justify-center items-center gap-6">
-                    <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-950 to-sky-800 bg-clip-text text-transparent">
+                    <h1 className="site-title">
                         Min side
                     </h1>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl w-full">

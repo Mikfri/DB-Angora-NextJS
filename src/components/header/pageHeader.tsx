@@ -22,11 +22,11 @@ export default function Breadcrumbs() {
   const pathSegments = pathname.split('/').filter(Boolean); // URL splittes i segmenter uden empty strings
   
   //Håndter root path
-  const initialSegments = pathname === '/' ? [{ 
+  const initialSegments = [{ 
     path: '/', 
     label: 'Forside',
     isProfilePage: false 
-  }] : [];
+  }];
 
 // reduce har 3 parametre: acc/accumulator, segment/current value, index/current index
 const filteredSegments = pathSegments.reduce((acc, segment, index) => {

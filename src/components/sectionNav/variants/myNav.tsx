@@ -5,35 +5,27 @@ import { usePathname } from 'next/navigation';
 import SectionNav from '../base/baseSideNav';
 import Link from 'next/link';
 
-type NavLink = {
+export type NavLink = {
     href: string;
     label: string;
     requiresAuth?: boolean;
     requiredRole?: string[];
 };
 
-type NavGroup = {
+export type NavGroup = {
     title?: string;
     links: NavLink[];
 };
 
-const navigationLinks: NavGroup[] = [
-    {
-        //title: "Generelt",
-        links: [
-            { href: '/', label: 'Forside' },
-            { href: '/sale', label: 'Til salg' },
-        ]
-    },
+export const navigationLinks: NavGroup[] = [
     {
         title: "Min konto",
         links: [
             { href: '/account', label: 'Min side', requiresAuth: true },
-            { href: '/account/profile', label: 'Min profil', requiresAuth: true },
         ]
     },
     {
-        title: "Avler område",
+        title: "Avler funktioner",
         links: [
             {
                 href: '/account/myRabbits',
@@ -78,10 +70,11 @@ export default function MyNav() {
                                 <Link
                                     key={link.href}
                                     href={link.href}
-                                    className={`p-2 rounded-md transition-colors ${pathname === link.href
+                                    className={`p-2 rounded-md transition-colors ${
+                                        pathname === link.href
                                             ? 'bg-primary text-white'
                                             : 'hover:bg-zinc-700/50'
-                                        }`}
+                                    }`}
                                 >
                                     {link.label}
                                 </Link>

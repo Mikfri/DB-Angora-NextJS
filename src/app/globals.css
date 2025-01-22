@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Raleway:wght@600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -18,13 +20,6 @@
     filter: invert(0.7);
   }
 }
-
-@layer components {
-  .vertical-center {
-    height: calc(100vh - 64px);
-  }
-}
-
 
 @layer components {
   .rabbit-card-grid {
@@ -61,6 +56,14 @@
 
   .section-title {
     @apply app-text-xl;
+  }
+
+  .site-title {
+    @apply text-4xl font-bold;
+    @apply bg-gradient-to-r from-[#6a818f] via-[#4a7ddd] to-[#41daf5];
+    @apply bg-clip-text text-transparent;
+    @apply drop-shadow-[0_2px_2px_rgba(0,0,0,0.15)];
+    font-family: 'Raleway', sans-serif;
   }
 }
 
