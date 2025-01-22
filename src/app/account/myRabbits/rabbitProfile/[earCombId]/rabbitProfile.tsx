@@ -98,6 +98,7 @@ export default function RabbitProfile({ rabbitProfile }: Props) {
         if (key === 'nickName') {
             return (
                 <Input
+                    size="sm"
                     value={editedData.nickName || ''}
                     onChange={(e) => setEditedData({ ...editedData, nickName: e.target.value })}
                     aria-label="Navn"
@@ -137,6 +138,7 @@ export default function RabbitProfile({ rabbitProfile }: Props) {
         if (key === 'forSale' || key === 'forBreeding') {
             return (
                 <Switch
+                    size="sm"
                     isSelected={editedData[key] === "Ja"}
                     onValueChange={(checked) => setEditedData({
                         ...editedData,
@@ -151,6 +153,7 @@ export default function RabbitProfile({ rabbitProfile }: Props) {
         if (key === 'dateOfBirth' || key === 'dateOfDeath') {
             return (
                 <Input
+                    size="sm"
                     type="date"
                     value={editedData[key] || ''}
                     onChange={(e) => setEditedData({ ...editedData, [key]: e.target.value })}
@@ -161,6 +164,7 @@ export default function RabbitProfile({ rabbitProfile }: Props) {
         if (key === 'fatherId_Placeholder' || key === 'motherId_Placeholder') {
             return (
                 <Input
+                    size="sm"
                     value={editedData[key] || ''}
                     onChange={(e) => setEditedData({ ...editedData, [key]: e.target.value })}
                     placeholder={`Indtast ${key === 'fatherId_Placeholder' ? 'far' : 'mor'} øremærke`}
@@ -179,14 +183,14 @@ export default function RabbitProfile({ rabbitProfile }: Props) {
                 onChangeOwner={handleChangeOwner}
                 isDeleting={isDeleting}
             />
-            <div className="w-full max-w-5xl mx-auto p-4">
-                <div className="content-card mb-4">
+            <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-6">
+                <div className="mb-4">
                     <h1 className="text-2xl font-bold text-zinc-100">
                         {rabbitProfile.nickName || rabbitProfile.earCombId}
                     </h1>
                 </div>
 
-                <Tabs aria-label="Kanin information" className="content-card" variant="solid" color="primary">
+                <Tabs aria-label="Kanin information" variant="solid" color="primary">
                     <Tab key="details" title="Detaljer">
                         <Table
                             aria-label="Kanin detaljer"

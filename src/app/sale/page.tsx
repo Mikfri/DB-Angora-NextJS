@@ -5,20 +5,20 @@ import MyNav from '@/components/sectionNav/variants/myNav';
 
 export default function SalePage() {
   return (
-    <div className="flex">
+    <>
       <MyNav />
-      <div className="flex-1">
-        <Head>
-          <title>Til Salg | DenBlå-Angora</title>
-          <meta name="description" content="Se hvad vi har til salg hos DenBlå-Angora. Kaniner, uld og mere." />
-          <meta name="keywords" content="kaniner, uld, til salg, DenBlå-Angora" />
-          <meta property="og:title" content="Til Salg | DenBlå-Angora" />
-          <meta property="og:description" content="Se hvad vi har til salg hos DenBlå-Angora. Kaniner, uld og mere." />
-          <meta property="og:image" content="/images/DB-Angora.png" />
-          <meta property="og:url" content="https://www.db-angora.dk/sale" />
-          <link rel="canonical" href="https://www.db-angora.dk/sale" />
-        </Head>
-        <div className="p-4 flex flex-col justify-center items-center mt-20 gap-6">
+      <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-6">
+        <div className="flex flex-col justify-center items-center gap-6">
+          <Head>
+            <title>Til Salg | DenBlå-Angora</title>
+            <meta name="description" content="Se hvad vi har til salg hos DenBlå-Angora. Kaniner, uld og mere." />
+            <meta name="keywords" content="kaniner, uld, til salg, DenBlå-Angora" />
+            <meta property="og:title" content="Til Salg | DenBlå-Angora" />
+            <meta property="og:description" content="Se hvad vi har til salg hos DenBlå-Angora. Kaniner, uld og mere." />
+            <meta property="og:image" content="/images/DB-Angora.png" />
+            <meta property="og:url" content="https://www.db-angora.dk/sale" />
+            <link rel="canonical" href="https://www.db-angora.dk/sale" />
+          </Head>
           <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-950 to-sky-800 bg-clip-text text-transparent">
             Til salg
           </h1>
@@ -40,6 +40,6 @@ export default function SalePage() {
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

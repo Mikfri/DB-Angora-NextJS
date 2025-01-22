@@ -3,32 +3,28 @@
 import Providers from "@/components/Providers";
 import TopNav from "@/components/navbar/TopNav";
 import PageHeader from "@/components/header/pageHeader";
+import Footer from "@/components/footer/footer";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 
 export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
   return (
     <Providers>
-      <TopNav />
-      {/* Header row with Logo + Title */}
-      <div className="my-6 px-4 max-w-7xl mx-auto">
-        <div className="flex items-center gap-4 p-4 bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50">
-          <PageHeader />
+      <div className="min-h-screen flex flex-col">
+        <TopNav />
+        <div className="my-6 px-4 max-w-7xl mx-auto w-full">
+          <div className="flex items-center gap-4 p-4 bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50">
+            <PageHeader />
+          </div>
         </div>
-      </div>
-      {/* Main content with sidebar */}
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="flex">
-          <div className="w-72 flex-shrink-0" /> {/* Sidebar space */}
-          <main className="flex-1 pl-12">
+        <div className="flex-1 max-w-7xl mx-auto px-4 overflow-hidden w-full">
+          <div className="grid grid-cols-[minmax(280px,_280px)_minmax(0,_1fr)] gap-6">
             {children}
-          </main>
+          </div>
         </div>
+        <Footer />
+        <ToastContainer position="bottom-center" />
       </div>
-      <ToastContainer
-        position="bottom-center"
-        /*theme="dark"*/
-      />
     </Providers>
   );
 }

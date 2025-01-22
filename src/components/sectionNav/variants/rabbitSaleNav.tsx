@@ -1,4 +1,5 @@
 // src/components/sectionNav/variants/forSaleNav.tsx
+'use client'
 import { Input, Button } from "@nextui-org/react";
 import { ForSaleFilters } from "@/Types/filterTypes";
 import SectionNav from '../base/baseSideNav';
@@ -33,98 +34,79 @@ export default function ForSaleNav({ activeFilters, onFilterChange }: Props) {
             title="Kaniner til salg"
             actions={[{ label: "Søg", onClick: handleSearch, color: "primary" as const }]}
         >
-            <div className="flex flex-wrap gap-6">
-                <div className="flex items-center gap-2 min-w-[200px]">
-                    <Input
+            <div className="flex flex-col gap-4">
+                <Input
                     size="sm"
-                        placeholder="ID"
-                        value={localFilters.RightEarId ?? ''}
-                        onChange={(e) => handleLocalFilter('RightEarId', e.target.value || null)}
-                        className="max-w-xs"
-                        endContent={localFilters.RightEarId && (
-                            <Button isIconOnly size="sm" variant="light" onPress={() => handleClear('RightEarId')}>
-                                <IoMdClose />
-                            </Button>
-                        )}
-                    />
-                </div>
+                    placeholder="ID"
+                    value={localFilters.RightEarId ?? ''}
+                    onChange={(e) => handleLocalFilter('RightEarId', e.target.value || null)}
+                    endContent={localFilters.RightEarId && (
+                        <Button isIconOnly size="sm" variant="light" onPress={() => handleClear('RightEarId')}>
+                            <IoMdClose />
+                        </Button>
+                    )}
+                />
 
-                <div className="flex items-center gap-2 min-w-[200px]">
-                    <Input
-                        size="sm"
-                        type="date"
-                        label="Født efter"
-                        variant="flat"
-                        value={localFilters.BornAfter ?? ''}
-                        onChange={(e) => handleLocalFilter('BornAfter', e.target.value || null)}
-                        className="max-w-xs"
-                        endContent={localFilters.BornAfter && (
-                            <Button isIconOnly size="sm" variant="light" onPress={() => handleClear('BornAfter')}>
-                                <IoMdClose />
-                            </Button>
-                        )}
-                    />
-                </div>
-
-                <div className="flex items-center gap-2 min-w-[200px]">
-                    <EnumAutocomplete
-                        enumType="Race"
-                        value={localFilters.Race ?? null}
-                        onChange={(value) => handleLocalFilter('Race', value)}
-                        label="Race"
-                    />
-                </div>
-
-                <div className="flex items-center gap-2 min-w-[200px]">
-                    <EnumAutocomplete
-                        enumType="Color"
-                        value={localFilters.Color ?? null}
-                        onChange={(value) => handleLocalFilter('Color', value)}
-                        label="Farve"
-                    />
-                </div>
-
-
-                <div className="flex items-center gap-2 min-w-[200px]">
-                    <EnumAutocomplete
-                        enumType="Gender"
-                        value={localFilters.Gender ?? null}
-                        onChange={(value) => handleLocalFilter('Gender', value)}
-                        label="Køn"
-                    />
-                </div>
-
-                <div className="flex items-center gap-2 min-w-[200px]">
-                    <Input
-                        size="sm"
-                        placeholder="Min Postnummer"
-                        type="number"
-                        value={localFilters.MinZipCode?.toString() ?? ''}
-                        onChange={(e) => handleLocalFilter('MinZipCode', e.target.value ? parseInt(e.target.value) : null)}
-                        className="max-w-xs"
-                        endContent={localFilters.MinZipCode && (
-                            <Button isIconOnly size="sm" variant="light" onPress={() => handleClear('MinZipCode')}>
-                                <IoMdClose />
-                            </Button>
-                        )}
-                    />
-                </div>
-
-                <div className="flex items-center gap-2 min-w-[200px]">
-                    <Input
+                <Input
                     size="sm"
-                        placeholder="Max Postnummer"
-                        type="number"
-                        value={localFilters.MaxZipCode?.toString() ?? ''}
-                        onChange={(e) => handleLocalFilter('MaxZipCode', e.target.value ? parseInt(e.target.value) : null)}
-                        className="max-w-xs"
-                        endContent={localFilters.MaxZipCode && (
-                            <Button isIconOnly size="sm" variant="light" onPress={() => handleClear('MaxZipCode')}>
-                                <IoMdClose />
-                            </Button>
-                        )}
-                    />
-                </div>
+                    type="date"
+                    label="Født efter"
+                    variant="flat"
+                    value={localFilters.BornAfter ?? ''}
+                    onChange={(e) => handleLocalFilter('BornAfter', e.target.value || null)}
+                    endContent={localFilters.BornAfter && (
+                        <Button isIconOnly size="sm" variant="light" onPress={() => handleClear('BornAfter')}>
+                            <IoMdClose />
+                        </Button>
+                    )}
+                />
+
+                <EnumAutocomplete
+                    enumType="Race"
+                    value={localFilters.Race ?? null}
+                    onChange={(value) => handleLocalFilter('Race', value)}
+                    label="Race"
+                />
+
+                <EnumAutocomplete
+                    enumType="Color"
+                    value={localFilters.Color ?? null}
+                    onChange={(value) => handleLocalFilter('Color', value)}
+                    label="Farve"
+                />
+
+                <EnumAutocomplete
+                    enumType="Gender"
+                    value={localFilters.Gender ?? null}
+                    onChange={(value) => handleLocalFilter('Gender', value)}
+                    label="Køn"
+                />
+
+                <Input
+                    size="sm"
+                    placeholder="Min Postnummer"
+                    type="number"
+                    value={localFilters.MinZipCode?.toString() ?? ''}
+                    onChange={(e) => handleLocalFilter('MinZipCode', e.target.value ? parseInt(e.target.value) : null)}
+                    endContent={localFilters.MinZipCode && (
+                        <Button isIconOnly size="sm" variant="light" onPress={() => handleClear('MinZipCode')}>
+                            <IoMdClose />
+                        </Button>
+                    )}
+                />
+
+                <Input
+                    size="sm"
+                    placeholder="Max Postnummer"
+                    type="number"
+                    value={localFilters.MaxZipCode?.toString() ?? ''}
+                    onChange={(e) => handleLocalFilter('MaxZipCode', e.target.value ? parseInt(e.target.value) : null)}
+                    endContent={localFilters.MaxZipCode && (
+                        <Button isIconOnly size="sm" variant="light" onPress={() => handleClear('MaxZipCode')}>
+                            <IoMdClose />
+                        </Button>
+                    )}
+                />
             </div>
         </SectionNav>
     );

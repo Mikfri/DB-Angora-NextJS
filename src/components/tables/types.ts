@@ -1,4 +1,4 @@
-// src/components/table/types.ts
+// src/components/tables/types.ts
 import { ReactNode } from "react";
 
 export interface TableStyling {

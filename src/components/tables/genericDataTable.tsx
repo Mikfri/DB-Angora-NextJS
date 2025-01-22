@@ -1,4 +1,4 @@
-// src/components/table/genericDataTable.tsx
+// src/components/tables/genericDataTable.tsx
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Input } from "@nextui-org/react";
 import { TableConfig } from "./types";
 import { ReactNode } from "react";

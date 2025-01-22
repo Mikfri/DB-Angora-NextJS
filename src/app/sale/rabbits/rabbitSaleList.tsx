@@ -23,14 +23,16 @@ export default function RabbitsForSalePage() {
                 activeFilters={filters} 
                 onFilterChange={updateFilters} 
             />
-            <div className="rabbit-card-grid">
-                {rabbits.map((rabbit) => (
-                    <RabbitForsaleCard 
-                        key={rabbit.earCombId} 
-                        rabbit={rabbit}
-                        onClick={() => handleCardClick(rabbit.earCombId)}
-                    />
-                ))}
+            <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {rabbits.map((rabbit) => (
+                        <RabbitForsaleCard 
+                            key={rabbit.earCombId} 
+                            rabbit={rabbit}
+                            onClick={() => handleCardClick(rabbit.earCombId)}
+                        />
+                    ))}
+                </div>
             </div>
         </>
     );

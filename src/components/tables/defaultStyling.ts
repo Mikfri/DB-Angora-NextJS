@@ -1,4 +1,4 @@
-// components/table/defaultStyling.ts
+// components/tables/defaultStyling.ts
 import { TableStyling } from './types';
 
 export const defaultStyling: TableStyling = {

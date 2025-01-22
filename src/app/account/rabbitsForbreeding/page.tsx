@@ -9,7 +9,11 @@ export default async function RabbitsForBreedingPage() {
     const breedingRabbits = await GetRabbitsForBreeding(String(accessToken?.value));
     
     if (!breedingRabbits || breedingRabbits.length === 0) {
-        return <div>Ingen kaniner fundet</div>;
+        return (
+            <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-6">
+                <p>Ingen kaniner fundet</p>
+            </div>
+        );
     }
 
     return <RabbitBreedingList rabbits={breedingRabbits} />;

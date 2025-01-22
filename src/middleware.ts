@@ -6,8 +6,15 @@ export function middleware(request: NextRequest) {
   const token = request.cookies.get('accessToken')
 
   if (!token || isTokenExpired(token.value)) {
-      // Redirect to login page if token is missing or expired
-      return NextResponse.redirect(new URL('/login', request.url))
+    // Create response with login redirect
+    const response = NextResponse.redirect(new URL('/', request.url))
+    
+    // Clear expired tokens
+    response.cookies.delete('accessToken')
+    response.cookies.delete('userName')
+    response.cookies.delete('userRole')
+    
+    return response
   }
 
   return NextResponse.next()
