@@ -18,7 +18,8 @@ const geistMono = localFont({
 
 export const metadata: Metadata = {
   title: "DenBlå-Angora",
-  description: "Det nemme kaninregister. Find kaniner til salg eller avl",
+  description: "Det nemme kaninregister. Sælg dit garn, uld og skind. ",
+  metadataBase: new URL('https://www.db-angora.dk'),
   icons: {
     icon: [
       { url: '/favicon.ico', sizes: 'any' },
@@ -29,6 +30,21 @@ export const metadata: Metadata = {
       { url: '/images/DB-Angora.png', sizes: '180x180', type: 'image/png' }
     ],
     shortcut: '/images/DB-Angora.png',
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'da_DK',
+    url: 'https://www.db-angora.dk',
+    siteName: 'DenBlå-Angora',
+    images: [{
+      url: '/images/DB-Angora.png',
+      width: 1200,
+      height: 630,
+    }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    images: ['/images/DB-Angora.png'],
   }
 };
 
