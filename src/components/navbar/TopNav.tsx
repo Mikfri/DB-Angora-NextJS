@@ -8,7 +8,7 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import LoginModal from '../modals/loginModal';
-import { navigationLinks } from '@/components/sectionNav/variants/myNav';
+import { navigationLinks, filterLink } from '@/components/sectionNav/base/baseSideNav';
 
 export default function TopNav() {
     const pathname = usePathname();
@@ -40,24 +40,19 @@ export default function TopNav() {
                             </NavbarBrand>
 
                             <div className="hidden sm:flex gap-4">
-                                <Dropdown>
-                                    <DropdownTrigger>
-                                        <NavbarItem>
-                                            <span className={pathname.startsWith('/sale') ? 'text-primary nav-text' : 'text-foreground nav-text'}>
-                                                Til salg
-                                            </span>
-                                        </NavbarItem>
-                                    </DropdownTrigger>
-                                    <DropdownMenu aria-label="Til salg kategorier" className="nav-dropdown text-zinc-600">
-                                        <DropdownItem key="rabbits">
-                                            <NextLink href="/sale/rabbits" className="w-full block nav-text">Kaniner</NextLink>
-                                        </DropdownItem>
-                                        <DropdownItem key="wool" isDisabled description="Under udvikling" className="text-zinc-400">
-                                            Uld
-                                        </DropdownItem>
-                                    </DropdownMenu>
-                                </Dropdown>
-                                <Tooltip content="Under udvikling" placement="bottom" closeDelay={0}>
+                                <NavbarItem>
+                                    <NextLink
+                                        href="/sale"
+                                        className={pathname.startsWith('/sale') ? 'text-primary nav-text' : 'text-foreground nav-text hover:text-zinc-200'}
+                                    >
+                                        Til salg
+                                    </NextLink>
+                                </NavbarItem>
+                                <Tooltip
+                                    content={<span className="nav-tooltip">Under udvikling</span>}
+                                    placement="bottom"
+                                    closeDelay={0}
+                                >
                                     <NavbarItem>
                                         <span className="cursor-not-allowed text-zinc-300/50 nav-text">Katalog</span>
                                     </NavbarItem>
@@ -100,7 +95,7 @@ export default function TopNav() {
                         <div className="w-full flex items-center px-4 gap-4">
                             {navigationLinks.map((group) =>
                                 group.links
-                                    .filter(link => !link.requiredRole || link.requiredRole.includes(userRole))
+                                    .filter(link => filterLink(link, isLoggedIn, userRole))
                                     .map((link) => (
                                         <NavbarItem key={link.href} className="hidden sm:flex">
                                             <NextLink

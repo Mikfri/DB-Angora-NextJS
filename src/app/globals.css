@@ -12,6 +12,11 @@
 }
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 80px;
+  }
+  
   input[type="date"] {
     color: #71717a;
   }
@@ -44,6 +49,10 @@
   /* Component specific - inheriting from base */
   .nav-text {
     @apply app-text;
+  }
+
+  .nav-tooltip {
+    @apply text-zinc-500;
   }
 
   .card-text {

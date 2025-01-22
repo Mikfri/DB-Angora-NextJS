@@ -1,64 +1,30 @@
 // src/components/sectionNav/variants/myNav.tsx
 'use client'
-import { useAuth } from '@/hooks/useAuth';
 import { usePathname } from 'next/navigation';
-import SectionNav from '../base/baseSideNav';
 import Link from 'next/link';
-
-export type NavLink = {
-    href: string;
-    label: string;
-    requiresAuth?: boolean;
-    requiredRole?: string[];
-};
-
-export type NavGroup = {
-    title?: string;
-    links: NavLink[];
-};
-
-export const navigationLinks: NavGroup[] = [
-    {
-        title: "Min konto",
-        links: [
-            { href: '/account', label: 'Min side', requiresAuth: true },
-        ]
-    },
-    {
-        title: "Avler funktioner",
-        links: [
-            {
-                href: '/account/myRabbits',
-                label: 'Mine kaniner',
-                requiresAuth: true,
-                requiredRole: ['BreederBasic', 'BreederPremium', 'Moderator', 'Admin']
-            },
-            {
-                href: '/account/rabbitsForbreeding',
-                label: 'Find avlskaniner',
-                requiresAuth: true,
-                requiredRole: ['BreederBasic', 'BreederPremium', 'Moderator', 'Admin']
-            },
-        ]
-    }
-];
+import { Link as ScrollLink } from 'react-scroll'; // Add this import
+import SectionNav from '../base/baseSideNav';
+import { 
+    navigationLinks,
+    homeNavigationLinks,
+    saleNavigationLinks,
+    type NavGroup
+} from '../base/baseSideNav';
 
 export default function MyNav() {
-    const { isLoggedIn, userRole } = useAuth();
     const pathname = usePathname();
 
-    const filterLink = (link: NavLink) => {
-        if (!link.requiresAuth) return true;
-        if (link.requiresAuth && !isLoggedIn) return false;
-        if (link.requiredRole && !link.requiredRole.includes(userRole)) return false;
-        return true;
+    const getNavigationLinks = (): NavGroup[] => {
+        if (pathname === '/') return homeNavigationLinks;
+        if (pathname.startsWith('/sale')) return saleNavigationLinks;
+        return navigationLinks;
     };
 
     return (
         <SectionNav title="Navigation">
             <div className="flex flex-col gap-4">
-                {navigationLinks.map((group, index) => {
-                    const filteredGroupLinks = group.links.filter(filterLink);
+                {getNavigationLinks().map((group, index) => {
+                    const filteredGroupLinks = group.links.filter(link => !link.disabled);
                     if (filteredGroupLinks.length === 0) return null;
 
                     return (
@@ -67,19 +33,37 @@ export default function MyNav() {
                                 {group.title}
                             </h3>
                             {filteredGroupLinks.map((link) => (
-                                <Link
-                                    key={link.href}
-                                    href={link.href}
-                                    className={`p-2 rounded-md transition-colors ${
-                                        pathname === link.href
-                                            ? 'bg-primary text-white'
-                                            : 'hover:bg-zinc-700/50'
-                                    }`}
-                                >
-                                    {link.label}
-                                </Link>
+                                link.href.startsWith('#') ? (
+                                    <ScrollLink
+                                        key={link.href}
+                                        to={link.href.substring(1)}
+                                        spy={true}
+                                        smooth={true}
+                                        offset={-80}
+                                        duration={500}
+                                        className={`p-2 rounded-md transition-colors cursor-pointer ${
+                                            pathname === link.href
+                                                ? 'bg-primary text-white'
+                                                : 'hover:bg-zinc-700/50'
+                                        }`}
+                                    >
+                                        {link.label}
+                                    </ScrollLink>
+                                ) : (
+                                    <Link
+                                        key={link.href}
+                                        href={link.href}
+                                        className={`p-2 rounded-md transition-colors ${
+                                            pathname === link.href
+                                                ? 'bg-primary text-white'
+                                                : 'hover:bg-zinc-700/50'
+                                        }`}
+                                    >
+                                        {link.label}
+                                    </Link>
+                                )
                             ))}
-                            {index < navigationLinks.length - 1 && (
+                            {index < getNavigationLinks().length - 1 && (
                                 <div className="h-px bg-zinc-400/30 my-2" />
                             )}
                         </div>

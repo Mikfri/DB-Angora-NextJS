@@ -34,7 +34,6 @@ export default function ForSaleNav({ activeFilters, onFilterChange }: Props) {
             title="Kaniner til salg"
             actions={[{ label: "Søg", onClick: handleSearch, color: "primary" as const }]}
         >
-            <div className="flex flex-col gap-4">
                 <Input
                     size="sm"
                     placeholder="ID"
@@ -107,7 +106,6 @@ export default function ForSaleNav({ activeFilters, onFilterChange }: Props) {
                         </Button>
                     )}
                 />
-            </div>
         </SectionNav>
     );
 }
