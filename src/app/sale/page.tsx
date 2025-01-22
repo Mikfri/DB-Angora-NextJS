@@ -1,7 +1,19 @@
 // src/app/sale/page.tsx
-import Head from 'next/head';
+import { Metadata } from 'next';
 import PageNavigationCard from '@/components/cards/pageNavigationCard';
 import MyNav from '@/components/sectionNav/variants/myNav';
+
+export const metadata: Metadata = {
+  title: 'Til Salg | DenBlå-Angora',
+  description: 'Se hvad vi har til salg hos DenBlå-Angora. Kaniner, uld og mere.',
+  keywords: 'kaniner, uld, til salg, DenBlå-Angora',
+  openGraph: {
+    title: 'Til Salg | DenBlå-Angora',
+    description: 'Se hvad vi har til salg hos DenBlå-Angora. Kaniner, uld og mere.',
+    images: '/images/DB-Angora.png',
+    url: 'https://www.db-angora.dk/sale',
+  },
+};
 
 export default function SalePage() {
   return (
@@ -9,16 +21,6 @@ export default function SalePage() {
       <MyNav />
       <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-6">
         <div className="flex flex-col justify-center items-center gap-6">
-          <Head>
-            <title>Til Salg | DenBlå-Angora</title>
-            <meta name="description" content="Se hvad vi har til salg hos DenBlå-Angora. Kaniner, uld og mere." />
-            <meta name="keywords" content="kaniner, uld, til salg, DenBlå-Angora" />
-            <meta property="og:title" content="Til Salg | DenBlå-Angora" />
-            <meta property="og:description" content="Se hvad vi har til salg hos DenBlå-Angora. Kaniner, uld og mere." />
-            <meta property="og:image" content="/images/DB-Angora.png" />
-            <meta property="og:url" content="https://www.db-angora.dk/sale" />
-            <link rel="canonical" href="https://www.db-angora.dk/sale" />
-          </Head>
           <h1 className="site-title">
             Til salg
           </h1>

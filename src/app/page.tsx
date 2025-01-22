@@ -1,24 +1,26 @@
 // src/app/page.tsx
-import Head from 'next/head';
 import MyNav from '@/components/sectionNav/variants/myNav';
 import PageNavigationCard from '@/components/cards/pageNavigationCard';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'DenBlå-Angora | Forside',
+  description: 'Velkommen til DenBlå-Angora. Find kaniner til salg og læs de seneste nyheder.',
+  keywords: 'kaninregister, kaniner, kaniner til salg, DenBlå-Angora',
+  openGraph: {
+    title: 'DenBlå-Angora | Forside',
+    description: 'Velkommen til DenBlå-Angora. Find kaniner til salg og læs de seneste nyheder.',
+    images: '/images/DB-Angora.png',
+    url: 'https://www.db-angora.dk',
+  },
+};
+
 
 export default function Home() {
   return (
     <>
       <MyNav />
       <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-6">
-        <Head>
-          <title>DenBlå-Angora | Forside</title>
-          <meta name="description" content="Velkommen til DenBlå-Angora. Find kaniner til salg og læs de seneste nyheder." />
-          <meta name="keywords" content="kaninregister, kaniner, kaniner til salg, DenBlå-Angora" />
-          <meta property="og:title" content="DenBlå-Angora | Forside" />
-          <meta property="og:description" content="Velkommen til DenBlå-Angora. Find kaniner til salg og læs de seneste nyheder." />
-          <meta property="og:image" content="/images/DB-Angora.png" />
-          <meta property="og:url" content="https://www.db-angora.dk" />
-          <link rel="canonical" href="https://www.db-angora.dk" />
-        </Head>
-
         <div className="flex flex-col gap-12">
           {/* Welcome Section */}
           <section id="welcome" className="flex flex-col justify-center items-center gap-6 text-zinc-100">

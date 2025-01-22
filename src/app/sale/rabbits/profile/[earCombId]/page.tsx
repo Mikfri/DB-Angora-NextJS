@@ -1,4 +1,4 @@
-// src/app/rabbits/profile/[earCombId]/page.tsx
+// src/app/sale/rabbits/profile/[earCombId]/page.tsx
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { GetRabbitForsaleProfile } from '@/Services/AngoraDbService'
