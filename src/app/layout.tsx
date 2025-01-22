@@ -20,7 +20,14 @@ export const metadata: Metadata = {
   title: "DenBlå-Angora",
   description: "Det nemme kaninregister. Find kaniner til salg eller avl",
   icons: {
-    icon: '/images/DB-Angora.png'
+    icon: [
+      { url: '/images/DB-Angora.png', sizes: '32x32', type: 'image/png' },
+      { url: '/images/DB-Angora.png', sizes: '16x16', type: 'image/png' }
+    ],
+    apple: [
+      { url: '/images/DB-Angora.png', sizes: '180x180', type: 'image/png' }
+    ],
+    shortcut: '/images/DB-Angora.png',
   }
 };
 
