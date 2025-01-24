@@ -59,7 +59,7 @@ export default function AccountPage() {
                         <PageNavigationCard
                             href="/account/transferRequests"
                             imageSrc="/images/sideNavigationCard_OwnershipExchanges.jpg"
-                            title="Ejerskifts anmodninger"
+                            title="Ejerskifts transaktioner"
                             description="Se indkommende og udgående ejeskabsoverdragelser af kaniner (Under udvikling)"
                             isDisabled
                             onDisabledClick={handleComingSoon}
