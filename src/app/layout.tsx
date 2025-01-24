@@ -39,8 +39,8 @@ export const metadata: Metadata = {
     siteName: 'DenBlå-Angora',
     images: [{
       url: '/images/DB-Angora.png',
-      width: 540,
-      height: 680,
+      width: 700,
+      height: 700,
       alt: 'DenBlå-Angora Logo'
     }]
   },
@@ -48,8 +48,8 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     images: [{
       url: '/images/DB-Angora.png',
-      width: 540,
-      height: 680,
+      width: 700,
+      height: 700,
       alt: 'DenBlå-Angora Logo'
     }]
   }
