@@ -1,4 +1,4 @@
-// src/account/userProfile.tsx
+// src/app/account/profile/userProfile.tsx
 'use client';
 import { User_ProfileDTO } from "@/Types/backendTypes";
 import { useUserProfile } from "@/hooks/users/useUserProfile";
@@ -12,10 +12,10 @@ export default function UserProfile({ userProfile }: Props) {
     const { isEditing, isSaving, editedData, setEditedData, setIsEditing, handleSave } = useUserProfile(userProfile);
 
     const propertyLabels: Record<keyof User_ProfileDTO, string> = {
-        breederRegNo: "BreederRegNo",
+        breederRegNo: "Avlernummer",
         firstName: "Fornavn",
         lastName: "Efternavn",
-        publicProfile: "Public profil",
+        publicProfile: "Public profil (endnu ikke funktionel)",
         roadNameAndNo: "Adresse",
         city: "By",
         zipCode: "Postnummer",
@@ -24,19 +24,27 @@ export default function UserProfile({ userProfile }: Props) {
     };
 
     const renderCell = (key: keyof User_ProfileDTO, value: unknown) => {
+        // Non-editable fields always show as plain text
+        if (key === "breederRegNo" || key === "firstName" || key === "lastName") {
+            return value?.toString() || "Ikke angivet";
+        }
+
+        // For editable fields, check if we're in edit mode
         if (!isEditing) {
             return value?.toString() || "Ikke angivet";
         }
 
-        if (key === "breederRegNo" || key === "firstName" || 
-            key === "lastName" || key === "roadNameAndNo" || 
-            key === "city" || key === "email" || 
-            key === "phone") {
+        // Handle different input types for editable fields
+        if (key === "roadNameAndNo" || key === "city" || key === "email" || key === "phone") {
             return (
                 <Input
+                    size="sm"
                     value={editedData[key] || ""}
                     onChange={(e) => setEditedData({ ...editedData, [key]: e.target.value })}
                     aria-label={propertyLabels[key]}
+                    classNames={{
+                        input: "bg-zinc-800/50 text-zinc-100",
+                    }}
                 />
             );
         }
@@ -44,6 +52,7 @@ export default function UserProfile({ userProfile }: Props) {
         if (key === "publicProfile") {
             return (
                 <Switch
+                    size="sm"
                     isSelected={editedData[key] === "Ja"}
                     onValueChange={(checked) => setEditedData({
                         ...editedData,
@@ -59,10 +68,17 @@ export default function UserProfile({ userProfile }: Props) {
         if (key === "zipCode") {
             return (
                 <Input
-                type="number"
+                    size="sm"
+                    type="number"
                     value={editedData[key] !== null ? editedData[key]?.toString() : ""}
-                    onChange={(e) => setEditedData({ ...editedData, [key]: e.target.value === "" ? null : parseInt(e.target.value, 10), })}
+                    onChange={(e) => setEditedData({ 
+                        ...editedData, 
+                        [key]: e.target.value === "" ? null : parseInt(e.target.value, 10)
+                    })}
                     aria-label={propertyLabels[key]}
+                    classNames={{
+                        input: "bg-zinc-800/50 text-zinc-100",
+                    }}
                 />
             );
         }
@@ -71,25 +87,11 @@ export default function UserProfile({ userProfile }: Props) {
     };
 
     return (
-        <div className="w-full max-w-5xl mx-auto p-4">
-            <div className="content-card mb-4">
-                <div className="flex justify-between items-center">
-                    <h1 className="text-2xl font-bold text-zinc-100">
-                        {userProfile.firstName || userProfile.lastName}
-                    </h1>
-                    {!isEditing ? (
-                        <Button onPress={() => setIsEditing(true)}>Rediger</Button>
-                    ) : (
-                        <div className="space-x-2">
-                            <Button color="success" onPress={handleSave} isLoading={isSaving} disabled={isSaving}>
-                                {isSaving ? "Gemmer..." : "Gem"}
-                            </Button>
-                            <Button color="danger" onPress={() => setIsEditing(false)} disabled={isSaving}>
-                                Annuller
-                            </Button>
-                        </div>
-                    )}
-                </div>
+        <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-6">
+            <div className="mb-4">
+                <h1 className="text-2xl font-bold text-zinc-100">
+                    {userProfile.firstName} {userProfile.lastName}
+                </h1>
             </div>
 
             <Table
@@ -104,8 +106,24 @@ export default function UserProfile({ userProfile }: Props) {
                 }}
             >
                 <TableHeader>
-                    <TableColumn>FELT</TableColumn>
-                    <TableColumn>VÆRDI</TableColumn>
+                    <TableColumn className="w-1/3">FELT</TableColumn>
+                    <TableColumn className="w-2/3">
+                        <div className="flex justify-between items-center">
+                            <span>VÆRDI</span>
+                            {!isEditing ? (
+                                <Button size="sm" onPress={() => setIsEditing(true)}>Rediger</Button>
+                            ) : (
+                                <div className="space-x-2">
+                                    <Button size="sm" color="success" onPress={handleSave} isLoading={isSaving}>
+                                        {isSaving ? 'Gemmer...' : 'Gem'}
+                                    </Button>
+                                    <Button size="sm" color="danger" onPress={() => setIsEditing(false)}>
+                                        Annuller
+                                    </Button>
+                                </div>
+                            )}
+                        </div>
+                    </TableColumn>
                 </TableHeader>
                 <TableBody>
                     {Object.entries(propertyLabels).map(([key, label]) => (

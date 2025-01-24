@@ -1,7 +1,8 @@
-// src/account/profile.tsx
+// src/app/account/profile/page.tsx
 import { GetUserProfile } from "@/Services/AngoraDbService";
 import { cookies } from "next/headers";
 import UserProfile from "./userProfile";
+import MyNav from '@/components/sectionNav/variants/myNav';
 
 export default async function UserProfilePage(){
     const cookieStore = await cookies();
@@ -9,5 +10,10 @@ export default async function UserProfilePage(){
     const userProfileId = cookieStore.get("userProfileId");
     const userProfile = await GetUserProfile(String(accessToken?.value), String(userProfileId?.value));
 
-    return <UserProfile userProfile={userProfile} />;
+    return (
+        <>
+            <MyNav />
+            <UserProfile userProfile={userProfile} />
+        </>
+    );
 }

@@ -21,46 +21,50 @@ export const metadata: Metadata = {
     default: "DenBlå-Angora",
     template: "%s | DenBlå-Angora"
   },
-  description: "Det nemme kaninregister. Sælg dit garn, uld, skind eller kanin og find parringsparate kaniner over hele landet. Registrer klip, vægt og andre informationer på dine kaniner",
-  metadataBase: new URL('https://www.db-angora.dk'),
+  description: "Det nemme kaninregister. Sælg dit garn, uld, skind eller kanin. Find andre avleres parringsparate kaniner over hele landet. Registrer klip, vægt og andre informationer på dine kaniner",
+  metadataBase: new URL('https://db-angora.vercel.app'),
   icons: {
     icon: [
       { url: '/favicon.ico', sizes: 'any' },
-      { url: '/images/DB-Angora.png', sizes: '32x32', type: 'image/png' },
-      { url: '/images/DB-Angora.png', sizes: '16x16', type: 'image/png' }
+      { url: '/images/DB-Angora.png', sizes: '32x32', type: 'image/png' }
     ],
     apple: [
       { url: '/images/DB-Angora.png', sizes: '180x180', type: 'image/png' }
-    ],
-    shortcut: '/images/DB-Angora.png',
+    ]
   },
   openGraph: {
     type: 'website',
     locale: 'da_DK',
-    url: 'https://www.db-angora.dk',
+    url: 'https://db-angora.vercel.app',
     siteName: 'DenBlå-Angora',
     images: [{
       url: '/images/DB-Angora.png',
-      width: 1200,
-      height: 630,
-    }],
+      width: 540,
+      height: 680,
+      alt: 'DenBlå-Angora Logo'
+    }]
   },
   twitter: {
     card: 'summary_large_image',
-    images: ['/images/DB-Angora.png'],
+    images: [{
+      url: '/images/DB-Angora.png',
+      width: 540,
+      height: 680,
+      alt: 'DenBlå-Angora Logo'
+    }]
   }
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  return (
-    <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <LayoutWrapper>{children}</LayoutWrapper>
-      </body>
-    </html>
-  );
+  export default function RootLayout({
+    children,
+  }: Readonly<{
+    children: React.ReactNode;
+  }>) {
+    return (
+      <html lang="en">
+        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+          <LayoutWrapper>{children}</LayoutWrapper>
+        </body>
+      </html>
+    );
 }
