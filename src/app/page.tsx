@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   keywords: 'kaninregister, kaniner, kaniner til salg, DenBlå-Angora',
   openGraph: {
     title: 'DenBlå-Angora | Forside',
-    description: "Det nemme kaninregister...",
+    description: "Det nemme kaninregister. Sælg dit garn, uld, skind eller kanin. Find andre avleres parringsparate kaniner over hele landet. Registrer, klip, vægt og andre informationer på dine kaniner",
     images: [{
       url: '/images/DB-Angora.png',
       width: 540,
