@@ -10,8 +10,13 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Kaniner til salg | DenBlå-Angora',
     description: 'Find kaniner til salg hos DenBlå-Angora. Se vores udvalg af kaniner til avl og kæledyr.',
-    // images: '/images/kaniner-til-salg.jpg',
-    url: 'https://www.db-angora.dk/sale/rabbits',
+    images: [{
+      url: 'https://db-angora.vercel.app/images/DB-Angora.png',
+      width: 700,
+      height: 700,
+      alt: 'DenBlå-Angora Logo'
+    }],
+    url: 'https://db-angora.vercel.app/sale/rabbits',
   },
 };
 

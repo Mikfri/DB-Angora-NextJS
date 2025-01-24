@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     default: "DenBlå-Angora",
     template: "%s | DenBlå-Angora"
   },
-  description: "Det nemme kaninregister. Sælg dit garn, uld, skind eller kanin. Find andre avleres parringsparate kaniner over hele landet. Registrer klip, vægt og andre informationer på dine kaniner",
+  description: "Det nemme kaninregister. Sælg garn, uld, skind og andet, relateret til din kanin produktion. Find andre avleres parringsparate kaniner. Registrer bl.a. klip, vægt og andre informationer på dine kaniner",
   metadataBase: new URL('https://db-angora.vercel.app'),
   icons: {
     icon: [

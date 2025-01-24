@@ -5,15 +5,15 @@ import { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'DenBlå-Angora | Forside',
-  description: "Det nemme kaninregister. Sælg dit garn, uld, skind eller kanin. Find andre avleres parringsparate kaniner over hele landet. Registrer, klip, vægt og andre informationer på dine kaniner",
+  description: "Det nemme kaninregister. Sælg garn, uld, skind og andet, relateret til din kanin produktion. Find andre avleres parringsparate kaniner. Registrer bl.a. klip, vægt og andre informationer på dine kaniner",
   keywords: 'kaninregister, kaniner, kaniner til salg, DenBlå-Angora',
   openGraph: {
     title: 'DenBlå-Angora | Forside',
-    description: "Det nemme kaninregister. Sælg dit garn, uld, skind eller kanin. Find andre avleres parringsparate kaniner over hele landet. Registrer, klip, vægt og andre informationer på dine kaniner",
+    description: "Det nemme kaninregister. Sælg garn, uld, skind og andet, relateret til din kanin produktion. Find andre avleres parringsparate kaniner. Registrer bl.a. klip, vægt og andre informationer på dine kaniner",
     images: [{
       url: '/images/DB-Angora.png',
-      width: 540,
-      height: 680,
+      width: 700,
+      height: 700,
       alt: 'DenBlå-Angora Logo'
     }]
   }
