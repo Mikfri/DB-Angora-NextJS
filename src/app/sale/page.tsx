@@ -4,11 +4,11 @@ import PageNavigationCard from '@/components/cards/pageNavigationCard';
 import MyNav from '@/components/sectionNav/variants/myNav';
 
 export const metadata: Metadata = {
-  title: 'Til Salg | DenBlå-Angora',
+  title: 'Til Salg',
   description: 'Se hvad vi har til salg hos DenBlå-Angora. Kaniner, uld og mere.',
   keywords: 'kaniner, uld, til salg, DenBlå-Angora',
   openGraph: {
-    title: 'Til Salg | DenBlå-Angora',
+    title: 'Til Salg',
     description: 'Se hvad vi har til salg hos DenBlå-Angora. Kaniner, uld og mere.',
     images: '/images/DB-Angora.png',
     url: 'https://www.db-angora.dk/sale',

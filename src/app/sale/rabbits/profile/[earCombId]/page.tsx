@@ -14,7 +14,7 @@ export async function generateMetadata( props: PageProps): Promise<Metadata> {
     try {
         const rabbit = await GetRabbitForsaleProfile(earCombId);
         return {
-            title: `${rabbit.race} | Til Salg`,
+            title: `${rabbit.race}, ${rabbit.gender} | Til Salg`,
             description: `${rabbit.race} kanin, af farven ${rabbit.color} til salg. Født: ${rabbit.dateOfBirth}`,
             openGraph: {
                 title: `${rabbit.race} ${rabbit.color} - ${rabbit.nickName || 'Unavngivet'} | Til Salg`,

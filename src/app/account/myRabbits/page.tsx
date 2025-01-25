@@ -18,3 +18,4 @@ export default async function RabbitsPage() {
 
     return <RabbitOwnList rabbits={ownRabbits} />;
 }
+

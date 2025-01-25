@@ -1,14 +1,14 @@
 // src/app/sale/rabbits/page.tsx
 import { Metadata } from 'next';
-import { Suspense } from 'react';
+import { Suspense } from 'react';   // client-side data fetching (pre-rendering)
 import RabbitsForSale from './rabbitSaleList';
 
 export const metadata: Metadata = {
-  title: 'Kaniner til salg | DenBlå-Angora',
+  title: 'Kaniner til salg',
   description: 'Find kaniner til salg hos DenBlå-Angora. Se vores udvalg af kaniner til avl og kæledyr.',
   keywords: 'kaniner, til salg, avl, DenBlå-Angora, kaninregister',
   openGraph: {
-    title: 'Kaniner til salg | DenBlå-Angora',
+    title: 'Kaniner til salg',
     description: 'Find kaniner til salg hos DenBlå-Angora. Se vores udvalg af kaniner til avl og kæledyr.',
     images: [{
       url: 'https://db-angora.vercel.app/images/DB-Angora.png',

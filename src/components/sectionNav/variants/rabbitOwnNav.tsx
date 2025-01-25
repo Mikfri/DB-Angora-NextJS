@@ -1,3 +1,4 @@
+// src/components/sectionNav/variants/rabbitOwnNav.tsx
 'use client';
 import { Input, Switch } from "@nextui-org/react";
 import SectionNav from '../base/baseSideNav';

@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import LoginModal from '../modals/loginModal';
 import { navigationLinks, filterLink } from '@/components/sectionNav/base/baseSideNav';
+import { MdOutlineLogout } from 'react-icons/md';
 
 export default function TopNav() {
     const pathname = usePathname();
@@ -54,9 +55,18 @@ export default function TopNav() {
                                     closeDelay={0}
                                 >
                                     <NavbarItem>
-                                        <span className="cursor-not-allowed text-zinc-300/50 nav-text">Katalog</span>
+                                        <span className="cursor-not-allowed text-zinc-300/50 nav-text">Opdrætter & race katalog</span>
                                     </NavbarItem>
                                 </Tooltip>
+                                {/* <Tooltip
+                                    content={<span className="nav-tooltip">Under udvikling</span>}
+                                    placement="bottom"
+                                    closeDelay={0}
+                                >
+                                    <NavbarItem>
+                                        <span className="cursor-not-allowed text-zinc-300/50 nav-text">Pleje & pasning</span>
+                                    </NavbarItem>
+                                </Tooltip> */}
                             </div>
                         </div>
 
@@ -76,7 +86,12 @@ export default function TopNav() {
                                         <DropdownItem key="profile">
                                             <NextLink href="/account/profile" className="w-full block nav-text">Bruger profil</NextLink>
                                         </DropdownItem>
-                                        <DropdownItem key="logout" className="text-danger nav-text" onPress={logout}>Log ud</DropdownItem>
+                                        <DropdownItem key="logout" className="text-danger nav-text" onPress={logout}>
+                                            <div className="flex items-center gap-2">
+                                                <MdOutlineLogout size={20} />
+                                                Log ud
+                                            </div>
+                                        </DropdownItem>
                                     </DropdownMenu>
                                 </Dropdown>
                             ) : (
