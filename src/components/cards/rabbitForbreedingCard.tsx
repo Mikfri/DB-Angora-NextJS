@@ -12,7 +12,7 @@ interface Props {
 }
 
 const formatDate = (dateString: string | null) => {
-    if (!dateString) return 'Ukendt dato';
+    if (!dateString) return 'Ikke angivet';
     return new Intl.DateTimeFormat('da-DK', {
         day: '2-digit',
         month: '2-digit',
