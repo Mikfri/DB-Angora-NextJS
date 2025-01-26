@@ -1,6 +1,6 @@
 // src/app/sale/rabbits/page.tsx
 import { Metadata } from 'next';
-import { Suspense } from 'react';   // client-side data fetching (pre-rendering)
+import { Suspense } from 'react';   // client-side data fetching (pre-rendering) (SSG)
 import RabbitsForSale from './rabbitSaleList';
 
 export const metadata: Metadata = {
