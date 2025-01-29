@@ -1,13 +1,20 @@
 // src/app/sale/rabbits/rabbitSaleProfile.tsx
 'use client'
 import { useRouter } from 'next/navigation';
-import { useFilteredRabbits } from '@/hooks/rabbits/useRabbitForsaleFilter';
 import ForSaleNav from '@/components/sectionNav/variants/rabbitSaleNav';
 import RabbitForsaleCard from '@/components/cards/rabbitForsaleCard';
+import { Rabbits_ForsalePreviewList } from '@/Types/backendTypes';
+import { ForSaleFilters } from '@/Types/filterTypes';
+import { useFilteredRabbits } from '@/hooks/rabbits/useRabbitForsaleFilter';
 
-export default function RabbitsForSalePage() {
+interface Props {
+    initialData: Rabbits_ForsalePreviewList;
+    initialFilters: ForSaleFilters;
+}
+
+export default function RabbitsForSale({ initialData, initialFilters }: Props) {
     const router = useRouter();
-    const { rabbits, filters, isLoading, updateFilters } = useFilteredRabbits();
+    const { rabbits, filters, updateFilters, isLoading } = useFilteredRabbits(initialData, initialFilters);
 
     const handleCardClick = (earCombId: string) => {
         router.push(`/sale/rabbits/profile/${earCombId}`);

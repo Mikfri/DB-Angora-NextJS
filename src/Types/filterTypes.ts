@@ -1,10 +1,10 @@
 // src/types/filterTypes.ts
 export interface ForSaleFilters {
-    RightEarId?: string;
-    BornAfter?: string; 
-    MinZipCode?: number;
-    MaxZipCode?: number;
-    Race?: string;
-    Color?: string;
-    Gender?: string;
+    RightEarId: string | null;
+    BornAfter: string | null;
+    MinZipCode: number | null;
+    MaxZipCode: number | null;
+    Race: string | null;
+    Color: string | null;
+    Gender: string | null;
 }

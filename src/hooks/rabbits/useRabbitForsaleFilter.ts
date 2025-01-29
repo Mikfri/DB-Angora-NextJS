@@ -1,27 +1,17 @@
 // src/hooks/rabbits/useRabbitForsaleFilters.ts
 import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { ForSaleFilters } from '@/Types/filterTypes';
 import { GetRabbitsForSale } from '@/Services/AngoraDbService';
 import { Rabbits_ForsalePreviewList } from '@/Types/backendTypes';
 
-export function useFilteredRabbits() {
+export function useFilteredRabbits(initialData: Rabbits_ForsalePreviewList, initialFilters: ForSaleFilters) {
     const router = useRouter();
-    const searchParams = useSearchParams();
-    const [rabbits, setRabbits] = useState<Rabbits_ForsalePreviewList>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const [rabbits, setRabbits] = useState<Rabbits_ForsalePreviewList>(initialData);
+    const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<Error | null>(null);
+    const [filters, setFilters] = useState<ForSaleFilters>(initialFilters);
 
-    // Parse URL params to filters
-    const [filters, setFilters] = useState<ForSaleFilters>({
-        RightEarId: searchParams.get('RightEarId') || undefined,
-        BornAfter: searchParams.get('BornAfter') || undefined,
-        MinZipCode: searchParams.get('MinZipCode') ? parseInt(searchParams.get('MinZipCode')!) : undefined,
-        MaxZipCode: searchParams.get('MaxZipCode') ? parseInt(searchParams.get('MaxZipCode')!) : undefined,
-        Race: searchParams.get('Race') || undefined,
-        Color: searchParams.get('Color') || undefined,
-        Gender: searchParams.get('Gender') || undefined,
-    });
 
     // Fetch data when filters change
     useEffect(() => {
@@ -32,7 +22,7 @@ export function useFilteredRabbits() {
                 setRabbits(data);
                 setError(null);
             } catch (err) {
-                setError(err as Error);
+                setError(err instanceof Error ? err : new Error('Unknown error'));
             }
             setIsLoading(false);
         };
