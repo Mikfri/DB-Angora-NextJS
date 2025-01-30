@@ -59,21 +59,24 @@ export default function RabbitProfile({ rabbitProfile }: Props) {
     const renderParentCell = (key: 'fatherId_Placeholder' | 'motherId_Placeholder', value: string | null) => {
         const actualId = key === 'fatherId_Placeholder' ? rabbitProfile.father_EarCombId : rabbitProfile.mother_EarCombId;
         const isValid = isParentValid(value, actualId);
-
+    
         return (
             <div className="flex items-center gap-2">
                 {value && (
-                    isValid ? (
-                        <PiRabbitFill
-                            className="w-5 h-5 text-green-500"
-                            title="Forælder findes i systemet"
-                        />
-                    ) : (
-                        <PiRabbit
-                            className="w-5 h-5 text-zinc-400"
-                            title="Forælder findes ikke i systemet"
-                        />
-                    )
+                    <>
+                        {isValid ? (
+                            <PiRabbitFill
+                                className="w-5 h-5 text-green-500"
+                                title="Forælder findes i systemet"
+                            />
+                        ) : (
+                            <PiRabbit
+                                className="w-5 h-5 text-zinc-400"
+                                title="Forælder findes ikke i systemet"
+                            />
+                        )}
+                        <span>{value}</span> {/* Display the parent ID */}
+                    </>
                 )}
             </div>
         );
