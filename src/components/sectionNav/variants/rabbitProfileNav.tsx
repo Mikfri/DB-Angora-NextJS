@@ -1,3 +1,5 @@
+// src/components/sectionNav/variants/rabbitProfileNav.tsx
+
 'use client';
 
 import { useState } from 'react';
@@ -48,7 +50,7 @@ export default function RabbitProfileNav({
         <>
             <SectionNav
                 title={`Profil: ${rabbitName}`}
-                actions={[
+                footerActions={[
                     {
                         label: (
                             <>
@@ -71,9 +73,10 @@ export default function RabbitProfileNav({
                     }
                 ]}
             >
-                {/* Profilinformationerne øverst */}
-                <div className="flex flex-col items-center mb-6">
-                    <div className="relative w-24 h-24 mb-4">
+                {/* Profilinformationerne */}
+                <div className="flex flex-col items-center space-y-4 p-2 text-white">
+                    {/* Profile Image */}
+                    <div className="relative w-24 h-24">
                         <Image
                             src={displayedImage}
                             alt={`${rabbitName} Profile Picture`}
@@ -83,36 +86,35 @@ export default function RabbitProfileNav({
                             onError={() => setImageError(true)}
                         />
                     </div>
-                    <div className="w-full">
-                        <table className="w-full text-left">
-                            <tbody>
-                                <tr>
-                                    <th className="px-2 py-1 font-semibold">Øremærke ID:</th>
-                                    <td className="px-2 py-1">{earCombId}</td>
-                                </tr>
-                                <tr>
-                                    <th className="px-2 py-1 font-semibold">Opdrætter:</th>
-                                    <td className="px-2 py-1">{originBreeder || 'Ikke angivet'}</td>
-                                </tr>
-                                <tr>
-                                    <th className="px-2 py-1 font-semibold">Ejer:</th>
-                                    <td className="px-2 py-1">{owner || 'Ikke angivet'}</td>
-                                </tr>
-                                <tr>
-                                    <th className="px-2 py-1 font-semibold">Godkendt race/farve kombination:</th>
-                                    <td className="px-2 py-1">{approvedRaceColor ? 'Ja' : 'Nej'}</td>
-                                </tr>
-                                <tr>
-                                    <th className="px-2 py-1 font-semibold">Ungdyr:</th>
-                                    <td className="px-2 py-1">{isJuvenile ? 'Ja' : 'Nej'}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                    {/* Profile Information Table */}
+                    <table className="w-full text-left">
+                        <tbody>
+                            <tr>
+                                <th className="px-2 py-1 font-semibold">Øremærke ID:</th>
+                                <td className="px-2 py-1">{earCombId}</td>
+                            </tr>
+                            <tr>
+                                <th className="px-2 py-1 font-semibold">Opdrætter:</th>
+                                <td className="px-2 py-1">{originBreeder || 'Ikke fundet i systemet'}</td>
+                            </tr>
+                            <tr>
+                                <th className="px-2 py-1 font-semibold">Ejer:</th>
+                                <td className="px-2 py-1">{owner || 'Ikke fundet i systemet'}</td>
+                            </tr>
+                            <tr>
+                                <th className="px-2 py-1 font-semibold"> Race/farve komb godkendt:</th>
+                                <td className="px-2 py-1">{approvedRaceColor ? 'Ja' : 'Nej'}</td>
+                            </tr>
+                            <tr>
+                                <th className="px-2 py-1 font-semibold">Ungdyr:</th>
+                                <td className="px-2 py-1">{isJuvenile ? 'Ja' : 'Nej'}</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </SectionNav>
 
-            {/* Modal for sletning af kanin */}
+            {/* Modal for deletion confirmation */}
             <DeleteRabbitModal
                 isOpen={showDeleteModal}
                 onClose={() => setShowDeleteModal(false)}

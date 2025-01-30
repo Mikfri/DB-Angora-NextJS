@@ -1,5 +1,7 @@
 // src/components/sectionNav/base/baseSideNav.tsx
+
 'use client';
+
 import { Button } from "@nextui-org/react";
 
 export type NavLink = {
@@ -80,11 +82,12 @@ interface NavAction {
 
 interface SectionNavProps {
     title: string;
-    actions?: NavAction[];
+    headerActions?: NavAction[];
+    footerActions?: NavAction[];
     children?: React.ReactNode;
 }
 
-export default function SectionNav({ title, actions = [], children }: SectionNavProps) {
+export default function SectionNav({ title, headerActions = [], footerActions = [], children }: SectionNavProps) {
     return (
         <nav
             className="
@@ -93,13 +96,17 @@ export default function SectionNav({ title, actions = [], children }: SectionNav
                 bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150
                 p-4 rounded-xl border border-zinc-700/50 shadow-lg
                 h-fit
+                overflow-y-auto
             "
         >
-            <div className="flex flex-col gap-4">
-                <div className="flex flex-col gap-2">
-                    <h2 className="text-2xl font-bold">{title}</h2>
+            <div className="flex flex-col gap-6">
+                {/* Title */}
+                <h2 className="text-2xl font-bold text-white">{title}</h2>
+
+                {/* Header Actions */}
+                {headerActions.length > 0 && (
                     <div className="flex flex-col gap-2">
-                        {actions?.map((action, index) => (
+                        {headerActions.map((action, index) => (
                             <Button
                                 key={index}
                                 color={action.color || "primary"}
@@ -111,10 +118,29 @@ export default function SectionNav({ title, actions = [], children }: SectionNav
                             </Button>
                         ))}
                     </div>
-                </div>
+                )}
+
+                {/* Children (Profile Content) */}
                 <div className="flex flex-col gap-4">
                     {children}
                 </div>
+
+                {/* Footer Actions */}
+                {footerActions.length > 0 && (
+                    <div className="flex flex-col gap-2">
+                        {footerActions.map((action, index) => (
+                            <Button
+                                key={index}
+                                color={action.color || "primary"}
+                                onPress={action.onClick}
+                                className={`w-full ${action.className || ''}`}
+                                disabled={action.disabled}
+                            >
+                                {action.label}
+                            </Button>
+                        ))}
+                    </div>
+                )}
             </div>
         </nav>
     );

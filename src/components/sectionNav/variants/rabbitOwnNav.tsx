@@ -1,4 +1,5 @@
 // src/components/sectionNav/variants/rabbitOwnNav.tsx
+
 'use client';
 import { Input, Switch } from "@nextui-org/react";
 import SectionNav from '../base/baseSideNav';
@@ -19,7 +20,7 @@ export default function OwnNav({ activeFilters, onFilterChange }: Props) {
     return (
         <SectionNav
             title="Mine Kaniner"
-            actions={[
+            headerActions={[
                 {
                     label: (
                         <>
