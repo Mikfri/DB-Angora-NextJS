@@ -58,7 +58,7 @@ export default function TopNav() {
                                         <span className="cursor-not-allowed text-zinc-300/50 nav-text">Opdrætter & race katalog</span>
                                     </NavbarItem>
                                 </Tooltip>
-                                {/* <Tooltip
+                                <Tooltip
                                     content={<span className="nav-tooltip">Under udvikling</span>}
                                     placement="bottom"
                                     closeDelay={0}
@@ -66,7 +66,7 @@ export default function TopNav() {
                                     <NavbarItem>
                                         <span className="cursor-not-allowed text-zinc-300/50 nav-text">Pleje & pasning</span>
                                     </NavbarItem>
-                                </Tooltip> */}
+                                </Tooltip>
                             </div>
                         </div>
 
@@ -75,7 +75,10 @@ export default function TopNav() {
                                 <Dropdown placement="bottom-end">
                                     <DropdownTrigger>
                                         <div className="flex items-center gap-5 cursor-pointer">
-                                            <span className="text-slate-300 nav-text">{userName}</span>
+                                            <div className="flex flex-col items-end">
+                                                <span className="text-slate-300 nav-text">{userName}</span>
+                                                <span className="text-xs text-warning-300">{userRole}</span>
+                                            </div>
                                             <PiUserCircleCheckFill size={32} className="text-primary hover:text-primary-400" />
                                         </div>
                                     </DropdownTrigger>

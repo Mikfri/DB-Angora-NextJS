@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import BreedingNav from '@/components/sectionNav/variants/rabbitBreedingNav';
 import RabbitForbreedingCard from '@/components/cards/rabbitForbreedingCard';
 import { useBreedingRabbits } from '@/hooks/rabbits/useRabbitBreedingFilter';
-import { Rabbit_ForbreedingPreviewDTO } from '@/Types/backendTypes';
+import { Rabbit_ForbreedingPreviewDTO } from '@/Types/AngoraDTOs';
 
 type Props = {
     rabbits: Rabbit_ForbreedingPreviewDTO[];

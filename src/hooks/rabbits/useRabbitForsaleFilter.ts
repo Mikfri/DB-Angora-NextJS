@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ForSaleFilters } from '@/Types/filterTypes';
 import { GetRabbitsForSale } from '@/Services/AngoraDbService';
-import { Rabbits_ForsalePreviewList } from '@/Types/backendTypes';
+import { Rabbits_ForsalePreviewList } from '@/Types/AngoraDTOs';
 
 export function useFilteredRabbits(initialData: Rabbits_ForsalePreviewList, initialFilters: ForSaleFilters) {
     const router = useRouter();

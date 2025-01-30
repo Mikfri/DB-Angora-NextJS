@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import ForSaleNav from '@/components/sectionNav/variants/rabbitSaleNav';
 import RabbitForsaleCard from '@/components/cards/rabbitForsaleCard';
-import { Rabbits_ForsalePreviewList } from '@/Types/backendTypes';
+import { Rabbits_ForsalePreviewList } from '@/Types/AngoraDTOs';
 import { ForSaleFilters } from '@/Types/filterTypes';
 import { useFilteredRabbits } from '@/hooks/rabbits/useRabbitForsaleFilter';
 

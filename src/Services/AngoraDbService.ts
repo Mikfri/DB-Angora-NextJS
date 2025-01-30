@@ -1,5 +1,5 @@
 // src/services/AngoraDbService.ts
-import { Rabbit_UpdateDTO, Rabbit_ProfileDTO, Rabbits_ForsalePreviewList, Rabbit_CreateDTO, LoginResponse, Rabbits_PreviewList, Rabbit_PreviewDTO, Rabbit_ForsaleProfileDTO, User_ProfileDTO, Rabbits_ForbreedingPreviewList } from "@/Types/backendTypes";
+import { Rabbit_UpdateDTO, Rabbit_ProfileDTO, Rabbits_ForsalePreviewList, Rabbit_CreateDTO, LoginResponse, Rabbits_PreviewList, Rabbit_PreviewDTO, Rabbit_ForsaleProfileDTO, User_ProfileDTO, Rabbits_ForbreedingPreviewList } from "@/Types/AngoraDTOs";
 import { ForSaleFilters } from "@/Types/filterTypes";
 import { getApiUrl } from '@/config/apiConfig';
 

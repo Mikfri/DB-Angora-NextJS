@@ -1,6 +1,6 @@
 // src/app/account/myRabbits/rabbitOwnList.tsx
 'use client';
-import { Rabbit_PreviewDTO } from '@/Types/backendTypes';
+import { Rabbit_PreviewDTO } from '@/Types/AngoraDTOs';
 import { useRouter } from 'next/navigation';
 import OwnNav from '@/components/sectionNav/variants/rabbitOwnNav';
 import { useOwnRabbits } from '@/hooks/rabbits/useRabbitOwnFilter';

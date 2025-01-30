@@ -1,7 +1,7 @@
 // src/components/cards/rabbitForbreedingCard.tsx
 'use client';
 
-import { Rabbit_ForbreedingPreviewDTO } from '@/Types/backendTypes';
+import { Rabbit_ForbreedingPreviewDTO } from '@/Types/AngoraDTOs';
 import { Card, CardHeader, CardBody } from '@nextui-org/react';
 import Image from 'next/image';
 import { useState } from 'react';

@@ -1,6 +1,6 @@
-// src/app/account/myRabbis/rabbitProfile/rabbitProfile.tsx
-"use client"
-import { Rabbit_ProfileDTO } from "@/Types/backendTypes";
+// src/app/account/myRabbits/rabbitProfile/[earCombId]/rabbitProfile.tsx
+'use client'
+import { Rabbit_ProfileDTO } from "@/Types/AngoraDTOs";
 import {
     Tabs, Tab, Table, TableHeader, TableColumn,
     TableBody, TableRow, TableCell, Button,
@@ -11,7 +11,6 @@ import { useRabbitProfile } from '@/hooks/rabbits/useRabbitProfile';
 import { toast } from "react-toastify";
 import RabbitProfileNav from "@/components/sectionNav/variants/rabbitProfileNav";
 import { PiRabbitFill, PiRabbit } from "react-icons/pi";
-
 
 type Props = {
     rabbitProfile: Rabbit_ProfileDTO;
@@ -53,6 +52,8 @@ export default function RabbitProfile({ rabbitProfile }: Props) {
         forBreeding: "Til avl",
         fatherId_Placeholder: "Far øremærke",
         motherId_Placeholder: "Mor øremærke",
+        profilePicture: "Profilbillede" // Tilføjet denne linje
+
     };
 
     const renderParentCell = (key: 'fatherId_Placeholder' | 'motherId_Placeholder', value: string | null) => {
@@ -61,7 +62,6 @@ export default function RabbitProfile({ rabbitProfile }: Props) {
 
         return (
             <div className="flex items-center gap-2">
-                <span>{value || 'Ikke angivet'}</span>
                 {value && (
                     isValid ? (
                         <PiRabbitFill
@@ -90,6 +90,25 @@ export default function RabbitProfile({ rabbitProfile }: Props) {
             if (key === 'originFullName') {
                 return value ? value.toString() : 'Ikke fundet i systemet';
             }
+            // if (key === 'profilePicture') { // Tilføj denne blok
+            //     return profilePicture ? (
+            //         <Image
+            //             src={profilePicture}
+            //             alt="Profilbillede"
+            //             width={50}
+            //             height={50}
+            //             className="rounded-full"
+            //         />
+            //     ) : (
+            //         <Image
+            //             src="/images/default-rabbit.jpg"
+            //             alt="Default Profilbillede"
+            //             width={50}
+            //             height={50}
+            //             className="rounded-full"
+            //         />
+            //     );
+            // }
             if (typeof value === 'boolean') {
                 return value ? 'Ja' : 'Nej';
             }
@@ -171,7 +190,7 @@ export default function RabbitProfile({ rabbitProfile }: Props) {
                     aria-label={propertyLabels[key]}
                 />
             );
-        }
+        }        
         return value?.toString() || 'Ikke angivet';
     };
 
@@ -179,6 +198,12 @@ export default function RabbitProfile({ rabbitProfile }: Props) {
         <>
             <RabbitProfileNav
                 rabbitName={rabbitProfile.nickName || rabbitProfile.earCombId}
+                earCombId={rabbitProfile.earCombId}
+                originBreeder={rabbitProfile.originFullName}
+                owner={rabbitProfile.ownerFullName}
+                approvedRaceColor={rabbitProfile.approvedRaceColorCombination}
+                isJuvenile={rabbitProfile.isJuvenile}
+                profilePicture={rabbitProfile.profilePicture}
                 onDelete={handleDelete}
                 onChangeOwner={handleChangeOwner}
                 isDeleting={isDeleting}
@@ -281,7 +306,7 @@ export default function RabbitProfile({ rabbitProfile }: Props) {
                         </Table>
                     </Tab>
                 </Tabs>
-            </div >
+            </div>
         </>
     );
 }

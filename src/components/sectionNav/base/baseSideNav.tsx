@@ -1,8 +1,6 @@
 // src/components/sectionNav/base/baseSideNav.tsx
 'use client';
-
 import { Button } from "@nextui-org/react";
-import { ReactNode } from "react";
 
 export type NavLink = {
     href: string;
@@ -17,7 +15,6 @@ export type NavGroup = {
     links: NavLink[];
 };
 
-// Eksempel på navigation links
 export const navigationLinks: NavGroup[] = [
     {
         title: "Min konto",
@@ -66,8 +63,7 @@ export const saleNavigationLinks: NavGroup[] = [
     }
 ];
 
-// Funktion til at filtrere links baseret på brugerens login-status og rolle
-export const filterLink = (link: NavLink, isLoggedIn: boolean, userRole: string): boolean => {
+export const filterLink = (link: NavLink, isLoggedIn: boolean, userRole: string) => {
     if (!link.requiresAuth) return true;
     if (link.requiresAuth && !isLoggedIn) return false;
     if (link.requiredRole && !link.requiredRole.includes(userRole)) return false;
@@ -75,7 +71,7 @@ export const filterLink = (link: NavLink, isLoggedIn: boolean, userRole: string)
 };
 
 interface NavAction {
-    label: string | JSX.Element;
+    label: string | JSX.Element;  // Allow both string and JSX
     className?: string;
     onClick: () => void;
     color?: "primary" | "secondary" | "success" | "warning" | "danger";
@@ -85,7 +81,7 @@ interface NavAction {
 interface SectionNavProps {
     title: string;
     actions?: NavAction[];
-    children?: ReactNode;
+    children?: React.ReactNode;
 }
 
 export default function SectionNav({ title, actions = [], children }: SectionNavProps) {
@@ -99,27 +95,26 @@ export default function SectionNav({ title, actions = [], children }: SectionNav
                 h-fit
             "
         >
-            {/* Header med titel og actions */}
-            <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold text-white">{title}</h2>
-                <div className="flex gap-2">
-                    {actions.map((action, index) => (
-                        <Button
-                            key={index}
-                            onPress={action.onClick}
-                            className={action.className}
-                            color={action.color}
-                            disabled={action.disabled}
-                        >
-                            {action.label}
-                        </Button>
-                    ))}
-                </div>
-            </div>
-            
-            {/* Indhold/children af navigationssektionen */}
             <div className="flex flex-col gap-4">
-                {children}
+                <div className="flex flex-col gap-2">
+                    <h2 className="text-2xl font-bold">{title}</h2>
+                    <div className="flex flex-col gap-2">
+                        {actions?.map((action, index) => (
+                            <Button
+                                key={index}
+                                color={action.color || "primary"}
+                                onPress={action.onClick}
+                                className={`w-full ${action.className || ''}`}
+                                disabled={action.disabled}
+                            >
+                                {action.label}
+                            </Button>
+                        ))}
+                    </div>
+                </div>
+                <div className="flex flex-col gap-4">
+                    {children}
+                </div>
             </div>
         </nav>
     );

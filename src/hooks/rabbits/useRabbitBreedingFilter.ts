@@ -1,5 +1,5 @@
 // src/hooks/rabbits/useRabbitBreedingFilter.ts
-import { Rabbit_ForbreedingPreviewDTO } from '@/Types/backendTypes';
+import { Rabbit_ForbreedingPreviewDTO } from '@/Types/AngoraDTOs';
 import { useState } from 'react';
 
 export interface BreedingFilters {

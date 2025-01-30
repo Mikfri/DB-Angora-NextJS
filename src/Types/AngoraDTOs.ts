@@ -1,4 +1,4 @@
-// src>types>backendTypes.ts
+// src/types/DB-AngoraDTOs.ts
 interface RabbitPhoto {
     id: number;
     filePath: string;
@@ -102,6 +102,7 @@ export interface Rabbit_ProfileDTO {
     forBreeding: string | null;
     fatherId_Placeholder: string | null;
     father_EarCombId: string | null;
+    profilePicture: string | null;
     motherId_Placeholder: string | null;
     mother_EarCombId: string | null;
     children: Rabbit_ChildPreviewDTO[];
