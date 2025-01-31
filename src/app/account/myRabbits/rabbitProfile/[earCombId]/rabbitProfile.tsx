@@ -1,16 +1,15 @@
 // src/app/account/myRabbits/rabbitProfile/[earCombId]/rabbitProfile.tsx
-'use client'
-import { Rabbit_ProfileDTO } from "@/Types/AngoraDTOs";
-import {
-    Tabs, Tab, Table, TableHeader, TableColumn,
-    TableBody, TableRow, TableCell, Button,
-    Input, Switch
-} from "@nextui-org/react";
+'use client';
+
+import { Input, Switch, Button, Tabs, Tab, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@nextui-org/react";
 import EnumAutocomplete from '@/components/enumHandlers/enumAutocomplete';
-import { useRabbitProfile } from '@/hooks/rabbits/useRabbitProfile';
-import { toast } from "react-toastify";
-import RabbitProfileNav from "@/components/sectionNav/variants/rabbitProfileNav";
+import DeleteRabbitModal from '@/components/modals/deleteRabbitModal';
+import RabbitProfileNav from '@/components/sectionNav/variants/rabbitProfileNav';
+import Image from 'next/image';
+import { toast } from 'react-toastify';
 import { PiRabbitFill, PiRabbit } from "react-icons/pi";
+import { Rabbit_ProfileDTO, Rabbit_UpdateDTO } from "@/Types/AngoraDTOs";
+import { useRabbitProfile } from "@/hooks/rabbits/useRabbitProfile";
 
 type Props = {
     rabbitProfile: Rabbit_ProfileDTO;
@@ -52,14 +51,22 @@ export default function RabbitProfile({ rabbitProfile }: Props) {
         forBreeding: "Til avl",
         fatherId_Placeholder: "Far øremærke",
         motherId_Placeholder: "Mor øremærke",
-        profilePicture: "Profilbillede" // Tilføjet denne linje
-
+        profilePicture: "Profilbillede"
     };
+
+    const editableFields: Array<keyof Rabbit_UpdateDTO> = [
+        'nickName',
+        'race',
+        'color',
+        'gender',
+        'forSale',
+        'forBreeding'
+    ];
 
     const renderParentCell = (key: 'fatherId_Placeholder' | 'motherId_Placeholder', value: string | null) => {
         const actualId = key === 'fatherId_Placeholder' ? rabbitProfile.father_EarCombId : rabbitProfile.mother_EarCombId;
         const isValid = isParentValid(value, actualId);
-    
+
         return (
             <div className="flex items-center gap-2">
                 {value && (
@@ -68,14 +75,18 @@ export default function RabbitProfile({ rabbitProfile }: Props) {
                             <PiRabbitFill
                                 className="w-5 h-5 text-green-500"
                                 title="Forælder findes i systemet"
+                                aria-label="Forælder findes i systemet"
                             />
                         ) : (
                             <PiRabbit
                                 className="w-5 h-5 text-zinc-400"
                                 title="Forælder findes ikke i systemet"
+                                aria-label="Forælder findes ikke i systemet"
                             />
                         )}
-                        <span>{value}</span> {/* Display the parent ID */}
+                        <span className={isValid ? "text-green-500" : "text-zinc-400"}>
+                            {value}
+                        </span>
                     </>
                 )}
             </div>
@@ -88,112 +99,91 @@ export default function RabbitProfile({ rabbitProfile }: Props) {
                 return value ? new Date(value as string).toLocaleDateString() : 'Ikke angivet';
             }
             if (key === 'fatherId_Placeholder' || key === 'motherId_Placeholder') {
-                return renderParentCell(key, value as string | null);
+                return renderParentCell(key as 'fatherId_Placeholder' | 'motherId_Placeholder', value as string | null);
             }
             if (key === 'originFullName') {
                 return value ? value.toString() : 'Ikke fundet i systemet';
             }
-            // if (key === 'profilePicture') { // Tilføj denne blok
-            //     return profilePicture ? (
-            //         <Image
-            //             src={profilePicture}
-            //             alt="Profilbillede"
-            //             width={50}
-            //             height={50}
-            //             className="rounded-full"
-            //         />
-            //     ) : (
-            //         <Image
-            //             src="/images/default-rabbit.jpg"
-            //             alt="Default Profilbillede"
-            //             width={50}
-            //             height={50}
-            //             className="rounded-full"
-            //         />
-            //     );
-            // }
             if (typeof value === 'boolean') {
                 return value ? 'Ja' : 'Nej';
             }
+            if (key === 'profilePicture') {
+                return value ? (
+                    <Image
+                        src={value as string}
+                        alt="Profilbillede"
+                        width={50}
+                        height={50}
+                        className="rounded-full"
+                    />
+                ) : (
+                    <Image
+                        src="/images/default-rabbit.jpg"
+                        alt="Default Profilbillede"
+                        width={50}
+                        height={50}
+                        className="rounded-full"
+                    />
+                );
+            }
             return value?.toString() || 'Ikke angivet';
         }
-        if (key === 'nickName') {
-            return (
-                <Input
-                    size="sm"
-                    value={editedData.nickName || ''}
-                    onChange={(e) => setEditedData({ ...editedData, nickName: e.target.value })}
-                    aria-label="Navn"
-                />
-            );
+        if (editableFields.includes(key as keyof Rabbit_UpdateDTO)) {
+            if (key === 'nickName') {
+                return (
+                    <Input
+                        size="sm"
+                        value={editedData.nickName || ''}
+                        onChange={(e) => setEditedData({ ...editedData, nickName: e.target.value })}
+                        aria-label="Navn"
+                    />
+                );
+            }
+            if (key === 'race') {
+                return (
+                    <EnumAutocomplete
+                        enumType="Race"
+                        value={editedData.race}
+                        onChange={(value) => setEditedData({ ...editedData, race: value })}
+                        label="Race"
+                    />
+                );
+            }
+            if (key === 'color') {
+                return (
+                    <EnumAutocomplete
+                        enumType="Color"
+                        value={editedData.color}
+                        onChange={(value) => setEditedData({ ...editedData, color: value })}
+                        label="Farve"
+                    />
+                );
+            }
+            if (key === 'gender') {
+                return (
+                    <EnumAutocomplete
+                        enumType="Gender"
+                        value={editedData.gender}
+                        onChange={(value) => setEditedData({ ...editedData, gender: value })}
+                        label="Køn"
+                    />
+                );
+            }
+            if (key === 'forSale' || key === 'forBreeding') {
+                return (
+                    <Switch
+                        size="sm"
+                        isSelected={editedData[key as keyof Rabbit_UpdateDTO] === "Ja"}
+                        onValueChange={(checked) => setEditedData({
+                            ...editedData,
+                            [key]: checked ? "Ja" : "Nej"
+                        })}
+                        aria-label={propertyLabels[key as keyof Rabbit_ProfileDTO]}
+                    />
+                );
+            }
         }
-        if (key === 'race') {
-            return (
-                <EnumAutocomplete
-                    enumType="Race"
-                    value={editedData.race}
-                    onChange={(value) => setEditedData({ ...editedData, race: value })}
-                    label="Race"
-                />
-            );
-        }
-        if (key === 'color') {
-            return (
-                <EnumAutocomplete
-                    enumType="Color"
-                    value={editedData.color}
-                    onChange={(value) => setEditedData({ ...editedData, color: value })}
-                    label="Farve"
-                />
-            );
-        }
-        if (key === 'gender') {
-            return (
-                <EnumAutocomplete
-                    enumType="Gender"
-                    value={editedData.gender}
-                    onChange={(value) => setEditedData({ ...editedData, gender: value })}
-                    label="Køn"
-                />
-            );
-        }
-        if (key === 'forSale' || key === 'forBreeding') {
-            return (
-                <Switch
-                    size="sm"
-                    isSelected={editedData[key] === "Ja"}
-                    onValueChange={(checked) => setEditedData({
-                        ...editedData,
-                        [key]: checked ? "Ja" : "Nej"
-                    })}
-                    aria-label={propertyLabels[key]}
-                >
-                    {propertyLabels[key]}
-                </Switch>
-            );
-        }
-        if (key === 'dateOfBirth' || key === 'dateOfDeath') {
-            return (
-                <Input
-                    size="sm"
-                    type="date"
-                    value={editedData[key] || ''}
-                    onChange={(e) => setEditedData({ ...editedData, [key]: e.target.value })}
-                    aria-label={propertyLabels[key]}
-                />
-            );
-        }
-        if (key === 'fatherId_Placeholder' || key === 'motherId_Placeholder') {
-            return (
-                <Input
-                    size="sm"
-                    value={editedData[key] || ''}
-                    onChange={(e) => setEditedData({ ...editedData, [key]: e.target.value })}
-                    placeholder={`Indtast ${key === 'fatherId_Placeholder' ? 'far' : 'mor'} øremærke`}
-                    aria-label={propertyLabels[key]}
-                />
-            );
-        }        
+        // Non-editable fields
         return value?.toString() || 'Ikke angivet';
     };
 
@@ -242,10 +232,10 @@ export default function RabbitProfile({ rabbitProfile }: Props) {
                                             <Button size="sm" onPress={() => setIsEditing(true)}>Rediger</Button>
                                         ) : (
                                             <div className="space-x-2">
-                                                <Button size="sm" color="success" onPress={handleSave} isLoading={isSaving} disabled={isSaving}>
-                                                    {isSaving ? 'Gemmer...' : 'Gem'}
+                                                <Button size="sm" color="success" onPress={handleSave} disabled={isSaving}>
+                                                    Gem
                                                 </Button>
-                                                <Button size="sm" color="danger" onPress={() => setIsEditing(false)} disabled={isSaving}>
+                                                <Button size="sm" color="secondary" onPress={() => setIsEditing(false)}>
                                                     Annuller
                                                 </Button>
                                             </div>
@@ -299,17 +289,26 @@ export default function RabbitProfile({ rabbitProfile }: Props) {
                                         </TableCell>
                                     </TableRow>
                                 )) ?? (
-                                        <TableRow>
-                                            <TableCell colSpan={6} className="text-center">
-                                                Ingen afkom registreret
-                                            </TableCell>
-                                        </TableRow>
-                                    )}
+                                    <TableRow>
+                                        <TableCell colSpan={6} className="text-center">
+                                            Ingen afkom registreret
+                                        </TableCell>
+                                    </TableRow>
+                                )}
                             </TableBody>
                         </Table>
                     </Tab>
                 </Tabs>
             </div>
+
+            {/* Modal for deletion confirmation */}
+            <DeleteRabbitModal
+                isOpen={isDeleting}
+                onClose={() => setIsEditing(false)}
+                onConfirm={handleDelete}
+                rabbitName={rabbitProfile.nickName || rabbitProfile.earCombId}
+                isDeleting={isDeleting}
+            />
         </>
     );
 }
