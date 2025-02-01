@@ -1,6 +1,5 @@
-// src/hooks/rabbits/useRabbitProfile.ts
 import { useState } from 'react';
-import { Rabbit_ProfileDTO, Rabbit_UpdateDTO } from '@/Types/AngoraDTOs';
+import { Rabbit_ProfileDTO } from '@/Types/AngoraDTOs';
 import { EditRabbit, DeleteRabbit } from '@/Services/AngoraDbService';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
@@ -10,17 +9,10 @@ export function useRabbitProfile(initialProfile: Rabbit_ProfileDTO) {
     const [isEditing, setIsEditing] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
-    const [editedData, setEditedData] = useState<Rabbit_UpdateDTO>({
-        nickName: initialProfile.nickName,
-        race: initialProfile.race,
-        color: initialProfile.color,
-        dateOfBirth: initialProfile.dateOfBirth,
-        dateOfDeath: initialProfile.dateOfDeath,
-        gender: initialProfile.gender,
-        forSale: initialProfile.forSale,
-        forBreeding: initialProfile.forBreeding,
-        fatherId_Placeholder: initialProfile.fatherId_Placeholder,
-        motherId_Placeholder: initialProfile.motherId_Placeholder,
+
+    // Skift her fra Rabbit_UpdateDTO til Rabbit_ProfileDTO
+    const [editedData, setEditedData] = useState<Rabbit_ProfileDTO>({
+        ...initialProfile
     });
 
     const handleSave = async () => {
