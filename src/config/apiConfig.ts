@@ -10,7 +10,7 @@ export const apiConfig: ApiConfig = {
     const url = process.env.NEXT_PUBLIC_API_BASE_URL;
     if (!url) {
       console.error('API_BASE_URL not found, using fallback URL');
-      return 'https://api.db-angora.dk'; // Fallback URL
+      return 'https://api.db-angora.dk/'; // Fallback URL
     }
     return url;
   }
