@@ -23,6 +23,10 @@ const editableFields: Array<keyof Rabbit_UpdateDTO> = [
   "gender",
   "forSale",
   "forBreeding",
+  "dateOfBirth",
+  "dateOfDeath",
+  "fatherId_Placeholder",
+  "motherId_Placeholder"
 ];
 
 /**
@@ -173,6 +177,35 @@ export function renderCell(
         />
       );
     }
+    if (key === "dateOfBirth" || key === "dateOfDeath") {
+      const dateValue = editedData[key] ? new Date(editedData[key] as string).toISOString().split('T')[0] : '';
+      return (
+        <Input
+          size="sm"
+          type="date"
+          value={dateValue}
+          onChange={(e) => {
+            const newDate = e.target.value ? new Date(e.target.value).toISOString() : null;
+            setEditedData({ ...editedData, [key]: newDate });
+          }}
+          aria-label={key === "dateOfBirth" ? "Fødselsdato" : "Dødsdato"}
+        />
+      );
+    }
+
+    // 2g) Forældre ID-felter
+    if (key === "fatherId_Placeholder" || key === "motherId_Placeholder") {
+      return (
+        <Input
+          size="sm"
+          value={editedData[key] as string || ''}
+          onChange={(e) => setEditedData({ ...editedData, [key]: e.target.value })}
+          aria-label={key === "fatherId_Placeholder" ? "Far øremærke" : "Mor øremærke"}
+          placeholder="Indtast øremærke ID"
+        />
+      );
+    }
+    
   }
 
   // Hvis vi ikke har en specialhåndtering, returnér kun tekst
