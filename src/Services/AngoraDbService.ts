@@ -29,25 +29,43 @@ export async function CreateRabbit(rabbitData: Rabbit_CreateDTO, accessToken: st
 }
 
 export async function GetRabbitsForSale(filters?: ForSaleFilters): Promise<Rabbits_ForsalePreviewList> {
-    const params = new URLSearchParams();
-    
-    if (filters) {
-        Object.entries(filters).forEach(([key, value]) => {
-            if (value != null) {
-                params.append(key, value.toString());
-            }
+    const url = getApiUrl('Rabbit/ForSale');
+    console.debug('Calling API:', url); // Debug: Log API call
+
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'accept': 'text/plain'
+            },
+            body: JSON.stringify(filters || {})
         });
-    }
 
-    const url = `${getApiUrl('Rabbit/Forsale')}${params.toString() ? `?${params}` : ''}`;
-    //console.log('Fetching URL:', url);
-    
-    const response = await fetch(url);
-    if (!response.ok) {
-        throw new Error(`API call failed: ${response.status}`);
-    }
+        if (!response.ok) {
+            const errorText = await response.text();
+            const error = {
+                status: response.status,
+                statusText: response.statusText,
+                body: errorText,
+                url: url
+            };
+            console.error('API Error:', error);
+            throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+        }
 
-    return response.json();
+        const data = await response.json();
+        console.debug('API Response:', data); // Debug: Log successful response
+        return data;
+
+    } catch (error) {
+        console.error('Fetch error:', {
+            message: error instanceof Error ? error.message : 'Unknown error',
+            url: url,
+            filters: filters
+        });
+        throw error; // Re-throw to handle in UI
+    }
 }
 
 export async function GetRabbitForsaleProfile(earCombId: string): Promise<Rabbit_ForsaleProfileDTO> {
