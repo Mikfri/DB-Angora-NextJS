@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     template: "%s | DenBlå-Angora"
   },
   description: "Det nemme kaninregister. Sælg garn, uld, skind og andet, relateret til din kanin produktion. Find andre avleres parringsparate kaniner. Registrer bl.a. klip, vægt og andre informationer på dine kaniner",
-  metadataBase: new URL('https://db-angora.vercel.app'),
+  metadataBase: new URL('https://db-angora.dk'),
   icons: {
     icon: [
       { url: '/favicon.ico', sizes: 'any' },
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'da_DK',
-    url: 'https://db-angora.vercel.app',
+    url: 'https://db-angora.dk',
     siteName: 'DenBlå-Angora',
     images: [{
       url: '/images/DB-Angora.png',

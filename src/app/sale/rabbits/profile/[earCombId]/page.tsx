@@ -20,27 +20,27 @@ export async function generateMetadata( props: PageProps): Promise<Metadata> {
                 title: `${rabbit.race} ${rabbit.color} - ${rabbit.nickName || 'Unavngivet'} | Til Salg`,
                 description: `${rabbit.gender} ${rabbit.race} kanin til salg. Født: ${rabbit.dateOfBirth}`,
                 images: rabbit.profilePicture ? [{
-                    url: `https://db-angora.vercel.app${rabbit.profilePicture}`,
+                    url: `https://db-angora.dk/${rabbit.profilePicture}`,
                     width: 700,
                     height: 700,
                     alt: `${rabbit.nickName || 'Unavngivet'}`
                 }] : [{
-                    url: 'https://db-angora.vercel.app/images/DB-Angora.png',
+                    url: 'https://db-angora.dk/images/DB-Angora.png',
                     width: 700,
                     height: 700,
                     alt: 'DenBlå-Angora Logo'
                 }],
-                url: `https://db-angora.vercel.app/sale/rabbits/profile/${earCombId}`
+                url: `https://db-angora.dk/sale/rabbits/profile/${earCombId}`
             },
             twitter: {
                 card: 'summary_large_image',
                 images: rabbit.profilePicture ? [{
-                    url: `https://db-angora.vercel.app${rabbit.profilePicture}`,
+                    url: `https://db-angora.dk/${rabbit.profilePicture}`,
                     width: 700,
                     height: 700,
                     alt: `${rabbit.nickName || 'Unavngivet'}`
                 }] : [{
-                    url: 'https://db-angora.vercel.app/images/DB-Angora.png',
+                    url: 'https://db-angora.dk/images/DB-Angora.png',
                     width: 700,
                     height: 700,
                     alt: 'DenBlå-Angora Logo'

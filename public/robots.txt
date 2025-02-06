@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://db-angora.dk
+
+# Sitemaps
+Sitemap: https://db-angora.dk/sitemap.xml
