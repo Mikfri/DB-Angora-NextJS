@@ -18,9 +18,6 @@ module.exports = {
                 disallow: ['/account/*', '/api/*']
             }
         ],
-        additionalSitemaps: [
-            'https://db-angora.dk/sitemap.xml'
-        ]
     },
     transform: async (config, path) => {
         return {
