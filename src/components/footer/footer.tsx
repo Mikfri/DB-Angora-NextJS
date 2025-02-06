@@ -8,9 +8,9 @@ export default function Footer() {
             <div className="max-w-7xl mx-auto bg-zinc-900/70 backdrop-blur-md backdrop-saturate-150 rounded-lg border border-zinc-800/50 p-6">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     <div>
-                        <h3 className="text-lg font-semibold mb-4">Om DenBlå-Angora</h3>
+                        <h3 className="text-lg font-semibold mb-4">DenBlå-Angora</h3>
                         <p className="text-sm text-zinc-400">
-                            Et dansk kanin-register med fokus på avl og køb/salg af kaniner.
+                            Et dansk kaninregister med fokus på avl og køb/salg af kanin relaterede produkter. Heraf uld, garn og skind.
                         </p>
                     </div>
                     <div>

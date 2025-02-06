@@ -44,40 +44,18 @@ export async function GetRabbitsForSale(filters?: ForSaleFilters): Promise<Rabbi
         }
     }
 
-    console.debug('Calling API:', url);
-
-    try {
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: {
-                'accept': 'text/plain'
-            }
-        });
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            const error = {
-                status: response.status,
-                statusText: response.statusText,
-                body: errorText,
-                url: url
-            };
-            console.error('API Error:', error);
-            throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+    const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+            'accept': 'text/plain'
         }
+    });
 
-        const data = await response.json();
-        console.debug('API Response:', data);
-        return data;
-
-    } catch (error) {
-        console.error('Fetch error:', {
-            message: error instanceof Error ? error.message : 'Unknown error',
-            url,
-            filters
-        });
-        throw error;
+    if (!response.ok) {
+        throw new Error(`API call failed: ${response.status}`);
     }
+
+    return response.json();
 }
 
 export async function GetRabbitForsaleProfile(earCombId: string): Promise<Rabbit_ForsaleProfileDTO> {
