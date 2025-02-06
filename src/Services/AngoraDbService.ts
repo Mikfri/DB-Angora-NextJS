@@ -29,17 +29,29 @@ export async function CreateRabbit(rabbitData: Rabbit_CreateDTO, accessToken: st
 }
 
 export async function GetRabbitsForSale(filters?: ForSaleFilters): Promise<Rabbits_ForsalePreviewList> {
-    const url = getApiUrl('Rabbit/ForSale');
-    console.debug('Calling API:', url); // Debug: Log API call
+    let url = getApiUrl('Rabbit/ForSale');
+    
+    if (filters) {
+        const params = new URLSearchParams();
+        Object.entries(filters).forEach(([key, value]) => {
+            if (value !== null && value !== undefined) {
+                params.append(key, value.toString());
+            }
+        });
+        const queryString = params.toString();
+        if (queryString) {
+            url += '?' + queryString;
+        }
+    }
+
+    console.debug('Calling API:', url);
 
     try {
         const response = await fetch(url, {
-            method: 'POST',
+            method: 'GET',
             headers: {
-                'Content-Type': 'application/json',
                 'accept': 'text/plain'
-            },
-            body: JSON.stringify(filters || {})
+            }
         });
 
         if (!response.ok) {
@@ -55,16 +67,16 @@ export async function GetRabbitsForSale(filters?: ForSaleFilters): Promise<Rabbi
         }
 
         const data = await response.json();
-        console.debug('API Response:', data); // Debug: Log successful response
+        console.debug('API Response:', data);
         return data;
 
     } catch (error) {
         console.error('Fetch error:', {
             message: error instanceof Error ? error.message : 'Unknown error',
-            url: url,
-            filters: filters
+            url,
+            filters
         });
-        throw error; // Re-throw to handle in UI
+        throw error;
     }
 }
 
