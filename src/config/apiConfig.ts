@@ -7,12 +7,12 @@ interface ApiConfig {
 export const apiConfig: ApiConfig = {
   env: process.env.NEXT_PUBLIC_API_ENV || 'production',
   get baseUrl() {
-    const url = process.env.NEXT_PUBLIC_API_BASE_URL;
-    if (!url) {
-      console.error('API_BASE_URL not found, using fallback URL');
-      return 'https://api.db-angora.dk'; // Fallback URL
-    }
-    return url;
+      const url = process.env.NEXT_PUBLIC_API_BASE_URL;
+      if (!url) {
+          console.warn('Missing NEXT_PUBLIC_API_BASE_URL, using fallback');
+          return 'https://api.db-angora.dk';  // Update fallback URL
+      }
+      return url;
   }
 };
 
