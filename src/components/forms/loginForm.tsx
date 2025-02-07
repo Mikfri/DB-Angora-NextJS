@@ -1,7 +1,7 @@
 // src/components/forms/loginForm.tsx
 'use client'
 import { useState } from 'react';
-import { Input, Button } from "@nextui-org/react";
+import { Input, Button } from "@heroui/react";
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
 import { useAuth } from '@/hooks/useAuth';

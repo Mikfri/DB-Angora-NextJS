@@ -2,7 +2,7 @@
 'use client'
 import NextLink from 'next/link';
 import Image from 'next/image';
-import { Navbar, NavbarBrand, NavbarItem, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Tooltip } from "@nextui-org/react";
+import { Navbar, NavbarBrand, NavbarItem, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Tooltip } from "@heroui/react";
 import { PiUserCircleFill, PiUserCircleCheckFill } from "react-icons/pi";
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';

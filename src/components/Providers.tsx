@@ -1,13 +1,13 @@
 // src/components/Providers.tsx
 'use client'
 
-import { NextUIProvider } from '@nextui-org/react'
+import { HeroUIProvider } from "@heroui/react"
 import React, { ReactNode } from 'react'
 
 export default function Providers({children}: {children: ReactNode}) {
   return (
-    <NextUIProvider>
+    <HeroUIProvider>
         {children}
-    </NextUIProvider>
+    </HeroUIProvider>
   )
 }

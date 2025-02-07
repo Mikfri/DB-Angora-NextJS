@@ -1,8 +1,9 @@
 // src/components/cards/pageNavigationCard.tsx
 'use client'
-import { Card, CardHeader, CardBody } from '@nextui-org/react';
+
+import { Card, CardHeader, CardBody } from "@heroui/react";
 import Image from 'next/image';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 interface PageNavigationCardProps {
   href: string;
@@ -21,9 +22,22 @@ export default function PageNavigationCard({
   isDisabled,
   onDisabledClick 
 }: PageNavigationCardProps) {
-  const CardContent = (
+  const router = useRouter();
+
+  const handleClick = () => {
+    if (!isDisabled) {
+      router.push(href);
+    } else if (onDisabledClick) {
+      onDisabledClick();
+    }
+  };
+
+  return (
     <Card 
       isPressable={!isDisabled}
+      //isHoverable={!isDisabled}
+      isBlurred={!isDisabled}
+      onPress={handleClick}
       className={`max-w-sm transition-shadow backdrop-blur-md backdrop-saturate-150 border border-zinc-700/50
         ${isDisabled 
           ? 'bg-zinc-800/40 opacity-60 cursor-not-allowed' 
@@ -50,10 +64,4 @@ export default function PageNavigationCard({
       </CardBody>
     </Card>
   );
-
-  if (isDisabled) {
-    return <div onClick={onDisabledClick}>{CardContent}</div>;
-  }
-
-  return <Link href={href}>{CardContent}</Link>;
 }

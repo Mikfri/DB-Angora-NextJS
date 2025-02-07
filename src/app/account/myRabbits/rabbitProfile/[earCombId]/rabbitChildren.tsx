@@ -1,5 +1,5 @@
 import { Rabbit_ProfileDTO } from "@/Types/AngoraDTOs";
-import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@nextui-org/react";
+import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@heroui/react";
 
 interface RabbitChildrenProps {
     children: Rabbit_ProfileDTO["children"];

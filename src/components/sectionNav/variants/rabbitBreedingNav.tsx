@@ -1,6 +1,6 @@
 // src/components/sectionNav/variants/rabbitBreedingNav.tsx
 'use client'
-import { Input } from "@nextui-org/react";
+import { Input } from "@heroui/react";
 import SectionNav from '../base/baseSideNav';
 import EnumAutocomplete from '@/components/enumHandlers/enumAutocomplete';
 import EnumLocalAutocomplete, { RaceColorApproval } from "@/components/enumHandlers/enumLocalAutocomplete";

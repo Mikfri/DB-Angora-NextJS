@@ -2,7 +2,7 @@
 'use client';
 import { User_ProfileDTO } from "@/Types/AngoraDTOs";
 import { useUserProfile } from "@/hooks/users/useUserProfile";
-import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Button, Input, Switch } from "@nextui-org/react";
+import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Button, Input, Switch } from "@heroui/react";
 
 type Props = {
     userProfile: User_ProfileDTO;

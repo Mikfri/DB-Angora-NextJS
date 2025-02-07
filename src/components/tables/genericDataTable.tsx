@@ -1,5 +1,5 @@
 // src/components/tables/genericDataTable.tsx
-import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Input } from "@nextui-org/react";
+import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Input } from "@heroui/react";
 import { TableConfig } from "./types";
 import { ReactNode } from "react";
 import { defaultStyling } from "./defaultStyling";

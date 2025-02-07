@@ -1,6 +1,6 @@
 // src/components/modals/LoginModal.tsx
 'use client'
-import { Modal, ModalContent, ModalHeader, ModalBody } from "@nextui-org/react";
+import { Modal, ModalContent, ModalHeader, ModalBody } from "@heroui/react";
 import LoginForm from '@/components/forms/loginForm';
 
 interface Props {

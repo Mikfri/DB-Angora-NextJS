@@ -2,7 +2,7 @@
 // filepath: /c:/Users/mikkf/Documents/GitHub/DB-Angora-NextJS/src/components/sectionNav/variants/rabbitSaleNav.tsx
 
 'use client';
-import { Input, Button } from "@nextui-org/react";
+import { Input, Button } from "@heroui/react";
 import { ForSaleFilters } from "@/Types/filterTypes";
 import SectionNav from '../base/baseSideNav';
 import { useState } from 'react';

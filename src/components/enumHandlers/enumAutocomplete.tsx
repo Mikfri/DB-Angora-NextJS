@@ -1,6 +1,6 @@
 // src/components/shared/enumAutocomplete.tsx
 "use client"
-import { Autocomplete, AutocompleteItem } from "@nextui-org/react";
+import { Autocomplete, AutocompleteItem } from "@heroui/react";
 import { useEffect, useState } from 'react';
 import { RabbitEnum, GetEnumValues } from '@/Services/AngoraDbService';
 interface Props {
@@ -30,7 +30,7 @@ export default function EnumAutocomplete({ enumType, value, onChange, label, id 
     }, [enumType]);
 
     return (
-        <Autocomplete
+        (<Autocomplete
             size="sm"
             id={id || `${enumType.toLowerCase()}-select`}
             label={label}
@@ -57,7 +57,7 @@ export default function EnumAutocomplete({ enumType, value, onChange, label, id 
                     {option.replace(/_/g, ' ')}
                 </AutocompleteItem>
             ))}
-        </Autocomplete>
+        </Autocomplete>)
     );
 }
 /*

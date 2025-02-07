@@ -1,7 +1,7 @@
 import React, { ReactNode } from "react";
 import Image from "next/image";
 import { PiRabbitFill, PiRabbit } from "react-icons/pi";
-import { Input, Switch } from "@nextui-org/react";
+import { Input, Switch } from "@heroui/react";
 import { Rabbit_ProfileDTO, Rabbit_UpdateDTO } from "@/Types/AngoraDTOs";
 import EnumAutocomplete from "@/components/enumHandlers/enumAutocomplete";
 

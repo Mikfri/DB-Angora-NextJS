@@ -1,5 +1,5 @@
 "use client"
-import { Autocomplete, AutocompleteItem } from "@nextui-org/react";
+import { Autocomplete, AutocompleteItem } from "@heroui/react";
 
 export const RaceColorApproval = {
     'Approved': 'Godkendte',

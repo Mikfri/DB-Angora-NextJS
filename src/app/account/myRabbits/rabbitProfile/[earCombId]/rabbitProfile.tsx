@@ -5,7 +5,7 @@ import { useRabbitProfile } from '@/hooks/rabbits/useRabbitProfile';
 import RabbitProfileNav from '@/components/sectionNav/variants/rabbitProfileNav';
 import RabbitDetails from './rabbitDetails';
 import RabbitChildren from './rabbitChildren';
-import { Tabs, Tab } from "@nextui-org/react";
+import { Tabs, Tab } from "@heroui/react";
 import { toast } from "react-toastify";
 
 export default function RabbitProfile({ rabbitProfile }: { rabbitProfile: Rabbit_ProfileDTO }) {

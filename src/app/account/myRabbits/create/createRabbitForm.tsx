@@ -1,7 +1,7 @@
 // src/app/account/myRabbits/create/createRabbitForm.tsx
 'use client';
 import { useCreateRabbit } from '@/hooks/rabbits/useRabbitCreate';
-import { Input, Button, Switch } from '@nextui-org/react';
+import { Input, Button, Switch } from "@heroui/react";
 import EnumAutocomplete from '@/components/enumHandlers/enumAutocomplete';
 import { useRouter } from 'next/navigation';
 

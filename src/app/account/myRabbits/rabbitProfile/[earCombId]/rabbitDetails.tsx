@@ -1,4 +1,4 @@
-import { Table, TableHeader, TableBody, TableColumn, TableRow, TableCell, Button } from "@nextui-org/react";
+import { Table, TableHeader, TableBody, TableColumn, TableRow, TableCell, Button } from "@heroui/react";
 import { Rabbit_ProfileDTO } from "@/Types/AngoraDTOs";
 import { renderCell } from "@/utils/renderCell";
 

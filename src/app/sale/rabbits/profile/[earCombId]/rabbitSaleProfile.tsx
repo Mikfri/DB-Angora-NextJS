@@ -1,7 +1,7 @@
 // src/app/sale/rabbits/profile/[earCombId]/rabbitSaleProfile.tsx
 'use client'
 import { Rabbit_ForsaleProfileDTO } from '@/Types/AngoraDTOs';
-import { Card, CardBody, CardHeader } from '@nextui-org/react';
+import { Card, CardBody, CardHeader } from "@heroui/react";
 import Image from 'next/image';
 import MyNav from '@/components/sectionNav/variants/myNav';
 
