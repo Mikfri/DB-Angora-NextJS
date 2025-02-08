@@ -1,213 +1,176 @@
+// src/utils/renderCell.tsx
 import React, { ReactNode } from "react";
-import Image from "next/image";
 import { PiRabbitFill, PiRabbit } from "react-icons/pi";
 import { Input, Switch } from "@heroui/react";
 import { Rabbit_ProfileDTO, Rabbit_UpdateDTO } from "@/Types/AngoraDTOs";
 import EnumAutocomplete from "@/components/enumHandlers/enumAutocomplete";
 
-/**
- * Hjælpefunktion:
- * Tjekker om “far/mor”-id (placeholderId) reelt findes i systemet
- */
+// Helper function for parent validation
 function isParentValid(placeholderId: string | null, actualId: string | null): boolean {
   return !!placeholderId && placeholderId === actualId;
 }
 
-/**
- * Felter, der kan redigeres ved hjælp af tekst/autocomplete/switch
- */
-const editableFields: Array<keyof Rabbit_UpdateDTO> = [
-  "nickName",
-  "race",
-  "color",
-  "gender",
-  "forSale",
-  "forBreeding",
-  "dateOfBirth",
-  "dateOfDeath",
-  "fatherId_Placeholder",
-  "motherId_Placeholder"
-];
+// First, add the editableFieldLabels constant at the top with other constants
+const editableFieldLabels: Record<keyof Rabbit_UpdateDTO, string> = {
+  nickName: "Navn",
+  race: "Race",
+  color: "Farve",
+  dateOfBirth: "Fødselsdato",
+  dateOfDeath: "Dødsdato",
+  gender: "Køn",
+  forSale: "Til salg",
+  forBreeding: "Til avl",
+  fatherId_Placeholder: "Far ID",
+  motherId_Placeholder: "Mor ID"
+};
 
-/**
- * Hovedfunktion: returnerer JSX alt efter om vi er i vis-tilstand eller redigér-tilstand
- */
 export function renderCell(
-  key: keyof Rabbit_ProfileDTO,
+  key: keyof Rabbit_UpdateDTO,
   value: unknown,
   isEditing: boolean,
   editedData: Rabbit_ProfileDTO,
   setEditedData: (data: Rabbit_ProfileDTO) => void,
-  rabbitProfile?: Rabbit_ProfileDTO
+  rabbitProfile?: Rabbit_ProfileDTO,
+  isChanged?: boolean
 ): ReactNode {
-  // 1) Viser kun tekst, hvis IKKE vi redigerer
+  const inputClassName = `transition-colors duration-200 ${
+    isChanged ? 'border-amber-400' : ''
+  }`;
+  const textClassName = isChanged ? 'text-amber-400' : 'text-zinc-300';
+
   if (!isEditing) {
-    // - Datoer
-    if (key === "dateOfBirth" || key === "dateOfDeath") {
-      return value ? new Date(value as string).toLocaleDateString() : "Ikke angivet";
-    }
-
-    // - Forældre (viser ikon, hvis valid)
-    if (key === "fatherId_Placeholder" || key === "motherId_Placeholder") {
-      if (!rabbitProfile) return null;
-      const actualId =
-        key === "fatherId_Placeholder"
-          ? rabbitProfile.father_EarCombId
-          : rabbitProfile.mother_EarCombId;
-      if (!value) return null; // ingen data
-      const parentValid = isParentValid(value as string, actualId ?? null);
-      return (
-        <div className="flex items-center gap-2">
-          {parentValid ? (
-            <PiRabbitFill
-              className="w-5 h-5 text-green-500"
-              title="Forælder findes i systemet"
-              aria-label="Forælder findes i systemet"
-            />
-          ) : (
-            <PiRabbit
-              className="w-5 h-5 text-zinc-400"
-              title="Forælder findes ikke i systemet"
-              aria-label="Forælder findes ikke i systemet"
-            />
-          )}
-<span className={parentValid ? "text-green-500" : "text-zinc-400"}>{String(value)}</span>
-</div>
-      );
-    }
-
-    // - Origin (f.eks. opdrætternavn)
-    if (key === "originFullName") {
-      return value ? value.toString() : "Ikke fundet i systemet";
-    }
-
-    // - Boolean felter
-    if (typeof value === "boolean") {
-      return value ? "Ja" : "Nej";
-    }
-
-    // - Profilbillede
-    if (key === "profilePicture") {
-      return value ? (
-        <Image
-          src={value as string}
-          alt="Profilbillede"
-          width={50}
-          height={50}
-          className="rounded-full"
-        />
-      ) : (
-        <Image
-          src="/images/default-rabbit.jpg"
-          alt="Default billede"
-          width={50}
-          height={50}
-          className="rounded-full"
-        />
-      );
-    }
-
-    // - Default vis
-    return value?.toString() || "Ikke angivet";
+    return renderViewMode(key, value, rabbitProfile, textClassName);
   }
 
-  // 2) Hvis vi REDIGERER
-  if (editableFields.includes(key as keyof Rabbit_UpdateDTO)) {
-    // 2a) Tekstfelt (eksempel: "nickName")
-    if (key === "nickName") {
-      return (
-        <Input
-          size="sm"
-          value={editedData.nickName || ""}
-          onChange={(e) => setEditedData({ ...editedData, nickName: e.target.value })}
-          aria-label="Navn"
-        />
-      );
-    }
+  return renderEditMode(key, editedData, setEditedData, inputClassName);
+}
 
-    // 2b) EnumAutocomplete: Race
-    if (key === "race") {
-      return (
-        <EnumAutocomplete
-          enumType="Race"
-          value={editedData.race}
-          onChange={(newVal) => setEditedData({ ...editedData, race: newVal })}
-          label="Race"
-        />
-      );
-    }
+// Helper function for view mode rendering
+function renderViewMode(
+  key: keyof Rabbit_UpdateDTO,  // Changed type
+  value: unknown,
+  rabbitProfile: Rabbit_ProfileDTO | undefined,  // Made explicit
+  textClassName: string  // Made parameter required
+): ReactNode {
+  // Date fields
+  if (key === "dateOfBirth" || key === "dateOfDeath") {
+    return (
+      <span className={textClassName}>
+        {value ? new Date(value as string).toLocaleDateString() : "Ikke angivet"}
+      </span>
+    );
+  }
 
-    // 2c) EnumAutocomplete: Farve
-    if (key === "color") {
-      return (
-        <EnumAutocomplete
-          enumType="Color"
-          value={editedData.color}
-          onChange={(newVal) => setEditedData({ ...editedData, color: newVal })}
-          label="Farve"
-        />
-      );
-    }
-
-    // 2d) EnumAutocomplete: Køn
-    if (key === "gender") {
-      return (
-        <EnumAutocomplete
-          enumType="Gender"
-          value={editedData.gender}
-          onChange={(newVal) => setEditedData({ ...editedData, gender: newVal })}
-          label="Køn"
-        />
-      );
-    }
-
-    // 2e) Boolean-felter på Switch (forSale, forBreeding)
-    if (key === "forSale" || key === "forBreeding") {
-      return (
-        <Switch
-          size="sm"
-          isSelected={editedData[key] === "Ja"}
-          onValueChange={(checked) =>
-            setEditedData({
-              ...editedData,
-              [key]: checked ? "Ja" : "Nej",
-            })
-          }
-          aria-label={key}
-        />
-      );
-    }
-    if (key === "dateOfBirth" || key === "dateOfDeath") {
-      const dateValue = editedData[key] ? new Date(editedData[key] as string).toISOString().split('T')[0] : '';
-      return (
-        <Input
-          size="sm"
-          type="date"
-          value={dateValue}
-          onChange={(e) => {
-            const newDate = e.target.value ? new Date(e.target.value).toISOString() : null;
-            setEditedData({ ...editedData, [key]: newDate });
-          }}
-          aria-label={key === "dateOfBirth" ? "Fødselsdato" : "Dødsdato"}
-        />
-      );
-    }
-
-    // 2g) Forældre ID-felter
-    if (key === "fatherId_Placeholder" || key === "motherId_Placeholder") {
-      return (
-        <Input
-          size="sm"
-          value={editedData[key] as string || ''}
-          onChange={(e) => setEditedData({ ...editedData, [key]: e.target.value })}
-          aria-label={key === "fatherId_Placeholder" ? "Far øremærke" : "Mor øremærke"}
-          placeholder="Indtast øremærke ID"
-        />
-      );
-    }
+  // Parent fields
+  if (key === "fatherId_Placeholder" || key === "motherId_Placeholder") {
+    if (!rabbitProfile || !value) return null;
     
+    const actualId = key === "fatherId_Placeholder" 
+      ? rabbitProfile.father_EarCombId 
+      : rabbitProfile.mother_EarCombId;
+    const parentValid = isParentValid(value as string, actualId ?? null);
+
+    return (
+      <div className="flex items-center gap-2">
+        {parentValid ? (
+          <PiRabbitFill className="w-5 h-5 text-green-500" title="Forælder findes i systemet" />
+        ) : (
+          <PiRabbit className="w-5 h-5 text-zinc-400" title="Forælder findes ikke i systemet" />
+        )}
+        <span className={parentValid ? 'text-green-500' : 'text-zinc-400'}>
+          {String(value)}
+        </span>
+      </div>
+    );
   }
 
-  // Hvis vi ikke har en specialhåndtering, returnér kun tekst
-  return value?.toString() || "Ikke angivet";
+  return <span className={textClassName}>{value?.toString() || "Ikke angivet"}</span>;
+}
+
+// Helper function for edit mode rendering
+function renderEditMode(
+  key: keyof Rabbit_UpdateDTO,
+  editedData: Rabbit_ProfileDTO,
+  setEditedData: (data: Rabbit_ProfileDTO) => void,
+  className: string
+): ReactNode {
+  // Enum inputs (moved to top since it's more specific)
+  if (key === "race" || key === "color" || key === "gender") {
+    const enumType = key === "race" ? "Race" : key === "color" ? "Color" : "Gender";
+    return (
+      <EnumAutocomplete
+        id={`${key}-input`}
+        enumType={enumType}
+        value={editedData[key]}
+        onChange={(newVal) => setEditedData({ ...editedData, [key]: newVal })}
+        label={editableFieldLabels[key]}
+        aria-labelledby={`${key}-label`}
+        placeholder={`Vælg ${editableFieldLabels[key].toLowerCase()}`}
+      />
+    );
+  }
+
+  // Boolean switches
+  if (key === "forSale" || key === "forBreeding") {
+    return (
+      <Switch
+        id={`${key}-input`}
+        size="sm"
+        isSelected={editedData[key] === "Ja"}
+        onValueChange={(checked) =>
+          setEditedData({ ...editedData, [key]: checked ? "Ja" : "Nej" })
+        }
+        className={className}
+        aria-label={editableFieldLabels[key]}
+      />
+    );
+  }
+
+  // Date inputs
+  if (key === "dateOfBirth" || key === "dateOfDeath") {
+    const dateValue = editedData[key] 
+      ? new Date(editedData[key] as string).toISOString().split('T')[0] 
+      : '';
+    return (
+      <Input
+        id={`${key}-input`}
+        size="sm"
+        type="date"
+        value={dateValue}
+        onChange={(e) => {
+          const newDate = e.target.value ? new Date(e.target.value).toISOString() : null;
+          setEditedData({ ...editedData, [key]: newDate });
+        }}
+        className={className}
+        aria-label={editableFieldLabels[key]}
+      />
+    );
+  }
+
+  // Parent ID inputs
+  if (key === "fatherId_Placeholder" || key === "motherId_Placeholder") {
+    return (
+      <Input
+        id={`${key}-input`}
+        size="sm"
+        value={editedData[key] as string || ''}
+        onChange={(e) => setEditedData({ ...editedData, [key]: e.target.value })}
+        className={className}
+        aria-label={editableFieldLabels[key]}
+        placeholder="Indtast øremærke ID"
+      />
+    );
+  }
+
+  // Text input (default case)
+  return (
+    <Input
+      id={`${key}-input`}
+      size="sm"
+      value={editedData[key]?.toString() || ""}
+      onChange={(e) => setEditedData({ ...editedData, [key]: e.target.value })}
+      className={className}
+      aria-label={editableFieldLabels[key]}
+    />
+  );
 }

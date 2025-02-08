@@ -1,5 +1,5 @@
+// src/account/myRabbits/rabbitProfile/[earCombId]/rabbitProfile.tsx
 "use client";
-
 import { Rabbit_ProfileDTO } from '@/Types/AngoraDTOs';
 import { useRabbitProfile } from '@/hooks/rabbits/useRabbitProfile';
 import RabbitProfileNav from '@/components/sectionNav/variants/rabbitProfileNav';
@@ -22,24 +22,6 @@ export default function RabbitProfile({ rabbitProfile }: { rabbitProfile: Rabbit
 
     const handleChangeOwner = async () => {
         toast.info('Skift ejer funktionalitet kommer snart');
-    };
-
-    const propertyLabels: Record<keyof Omit<Rabbit_ProfileDTO, "father_EarCombId" | "mother_EarCombId" | "children" | "profilePicture">, string> = {
-        earCombId: "Øremærke ID",
-        nickName: "Navn",
-        originFullName: "Opdrætter",
-        ownerFullName: "Ejer",
-        race: "Race",
-        color: "Farve",
-        approvedRaceColorCombination: "Godkendt race/farve kombination",
-        dateOfBirth: "Fødselsdato",
-        dateOfDeath: "Dødsdato",
-        isJuvenile: "Ungdyr",
-        gender: "Køn",
-        forSale: "Til salg",
-        forBreeding: "Til avl",
-        fatherId_Placeholder: "Far øremærke",
-        motherId_Placeholder: "Mor øremærke",
     };
 
     return (
@@ -71,7 +53,6 @@ export default function RabbitProfile({ rabbitProfile }: { rabbitProfile: Rabbit
                             isSaving={isSaving}
                             setIsEditing={setIsEditing}
                             handleSave={handleSave}
-                            propertyLabels={propertyLabels}
                             editedData={editedData}
                             setEditedData={setEditedData}
                         />

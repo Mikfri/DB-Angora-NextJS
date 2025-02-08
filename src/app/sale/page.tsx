@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   keywords: 'angora uld, kaniner, uld, til salg, DenBlå-Angora, Den blå angora',
   openGraph: {
     title: 'Til Salg',
-    description: 'Se hvad vi har til salg hos DenBlå-Angora. Kaniner, uld og mere.',
+    description: 'Se hvad sitets avlere har at byde på af kaniner og kanin relaterede varere. Den blå Angora',
     images: '/images/DB-Angora.png',
     url: 'https://www.db-angora.dk/sale',
   },
