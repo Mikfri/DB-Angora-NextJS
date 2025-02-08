@@ -82,8 +82,9 @@ export default function RabbitDetails({
 
   return (
     <div className="space-y-4">
+      {/* Action Buttons and Change Indicator */}
       <div className="flex justify-between items-center">
-        {changedFields.size > 0 && isEditing && (
+        {hasUnsavedChanges && isEditing && (
           <span className="text-amber-400 text-sm animate-pulse">
             Der er ændringer som ikke er gemt
           </span>
@@ -95,13 +96,19 @@ export default function RabbitDetails({
             </Button>
           ) : (
             <div className="space-x-2">
-              <Button size="sm" color="success" onPress={handleSave} isDisabled={isSaving}>
-                Gem
+              <Button 
+                size="sm" 
+                color="success"
+                onPress={handleSave} 
+                isDisabled={isSaving || !hasUnsavedChanges}
+                className='text-white'
+              >
+                {isSaving ? 'Gemmer...' : 'Gem'}
               </Button>
               <Button
                 size="sm"
                 color="secondary"
-                onPress={handleCancel}  // Use new cancel handler
+                onPress={handleCancel}
                 isDisabled={isSaving}
               >
                 Annuller
@@ -111,6 +118,7 @@ export default function RabbitDetails({
         </div>
       </div>
 
+      {/* Form */}
       <form onSubmit={handleSubmit} className="grid gap-4 p-4 bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-lg border border-zinc-700/50">
         {(Object.keys(editableFieldLabels) as Array<keyof Rabbit_UpdateDTO>).map((key) => (
           <div key={key} className="grid grid-cols-1 sm:grid-cols-[200px,1fr] gap-2 items-center">
@@ -134,19 +142,6 @@ export default function RabbitDetails({
             </div>
           </div>
         ))}
-
-        {isEditing && hasUnsavedChanges && (
-          <div className="col-span-full mt-4">
-            <Button
-              type="submit"
-              color="success"
-              isDisabled={isSaving}
-              className="w-full sm:w-auto"
-            >
-              {isSaving ? 'Gemmer...' : 'Gem ændringer'}
-            </Button>
-          </div>
-        )}
       </form>
     </div>
   );

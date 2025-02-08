@@ -33,9 +33,8 @@ export function renderCell(
   rabbitProfile?: Rabbit_ProfileDTO,
   isChanged?: boolean
 ): ReactNode {
-  const inputClassName = `transition-colors duration-200 ${
-    isChanged ? 'border-amber-400' : ''
-  }`;
+  const inputClassName = `transition-colors duration-200 ${isChanged ? 'border-amber-400' : ''
+    }`;
   const textClassName = isChanged ? 'text-amber-400' : 'text-zinc-300';
 
   if (!isEditing) {
@@ -49,8 +48,8 @@ export function renderCell(
 function renderViewMode(
   key: keyof Rabbit_UpdateDTO,  // Changed type
   value: unknown,
-  rabbitProfile: Rabbit_ProfileDTO | undefined,  // Made explicit
-  textClassName: string  // Made parameter required
+  rabbitProfile: Rabbit_ProfileDTO | undefined,
+  textClassName: string
 ): ReactNode {
   // Date fields
   if (key === "dateOfBirth" || key === "dateOfDeath") {
@@ -64,20 +63,28 @@ function renderViewMode(
   // Parent fields
   if (key === "fatherId_Placeholder" || key === "motherId_Placeholder") {
     if (!rabbitProfile || !value) return null;
-    
-    const actualId = key === "fatherId_Placeholder" 
-      ? rabbitProfile.father_EarCombId 
+
+    const actualId = key === "fatherId_Placeholder"
+      ? rabbitProfile.father_EarCombId
       : rabbitProfile.mother_EarCombId;
     const parentValid = isParentValid(value as string, actualId ?? null);
 
     return (
       <div className="flex items-center gap-2">
         {parentValid ? (
-          <PiRabbitFill className="w-5 h-5 text-green-500" title="Forælder findes i systemet" />
+          <PiRabbitFill
+            style={{ color: '#0ea5e9' }} // #22c55e green-500 | #0ea5e9 blue-500
+            className="w-5 h-5"
+            title="Forælder findes i systemet"
+          />
         ) : (
-          <PiRabbit className="w-5 h-5 text-zinc-400" title="Forælder findes ikke i systemet" />
+          <PiRabbit
+            style={{ color: '#94a3b8' }} // zinc-400
+            className="w-5 h-5"
+            title="Forælder findes ikke i systemet"
+          />
         )}
-        <span className={parentValid ? 'text-green-500' : 'text-zinc-400'}>
+        <span className={parentValid ? '!text-green-500' : '!text-zinc-400'}>
           {String(value)}
         </span>
       </div>
@@ -128,8 +135,8 @@ function renderEditMode(
 
   // Date inputs
   if (key === "dateOfBirth" || key === "dateOfDeath") {
-    const dateValue = editedData[key] 
-      ? new Date(editedData[key] as string).toISOString().split('T')[0] 
+    const dateValue = editedData[key]
+      ? new Date(editedData[key] as string).toISOString().split('T')[0]
       : '';
     return (
       <Input
