@@ -1,7 +1,7 @@
 // src/components/header/pageHeader.tsx
 'use client'
 import { usePathname } from 'next/navigation';
-import Link from 'next/link';
+import { Breadcrumbs, BreadcrumbItem } from "@heroui/react";
 
 const pageTitles: Record<string, string> = {
   '/': 'Forside',
@@ -11,57 +11,56 @@ const pageTitles: Record<string, string> = {
   '/account/myRabbits': 'Mine kaniner',
   '/account/myRabbits/create': 'Opret kanin',
   '/account/myRabbits/rabbitProfile': 'Kanin profil',
-
   '/sale': 'Salg',
   '/sale/rabbits': 'Kaniner til salg',
   '/sale/rabbits/profile': 'Kanin profil',
 };
 
-export default function Breadcrumbs() {
+export default function PageHeader() {
   const pathname = usePathname();
-  const pathSegments = pathname.split('/').filter(Boolean); // URL splittes i segmenter uden empty strings
-  
-  //Håndter root path
-  const initialSegments = [{ 
-    path: '/', 
-    label: 'Forside',
-    isProfilePage: false 
-  }];
+  const pathSegments = pathname.split('/').filter(Boolean);
 
-// reduce har 3 parametre: acc/accumulator, segment/current value, index/current index
-const filteredSegments = pathSegments.reduce((acc, segment, index) => {
-  // Hvis segment matcher et rabbit ID format (f.eks. 4977-213), ignoreres det og acc returneres uændret
-  if (segment.match(/^([A-Z]?\d{2,4}-\d{3,6}|\d+)$/)) {
+  // Byg breadcrumb items
+  const breadcrumbItems = pathSegments.reduce((acc, segment, index) => {
+    // Skip rabbit ID segments
+    if (segment.match(/^([A-Z]?\d{2,4}-\d{3,6}|\d+)$/)) {
+      return acc;
+    }
+
+    const path = '/' + pathSegments.slice(0, index + 1).join('/');
+    const label = pageTitles[path] || segment;
+    const isProfilePage = segment === 'rabbitProfile';
+
+    // Kun tilføj hvis vi har en valid label
+    if (label) {
+      acc.push({
+        path,
+        label,
+        isProfilePage
+      });
+    }
+
     return acc;
-  }
-  // Bygger stien op til og med det nuværende segment
-  const path = '/' + pathSegments.slice(0, index + 1).join('/');
-  // Finder label for stien fra pageTitles eller bruger segmentet som label
-  const label = pageTitles[path] || segment;
-  // Tjekker om segmentet er 'rabbitProfile' for at markere det som en profilside
-  const isProfilePage = segment === 'rabbitProfile';
-  // Tilføjer det nuværende segment til acc og returnerer det opdaterede acc
-  return [...acc, { path, label, isProfilePage }];
-}, initialSegments as Array<{ path: string; label: string; isProfilePage: boolean }>);
-// Initialiserer acc som en tom array af objekter med path, label og isProfilePage
+  }, [{ path: '/', label: 'Forside', isProfilePage: false }]);
 
   return (
-    <nav className="text-sm">
-      {filteredSegments.map((breadcrumb, index) => (
-        <span key={breadcrumb.path}>
-          {breadcrumb.isProfilePage ? (
-            <span className="text-zinc-300">{breadcrumb.label}</span>
-          ) : (
-            <Link href={breadcrumb.path} 
-              className="text-zinc-300 hover:text-zinc-100 hover:underline">
-              {breadcrumb.label}
-            </Link>
-          )}
-          {index < filteredSegments.length - 1 && (
-            <span className="mx-2 text-zinc-500">»</span>
-          )}
-        </span>
+    <Breadcrumbs
+      className="text-sm"
+      classNames={{
+        list: "gap-2",
+        base: "text-zinc-300 hover:text-zinc-100",
+        separator: "mx-2 text-zinc-500"
+      }}
+    >
+      {breadcrumbItems.map((item) => (
+        <BreadcrumbItem
+          key={item.path}
+          href={item.isProfilePage ? undefined : item.path}
+          isDisabled={item.isProfilePage}
+        >
+          {item.label}
+        </BreadcrumbItem>
       ))}
-    </nav>
+    </Breadcrumbs>
   );
 }

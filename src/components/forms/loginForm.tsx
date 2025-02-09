@@ -80,12 +80,12 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
                 >
                     {showPassword ? (
                         <>
-                            <FaRegEyeSlash size={20} />
+                            <FaRegEye size={20} />
                         </>
 
                     ) : (
                         <>
-                            <FaRegEye size={20} />
+                            <FaRegEyeSlash size={20} />
                         </>
 
                     )}
