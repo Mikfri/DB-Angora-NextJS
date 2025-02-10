@@ -1,11 +1,11 @@
 // src/app/sale/rabbits/page.tsx
 import { GetRabbitsForSale } from '@/Services/AngoraDbService';
 import { Metadata } from 'next';
-import RabbitsForSale from './rabbitSaleList';
 import { ForSaleFilters } from '@/Types/filterTypes';
+import RabbitsForSale from './rabbitSaleList';
 
 type PageProps = {
-  params: Promise<object>; 
+  params: Promise<object>;
   searchParams?: Promise<{
     Race?: string;
     Color?: string;
@@ -35,7 +35,6 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
 }
 
 export default async function Page({ searchParams }: PageProps) {
-  // Udpak asynkront:
   const sp = searchParams ? await searchParams : {};
 
   const filters: ForSaleFilters = {
@@ -49,5 +48,9 @@ export default async function Page({ searchParams }: PageProps) {
   };
 
   const initialRabbits = await GetRabbitsForSale(filters);
-  return <RabbitsForSale initialData={initialRabbits} initialFilters={filters} />;
+  return <RabbitsForSale
+    initialData={initialRabbits}
+    initialFilters={filters}
+    showSecondaryNav={true} // or true to enable
+  />;
 }

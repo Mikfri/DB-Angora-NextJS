@@ -1,5 +1,5 @@
 // src/hooks/rabbits/useRabbitForsaleFilters.ts
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { ForSaleFilters } from '@/Types/filterTypes';
 import { GetRabbitsForSale } from '@/Services/AngoraDbService';
@@ -12,6 +12,15 @@ export function useFilteredRabbits(initialData: Rabbits_ForsalePreviewList, init
     const [error, setError] = useState<Error | null>(null);
     const [filters, setFilters] = useState<ForSaleFilters>(initialFilters);
 
+    // Memoize updateFilters to prevent unnecessary re-renders
+    const updateFilters = useCallback((newFilters: ForSaleFilters) => {
+        setFilters(newFilters);
+        const params = new URLSearchParams();
+        Object.entries(newFilters).forEach(([key, value]) => {
+            if (value) params.append(key, value.toString());
+        });
+        router.replace(`/sale/rabbits${params.toString() ? `?${params}` : ''}`);
+    }, [router]);
 
     // Fetch data when filters change
     useEffect(() => {
@@ -28,16 +37,6 @@ export function useFilteredRabbits(initialData: Rabbits_ForsalePreviewList, init
         };
         fetchData();
     }, [filters]);
-
-    // Update filters and URL
-    const updateFilters = (newFilters: ForSaleFilters) => {
-        setFilters(newFilters);
-        const params = new URLSearchParams();
-        Object.entries(newFilters).forEach(([key, value]) => {
-            if (value) params.append(key, value.toString());
-        });
-        router.replace(`/sale/rabbits${params.toString() ? `?${params}` : ''}`);
-    };
 
     return { rabbits, filters, isLoading, error, updateFilters };
 }

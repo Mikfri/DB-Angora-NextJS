@@ -1,5 +1,4 @@
 // src/components/sectionNav/base/baseSideNav.tsx
-
 'use client';
 
 import { Button } from "@heroui/react";
@@ -19,13 +18,17 @@ export type NavGroup = {
 
 export const navigationLinks: NavGroup[] = [
     {
-        title: "Min konto",
+        title: "Mine links",
         links: [
             { href: '/account', label: 'Min side', requiresAuth: true },
+            { href: '/account/profile', label: 'Brugerprofil', requiresAuth: true },
         ]
-    },
+    }
+];
+// Add role-specific navigation groups
+export const breederNavigationLinks: NavGroup[] = [
     {
-        title: "Avler funktioner",
+        //title: "Avler links",
         links: [
             {
                 href: '/account/myRabbits',
@@ -43,9 +46,29 @@ export const navigationLinks: NavGroup[] = [
     }
 ];
 
+export const moderatorNavigationLinks: NavGroup[] = [
+    {
+        //title: "Moderator links",
+        links: [
+            {
+                href: '/admin/users',
+                label: 'Find bruger',
+                requiresAuth: true,
+                requiredRole: ['Moderator', 'Admin']
+            },
+            {
+                href: '/admin/posts',
+                label: 'Opret indlæg',
+                requiresAuth: true,
+                requiredRole: ['Moderator', 'Admin']
+            },
+        ]
+    }
+];
+
 export const homeNavigationLinks: NavGroup[] = [
     {
-        title: "Sektioner",
+        //title: "Sektioner",
         links: [
             { href: '#welcome', label: 'Velkommen til' },
             { href: '#news', label: 'Nyheder' },
@@ -59,7 +82,8 @@ export const saleNavigationLinks: NavGroup[] = [
     {
         title: "Kategorier",
         links: [
-            { href: '/sale/rabbits', label: 'Kaniner' },
+            { href: '/sale', label: 'Salg' },
+            { href: '/sale/rabbits', label: 'Kaniner', requiresAuth: false },
             { href: '/sale/wool', label: 'Uld', disabled: true }
         ]
     }
@@ -89,16 +113,7 @@ interface SectionNavProps {
 
 export default function SectionNav({ title, headerActions = [], footerActions = [], children }: SectionNavProps) {
     return (
-        <nav
-            className="
-                sticky top-0
-                max-h-[calc(100vh-220px)]
-                bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150
-                p-4 rounded-xl border border-zinc-700/50 shadow-lg
-                h-fit
-                overflow-y-auto
-            "
-        >
+        <nav className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 p-4 rounded-xl border border-zinc-700/50 shadow-lg h-fit">
             <div className="flex flex-col gap-6">
                 {/* Title */}
                 <h2 className="text-2xl font-bold text-white">{title}</h2>
@@ -120,14 +135,14 @@ export default function SectionNav({ title, headerActions = [], footerActions = 
                     </div>
                 )}
 
-                {/* Children (Profile Content) */}
+                {/* Children (Navigation Content) */}
                 <div className="flex flex-col gap-4">
                     {children}
                 </div>
 
                 {/* Footer Actions */}
                 {footerActions.length > 0 && (
-                    <div className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-2 mt-auto">
                         {footerActions.map((action, index) => (
                             <Button
                                 key={index}
