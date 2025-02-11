@@ -155,12 +155,12 @@ export interface LoginResponse {
 
 export interface User_ProfileDTO {
     breederRegNo: string | null,
-    firstName: string | null,
-    lastName: string | null,
+    firstName: string,
+    lastName: string,
     publicProfile: string | null,
-    roadNameAndNo: string | null,
-    city: string | null,
-    zipCode: number | null,
-    email: string | null,
-    phone: string | null
+    roadNameAndNo: string,
+    city: string,
+    zipCode: number,
+    email: string,
+    phone: string
 }

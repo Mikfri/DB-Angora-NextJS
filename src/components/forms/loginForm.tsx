@@ -2,29 +2,25 @@
 'use client'
 import { useState } from 'react';
 import { Input, Button } from "@heroui/react";
-import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
-import { useAuth } from '@/hooks/useAuth';
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
 
-interface LoginFormProps {
+interface Props {
     onSuccess?: () => void;
 }
 
-export default function LoginForm({ onSuccess }: LoginFormProps) {
+export default function LoginForm({ onSuccess }: Props) {
     const [userName, setUserName] = useState('');
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
-    const router = useRouter();
-    const { refresh } = useAuth();
 
     const isValid = userName.trim().length >= 2 && password.length >= 6;
 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
         if (!isValid) return;
-
+    
         setIsLoading(true);
         try {
             const response = await fetch('/api/auth/login', {
@@ -35,12 +31,10 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
                     password
                 })
             });
-
+    
             if (response.ok) {
-                await refresh();
-                toast.success('Login succesfuld');
-                onSuccess?.();
-                router.push('/account');
+                onSuccess?.();  // Call onSuccess if provided
+                window.location.href = '/account';
             } else {
                 const error = await response.json();
                 toast.error(error.error || 'Ugyldigt login');
@@ -52,7 +46,7 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
             setIsLoading(false);
         }
     };
-
+    
     return (
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <Input

@@ -111,7 +111,7 @@ export default function RabbitDetails({
                 onPress={handleCancel}
                 isDisabled={isSaving}
               >
-                Annuller
+                Anuller
               </Button>
             </div>
           )}

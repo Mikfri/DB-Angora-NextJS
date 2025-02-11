@@ -1,89 +1,60 @@
 // src/app/account/profile/userProfile.tsx
 'use client';
-import { User_ProfileDTO } from "@/Types/AngoraDTOs";
-import { useUserProfile } from "@/hooks/users/useUserProfile";
-import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Button, Input, Switch } from "@heroui/react";
 
-type Props = {
+import { User_ProfileDTO } from "@/Types/AngoraDTOs";
+import { useUserProfile, type EditableUserProfile } from "@/hooks/users/useUserProfile";
+import { useNav } from "@/components/Providers";
+import { useEffect, useMemo } from 'react';
+import UserProfileNav from "@/components/sectionNav/variants/userProfileNav";
+import MyNav from "@/components/sectionNav/variants/myNav";
+import UserDetails from "./userDetails";
+
+interface Props {
     userProfile: User_ProfileDTO;
-};
+}
 
 export default function UserProfile({ userProfile }: Props) {
-    const { isEditing, isSaving, editedData, setEditedData, setIsEditing, handleSave } = useUserProfile(userProfile);
+    const { 
+        isEditing, 
+        isSaving, 
+        editedData, 
+        setEditedData, 
+        setIsEditing, 
+        handleSave 
+    } = useUserProfile(userProfile);
+    
+    const { setPrimaryNav, setSecondaryNav } = useNav();
 
-    const propertyLabels: Record<keyof User_ProfileDTO, string> = {
-        breederRegNo: "Avlernummer",
-        firstName: "Fornavn",
-        lastName: "Efternavn",
-        publicProfile: "Public profil (endnu ikke funktionel)",
-        roadNameAndNo: "Adresse",
-        city: "By",
-        zipCode: "Postnummer",
-        email: "Email",
-        phone: "Tlf nummer"
-    };
+    // Memoize the navigation data
+    const navData = useMemo(() => ({
+        breederRegNo: userProfile.breederRegNo,
+        firstName: userProfile.firstName,
+        lastName: userProfile.lastName,
+        email: userProfile.email,
+        phone: userProfile.phone,
+        onEdit: () => setIsEditing(true),
+        isEditing
+    }), [userProfile, isEditing, setIsEditing]);
 
-    const renderCell = (key: keyof User_ProfileDTO, value: unknown) => {
-        // Non-editable fields always show as plain text
-        if (key === "breederRegNo" || key === "firstName" || key === "lastName") {
-            return value?.toString() || "Ikke angivet";
-        }
+    // Set up navigation
+    useEffect(() => {
+        setPrimaryNav(<UserProfileNav {...navData} />);
+        setSecondaryNav(<MyNav />);
 
-        // For editable fields, check if we're in edit mode
-        if (!isEditing) {
-            return value?.toString() || "Ikke angivet";
-        }
+        return () => {
+            setPrimaryNav(null);
+            setSecondaryNav(null);
+        };
+    }, [navData, setPrimaryNav, setSecondaryNav]);
 
-        // Handle different input types for editable fields
-        if (key === "roadNameAndNo" || key === "city" || key === "email" || key === "phone") {
-            return (
-                <Input
-                    size="sm"
-                    value={editedData[key] || ""}
-                    onChange={(e) => setEditedData({ ...editedData, [key]: e.target.value })}
-                    aria-label={propertyLabels[key]}
-                    classNames={{
-                        input: "bg-zinc-800/50 text-zinc-100",
-                    }}
-                />
-            );
-        }
-
-        if (key === "publicProfile") {
-            return (
-                <Switch
-                    size="sm"
-                    isSelected={editedData[key] === "Ja"}
-                    onValueChange={(checked) => setEditedData({
-                        ...editedData,
-                        [key]: checked ? "Ja" : "Nej"
-                    })}
-                    aria-label={propertyLabels[key]}
-                >
-                    {propertyLabels[key]}
-                </Switch>
-            );
-        }
-
-        if (key === "zipCode") {
-            return (
-                <Input
-                    size="sm"
-                    type="number"
-                    value={editedData[key] !== null ? editedData[key]?.toString() : ""}
-                    onChange={(e) => setEditedData({ 
-                        ...editedData, 
-                        [key]: e.target.value === "" ? null : parseInt(e.target.value, 10)
-                    })}
-                    aria-label={propertyLabels[key]}
-                    classNames={{
-                        input: "bg-zinc-800/50 text-zinc-100",
-                    }}
-                />
-            );
-        }
-
-        return value?.toString() || "Ikke angivet";
+    const detailsProps = {
+        userProfile,
+        isEditing,
+        isSaving,
+        editedData: editedData as EditableUserProfile, // Type assertion for compatibility
+        setEditedData: setEditedData as (data: Partial<EditableUserProfile>) => void,
+        setIsEditing,
+        handleSave
     };
 
     return (
@@ -94,46 +65,7 @@ export default function UserProfile({ userProfile }: Props) {
                 </h1>
             </div>
 
-            <Table
-                aria-label="Bruger detaljer"
-                removeWrapper
-                className="p-0"
-                classNames={{
-                    table: "bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-lg border-zinc-700/50",
-                    th: "bg-zinc-900/50 text-zinc-300 border-zinc-700/50",
-                    td: "text-zinc-100",
-                    tr: "hover:bg-zinc-700/30 border-b border-zinc-700/30 last:border-0",
-                }}
-            >
-                <TableHeader>
-                    <TableColumn className="w-1/3">FELT</TableColumn>
-                    <TableColumn className="w-2/3">
-                        <div className="flex justify-between items-center">
-                            <span>VÆRDI</span>
-                            {!isEditing ? (
-                                <Button size="sm" onPress={() => setIsEditing(true)}>Rediger</Button>
-                            ) : (
-                                <div className="space-x-2">
-                                    <Button size="sm" color="success" onPress={handleSave} isLoading={isSaving}>
-                                        {isSaving ? 'Gemmer...' : 'Gem'}
-                                    </Button>
-                                    <Button size="sm" color="danger" onPress={() => setIsEditing(false)}>
-                                        Annuller
-                                    </Button>
-                                </div>
-                            )}
-                        </div>
-                    </TableColumn>
-                </TableHeader>
-                <TableBody>
-                    {Object.entries(propertyLabels).map(([key, label]) => (
-                        <TableRow key={key}>
-                            <TableCell className="font-medium">{label}</TableCell>
-                            <TableCell>{renderCell(key as keyof User_ProfileDTO, userProfile[key as keyof User_ProfileDTO])}</TableCell>
-                        </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
+            <UserDetails {...detailsProps} />
         </div>
     );
 }

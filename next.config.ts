@@ -1,7 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+    experimental: {
+    },
+    images: {
+        domains: ['api.db-angora.dk'],
+    }
 };
 
 export default nextConfig;

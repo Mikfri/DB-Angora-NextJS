@@ -74,14 +74,6 @@
     @apply drop-shadow-[0_2px_2px_rgba(0,0,0,0.15)];
     font-family: 'Raleway', sans-serif;
   }
-
-    /* Custom HeroUI components */
-    .hero-listbox-section-divider {
-      --hero-listbox-section-divider-color: rgba(255, 255, 255, 0.815);
-      [data-hero-listbox-section] [role="separator"] {
-        border-color: rgba(245, 245, 245, 0.884) !important;
-    }
-  }
 }
 
 body {
