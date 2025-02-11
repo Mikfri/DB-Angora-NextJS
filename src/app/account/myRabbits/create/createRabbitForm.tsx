@@ -4,10 +4,19 @@ import { useCreateRabbit } from '@/hooks/rabbits/useRabbitCreate';
 import { Input, Button, Switch } from "@heroui/react";
 import EnumAutocomplete from '@/components/enumHandlers/enumAutocomplete';
 import { useRouter } from 'next/navigation';
+import { useCallback } from 'react';
 
 export default function CreateRabbitForm() {
     const router = useRouter();
     const { formData, isSubmitting, setFormData, handleSubmit } = useCreateRabbit();
+
+    // Wrap handleSubmit in a type-safe handler for the Button's onPress
+    const handleFormSubmit = useCallback(async () => {
+        const form = document.querySelector('form');
+        if (form) {
+            form.requestSubmit();
+        }
+    }, []);
 
     return (
         <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-4">
@@ -25,10 +34,19 @@ export default function CreateRabbitForm() {
                                 <div className="w-2/3 text-sm">VÆRDI</div>
                             </div>
                             <div className="space-x-2">
-                                <Button size="sm" color="danger" onPress={() => router.back()}>
+                                <Button
+                                    size="sm"
+                                    color="danger"
+                                    onPress={() => router.back()}
+                                >
                                     Annuller
                                 </Button>
-                                <Button size="sm" color="primary" onClick={handleSubmit} isLoading={isSubmitting}>
+                                <Button
+                                    size="sm"
+                                    color="primary"
+                                    onPress={handleFormSubmit}
+                                    isLoading={isSubmitting}
+                                >
                                     {isSubmitting ? 'Opretter...' : 'Opret'}
                                 </Button>
                             </div>

@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import PageNavigationCard from '@/components/cards/pageNavigationCard';
 import { toast } from 'react-toastify';
-import MyNav from '@/components/sectionNav/variants/myNav';
 
 export default function AccountPage() {
     const { isLoggedIn, isLoading } = useAuth();
@@ -31,7 +30,6 @@ export default function AccountPage() {
 
     return (
         <>
-            <MyNav />
             <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-6">
                 <div className="flex flex-col justify-center items-center gap-6">
                     <h1 className="site-title">

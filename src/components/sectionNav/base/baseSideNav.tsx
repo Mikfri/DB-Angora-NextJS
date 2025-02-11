@@ -1,6 +1,5 @@
 // src/components/sectionNav/base/baseSideNav.tsx
 'use client';
-
 import { Button } from "@heroui/react";
 
 export type NavLink = {
@@ -18,7 +17,7 @@ export type NavGroup = {
 
 export const navigationLinks: NavGroup[] = [
     {
-        title: "Mine links",
+        title: "Konto",
         links: [
             { href: '/account', label: 'Min side', requiresAuth: true },
             { href: '/account/profile', label: 'Brugerprofil', requiresAuth: true },
@@ -28,7 +27,7 @@ export const navigationLinks: NavGroup[] = [
 // Add role-specific navigation groups
 export const breederNavigationLinks: NavGroup[] = [
     {
-        //title: "Avler links",
+        title: "Avler funktioner",
         links: [
             {
                 href: '/account/myRabbits',
@@ -48,7 +47,7 @@ export const breederNavigationLinks: NavGroup[] = [
 
 export const moderatorNavigationLinks: NavGroup[] = [
     {
-        //title: "Moderator links",
+        title: "Moderator funktioner",
         links: [
             {
                 href: '/admin/users',
@@ -68,7 +67,7 @@ export const moderatorNavigationLinks: NavGroup[] = [
 
 export const homeNavigationLinks: NavGroup[] = [
     {
-        //title: "Sektioner",
+        title: "DenBlå-Angora",
         links: [
             { href: '#welcome', label: 'Velkommen til' },
             { href: '#news', label: 'Nyheder' },
@@ -113,7 +112,7 @@ interface SectionNavProps {
 
 export default function SectionNav({ title, headerActions = [], footerActions = [], children }: SectionNavProps) {
     return (
-        <nav className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 p-4 rounded-xl border border-zinc-700/50 shadow-lg h-fit">
+        <nav className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 p-4 rounded-xl border-b-2 border-zinc-800/50 shadow-lg h-fit">
             <div className="flex flex-col gap-6">
                 {/* Title */}
                 <h2 className="text-2xl font-bold text-white">{title}</h2>

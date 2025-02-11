@@ -1,7 +1,18 @@
 // src/hooks/useAuth.ts
 'use client'
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+
+// Event emitter type
+type AuthEventListener = () => void;
+type AuthEventType = 'logout' | 'login' | 'sessionExpired';
+
+// Static event handlers (shared across hook instances)
+const listeners: { [key in AuthEventType]?: Set<AuthEventListener> } = {
+    logout: new Set(),
+    login: new Set(),
+    sessionExpired: new Set()
+};
 
 export function useAuth() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -10,7 +21,13 @@ export function useAuth() {
     const [isLoading, setIsLoading] = useState(true);
     const router = useRouter();
 
-    const checkAuth = async () => {
+    // Event emission helper
+    const emitAuthEvent = useCallback((event: AuthEventType) => {
+        listeners[event]?.forEach(listener => listener());
+    }, []);
+
+    // Wrap checkAuth in useCallback
+    const checkAuth = useCallback(async () => {
         try {
             const response = await fetch('/api/auth/token', {
                 method: 'HEAD',
@@ -21,20 +38,24 @@ export function useAuth() {
             const username = response.headers.get('X-User-Name') || '';
             const role = response.headers.get('X-User-Role') || '';
 
-
-            //console.log('🔒 Auth state:', { isAuthenticated, username });
             setIsLoggedIn(isAuthenticated);
             setUserName(username);
             setUserRole(role);
+
+            if (isAuthenticated) {
+                emitAuthEvent('login');
+            }
+
             return isAuthenticated;
         } catch (error) {
             console.error('❌ Auth check failed:', error);
             setIsLoggedIn(false);
+            emitAuthEvent('sessionExpired');
             return false;
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [emitAuthEvent]); // Add emitAuthEvent as dependency
 
     const logout = async () => {
         try {
@@ -45,6 +66,9 @@ export function useAuth() {
 
             if (response.ok) {
                 setIsLoggedIn(false);
+                setUserName('');
+                setUserRole('');
+                emitAuthEvent('logout');
                 router.push('/');
             }
         } catch (error) {
@@ -52,9 +76,23 @@ export function useAuth() {
         }
     };
 
-    useEffect(() => {
-        checkAuth();
+    // Subscribe to auth events
+    const subscribe = useCallback((event: AuthEventType, callback: AuthEventListener) => {
+        listeners[event]?.add(callback);
+        return () => listeners[event]?.delete(callback);
     }, []);
 
-    return { isLoggedIn, userName, userRole, isLoading, logout, refresh: checkAuth };
+    useEffect(() => {
+        checkAuth();
+    }, [checkAuth]);
+
+    return {
+        isLoggedIn,
+        userName,
+        userRole,
+        isLoading,
+        logout,
+        refresh: checkAuth,
+        subscribe
+    };
 }

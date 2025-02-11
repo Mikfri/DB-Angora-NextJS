@@ -3,7 +3,6 @@
 import { Rabbit_ForsaleProfileDTO } from '@/Types/AngoraDTOs';
 import { Card, CardBody, CardHeader } from "@heroui/react";
 import Image from 'next/image';
-import MyNav from '@/components/sectionNav/variants/myNav';
 
 interface Props {
     rabbitProfile: Rabbit_ForsaleProfileDTO;
@@ -11,46 +10,43 @@ interface Props {
 
 export default function RabbitForsaleProfile({ rabbitProfile }: Props) {
     return (
-        <>
-            <MyNav />
-            <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-6">
-                <Card className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 border border-zinc-700/50">
-                    <CardHeader className="flex gap-4">
-                        <div className="relative w-32 h-32">
-                            <Image
-                                src={rabbitProfile.profilePicture || '/images/default-rabbit.jpg'}
-                                alt={`${rabbitProfile.nickName || 'Unavngivet kanin'}`}
-                                className="object-cover rounded-lg"
-                                width={128}
-                                height={128}
-                            />
+        <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-6">
+            <Card className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 border border-zinc-700/50">
+                <CardHeader className="flex gap-4">
+                    <div className="relative w-32 h-32">
+                        <Image
+                            src={rabbitProfile.profilePicture || '/images/default-rabbit.jpg'}
+                            alt={`${rabbitProfile.nickName || 'Unavngivet kanin'}`}
+                            className="object-cover rounded-lg"
+                            width={128}
+                            height={128}
+                        />
+                    </div>
+                    <div>
+                        <h1 className="text-2xl font-bold">{rabbitProfile.nickName || 'Unavngivet'}</h1>
+                        <p className="text-zinc-400">{rabbitProfile.earCombId}</p>
+                    </div>
+                </CardHeader>
+                <CardBody>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <h2 className="text-xl font-semibold mb-2">Kanin Information</h2>
+                            <p>Race: {rabbitProfile.race}</p>
+                            <p>Farve: {rabbitProfile.color}</p>
+                            <p>Køn: {rabbitProfile.gender}</p>
+                            <p>Fødselsdato: {rabbitProfile.dateOfBirth}</p>
+                            <p>Til salg: {rabbitProfile.forSale}</p>
+                            <p>Til avl: {rabbitProfile.forBreeding}</p>
                         </div>
                         <div>
-                            <h1 className="text-2xl font-bold">{rabbitProfile.nickName || 'Unavngivet'}</h1>
-                            <p className="text-zinc-400">{rabbitProfile.earCombId}</p>
+                            <h2 className="text-xl font-semibold mb-2">Kontakt Information</h2>
+                            <p>Ejer: {rabbitProfile.ownerFullName}</p>
+                            <p>Telefon: {rabbitProfile.ownerPhoneNumber}</p>
+                            <p>Email: {rabbitProfile.ownerEmail}</p>
                         </div>
-                    </CardHeader>
-                    <CardBody>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <h2 className="text-xl font-semibold mb-2">Kanin Information</h2>
-                                <p>Race: {rabbitProfile.race}</p>
-                                <p>Farve: {rabbitProfile.color}</p>
-                                <p>Køn: {rabbitProfile.gender}</p>
-                                <p>Fødselsdato: {rabbitProfile.dateOfBirth}</p>
-                                <p>Til salg: {rabbitProfile.forSale}</p>
-                                <p>Til avl: {rabbitProfile.forBreeding}</p>
-                            </div>
-                            <div>
-                                <h2 className="text-xl font-semibold mb-2">Kontakt Information</h2>
-                                <p>Ejer: {rabbitProfile.ownerFullName}</p>
-                                <p>Telefon: {rabbitProfile.ownerPhoneNumber}</p>
-                                <p>Email: {rabbitProfile.ownerEmail}</p>
-                            </div>
-                        </div>
-                    </CardBody>
-                </Card>
-            </div>
-        </>
+                    </div>
+                </CardBody>
+            </Card>
+        </div>
     );
 }

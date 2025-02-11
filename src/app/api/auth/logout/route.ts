@@ -7,7 +7,11 @@ export async function POST() {
         { status: 200 }
     );
     
+    // Slet alle auth-relaterede cookies
     response.cookies.delete('accessToken');
+    response.cookies.delete('userName');
+    response.cookies.delete('userRole');
+    response.cookies.delete('userProfileId');
     
     return response;
 }
