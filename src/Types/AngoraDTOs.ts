@@ -19,7 +19,7 @@ export interface Rabbit_ForsalePreviewDTO {
     zipCode: number;
     city: string;
     profilePicture: string;
-    userOwner: string;
+    ownerName: string;
 }
 export type Rabbits_ForsalePreviewList = Rabbit_ForsalePreviewDTO[];
 

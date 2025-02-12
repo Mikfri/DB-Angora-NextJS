@@ -2,62 +2,102 @@
 'use client';
 
 import { Rabbit_ForsalePreviewDTO } from '@/Types/AngoraDTOs';
-import { Card, CardHeader, CardBody } from "@heroui/react";
-import Image from 'next/image';
+import { Card, CardFooter, Image } from "@heroui/react";
 import { useState } from 'react';
+import { FaMars, FaVenus, FaRegHeart, FaHeart } from "react-icons/fa";
 
 interface Props {
     rabbit: Rabbit_ForsalePreviewDTO;
     onClick?: () => void;
 }
 
-const formatDate = (dateString: string | null) => {
-    if (!dateString) return 'Ikke angivet';
-    return new Intl.DateTimeFormat('da-DK', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-    }).format(new Date(dateString));
-};
-
 export default function RabbitForsaleCard({ rabbit, onClick }: Props) {
     const [imageError, setImageError] = useState(false);
+    const [isFavorite, setIsFavorite] = useState(false);
     const defaultImage = '/images/default-rabbit.jpg';
     const profileImage = (!imageError && rabbit.profilePicture) || defaultImage;
+
+    const handleFavoriteClick = (e: React.MouseEvent) => {
+        e.stopPropagation(); // Prevent card click when clicking favorite
+        setIsFavorite(!isFavorite);
+    };
 
     return (
         <Card
             isPressable={!!onClick}
             onPress={onClick}
-            className="max-w-sm hover:shadow-lg transition-shadow bg-zinc-800/80 backdrop-blur-md 
-            backdrop-saturate-150 border border-zinc-700/50"
+            isHoverable
+            radius="lg"
+            shadow="none"
+            className="w-[300px] bg-zinc-700/50 backdrop-blur-md 
+                      backdrop-saturate-150
+                      transition-all duration-200
+                      overflow-hidden dark group"
+            classNames={{
+                base: "border-b-2 border-zinc-800/80 hover:shadow-lg hover:shadow-black/40",
+            }}
         >
-            <div className="relative w-full h-48">
-                <Image
-                    src={profileImage}
-                    alt={`${rabbit.nickName} profile picture`}
-                    fill
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    priority
-                    className="object-cover"
-                    onError={() => setImageError(true)}
-                />
-            </div>
-            <CardHeader className="flex gap-3">
-                <div className="flex flex-col">
-                    <p className="text-md font-bold text-zinc-100">{rabbit.nickName}</p>
-                    <p className="text-small text-zinc-400">{rabbit.earCombId}</p>
+            <div className="relative w-full h-[300px] overflow-hidden">
+                {/* Billedet */}
+                <div className="absolute inset-0 z-0">
+                    <Image
+                        alt={`${rabbit.nickName || 'Unavngiven'}`}
+                        className="w-full h-full object-cover transition-transform duration-700 ease-out
+                                 group-hover:scale-110"
+                        src={profileImage}
+                        onError={() => setImageError(true)}
+                    />
                 </div>
-            </CardHeader>
-            <CardBody className="text-zinc-300">
-                <p>Fødselsdato: {formatDate(rabbit.dateOfBirth)}</p>
-                <p>Race: {rabbit.race}</p>
-                <p>Farve: {rabbit.color}</p>
-                <p>Køn: {rabbit.gender}</p>
-                <p>Postnummer: {rabbit.zipCode}</p>
-                <p>By: {rabbit.city}</p>
-                <p>Ejer: {rabbit.userOwner}</p>
-            </CardBody>
+
+                {/* Header med gradient */}
+                <div className="absolute top-0 left-0 right-0 h-18 z-10 bg-gradient-to-b from-black/70 to-transparent">
+                    <div className="p-4 flex justify-between items-start">
+                        <div>
+                            <h4 className="text-white font-medium text-lg">
+                                {rabbit.race || 'Ukendt race'}
+                            </h4>
+                            <p className="text-sm text-white/90">
+                                {rabbit.color}
+                            </p>
+                        </div>
+                        {/* Favorite ikon */}
+                        <div 
+                            onClick={handleFavoriteClick}
+                            className="p-2 hover:scale-110 transition-transform cursor-pointer"
+                            role="button"
+                            aria-label={isFavorite ? "Fjern fra favoritter" : "Tilføj til favoritter"}
+                        >
+                            {isFavorite ? (
+                                <FaHeart size={24} className="text-red-500" />
+                            ) : (
+                                <FaRegHeart size={24} className="text-white/70 hover:text-red-500" />
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Footer med basis info */}
+            <CardFooter className="p-4">
+                <div className="flex flex-col gap-3 w-full">
+                    <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-2">
+                            {rabbit.gender === 'Buck' ? (
+                                <FaMars size={16} className="text-blue-400" />
+                            ) : (
+                                <FaVenus size={16} className="text-pink-400" />
+                            )}
+                            <p className="text-sm text-white/90">{rabbit.gender}</p>
+                        </div>
+                        <p className="text-tiny text-white/90 uppercase tracking-wider">
+                            {rabbit.earCombId}
+                        </p>
+                    </div>
+                    <div className="text-sm text-white/70">
+                        {rabbit.zipCode} {rabbit.city}
+                    </div>
+                </div>
+            </CardFooter>
         </Card>
     );
 }

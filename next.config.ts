@@ -4,7 +4,14 @@ const nextConfig: NextConfig = {
     experimental: {
     },
     images: {
-        domains: ['api.db-angora.dk'],
+        remotePatterns: [
+            {
+                protocol: 'https',
+                hostname: 'api.db-angora.dk',
+                port: '',
+                pathname: '/**',
+            },
+        ],
     }
 };
 
