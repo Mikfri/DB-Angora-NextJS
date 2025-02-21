@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from "@heroui/react";
 import { Rabbit_ProfileDTO, Rabbit_UpdateDTO } from "@/Types/AngoraDTOs";
-import { renderCell } from "@/utils/renderCell";
+import { renderCell } from "@/app/account/myRabbits/rabbitProfile/[earCombId]/renderCell";
 
 interface RabbitDetailsProps {
   rabbitProfile: Rabbit_ProfileDTO;

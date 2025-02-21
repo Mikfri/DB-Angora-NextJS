@@ -46,7 +46,7 @@ export function renderCell(
 
 // Helper function for view mode rendering
 function renderViewMode(
-  key: keyof Rabbit_UpdateDTO,  // Changed type
+  key: keyof Rabbit_UpdateDTO,
   value: unknown,
   rabbitProfile: Rabbit_ProfileDTO | undefined,
   textClassName: string
@@ -73,18 +73,16 @@ function renderViewMode(
       <div className="flex items-center gap-2">
         {parentValid ? (
           <PiRabbitFill
-            style={{ color: '#0ea5e9' }} // #22c55e green-500 | #0ea5e9 blue-500
-            className="w-5 h-5"
+            className="w-5 h-5 text-blue-500"
             title="Forælder findes i systemet"
           />
         ) : (
           <PiRabbit
-            style={{ color: '#94a3b8' }} // zinc-400
-            className="w-5 h-5"
+            className="w-5 h-5 text-zinc-400"
             title="Forælder findes ikke i systemet"
           />
         )}
-        <span className={parentValid ? '!text-green-500' : '!text-zinc-400'}>
+        <span className="text-zinc-300">
           {String(value)}
         </span>
       </div>
@@ -135,9 +133,13 @@ function renderEditMode(
 
   // Date inputs
   if (key === "dateOfBirth" || key === "dateOfDeath") {
-    const dateValue = editedData[key]
-      ? new Date(editedData[key] as string).toISOString().split('T')[0]
-      : '';
+    // Format the date value for the input
+    let dateValue = '';
+    if (editedData[key]) {
+      const date = new Date(editedData[key] as string);
+      dateValue = date.toISOString().split('T')[0]; // Gets YYYY-MM-DD format
+    }
+
     return (
       <Input
         id={`${key}-input`}
@@ -145,7 +147,10 @@ function renderEditMode(
         type="date"
         value={dateValue}
         onChange={(e) => {
-          const newDate = e.target.value ? new Date(e.target.value).toISOString() : null;
+          // When a new date is selected, format it consistently
+          const newDate = e.target.value
+            ? new Date(e.target.value).toISOString().split('T')[0]  // Convert to YYYY-MM-DD
+            : null;
           setEditedData({ ...editedData, [key]: newDate });
         }}
         className={className}
