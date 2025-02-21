@@ -159,18 +159,72 @@ function renderEditMode(
     );
   }
 
-  // Parent ID inputs
+  // Parent ID inputs in renderEditMode
   if (key === "fatherId_Placeholder" || key === "motherId_Placeholder") {
+    const [rightId = '', leftId = ''] = (editedData[key] as string || '').split('-');
+    const parentType = key === "fatherId_Placeholder" ? "Far" : "Mor";
+    const combinedId = editedData[key] as string || '';
+
     return (
-      <Input
-        id={`${key}-input`}
-        size="sm"
-        value={editedData[key] as string || ''}
-        onChange={(e) => setEditedData({ ...editedData, [key]: e.target.value })}
-        className={className}
-        aria-label={editableFieldLabels[key]}
-        placeholder="Indtast øremærke ID"
-      />
+      <div className="border border-zinc-700 rounded-lg overflow-hidden">
+        <div className="p-4 space-y-4">
+          {/* Header row with combined ID */}
+          <div className="flex items-center gap-2">
+            <label className="text-sm text-zinc-300 font-medium shrink-0">
+              {parentType} ID:
+            </label>
+            <div className="text-sm text-zinc-400 font-mono bg-zinc-700/50 px-2 py-1 rounded">
+              {combinedId || 'xxxx-yyyy'}
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div className="border-t border-zinc-700" />
+
+          {/* Separate ear ID inputs */}
+          <div className="grid grid-cols-2 gap-4">
+            {/* Right ear input */}
+            <div className="flex items-center gap-2">
+              <label htmlFor={`${key}-right`}
+                className="text-xs text-zinc-400 whitespace-nowrap">
+                Højre øre:
+              </label>
+              <Input
+                id={`${key}-right`}
+                size="sm"
+                value={rightId}
+                onChange={(e) => {
+                  const newRight = e.target.value;
+                  const newId = newRight || leftId ? `${newRight}-${leftId}` : '';
+                  setEditedData({ ...editedData, [key]: newId });
+                }}
+                className={className}
+                placeholder="xxxx"
+              />
+            </div>
+
+            {/* Left ear input */}
+            <div className="flex items-center gap-2">
+              <label htmlFor={`${key}-left`}
+                className="text-xs text-zinc-400 whitespace-nowrap">
+                Venstre øre:
+              </label>
+              <Input
+                id={`${key}-left`}
+                size="sm"
+                value={leftId}
+                onChange={(e) => {
+                  const newLeft = e.target.value;
+                  const newId = rightId || newLeft ? `${rightId}-${newLeft}` : '';
+                  setEditedData({ ...editedData, [key]: newId });
+                }}
+                className={className}
+                placeholder="yyyy"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
     );
   }
 
