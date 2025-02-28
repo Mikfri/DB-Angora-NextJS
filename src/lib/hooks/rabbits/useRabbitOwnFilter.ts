@@ -1,6 +1,6 @@
 // src/hooks/rabbits/useRabbitOwnFilter.ts
 import { useState } from 'react';
-import { Rabbit_PreviewDTO } from '@/Types/AngoraDTOs';
+import { Rabbit_PreviewDTO } from '@/api/types/AngoraDTOs';
 
 export interface OwnFilters {
     search: string;
@@ -46,7 +46,7 @@ export function useOwnRabbits(initialRabbits: Rabbit_PreviewDTO[]) {
         const matchesGender = !filters.Gender || rabbit.gender === filters.Gender;
         const matchesRace = !filters.Race || rabbit.race === filters.Race;
         const matchesColor = !filters.Color || rabbit.color === filters.Color;
-        const matchesForSale = !filters.ForSale || rabbit.forSale === 'Ja';
+        const matchesForSale = !filters.ForSale || rabbit.hasSaleDetails === true;
         const matchesForBreeding = !filters.ForBreeding || rabbit.forBreeding === 'Ja';
 
         return matchesSearch &&

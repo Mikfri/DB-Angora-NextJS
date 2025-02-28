@@ -3,7 +3,7 @@
 'use client'
 import { usePathname } from 'next/navigation';
 import { useEffect, useMemo } from 'react';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/lib/hooks/useAuth';
 import { Listbox, ListboxItem, ListboxSection } from "@heroui/react";
 import { IoHomeOutline, IoPersonOutline } from "react-icons/io5";
 import { MdPets } from "react-icons/md";

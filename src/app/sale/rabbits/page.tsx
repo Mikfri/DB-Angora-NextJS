@@ -1,8 +1,8 @@
 // src/app/sale/rabbits/page.tsx
-import { GetRabbitsForSale } from '@/Services/AngoraDbService';
 import { Metadata } from 'next';
-import { ForSaleFilters } from '@/Types/filterTypes';
+import { ForSaleFilters } from '@/api/types/filterTypes';
 import RabbitsForSale from './rabbitSaleList';
+import { GetRabbitsForSale } from '@/api/endpoints/rabbitController';
 
 type PageProps = {
   params: Promise<object>;

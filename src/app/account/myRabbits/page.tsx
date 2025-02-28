@@ -1,7 +1,7 @@
 // src/app/account/myRabbits/page.tsx
-import { GetOwnRabbits } from '@/Services/AngoraDbService';
 import { cookies } from 'next/headers';
 import RabbitOwnList from './rabbitOwnList';
+import { GetOwnRabbits } from '@/api/endpoints/accountController';
 
 export default async function RabbitsPage() {
     const cookieStore = await cookies();

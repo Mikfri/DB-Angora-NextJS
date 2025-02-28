@@ -1,11 +1,11 @@
 // src/app/account/myRabbits/rabbitOwnList.tsx
 'use client';
-import { Rabbit_PreviewDTO } from '@/Types/AngoraDTOs';
+import { Rabbit_PreviewDTO } from '@/api/types/AngoraDTOs';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo } from 'react';
 import { useNav } from "@/components/Providers";
 import OwnNav from '@/components/sectionNav/variants/rabbitOwnNav';
-import { useOwnRabbits } from '@/hooks/rabbits/useRabbitOwnFilter';
+import { useOwnRabbits } from '@/lib/hooks/rabbits/useRabbitOwnFilter';
 import RabbitPreviewCard from '@/components/cards/rabbitPreviewCard';
 import MyNav from "@/components/sectionNav/variants/myNav";
 

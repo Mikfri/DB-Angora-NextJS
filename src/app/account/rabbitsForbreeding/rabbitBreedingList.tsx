@@ -3,8 +3,8 @@
 import { useRouter } from 'next/navigation';
 import BreedingNav from '@/components/sectionNav/variants/rabbitBreedingNav';
 import RabbitForbreedingCard from '@/components/cards/rabbitForbreedingCard';
-import { useBreedingRabbits } from '@/hooks/rabbits/useRabbitBreedingFilter';
-import { Rabbit_ForbreedingPreviewDTO } from '@/Types/AngoraDTOs';
+import { useBreedingRabbits } from '@/lib/hooks/rabbits/useRabbitBreedingFilter';
+import { Rabbit_ForbreedingPreviewDTO } from '@/api/types/AngoraDTOs';
 import { useNav } from "@/components/Providers";
 import { useEffect, useMemo } from 'react';
 import MyNav from "@/components/sectionNav/variants/myNav";

@@ -1,6 +1,6 @@
 // src/app/accuount/page.tsx
 'use client';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/lib/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import PageNavigationCard from '@/components/cards/pageNavigationCard';

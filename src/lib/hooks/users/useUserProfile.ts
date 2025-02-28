@@ -1,6 +1,6 @@
 'use client';
 import { useState } from "react";
-import { User_ProfileDTO } from "@/Types/AngoraDTOs";
+import { User_ProfileDTO } from "@/api/types/AngoraDTOs";
 import { toast } from "react-toastify";
 
 // Export the type and rename it to EditableUserProfile

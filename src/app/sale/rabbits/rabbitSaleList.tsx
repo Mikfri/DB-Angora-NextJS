@@ -5,13 +5,13 @@ import { useEffect, useMemo } from "react";
 import { useRouter } from 'next/navigation';
 import ForSaleNav from '@/components/sectionNav/variants/rabbitSaleNav';
 import RabbitForsaleCard from '@/components/cards/rabbitForsaleCard';
-import { Rabbits_ForsalePreviewList } from '@/Types/AngoraDTOs';
-import { ForSaleFilters } from '@/Types/filterTypes';
-import { useFilteredRabbits } from '@/hooks/rabbits/useRabbitForsaleFilter';
+import { Rabbits_SaleDetailsPreviewList } from '@/api/types/AngoraDTOs';
+import { ForSaleFilters } from '@/api/types/filterTypes';
+import { useFilteredRabbits } from '@/lib/hooks/rabbits/useRabbitForsaleFilter';
 import MyNav from "@/components/sectionNav/variants/myNav";
 
 interface Props {
-    initialData: Rabbits_ForsalePreviewList;
+    initialData: Rabbits_SaleDetailsPreviewList;
     initialFilters: ForSaleFilters;
     showSecondaryNav?: boolean;
 }

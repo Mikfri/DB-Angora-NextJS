@@ -4,7 +4,7 @@ import { Input } from "@heroui/react";
 import SectionNav from '../base/baseSideNav';
 import EnumAutocomplete from '@/components/enumHandlers/enumAutocomplete';
 import EnumLocalAutocomplete, { RaceColorApproval } from "@/components/enumHandlers/enumLocalAutocomplete";
-import { BreedingFilters } from '@/hooks/rabbits/useRabbitBreedingFilter';
+import { BreedingFilters } from '@/lib/hooks/rabbits/useRabbitBreedingFilter';
 
 interface Props {
     activeFilters: BreedingFilters;

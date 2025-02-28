@@ -1,4 +1,4 @@
-// src/components/forms/loginForm.tsx
+// src/components/modals/login/loginForm.tsx
 'use client'
 import { useState } from 'react';
 import { Input, Button } from "@heroui/react";

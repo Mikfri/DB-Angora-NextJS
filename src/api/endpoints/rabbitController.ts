@@ -1,19 +1,20 @@
-// src/services/AngoraDbService.ts
-import { Rabbit_UpdateDTO, Rabbit_ProfileDTO, Rabbits_ForsalePreviewList, Rabbit_CreateDTO, LoginResponse, Rabbits_PreviewList, Rabbit_PreviewDTO, Rabbit_ForsaleProfileDTO, User_ProfileDTO, Rabbits_ForbreedingPreviewList } from "@/Types/AngoraDTOs";
-import { ForSaleFilters } from "@/Types/filterTypes";
-import { getApiUrl } from '@/config/apiConfig';
+import { getApiUrl } from "../config/apiConfig";
+import { Rabbit_CreateDTO, Rabbit_ProfileDTO, Rabbits_SaleDetailsPreviewList, Rabbit_ForsaleProfileDTO, Rabbits_ForbreedingPreviewList, Rabbit_UpdateDTO, Rabbit_PreviewDTO, Rabbit_CreateSaleDetailsDTO, Rabbit_SaleDetailsDTO, Rabbit_UpdateSaleDetailsDTO } from "../types/AngoraDTOs";
+import { ForSaleFilters } from "../types/filterTypes";
 
+
+//-------------------- CREATE
 export async function CreateRabbit(rabbitData: Rabbit_CreateDTO, accessToken: string): Promise<Rabbit_ProfileDTO> {
     const response = await fetch(getApiUrl('Rabbit/Create'), {
         method: 'POST',
-        headers: { 
+        headers: {
             'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json',
             'accept': 'text/plain'
         },
         body: JSON.stringify(rabbitData)
     });
-    
+
     if (!response.ok) {
         const errorText = await response.text();
         console.error('API Error:', {
@@ -28,9 +29,38 @@ export async function CreateRabbit(rabbitData: Rabbit_CreateDTO, accessToken: st
     return response.json();
 }
 
-export async function GetRabbitsForSale(filters?: ForSaleFilters): Promise<Rabbits_ForsalePreviewList> {
+export async function CreateSaleDetails(
+    saleDetails: Rabbit_CreateSaleDetailsDTO,
+    accessToken: string
+): Promise<Rabbit_SaleDetailsDTO> {
+    const response = await fetch(getApiUrl('Rabbit/CreateSaleDetails'), {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+            'Accept': 'text/plain'
+        },
+        body: JSON.stringify(saleDetails)
+    });
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        console.error('API Error:', {
+            status: response.status,
+            statusText: response.statusText,
+            body: errorText,
+            sentData: saleDetails
+        });
+        throw new Error(`Failed to create sale details: ${response.status} ${response.statusText}`);
+    }
+
+    return response.json();
+}
+
+//-------------------- READ
+export async function GetRabbitsForSale(filters?: ForSaleFilters): Promise<Rabbits_SaleDetailsPreviewList> {
     let url = getApiUrl('Rabbit/ForSale');
-    
+
     if (filters) {
         const params = new URLSearchParams();
         Object.entries(filters).forEach(([key, value]) => {
@@ -75,15 +105,6 @@ export async function GetRabbitsForBreeding(accessToken: string): Promise<Rabbit
     return forbreedingRabbits;
 }
 
-export async function GetOwnRabbits(accessToken: string): Promise<Rabbits_PreviewList> {
-    const data = await fetch(getApiUrl('Account/Rabbits_Owned'), {
-        headers: { Authorization: `Bearer ${accessToken}` }
-    });
-    const ownRabbits = await data.json();
-    //console.log('API Response:', ownRabbits); // Debug log
-    return ownRabbits;
-}
-
 export async function GetRabbitProfile(accessToken: string, earCombId: string): Promise<Rabbit_ProfileDTO> {
     const data = await fetch(getApiUrl(`Rabbit/Profile/${earCombId}`), {
         headers: { Authorization: `Bearer ${accessToken}` }
@@ -92,6 +113,8 @@ export async function GetRabbitProfile(accessToken: string, earCombId: string): 
     //console.log('API Response:', rabbitProfile); // Debug log
     return rabbitProfile;
 }
+
+//-------------------- UPDATE
 
 export async function EditRabbit(earCombId: string, rabbitData: Rabbit_UpdateDTO, accessToken: string): Promise<Rabbit_ProfileDTO> {
     const formattedData = {
@@ -102,14 +125,14 @@ export async function EditRabbit(earCombId: string, rabbitData: Rabbit_UpdateDTO
 
     const response = await fetch(getApiUrl(`Rabbit/Update/${earCombId}`), {
         method: 'PUT',
-        headers: { 
+        headers: {
             'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json',
             'accept': 'text/plain'
         },
         body: JSON.stringify(formattedData)
     });
-    
+
     if (!response.ok) {
         const errorText = await response.text();
         console.error('API Error:', {
@@ -120,20 +143,50 @@ export async function EditRabbit(earCombId: string, rabbitData: Rabbit_UpdateDTO
         });
         throw new Error(`Failed to update rabbit: ${response.status} ${response.statusText}`);
     }
-    
+
     return response.json();
 }
 
+export async function UpdateSaleDetails(
+    saleDetailsId: number,
+    updateSaleDetailsDTO: Rabbit_UpdateSaleDetailsDTO,
+    accessToken: string
+): Promise<Rabbit_SaleDetailsDTO> {
+    const response = await fetch(getApiUrl(`Rabbit/UpdateSaleDetails/${saleDetailsId}`), {
+        method: 'PUT',
+        headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+            'Accept': 'text/plain'
+        },
+        body: JSON.stringify(updateSaleDetailsDTO)
+    });
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        console.error('API Error:', {
+            status: response.status,
+            statusText: response.statusText,
+            body: errorText,
+            sentData: updateSaleDetailsDTO
+        });
+        throw new Error(`Failed to update sale details: ${response.status} ${response.statusText}`);
+    }
+
+    return response.json();
+}
+
+//-------------------- DELETE
 export async function DeleteRabbit(earCombId: string, accessToken: string): Promise<Rabbit_PreviewDTO> {
     const response = await fetch(getApiUrl(`Rabbit/Delete/${earCombId}`), {
         method: 'DELETE',
-        headers: { 
+        headers: {
             'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json',
             'accept': 'text/plain'
         }
     });
-    
+
     if (!response.ok) {
         const errorText = await response.text();
         console.error('API Error:', {
@@ -147,42 +200,33 @@ export async function DeleteRabbit(earCombId: string, accessToken: string): Prom
     return response.json();
 }
 
-export async function Login(userName: string, password: string): Promise<LoginResponse> {
-    const response = await fetch(getApiUrl('Auth/Login'), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userName, password, rememberMe: false })
+export async function DeleteSaleDetails(
+    saleDetailsId: number,
+    accessToken: string
+): Promise<{ message: string }> {
+    const response = await fetch(getApiUrl(`Rabbit/DeleteSaleDetails/${saleDetailsId}`), {
+        method: 'DELETE',
+        headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+            'accept': 'text/plain'
+        }
     });
 
     if (!response.ok) {
-        throw new Error(`Login failed: ${response.status}`);
+        const errorText = await response.text();
+        console.error('API Error:', {
+            status: response.status,
+            statusText: response.statusText,
+            body: errorText
+        });
+        
+        if (response.status === 404) {
+            throw new Error('Sale details not found or you do not have permission to delete them.');
+        }
+        
+        throw new Error(`Failed to delete sale details: ${response.status} ${response.statusText}`);
     }
 
     return response.json();
-}
-
-export type RabbitEnum = 'Race' | 'Color' | 'Gender' | 'IsPublic';
-
-const ENUM_ENDPOINTS = {
-    Race: 'Enum/Races',
-    Color: 'Enum/Colors',
-    Gender: 'Enum/Genders',
-    IsPublic: 'Enum/IsPublic'
-} as const;
-
-export async function GetEnumValues(enumType: RabbitEnum): Promise<string[]> {
-    const endpoint = ENUM_ENDPOINTS[enumType];
-    const response = await fetch(getApiUrl(endpoint));
-    
-    if (!response.ok) {
-        throw new Error(`Failed to fetch ${enumType} enum values: ${response.status}`);
-    }
-    return response.json();
-}
-export async function GetUserProfile(accessToken: string, userProfileId: string): Promise<User_ProfileDTO> {
-    const data = await fetch(getApiUrl(`Account/UserProfile/${userProfileId}`), {
-        headers: { Authorization: `Bearer ${accessToken}` },
-    });
-    const userProfile = await data.json();
-    return userProfile;
 }

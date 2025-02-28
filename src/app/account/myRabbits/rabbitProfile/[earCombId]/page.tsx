@@ -1,7 +1,7 @@
 // src/app/account/myRabbits/rabbitProfile/[earCombId]/page.tsx
-import { GetRabbitProfile } from "@/Services/AngoraDbService";
 import { cookies } from "next/headers";
 import RabbitProfile from "./rabbitProfile";
+import { GetRabbitProfile } from "@/api/endpoints/rabbitController";
 
 type PageProps = {
     params: Promise<{ earCombId: string }>;

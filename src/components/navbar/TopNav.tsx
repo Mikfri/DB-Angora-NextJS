@@ -11,8 +11,8 @@ import { PiUserCircleFill, PiUserCircleCheckFill } from "react-icons/pi";
 import { MdOutlineLogout } from 'react-icons/md';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { useAuth } from '@/hooks/useAuth';
-import LoginModal from '../modals/loginModal';
+import { useAuth } from '@/lib/hooks/useAuth';
+import LoginModal from '../modals/login/loginModal';
 
 export default function TopNav() {
     const pathname = usePathname();

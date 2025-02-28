@@ -2,14 +2,13 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
-import { CreateRabbit } from '@/Services/AngoraDbService';
-import { Rabbit_CreateDTO } from '@/Types/AngoraDTOs';
+import { Rabbit_CreateDTO } from '@/api/types/AngoraDTOs';
+import { CreateRabbit } from '@/api/endpoints/rabbitController';
 
 export function useCreateRabbit() { // Changed from useRabbit
     const router = useRouter();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formData, setFormData] = useState<Partial<Rabbit_CreateDTO>>({
-        forSale: "Nej",
         forBreeding: "Nej"
     });
 

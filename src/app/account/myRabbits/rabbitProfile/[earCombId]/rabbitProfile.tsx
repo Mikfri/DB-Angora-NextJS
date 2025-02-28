@@ -1,10 +1,11 @@
 // src/account/myRabbits/rabbitProfile/[earCombId]/rabbitProfile.tsx
 "use client";
-import { Rabbit_ProfileDTO } from '@/Types/AngoraDTOs';
-import { useRabbitProfile } from '@/hooks/rabbits/useRabbitProfile';
+import { Rabbit_ProfileDTO, Rabbit_SaleDetailsDTO } from '@/api/types/AngoraDTOs';
+import { useRabbitProfile } from '@/lib/hooks/rabbits/useRabbitProfile';
 import RabbitProfileNav from '@/components/sectionNav/variants/rabbitProfileNav';
 import RabbitDetails from './rabbitDetails';
 import RabbitChildren from './rabbitChildren';
+import RabbitSaleSection from './rabbitSaleSection';
 import { Tabs, Tab } from "@heroui/react";
 import { toast } from "react-toastify";
 import { useNav } from "@/components/Providers";
@@ -12,7 +13,10 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import MyNav from "@/components/sectionNav/variants/myNav";
 import DeleteRabbitModal from '@/components/modals/deleteRabbitModal';
 
-export default function RabbitProfile({ rabbitProfile }: { rabbitProfile: Rabbit_ProfileDTO }) {
+export default function RabbitProfile({ rabbitProfile: initialRabbitProfile }: { rabbitProfile: Rabbit_ProfileDTO }) {
+    // Tilføj state til at håndtere ændringer i rabbit profil, inklusiv saleDetails
+    const [rabbitProfile, setRabbitProfile] = useState<Rabbit_ProfileDTO>(initialRabbitProfile);
+
     const {
         isEditing,
         isSaving,
@@ -26,6 +30,14 @@ export default function RabbitProfile({ rabbitProfile }: { rabbitProfile: Rabbit
 
     const { setPrimaryNav, setSecondaryNav } = useNav();
     const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+    // Handler til at opdatere saleDetails
+    const handleSaleDetailsChange = useCallback((saleDetails: Rabbit_SaleDetailsDTO | null) => {
+        setRabbitProfile(prevProfile => ({
+            ...prevProfile,
+            saleDetails
+        }));
+    }, []);
 
     // Handler callbacks
     const handleChangeOwner = useCallback(() => {
@@ -100,6 +112,14 @@ export default function RabbitProfile({ rabbitProfile }: { rabbitProfile: Rabbit
 
                 <Tab key="children" title="Afkom">
                     <RabbitChildren>{rabbitProfile.children}</RabbitChildren>
+                </Tab>
+                
+                {/* Ny tab for salgsdetaljer */}
+                <Tab key="sale" title="Salgsprofil">
+                    <RabbitSaleSection
+                        rabbitProfile={rabbitProfile}
+                        onSaleDetailsChange={handleSaleDetailsChange}
+                    />
                 </Tab>
             </Tabs>
 

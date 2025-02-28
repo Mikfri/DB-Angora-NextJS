@@ -1,13 +1,13 @@
 // src/hooks/rabbits/useRabbitForsaleFilters.ts
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { ForSaleFilters } from '@/Types/filterTypes';
-import { GetRabbitsForSale } from '@/Services/AngoraDbService';
-import { Rabbits_ForsalePreviewList } from '@/Types/AngoraDTOs';
+import { ForSaleFilters } from '@/api/types/filterTypes';
+import { Rabbits_SaleDetailsPreviewList } from '@/api/types/AngoraDTOs';
+import { GetRabbitsForSale } from '@/api/endpoints/rabbitController';
 
-export function useFilteredRabbits(initialData: Rabbits_ForsalePreviewList, initialFilters: ForSaleFilters) {
+export function useFilteredRabbits(initialData: Rabbits_SaleDetailsPreviewList, initialFilters: ForSaleFilters) {
     const router = useRouter();
-    const [rabbits, setRabbits] = useState<Rabbits_ForsalePreviewList>(initialData);
+    const [rabbits, setRabbits] = useState<Rabbits_SaleDetailsPreviewList>(initialData);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<Error | null>(null);
     const [filters, setFilters] = useState<ForSaleFilters>(initialFilters);

@@ -1,7 +1,7 @@
 // src/app/account/rabbitsForbreeding/page.tsx
-import { GetRabbitsForBreeding } from '@/Services/AngoraDbService';
 import { cookies } from 'next/headers';
 import RabbitBreedingList from './rabbitBreedingList';
+import { GetRabbitsForBreeding } from '@/api/endpoints/rabbitController';
 
 export default async function RabbitsForBreedingPage() {
     const cookieStore = await cookies();

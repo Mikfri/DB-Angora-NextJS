@@ -1,4 +1,4 @@
-import { Rabbit_ProfileDTO } from "@/Types/AngoraDTOs";
+import { Rabbit_ProfileDTO } from "@/api/types/AngoraDTOs";
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@heroui/react";
 
 interface RabbitChildrenProps {

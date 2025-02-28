@@ -3,7 +3,7 @@
 
 'use client';
 import { Input, Button } from "@heroui/react";
-import { ForSaleFilters } from "@/Types/filterTypes";
+import { ForSaleFilters } from "@/api/types/filterTypes";
 import SectionNav from '../base/baseSideNav';
 import { useState } from 'react';
 import { IoMdClose } from "react-icons/io";

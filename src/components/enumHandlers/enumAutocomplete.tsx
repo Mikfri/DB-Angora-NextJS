@@ -1,9 +1,9 @@
 // src/components/enumHandlers/enumAutocomplete.tsx
 "use client"
 
+import { GetEnumValues, RabbitEnum } from "@/api/endpoints/enumController";
 import { Autocomplete, AutocompleteItem } from "@heroui/react";
 import { useEffect, useState } from 'react';
-import { RabbitEnum, GetEnumValues } from '@/Services/AngoraDbService';
 
 interface Props {
     enumType: RabbitEnum;

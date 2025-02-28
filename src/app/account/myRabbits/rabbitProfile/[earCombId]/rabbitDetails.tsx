@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from "@heroui/react";
-import { Rabbit_ProfileDTO, Rabbit_UpdateDTO } from "@/Types/AngoraDTOs";
+import { Rabbit_ProfileDTO, Rabbit_UpdateDTO } from "@/api/types/AngoraDTOs";
 import { renderCell } from "@/app/account/myRabbits/rabbitProfile/[earCombId]/renderCell";
 
 interface RabbitDetailsProps {
@@ -23,7 +23,6 @@ const editableFieldLabels: Record<keyof Rabbit_UpdateDTO, string> = {
   dateOfBirth: "Fødselsdato",
   dateOfDeath: "Dødsdato",
   gender: "Køn",
-  forSale: "Til salg",
   forBreeding: "Til avl",
   fatherId_Placeholder: "Far ID",
   motherId_Placeholder: "Mor ID"

@@ -1,7 +1,7 @@
 // src/app/account/profile/page.tsx
-import { GetUserProfile } from "@/Services/AngoraDbService";
 import { cookies } from "next/headers";
 import UserProfile from "./userProfile";
+import { GetUserProfile } from "@/api/endpoints/accountController";
 
 export default async function UserProfilePage() {
     const cookieStore = await cookies();

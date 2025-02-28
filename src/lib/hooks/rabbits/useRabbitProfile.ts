@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { Rabbit_ProfileDTO } from '@/Types/AngoraDTOs';
-import { EditRabbit, DeleteRabbit } from '@/Services/AngoraDbService';
+import { Rabbit_ProfileDTO } from '@/api/types/AngoraDTOs';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
+import { EditRabbit, DeleteRabbit } from '@/api/endpoints/rabbitController';
 
 export function useRabbitProfile(initialProfile: Rabbit_ProfileDTO) {
     const router = useRouter();

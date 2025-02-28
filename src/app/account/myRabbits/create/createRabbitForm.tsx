@@ -1,6 +1,6 @@
 // src/app/account/myRabbits/create/createRabbitForm.tsx
 'use client';
-import { useCreateRabbit } from '@/hooks/rabbits/useRabbitCreate';
+import { useCreateRabbit } from '@/lib/hooks/rabbits/useRabbitCreate';
 import { Input, Button, Switch } from "@heroui/react";
 import EnumAutocomplete from '@/components/enumHandlers/enumAutocomplete';
 import { useRouter } from 'next/navigation';
@@ -152,22 +152,6 @@ export default function CreateRabbitForm() {
                                         input: "bg-zinc-800/50 text-zinc-100 text-sm py-0",
                                         inputWrapper: "h-7 min-h-unit-7",
                                     }}
-                                />
-                            </div>
-                        </div>
-
-                        <div className="p-2 flex items-center hover:bg-zinc-700/30">
-                            <div className="w-1/3 text-sm font-medium text-zinc-100">Til salg</div>
-                            <div className="w-2/3">
-                                <Switch
-                                    size="sm"
-                                    isSelected={formData.forSale === 'Ja'}
-                                    onValueChange={(value) => setFormData({
-                                        ...formData,
-                                        forSale: value ? 'Ja' : 'Nej'
-                                    })}
-                                    aria-label="Til salg switch"
-                                    defaultSelected={false}
                                 />
                             </div>
                         </div>

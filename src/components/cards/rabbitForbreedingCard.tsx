@@ -1,24 +1,16 @@
 // src/components/cards/rabbitForbreedingCard.tsx
 'use client';
 
-import { Rabbit_ForbreedingPreviewDTO } from '@/Types/AngoraDTOs';
+import { Rabbit_ForbreedingPreviewDTO } from '@/api/types/AngoraDTOs';
 import { Card, CardHeader, CardBody } from "@heroui/react";
 import Image from 'next/image';
 import { useState } from 'react';
+import { formatDate } from '@/lib/utils/formatters';
 
 interface Props {
     rabbit: Rabbit_ForbreedingPreviewDTO;
     onClick?: () => void;
 }
-
-const formatDate = (dateString: string | null) => {
-    if (!dateString) return 'Ikke angivet';
-    return new Intl.DateTimeFormat('da-DK', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-    }).format(new Date(dateString));
-};
 
 export default function RabbitForbreedingCard({ rabbit, onClick }: Props) {
     const [imageError, setImageError] = useState(false);

@@ -1,6 +1,6 @@
 // src/app/api/auth/login/route.ts
+import { Login } from "@/api/endpoints/authController";
 import { NextRequest, NextResponse } from "next/server";
-import { Login } from '@/Services/AngoraDbService';
 
 export async function POST(request: NextRequest) {
     try {

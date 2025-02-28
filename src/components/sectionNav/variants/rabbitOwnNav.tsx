@@ -6,7 +6,7 @@ import SectionNav from '../base/baseSideNav';
 import { useRouter } from 'next/navigation';
 import { PiRabbitFill } from "react-icons/pi";
 import EnumAutocomplete from '@/components/enumHandlers/enumAutocomplete';
-import { OwnFilters } from '@/hooks/rabbits/useRabbitOwnFilter';
+import { OwnFilters } from '@/lib/hooks/rabbits/useRabbitOwnFilter';
 import EnumLocalAutocomplete, { RaceColorApproval } from "@/components/enumHandlers/enumLocalAutocomplete";
 
 interface Props {

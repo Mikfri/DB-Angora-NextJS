@@ -1,4 +1,4 @@
-// src/config/apiConfig.ts
+// src/api/config/apiConfig.ts
 interface ApiConfig {
   baseUrl: string;
   env: string;

@@ -1,12 +1,12 @@
 // src/components/cards/rabbitForsaleCard.tsx
 'use client';
-import { Rabbit_ForsalePreviewDTO } from '@/Types/AngoraDTOs';
+import { Rabbit_SaleDetailsPreviewDTO } from '@/api/types/AngoraDTOs';
 import { Card, CardFooter, Image } from "@heroui/react";
 import { useState } from 'react';
 import { FaMars, FaVenus, FaRegHeart, FaHeart, FaPaw, FaPalette } from "react-icons/fa";
 
 interface Props {
-    rabbit: Rabbit_ForsalePreviewDTO;
+    rabbit: Rabbit_SaleDetailsPreviewDTO;
     onClick?: () => void;
 }
 
@@ -55,7 +55,7 @@ export default function RabbitForsaleCard({ rabbit, onClick }: Props) {
                     {/* Billedet */}
                     <div className="absolute inset-0 z-0">
                         <Image
-                            alt={`${rabbit.nickName || 'Unavngiven'}`}
+                            alt={`${rabbit.ageInMonths || 'Unavngiven'}`}
                             className="w-full h-full object-cover transition-transform duration-700 ease-out
                                 group-hover:scale-110"
                             src={profileImage}
@@ -76,7 +76,7 @@ export default function RabbitForsaleCard({ rabbit, onClick }: Props) {
                             <div className="flex items-center gap-2">
                                 <FaPalette className="text-white/70" size={14} />
                                 <p className="text-sm text-white/80">
-                                    {rabbit.color}
+                                    {rabbit.price} kr
                                 </p>
                             </div>
                         </div>

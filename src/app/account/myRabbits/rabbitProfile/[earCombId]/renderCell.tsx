@@ -2,7 +2,7 @@
 import React, { ReactNode } from "react";
 import { PiRabbitFill, PiRabbit } from "react-icons/pi";
 import { Input, Switch } from "@heroui/react";
-import { Rabbit_ProfileDTO, Rabbit_UpdateDTO } from "@/Types/AngoraDTOs";
+import { Rabbit_ProfileDTO, Rabbit_UpdateDTO } from "@/api/types/AngoraDTOs";
 import EnumAutocomplete from "@/components/enumHandlers/enumAutocomplete";
 
 // Helper function for parent validation
@@ -18,7 +18,6 @@ const editableFieldLabels: Record<keyof Rabbit_UpdateDTO, string> = {
   dateOfBirth: "Fødselsdato",
   dateOfDeath: "Dødsdato",
   gender: "Køn",
-  forSale: "Til salg",
   forBreeding: "Til avl",
   fatherId_Placeholder: "Far ID",
   motherId_Placeholder: "Mor ID"
@@ -116,7 +115,7 @@ function renderEditMode(
   }
 
   // Boolean switches
-  if (key === "forSale" || key === "forBreeding") {
+  if (key === "forBreeding") {
     return (
       <Switch
         id={`${key}-input`}

@@ -1,4 +1,4 @@
-// src/types/filterTypes.ts
+// src/api/types/filterTypes.ts
 export interface ForSaleFilters {
     RightEarId: string | null;
     BornAfter: string | null;

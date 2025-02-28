@@ -1,8 +1,8 @@
 // src/app/account/profile/userProfile.tsx
 'use client';
 
-import { User_ProfileDTO } from "@/Types/AngoraDTOs";
-import { useUserProfile, type EditableUserProfile } from "@/hooks/users/useUserProfile";
+import { User_ProfileDTO } from "@/api/types/AngoraDTOs";
+import { useUserProfile, type EditableUserProfile } from "@/lib/hooks/users/useUserProfile";
 import { useNav } from "@/components/Providers";
 import { useEffect, useMemo } from 'react';
 import UserProfileNav from "@/components/sectionNav/variants/userProfileNav";

@@ -1,24 +1,16 @@
 // src/components/cards/rabbitPreviewCard.tsx
 'use client';
 
-import { Rabbit_PreviewDTO } from '@/Types/AngoraDTOs';
+import { Rabbit_PreviewDTO } from '@/api/types/AngoraDTOs';
 import { Card, CardHeader, CardBody } from "@heroui/react";
 import Image from 'next/image';
 import { useState } from 'react';
+import { formatDate } from '@/lib/utils/formatters';
 
 interface Props {
     rabbit: Rabbit_PreviewDTO;
     onClick?: () => void;
 }
-
-const formatDate = (dateString: string | null) => {
-    if (!dateString) return 'Ikke angivet';
-    return new Intl.DateTimeFormat('da-DK', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-    }).format(new Date(dateString));
-};
 
 export default function RabbitPreviewCard({ rabbit, onClick }: Props) {
     const [imageError, setImageError] = useState(false);
@@ -55,7 +47,6 @@ export default function RabbitPreviewCard({ rabbit, onClick }: Props) {
                 <p>Race: {rabbit.race}</p>
                 <p>Farve: {rabbit.color}</p>
                 <p>Køn: {rabbit.gender}</p>
-                <p>Til salg: {rabbit.forSale}</p>
                 <p>Til avl: {rabbit.forBreeding}</p>
             </CardBody>
         </Card>
