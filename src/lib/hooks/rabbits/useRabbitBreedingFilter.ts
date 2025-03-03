@@ -1,4 +1,4 @@
-// src/hooks/rabbits/useRabbitBreedingFilter.ts
+// src/lib/hooks/rabbits/useRabbitBreedingFilter.ts
 import { Rabbit_ForbreedingPreviewDTO } from '@/api/types/AngoraDTOs';
 import { useState } from 'react';
 

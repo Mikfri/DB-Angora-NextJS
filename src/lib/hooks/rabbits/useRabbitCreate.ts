@@ -1,4 +1,4 @@
-// src/hooks/rabbits/useRabbitCreate.ts
+// src/lib/hooks/rabbits/useRabbitCreate.ts
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
