@@ -1,5 +1,9 @@
 import { getApiUrl } from "../config/apiConfig";
-import { User_ProfileDTO, Rabbits_PreviewList, TransferRequest_ReceivedDTO, TransferRequest_ReceivedFilterDTO, TransferRequest_SentFilterDTO, TransferRequest_SentDTO } from "../types/AngoraDTOs";
+import {
+    User_ProfileDTO,
+    Rabbits_PreviewList, TransferRequest_ReceivedDTO, TransferRequest_ReceivedFilterDTO,
+    TransferRequest_SentFilterDTO, TransferRequest_SentDTO
+} from "../types/AngoraDTOs";
 
 //-------------------- READ
 //-------- User
@@ -47,9 +51,9 @@ export async function GetReceivedTransferRequests(
     }
 
     const url = `${getApiUrl('Account/TransferRequests_Received')}${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
-    
+
     const response = await fetch(url, {
-        headers: { 
+        headers: {
             Authorization: `Bearer ${accessToken}`,
             'Accept': 'text/plain'
         },
@@ -95,9 +99,9 @@ export async function GetSentTransferRequests(
     }
 
     const url = `${getApiUrl('Account/TransferRequests_Issued')}${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
-    
+
     const response = await fetch(url, {
-        headers: { 
+        headers: {
             Authorization: `Bearer ${accessToken}`,
             'Accept': 'text/plain'
         },
