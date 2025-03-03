@@ -1,4 +1,4 @@
-// src/hooks/useAuth.ts
+// src/lib/hooks/useAuth.ts
 'use client'
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';

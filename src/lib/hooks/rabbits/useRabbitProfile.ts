@@ -1,4 +1,6 @@
-import { useState } from 'react';
+// src/lib/hooks/rabbits/useRabbitProfile.ts
+
+import { useState, useCallback } from 'react';
 import { Rabbit_ProfileDTO } from '@/api/types/AngoraDTOs';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
@@ -9,13 +11,15 @@ export function useRabbitProfile(initialProfile: Rabbit_ProfileDTO) {
     const [isEditing, setIsEditing] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
+    const [showTransferModal, setShowTransferModal] = useState(false);
 
-    // Skift her fra Rabbit_UpdateDTO til Rabbit_ProfileDTO
+    // Vigtigt: Behandl initialProfile som en ref-værdi, ikke en dependency
     const [editedData, setEditedData] = useState<Rabbit_ProfileDTO>({
         ...initialProfile
     });
 
-    const handleSave = async () => {
+    // Brug useCallback for alle handlere
+    const handleSave = useCallback(async () => {
         try {
             setIsSaving(true);
             const response = await fetch('/api/auth/token');
@@ -36,9 +40,9 @@ export function useRabbitProfile(initialProfile: Rabbit_ProfileDTO) {
         } finally {
             setIsSaving(false);
         }
-    };
+    }, [initialProfile.earCombId, editedData]);
 
-    const handleDelete = async () => {
+    const handleDelete = useCallback(async () => {
         try {
             setIsDeleting(true);
             const response = await fetch('/api/auth/token');
@@ -58,16 +62,29 @@ export function useRabbitProfile(initialProfile: Rabbit_ProfileDTO) {
         } finally {
             setIsDeleting(false);
         }
-    };
+    }, [initialProfile.earCombId, router]);
+
+    // Stable callback for transfer ownership
+    const handleTransferOwnershipClick = useCallback(() => {
+        setShowTransferModal(true);
+    }, []);
+
+    // Stable callback for closing transfer modal
+    const handleCloseTransferModal = useCallback(() => {
+        setShowTransferModal(false);
+    }, []);
 
     return {
         editedData,
         isEditing,
         isSaving,
         isDeleting,
+        showTransferModal,
         setEditedData,
         setIsEditing,
         handleSave,
-        handleDelete
+        handleDelete,
+        handleTransferOwnershipClick,
+        handleCloseTransferModal
     };
 }

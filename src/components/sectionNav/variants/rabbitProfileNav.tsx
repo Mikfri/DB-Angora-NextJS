@@ -1,12 +1,12 @@
 // src/components/sectionNav/variants/rabbitProfileNav.tsx
-
+/// ANSVAR: Vise data og kalde callbacks
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback, memo } from 'react';
 import SectionNav from '../base/baseSideNav';
 import { FaTrash, FaExchangeAlt } from "react-icons/fa";
-import DeleteRabbitModal from '@/components/modals/deleteRabbitModal';
 import Image from 'next/image';
+import DeleteRabbitModal from '@/components/modals/rabbit/deleteRabbitModal';
 
 interface Props {
     rabbitName: string;
@@ -17,11 +17,13 @@ interface Props {
     isJuvenile: boolean | null;
     profilePicture: string | null;
     onDelete?: () => void;
-    onChangeOwner?: () => void;
+    onChangeOwner: () => void;  // Skal være required
     isDeleting: boolean;
+    // Fjerner showTransferModal og setShowTransferModal fra props
 }
 
-export default function RabbitProfileNav({
+// Brug memo for at forhindre unødige renderinger
+const RabbitProfileNav = memo(function RabbitProfileNav({
     rabbitName,
     earCombId,
     originBreeder,
@@ -31,21 +33,25 @@ export default function RabbitProfileNav({
     profilePicture,
     onDelete,
     onChangeOwner,
-    isDeleting
+    isDeleting,
 }: Props) {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [imageError, setImageError] = useState(false);
     const defaultImage = '/images/default-rabbit.jpg';
     const displayedImage = (!imageError && profilePicture) ? profilePicture : defaultImage;
 
-    const handleDeleteClick = () => {
+    // Tilføj lokale handlere for at undgå state-cirkler
+    // Brug useCallback for at forhindre nye funktions-referencer ved hver render
+    const handleDeleteClick = useCallback(() => {
         setShowDeleteModal(true);
-    };
+    }, []);
 
-    const handleConfirmDelete = () => {
-        onDelete?.();
-    };
+    const handleConfirmDelete = useCallback(() => {
+        if (onDelete) onDelete();
+        setShowDeleteModal(false);
+    }, [onDelete]);
 
+    // Vi kan trygt kalde onChangeOwner, da den nu er required
     return (
         <>
             <SectionNav
@@ -68,14 +74,12 @@ export default function RabbitProfileNav({
                                 Skift ejer
                             </>
                         ),
-                        onClick: () => onChangeOwner?.(),
+                        onClick: onChangeOwner,
                         color: "primary"
                     }
                 ]}
             >
-                {/* Profilinformationerne */}
                 <div className="flex flex-col items-center space-y-4 p-2 text-white">
-                    {/* Profile Image */}
                     <div className="relative w-24 h-24">
                         <Image
                             src={displayedImage}
@@ -86,7 +90,6 @@ export default function RabbitProfileNav({
                             onError={() => setImageError(true)}
                         />
                     </div>
-                    {/* Profile Information Table */}
                     <table className="w-full text-left">
                         <tbody>
                             <tr>
@@ -124,4 +127,6 @@ export default function RabbitProfileNav({
             />
         </>
     );
-}
+});
+
+export default RabbitProfileNav;

@@ -4,7 +4,7 @@ import { useAuth } from '@/lib/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import PageNavigationCard from '@/components/cards/pageNavigationCard';
-import { toast } from 'react-toastify';
+//import { toast } from 'react-toastify';
 
 export default function AccountPage() {
     const { isLoggedIn, isLoading } = useAuth();
@@ -16,9 +16,9 @@ export default function AccountPage() {
         }
     }, [isLoggedIn, isLoading, router]);
 
-    const handleComingSoon = () => {
-        toast.info('Denne funktion er under udvikling og vil være tilgængelig snart!');
-    };
+    // const handleComingSoon = () => {
+    //     toast.info('Denne funktion er under udvikling og vil være tilgængelig snart!');
+    // };
 
     if (isLoading) {
         return <div>Loading...</div>;
@@ -58,9 +58,8 @@ export default function AccountPage() {
                             href="/account/transferRequests"
                             imageSrc="/images/sideNavigationCard_OwnershipExchanges.jpg"
                             title="Ejerskifts transaktioner"
-                            description="Se indkommende og udgående ejeskabsoverdragelser af kaniner (Under udvikling)"
-                            isDisabled
-                            onDisabledClick={handleComingSoon}
+                            description="Se indkommende og udgående ejeskabsoverdragelser af kaniner"
+                            // Fjernet isDisabled og onDisabledClick for at gøre kortet aktivt
                         />
                     </div>
                 </div>

@@ -1,4 +1,5 @@
-// src/hooks/rabbits/useRabbitOwnFilter.ts
+// src/lib/hooks/rabbits/useRabbitOwnFilter.ts
+
 import { useState } from 'react';
 import { Rabbit_PreviewDTO } from '@/api/types/AngoraDTOs';
 
