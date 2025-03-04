@@ -1,9 +1,8 @@
 // src/app/account/transferRequests/page.tsx
-
 "use client";
 
 import React, { useEffect, useState, useCallback } from 'react';
-import { useAuth } from '@/lib/hooks/useAuth';
+import { useAuthStore } from '@/store/authStore';  // Ændret fra useAuth til useAuthStore
 import { GetReceivedTransferRequests, GetSentTransferRequests } from '@/api/endpoints/accountController';
 import { TransferRequest_ReceivedDTO, TransferRequest_SentDTO } from '@/api/types/AngoraDTOs';
 import { Tabs, Tab, Spinner, Button } from '@heroui/react';
@@ -13,7 +12,8 @@ import { RespondToTransferRequest, DeleteTransferRequest } from '@/api/endpoints
 import { toast } from 'react-toastify';
 
 export default function TransferRequestsPage() {
-  const { isLoggedIn } = useAuth();
+  // Brug useAuthStore i stedet for useAuth
+  const { isLoggedIn } = useAuthStore();
   const [receivedRequests, setReceivedRequests] = useState<TransferRequest_ReceivedDTO[]>([]);
   const [sentRequests, setSentRequests] = useState<TransferRequest_SentDTO[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -23,7 +23,6 @@ export default function TransferRequestsPage() {
 
   // Navigation setup
   useEffect(() => {
-    // Bemærk: Ingen komponenter indeni useEffect - bare referencer til komponenter
     setSecondaryNav(<MyNav />);
     
     return () => {
@@ -32,15 +31,21 @@ export default function TransferRequestsPage() {
     };
   }, [setPrimaryNav, setSecondaryNav]);
 
-  // Funktion til at hente token
+  // Optimeret token-hentning ved hjælp af authStore's getAccessToken
   const getToken = useCallback(async () => {
-    const tokenResponse = await fetch('/api/auth/token');
-    if (!tokenResponse.ok) throw new Error('Kunne ikke hente adgangstoken');
-    const { accessToken } = await tokenResponse.json();
-    return accessToken;
+    // Brug authStore direkte for at undgå redundante kald
+    try {
+      const tokenResponse = await fetch('/api/auth/token');
+      if (!tokenResponse.ok) throw new Error('Kunne ikke hente adgangstoken');
+      const { accessToken } = await tokenResponse.json();
+      return accessToken;
+    } catch (err) {
+      console.error('Token fejl:', err);
+      throw new Error('Kunne ikke hente adgangstoken');
+    }
   }, []);
 
-  // Indlæs data - wrap med useCallback for at sikre stabil reference
+  // Resten af koden forbliver uændret
   const loadTransferRequests = useCallback(async () => {
     if (!isLoggedIn) return;
     
@@ -66,7 +71,8 @@ export default function TransferRequestsPage() {
     }
   }, [isLoggedIn, getToken]);
 
-  // Load data on mount or when dependencies change
+  // Resten af koden forbliver uændret...
+  
   useEffect(() => {
     loadTransferRequests();
   }, [loadTransferRequests]);

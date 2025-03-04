@@ -1,13 +1,13 @@
 // src/app/accuount/page.tsx
 'use client';
-import { useAuth } from '@/lib/hooks/useAuth';
+import { useAuthStore } from '@/store/authStore';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import PageNavigationCard from '@/components/cards/pageNavigationCard';
 //import { toast } from 'react-toastify';
 
 export default function AccountPage() {
-    const { isLoggedIn, isLoading } = useAuth();
+    const { isLoggedIn, isLoading } = useAuthStore();
     const router = useRouter();
 
     useEffect(() => {

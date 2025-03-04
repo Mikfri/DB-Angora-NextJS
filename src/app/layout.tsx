@@ -1,4 +1,3 @@
-// src/app/layout.tsx (server component)
 import type { Metadata } from "next";
 import "./globals.css";
 import LayoutWrapper from "./layoutWrapper";
@@ -49,7 +48,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="da"> 
+    <html lang="da">
       <body>
         <Providers>
           <LayoutWrapper>{children}</LayoutWrapper>

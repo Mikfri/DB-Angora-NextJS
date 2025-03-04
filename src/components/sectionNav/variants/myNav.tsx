@@ -1,9 +1,8 @@
 // src/components/sectionNav/variants/myNav.tsx
-// https://www.heroui.com/docs/components/listbox
 'use client'
 import { usePathname } from 'next/navigation';
-import { useEffect, useMemo } from 'react';
-import { useAuth } from '@/lib/hooks/useAuth';
+import { useMemo, useCallback } from 'react';
+import { useAuthStore } from '@/store/authStore';
 import { Listbox, ListboxItem, ListboxSection } from "@heroui/react";
 import { IoHomeOutline, IoPersonOutline } from "react-icons/io5";
 import { MdPets } from "react-icons/md";
@@ -29,7 +28,7 @@ const SECTION_TITLES = {
 // Item styling configuration
 const itemStyles = {
     base: "px-1 py-0",
-    mainLink: "font-medium",
+    mainLink: "font-semibold",
     subLink: "pl-4",
     active: "text-primary",
     divider: "bg-zinc-700/50 my-1",
@@ -37,38 +36,36 @@ const itemStyles = {
     disabledText: "ml-2 text-xs text-default-400"
 } as const;
 
+// Icon mapping for better maintainability and performance
+const ICON_MAP = {
+    '/': <IoHomeOutline className={itemStyles.icon} />,
+    '/sale': <ImPriceTags className={itemStyles.icon} />,
+    '/account': <IoPersonOutline className={itemStyles.icon} />,
+    '/account/myRabbits': <MdPets className={itemStyles.icon} />,
+    '/sale/rabbits': <MdPets className={itemStyles.icon} />,
+    '/admin/users': <FaUsersCog className={itemStyles.icon} />
+};
+
 export default function MyNav() {
     const pathname = usePathname();
-    const { isLoggedIn, userRole, refresh, subscribe } = useAuth();
+    const { isLoggedIn, userRole } = useAuthStore();
+    //const { isLoggedIn, userRole, checkAuth } = useAuthStore();   
+    // udkommenteret ovenstående og nedestående grundet TopNav allerede har kaldt checkAuth
 
-    useEffect(() => {
-        refresh();
-        
-        // Subscribe to logout events
-        const unsubscribe = subscribe('logout', () => {
-            refresh();
-        });
-    
-        // Cleanup subscription - ensure it returns void
-        return () => {
-            unsubscribe();
-        };
-    }, [refresh, subscribe]);
 
-    // Move icon mapping to a more maintainable object
-    const iconMap = {
-        '/': <IoHomeOutline className={itemStyles.icon} />,
-        '/sale': <ImPriceTags className={itemStyles.icon} />,
-        '/account': <IoPersonOutline className={itemStyles.icon} />,
-        '/account/myRabbits': <MdPets className={itemStyles.icon} />,
-        '/sale/rabbits': <MdPets className={itemStyles.icon} />,
-        '/admin/users': <FaUsersCog className={itemStyles.icon} />
-    };
+    // Simplified useEffect without subscription    
+    // useEffect(() => {
+    //     // Refresh auth state ved mount
+    //     checkAuth();
+    // }, [checkAuth]);
 
-    const getIconForLink = (href: string) => iconMap[href] ?? null;
+    // Stable function for icon retrieval
+    const getIconForLink = useCallback((href: string) => {
+        return ICON_MAP[href as keyof typeof ICON_MAP] ?? null;
+    }, []);
 
-    // Updated section title getter to use group title
-    const getSectionTitle = (group: NavGroup): string | undefined => {
+    // Stable function for section title retrieval
+    const getSectionTitle = useCallback((group: NavGroup): string | undefined => {
         // Use the group's title if it exists
         if (group.title) return group.title;
         
@@ -78,8 +75,9 @@ export default function MyNav() {
         if (firstLink.href.startsWith('/sale')) return SECTION_TITLES.SALE;
         if (firstLink.href.includes('/admin')) return SECTION_TITLES.ADMIN;
         return undefined;
-    };
+    }, []);
 
+    // Memoize the current links to prevent unnecessary recalculations
     const currentLinks = useMemo(() => {
         const links: NavGroup[] = [];
     
@@ -112,6 +110,13 @@ export default function MyNav() {
         return links;
     }, [pathname, isLoggedIn, userRole]);
 
+    // Memoize disabled keys for performance
+    const disabledKeys = useMemo(() => {
+        return currentLinks.flatMap(group => 
+            group.links.filter(link => link.disabled).map(link => link.href)
+        );
+    }, [currentLinks]);
+
     return (
         <SectionNav title="Navigation">
             <div className="w-full">
@@ -119,18 +124,16 @@ export default function MyNav() {
                     aria-label="Navigation menu"
                     variant="flat"
                     className="p-0 gap-0"
-                    disabledKeys={currentLinks.flatMap(group => 
-                        group.links.filter(link => link.disabled).map(link => link.href)
-                    )}
+                    disabledKeys={disabledKeys}
                     classNames={{ base: itemStyles.base }}
                 >
                     {currentLinks.map((group, groupIndex) => (
                         <ListboxSection
-                            key={groupIndex}
+                            key={`nav-group-${groupIndex}`}
                             title={getSectionTitle(group)}
                             showDivider={groupIndex < currentLinks.length - 1}
                             classNames={{
-                                divider: "bg-zinc-200/50 mt-1"  // Dette styrer divider farven
+                                divider: "bg-zinc-200/50 mt-1"
                             }}
                         >
                             {group.links.map((link) => (

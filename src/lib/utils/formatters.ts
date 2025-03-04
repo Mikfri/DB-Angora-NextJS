@@ -1,4 +1,4 @@
-// src//lib/utils/formatters.ts
+// src/lib/utils/formatters.ts
 export function formatDate(dateString: string | null | undefined): string {
     if (!dateString) return 'Ikke angivet';
     

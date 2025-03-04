@@ -2,26 +2,36 @@
 'use client'
 import NextLink from 'next/link';
 import Image from 'next/image';
-import { 
-    Navbar, NavbarBrand, NavbarContent, NavbarItem, 
-    Dropdown, DropdownTrigger, DropdownMenu, 
-    DropdownItem, Tooltip 
+import {
+    Navbar, NavbarBrand, NavbarContent, NavbarItem,
+    Dropdown, DropdownTrigger, DropdownMenu,
+    DropdownItem, Tooltip
 } from "@heroui/react";
 import { PiUserCircleFill, PiUserCircleCheckFill } from "react-icons/pi";
 import { MdOutlineLogout } from 'react-icons/md';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { useAuth } from '@/lib/hooks/useAuth';
+import { useAuthStore } from '@/store/authStore';
 import LoginModal from '../modals/login/loginModal';
 
 export default function TopNav() {
     const pathname = usePathname();
     const [isLoginOpen, setIsLoginOpen] = useState(false);
-    const { isLoggedIn, userName, userRole, logout, refresh } = useAuth();
-
+    const { isLoggedIn, userName, userRole, logout, checkAuth: refresh } = useAuthStore();
     useEffect(() => {
-        refresh();
-    }, [pathname, refresh]);
+        // Kun refresh auth på nøje udvalgte sider
+        const shouldRefresh =
+            pathname === '/' ||                     // Forsiden
+            pathname === '/login' ||                // Login side
+            pathname === '/account' ||              // Hovedkontosiden
+            pathname.startsWith('/admin') ||        // Admin sider
+            !isLoggedIn;                            // Hvis ikke logget ind endnu
+
+        if (shouldRefresh) {
+            console.log(`🔄 Auth refresh på sti: ${pathname}`);
+            refresh();
+        }
+    }, [pathname, refresh, isLoggedIn]);
 
     useEffect(() => {
         if (isLoggedIn) {
@@ -36,12 +46,12 @@ export default function TopNav() {
                     <NavbarContent justify="start">
                         <NavbarBrand>
                             <NextLink href="/" className="flex items-center gap-2">
-                                <Image 
-                                    src="/images/DB-Angora.png" 
-                                    alt="DenBlå-Angora Logo" 
-                                    width={40} 
-                                    height={40} 
-                                    className="rounded-sm" 
+                                <Image
+                                    src="/images/DB-Angora.png"
+                                    alt="DenBlå-Angora Logo"
+                                    width={40}
+                                    height={40}
+                                    className="rounded-sm"
                                 />
                                 <p className="font-bold">DenBlå-Angora</p>
                             </NextLink>
@@ -104,9 +114,9 @@ export default function TopNav() {
                                             Bruger profil
                                         </NextLink>
                                     </DropdownItem>
-                                    <DropdownItem 
-                                        key="logout" 
-                                        className="text-danger nav-text" 
+                                    <DropdownItem
+                                        key="logout"
+                                        className="text-danger nav-text"
                                         textValue="Log ud"
                                         onPress={logout}
                                     >

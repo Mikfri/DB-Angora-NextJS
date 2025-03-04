@@ -58,16 +58,25 @@ export async function CreateSaleDetails(
 }
 
 //-------------------- READ
+/**
+ * Henter kaniner til salg med angivne filtre
+ * @param filters Valgfrie søgefiltre
+ * @returns Liste over kaniner der matcher søgekriterierne
+ */
 export async function GetRabbitsForSale(filters?: ForSaleFilters): Promise<Rabbits_SaleDetailsPreviewList> {
     let url = getApiUrl('Rabbit/ForSale');
 
     if (filters) {
         const params = new URLSearchParams();
+        
+        // Tilføj kun definerede værdier til URL
         Object.entries(filters).forEach(([key, value]) => {
-            if (value !== null && value !== undefined) {
+            // Konverter kun værdier der faktisk findes (ikke undefined og ikke null)
+            if (value !== undefined && value !== null) {
                 params.append(key, value.toString());
             }
         });
+        
         const queryString = params.toString();
         if (queryString) {
             url += '?' + queryString;

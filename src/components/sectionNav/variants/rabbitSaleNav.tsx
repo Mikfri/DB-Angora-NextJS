@@ -5,7 +5,7 @@
 import { Input, Button } from "@heroui/react";
 import { ForSaleFilters } from "@/api/types/filterTypes";
 import SectionNav from '../base/baseSideNav';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { IoMdClose } from "react-icons/io";
 import EnumAutocomplete from '@/components/enumHandlers/enumAutocomplete';
 
@@ -19,17 +19,95 @@ type FilterValue = string | number | undefined | null;
 export default function ForSaleNav({ activeFilters, onFilterChange }: Props) {
     const [localFilters, setLocalFilters] = useState<ForSaleFilters>(activeFilters);
 
-    const handleLocalFilter = (key: keyof ForSaleFilters, value: FilterValue) => {
+    // Memoize handlers to prevent unnecessary re-renders
+    const handleLocalFilter = useCallback((key: keyof ForSaleFilters, value: FilterValue) => {
         setLocalFilters(prev => ({ ...prev, [key]: value }));
-    };
+    }, []);
 
-    const handleClear = (key: keyof ForSaleFilters) => {
-        setLocalFilters(prev => ({ ...prev, [key]: undefined }));
-    };
+    const handleClear = useCallback((key: keyof ForSaleFilters) => {
+        setLocalFilters(prev => ({ ...prev, [key]: null }));
+    }, []);
 
-    const handleSearch = () => {
+    const handleSearch = useCallback(() => {
         onFilterChange(localFilters);
-    };
+    }, [onFilterChange, localFilters]);
+
+    // Create filter input components with memoized handlers
+    const filterInputs = [
+        <Input
+            key="rightEarId"
+            size="sm"
+            placeholder="ID"
+            value={localFilters.RightEarId ?? ''}
+            onChange={(e) => handleLocalFilter('RightEarId', e.target.value || null)}
+            endContent={localFilters.RightEarId && (
+                <Button isIconOnly size="sm" variant="light" onPress={() => handleClear('RightEarId')}>
+                    <IoMdClose />
+                </Button>
+            )}
+        />,
+        <Input
+            key="bornAfter"
+            size="sm"
+            type="date"
+            label="Født efter"
+            variant="flat"
+            value={localFilters.BornAfter ?? ''}
+            onChange={(e) => handleLocalFilter('BornAfter', e.target.value || null)}
+            endContent={localFilters.BornAfter && (
+                <Button isIconOnly size="sm" variant="light" onPress={() => handleClear('BornAfter')}>
+                    <IoMdClose />
+                </Button>
+            )}
+        />,
+        <EnumAutocomplete
+            key="race"
+            enumType="Race"
+            value={localFilters.Race ?? null}
+            onChange={(value) => handleLocalFilter('Race', value)}
+            label="Race"
+        />,
+        <EnumAutocomplete
+            key="color"
+            enumType="Color"
+            value={localFilters.Color ?? null}
+            onChange={(value) => handleLocalFilter('Color', value)}
+            label="Farve"
+        />,
+        <EnumAutocomplete
+            key="gender"
+            enumType="Gender"
+            value={localFilters.Gender ?? null}
+            onChange={(value) => handleLocalFilter('Gender', value)}
+            label="Køn"
+        />,
+        <Input
+            key="minZipCode"
+            size="sm"
+            placeholder="Min Postnummer"
+            type="number"
+            value={localFilters.MinZipCode?.toString() ?? ''}
+            onChange={(e) => handleLocalFilter('MinZipCode', e.target.value ? parseInt(e.target.value) : null)}
+            endContent={localFilters.MinZipCode && (
+                <Button isIconOnly size="sm" variant="light" onPress={() => handleClear('MinZipCode')}>
+                    <IoMdClose />
+                </Button>
+            )}
+        />,
+        <Input
+            key="maxZipCode"
+            size="sm"
+            placeholder="Max Postnummer"
+            type="number"
+            value={localFilters.MaxZipCode?.toString() ?? ''}
+            onChange={(e) => handleLocalFilter('MaxZipCode', e.target.value ? parseInt(e.target.value) : null)}
+            endContent={localFilters.MaxZipCode && (
+                <Button isIconOnly size="sm" variant="light" onPress={() => handleClear('MaxZipCode')}>
+                    <IoMdClose />
+                </Button>
+            )}
+        />
+    ];
 
     return (
         <SectionNav
@@ -42,78 +120,7 @@ export default function ForSaleNav({ activeFilters, onFilterChange }: Props) {
                 }
             ]}
         >
-            <Input
-                size="sm"
-                placeholder="ID"
-                value={localFilters.RightEarId ?? ''}
-                onChange={(e) => handleLocalFilter('RightEarId', e.target.value || null)}
-                endContent={localFilters.RightEarId && (
-                    <Button isIconOnly size="sm" variant="light" onPress={() => handleClear('RightEarId')}>
-                        <IoMdClose />
-                    </Button>
-                )}
-            />
-
-            <Input
-                size="sm"
-                type="date"
-                label="Født efter"
-                variant="flat"
-                value={localFilters.BornAfter ?? ''}
-                onChange={(e) => handleLocalFilter('BornAfter', e.target.value || null)}
-                endContent={localFilters.BornAfter && (
-                    <Button isIconOnly size="sm" variant="light" onPress={() => handleClear('BornAfter')}>
-                        <IoMdClose />
-                    </Button>
-                )}
-            />
-
-            <EnumAutocomplete
-                enumType="Race"
-                value={localFilters.Race ?? null}
-                onChange={(value) => handleLocalFilter('Race', value)}
-                label="Race"
-            />
-
-            <EnumAutocomplete
-                enumType="Color"
-                value={localFilters.Color ?? null}
-                onChange={(value) => handleLocalFilter('Color', value)}
-                label="Farve"
-            />
-
-            <EnumAutocomplete
-                enumType="Gender"
-                value={localFilters.Gender ?? null}
-                onChange={(value) => handleLocalFilter('Gender', value)}
-                label="Køn"
-            />
-
-            <Input
-                size="sm"
-                placeholder="Min Postnummer"
-                type="number"
-                value={localFilters.MinZipCode?.toString() ?? ''}
-                onChange={(e) => handleLocalFilter('MinZipCode', e.target.value ? parseInt(e.target.value) : null)}
-                endContent={localFilters.MinZipCode && (
-                    <Button isIconOnly size="sm" variant="light" onPress={() => handleClear('MinZipCode')}>
-                        <IoMdClose />
-                    </Button>
-                )}
-            />
-
-            <Input
-                size="sm"
-                placeholder="Max Postnummer"
-                type="number"
-                value={localFilters.MaxZipCode?.toString() ?? ''}
-                onChange={(e) => handleLocalFilter('MaxZipCode', e.target.value ? parseInt(e.target.value) : null)}
-                endContent={localFilters.MaxZipCode && (
-                    <Button isIconOnly size="sm" variant="light" onPress={() => handleClear('MaxZipCode')}>
-                        <IoMdClose />
-                    </Button>
-                )}
-            />
+            {filterInputs}
         </SectionNav>
     );
 }
