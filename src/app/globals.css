@@ -76,6 +76,12 @@
   }
 }
 
+@layer utilities {
+  .grid-template-columns-responsive {
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+  }
+}
+
 body {
   @apply text-sm;  /* Sets default size for entire app */
   color: var(--foreground);

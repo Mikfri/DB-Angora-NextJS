@@ -1,0 +1,29 @@
+
+//----------: AUTHSTORE VS. LOGIN-ROUTE, LOGOUT-ROUTE, TOKEN-ROUTE
+
+Server vs. Client i Next.js
+Dit projekt har en klar adskillelse mellem server-side og client-side kode, hvilket er en god praksis i Next.js:
+
+Server-side (API Routes)
+• Route handlers (route.ts filerne) kører på serveren
+• Håndterer direkte HTTP-anmodninger
+• Har adgang til cookies via cookies() API'et
+• Sender HTTP-svar med headers og cookies
+
+Client-side (Zustand Store)
+• AuthStore kører i browseren
+• Håndterer UI-states relateret til brugerens login-status
+• Kalder API routes når der er behov for kommunikation med serveren
+• Cacher token og auth-status for at minimere API-kald
+
+
+Hvorfor begge dele er nødvendige
+1) API Routes er nødvendige fordi:
+• De håndterer HTTP-kommunikation med din backend-server
+• De kan sikkert opbevare cookies med HttpOnly flag (hvilket er vigtigt for sikkerhed)
+• De fungerer som et "bro" mellem din frontend og backend
+2) AuthStore er nødvendig fordi:
+• Den håndterer client-side state management
+• Den cacher auth-status for bedre performance
+• Den giver et konsistent interface til auth-relaterede operationer på tværs af din app
+

@@ -1,5 +1,11 @@
 // src/app/api/rabbits/forsale/route.ts
-
+/*
+ANSVAR: 
+API-rute til at hente kaniner til salg med filtrering. 
+Det vil sige at denne rute håndterer alle forespørgsler til /api/rabbits/forsale. 
+Såfremt der er angivet filtre i URL'en, vil disse blive parset og sendt videre
+til rabbitController.ts, hvor de bruges til at hente kaniner til salg fra databasen. 
+*/
 import { GetRabbitsForSale } from "@/api/endpoints/rabbitController";
 import { ForSaleFilters } from "@/api/types/filterTypes";
 import { parseFilters } from "@/lib/utils/filterParser";

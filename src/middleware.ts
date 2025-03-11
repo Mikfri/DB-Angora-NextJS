@@ -37,7 +37,7 @@ export const config = {
 
 /*
 Funktioner og Fordele:
-- Forhindrer adgang til /rabbits/* routes uden valid token
+- Forhindrer adgang til /account/* routes uden valid token
 - Automatisk redirect til login ved expired token
 - Bedre UX: Ingen flash af protected content
 - Sparer unødige API kald med ugyldige tokens

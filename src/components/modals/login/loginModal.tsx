@@ -1,7 +1,7 @@
 // src/components/modals/login/LoginModal.tsx
 'use client'
 import { Modal, ModalContent, ModalHeader, ModalBody } from "@heroui/react";
-import LoginForm from '@/components/modals/login/loginForm';
+import LoginForm from "./loginForm";
 
 interface Props {
     isOpen: boolean;

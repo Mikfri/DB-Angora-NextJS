@@ -23,18 +23,6 @@ interface AuthState {
 // Hvor længe vi cacher auth status og token (i ms)
 const AUTH_CACHE_DURATION = 5 * 60 * 1000; // 5 minutter
 
-// Hjælper til at sikre at vi håndterer fetch URLs korrekt både på server og client
-const getAbsoluteUrl = (path: string) => {
-  // Vi er i en browser
-  if (typeof window !== 'undefined') {
-    return path; // Relative path works fine in browser
-  }
-  
-  // Vi er på serveren
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-  return `${baseUrl}${path}`;
-};
-
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
@@ -61,8 +49,7 @@ export const useAuthStore = create<AuthState>()(
           }
           
           console.log('🔄 Fetching fresh token');
-          // Ellers hent nyt token - FIX: Brug absolute URL
-          const response = await fetch(getAbsoluteUrl('/api/auth/token'));
+          const response = await fetch('/api/auth/token');
           if (!response.ok) return null;
           
           const data = await response.json();
@@ -100,8 +87,8 @@ export const useAuthStore = create<AuthState>()(
           // Ellers, sæt loading state
           set({ isLoading: true });
           
-          // Og foretag et nyt kald - FIX: Brug absolute URL
-          const response = await fetch(getAbsoluteUrl('/api/auth/token'), {
+          // Og foretag et nyt kald - Direkte URL uden getAbsoluteUrl
+          const response = await fetch('/api/auth/token', {
             method: 'HEAD',
             credentials: 'include'
           });
@@ -138,8 +125,7 @@ export const useAuthStore = create<AuthState>()(
         try {
           set({ isLoading: true });
           
-          // FIX: Brug absolute URL
-          const response = await fetch(getAbsoluteUrl('/api/auth/login'), {
+          const response = await fetch('/api/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ userName: username, password })
@@ -171,8 +157,7 @@ export const useAuthStore = create<AuthState>()(
 
       logout: async () => {
         try {
-          // FIX: Brug absolute URL
-          const response = await fetch(getAbsoluteUrl('/api/auth/logout'), {
+          const response = await fetch('/api/auth/logout', {
             method: 'POST',
             credentials: 'include'
           });
