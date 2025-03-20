@@ -1,0 +1,75 @@
+// About_Hooks.txt
+// En forklaring af React Hooks og deres ansvar i moderne React applikationer
+
+# Ansvar for src/lib/hooks/ mappen
+
+Custom Hooks (hooks/ mappen) har følgende primære ansvarsområder:
+
+1. CLIENT-SIDE LOGIK GENBRUGBARHED
+   - Indkapsler genbrugbar klientside logik i navngivne funktioner
+   - Muliggør deling af logik mellem komponenter uden duplikering
+
+2. TILSTANDSHÅNDTERING (STATE MANAGEMENT)
+   - Hooks der håndterer kompleks lokalt state management
+   - Indkapsler opdateringslogik og derived states
+
+3. SIDE-EFFECTS
+   - Håndterer data-fetching, event listeners, subscriptions, etc.
+   - Styrer livscyklus for ressourcer og forbindelser
+
+4. ABSTRAKTION AF KOMPLEKSITET
+   - Gør komplekse operationer tilgængelige gennem simple interfaces
+   - Skjuler implementationsdetaljer bag læsbare hooks-API'er
+
+5. REAKTIVE BEREGNINGER
+   - Håndterer afledte værdier baseret på tilstandsændringer
+   - Optimerer genberegninger med memoization
+
+# Client Hooks vs. Server Actions
+
+|---------------------|----------------------------------|----------------------------------|
+| Aspekt              | Client Hooks (hooks/)            | Server Actions (actions/)        |
+|---------------------|----------------------------------|----------------------------------|
+| Køretidsmiljø       | Browser (JavaScript)             | Server (Node.js)                 |
+| Adgang til          | DOM, browser APIs, localStorage  | Backend, databaser, filsystem,   |
+|                     |                                  | miljøvariabler                   |
+| Sikkerhed           | Kun offentlig kode, alt er       | Kan indeholde hemmelige nøgler   |
+|                     | synligt for brugeren             | og server-side logik             |
+| Datahåndtering      | Håndterer data modtaget fra      | Henter og manipulerer data       |
+|                     | server                           | direkte fra kilden               |
+| Indlæsning          | Kører øjeblikkeligt              | Kræver server-roundtrip          |
+| Mærket med          | React hooks konventioner         | 'use server' direktiv            |
+|                     | (useSomething)                   |                                  |
+|---------------------|----------------------------------|----------------------------------|
+
+# Praktiske eksempler i vores projekt:
+
+- rabbits/useRabbitOwnFilter.ts: Filtrerer kaniner baseret på brugervalgte kriterier
+- useDebounce.ts: Forsinker funktionskald for at undgå for hyppige opdateringer
+- useLocalStorage.ts: Gemmer og henter data fra browserens localStorage
+- useMediaQuery.ts: Reagerer på ændringer i skærmstørrelse for responsive design
+- useForm.ts: Håndterer formularinput, validering og submission
+
+# Fordele ved Custom Hooks:
+
+1. Separation of Concerns - Adskiller UI fra logik
+2. Code Reuse - Samme logik kan bruges i flere komponenter
+3. Testbarhed - Nemmere at skrive unit tests for isoleret logik
+4. Læsbarhed - Mere deklarativ og selv-dokumenterende kode
+5. Modulær kodebase - Nemmere vedligeholdelse og udvidelse
+
+# Hook regler at huske:
+
+1. Hooks må kun kaldes i React funktionskomponenter eller andre hooks
+2. Hooks må kun kaldes på det øverste niveau (ikke i betingelser, loops, etc.)
+3. Navngiv altid hooks med "use" præfiks for at følge konventionen
+4. Implementér cleanup funktioner i useEffect hvor det er nødvendigt
+5. Overvej memoization (useMemo, useCallback) for ressourceintensive operationer
+
+# Bedste praksis:
+
+1. Hold hooks små og fokuserede på ét ansvarsområde
+2. Komponer større hooks ved at sammensætte mindre hooks
+3. Dokumentér inputs og outputs grundigt
+4. Brug TypeScript til at sikre type-sikkerhed
+5. Overvej sideeffekter og hvordan de ryddes op

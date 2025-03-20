@@ -4,16 +4,20 @@ import { useState } from 'react';
 import { Input, Button } from "@heroui/react";
 import { toast } from 'react-toastify';
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
-
+import { useAuthStore } from '@/store/authStore';
+import { useRouter } from 'next/navigation';
 interface Props {
     onSuccess?: () => void;
 }
 
 export default function LoginForm({ onSuccess }: Props) {
+    const router = useRouter();
     const [userName, setUserName] = useState('');
     const [password, setPassword] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
+    
+    // Brug authStore direkte
+    const { login, isLoading } = useAuthStore();
 
     const isValid = userName.trim().length >= 2 && password.length >= 6;
 
@@ -21,29 +25,20 @@ export default function LoginForm({ onSuccess }: Props) {
         event.preventDefault();
         if (!isValid) return;
     
-        setIsLoading(true);
         try {
-            const response = await fetch('/api/auth/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    userName: userName.trim(),
-                    password
-                })
-            });
+            // Brug login funktion fra authStore
+            const success = await login(userName.trim(), password);
     
-            if (response.ok) {
+            if (success) {
+                toast.success('Login successfuldt!');
                 onSuccess?.();  // Call onSuccess if provided
-                window.location.href = '/account';
+                router.push('/account'); // Erstat window.location.href med router.push
             } else {
-                const error = await response.json();
-                toast.error(error.error || 'Ugyldigt login');
+                toast.error('Ugyldigt brugernavn eller kodeord');
             }
         } catch (error) {
             console.error('Login error:', error);
             toast.error('Der skete en uventet fejl');
-        } finally {
-            setIsLoading(false);
         }
     };
     
@@ -73,15 +68,9 @@ export default function LoginForm({ onSuccess }: Props) {
                     className='absolute right-2 top-5 text-sm text-gray-600'
                 >
                     {showPassword ? (
-                        <>
-                            <FaRegEye size={20} />
-                        </>
-
+                        <FaRegEye size={20} />
                     ) : (
-                        <>
-                            <FaRegEyeSlash size={20} />
-                        </>
-
+                        <FaRegEyeSlash size={20} />
                     )}
                 </button>
             </div>

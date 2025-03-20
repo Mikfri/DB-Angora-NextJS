@@ -1,7 +1,6 @@
 'use client'
 import { createContext, useContext, ReactNode, useState, useEffect } from 'react'
 import { HeroUIProvider } from "@heroui/react"
-import { SWRProvider } from '@/lib/config/swrConfig';
 import { useAuthStore } from '@/store/authStore';
 
 // Updated Nav Context Definition
@@ -30,7 +29,6 @@ export default function Providers({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <SWRProvider>
       <HeroUIProvider>
         <NavContext.Provider value={{ 
           primaryNav, 
@@ -41,7 +39,6 @@ export default function Providers({ children }: { children: ReactNode }) {
           {children}
         </NavContext.Provider>
       </HeroUIProvider>
-    </SWRProvider>
   );
 }
 

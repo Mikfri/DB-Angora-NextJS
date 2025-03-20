@@ -3,9 +3,9 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
 import { Rabbit_CreateDTO } from '@/api/types/AngoraDTOs';
-import { CreateRabbit } from '@/api/endpoints/rabbitController';
+import { createRabbit } from '@/app/actions/rabbit/create';
 
-export function useCreateRabbit() { // Changed from useRabbit
+export function useCreateRabbit() {
     const router = useRouter();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formData, setFormData] = useState<Partial<Rabbit_CreateDTO>>({
@@ -17,17 +17,23 @@ export function useCreateRabbit() { // Changed from useRabbit
         setIsSubmitting(true);
 
         try {
-            const response = await fetch('/api/auth/token');
-            const { accessToken } = await response.json();
-
-            if (!accessToken) {
-                toast.error('Du er ikke logget ind');
+            // Validér data på klientsiden først
+            if (!formData.rightEarId || !formData.leftEarId || !formData.nickName) {
+                toast.error('Udfyld venligst alle påkrævede felter');
+                setIsSubmitting(false);
                 return;
             }
 
-            await CreateRabbit(formData as Rabbit_CreateDTO, accessToken);
-            toast.success('Kanin oprettet');
-            router.push('/account/myRabbits');
+            // Kald Server Action
+            const result = await createRabbit(formData as Rabbit_CreateDTO);
+
+            if (result.success) {
+                toast.success('Kanin oprettet');
+                // Naviger til den nyoprettede kanins profilside
+                router.push(`/account/myRabbits/rabbitProfile/${result.earCombId}`);
+            } else {
+                toast.error(`Fejl: ${result.error}`);
+            }
         } catch (error) {
             console.error('Create failed:', error);
             toast.error('Der skete en fejl ved oprettelse af kaninen');

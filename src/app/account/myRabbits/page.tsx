@@ -1,20 +1,18 @@
 // src/app/account/myRabbits/page.tsx
-import { cookies } from 'next/headers';
 import RabbitOwnList from './rabbitOwnList';
-import { GetOwnRabbits } from '@/api/endpoints/accountController';
+import { getMyRabbits } from '@/app/actions/rabbit/myRabbits';
 
 export default async function RabbitsPage() {
-    const cookieStore = await cookies();
-    const accessToken = cookieStore.get("accessToken");
-    const ownRabbits = await GetOwnRabbits(String(accessToken?.value));
-    
-    if (!ownRabbits || ownRabbits.length === 0) {
-        return (
-            <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-6">
-                <p>No rabbits found</p>
-            </div>
-        );
-    }
+  // Hent kaniner direkte via Server Action
+  const rabbits = await getMyRabbits();
+  
+  if (!rabbits || rabbits.length === 0) {
+    return (
+      <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-6">
+        <p>Du har endnu ikke registreret nogle kaniner.</p>
+      </div>
+    );
+  }
 
-    return <RabbitOwnList rabbits={ownRabbits} />;
+  return <RabbitOwnList rabbits={rabbits} />;
 }

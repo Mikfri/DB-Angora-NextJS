@@ -1,11 +1,12 @@
 // src/api/types/DB-AngoraDTOs.ts
-interface RabbitPhoto {
+export interface Photo_DTO {
     id: number;
     filePath: string;
     fileName: string;
+    cloudinaryPublicId: string;
     uploadDate: string;
-    rabbitId: string;
-    userId: string;
+    entityType: string;
+    entityId: string;
     isProfilePicture: boolean;
 }
 
@@ -42,7 +43,7 @@ export interface Rabbit_ForsaleProfileDTO {
     gender: string;
     forBreeding: string;
     profilePicture: string;
-    photos: RabbitPhoto[];
+    photos: Photo_DTO[];
     ownerFullName: string;
     ownerPhoneNumber: string;
     ownerEmail: string;

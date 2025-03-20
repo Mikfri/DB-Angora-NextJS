@@ -86,8 +86,6 @@ export default function EnumAutocomplete({
     );
 }
 /*
-shared/
-
 Genbrugelige utility komponenter
 • Domain-agnostiske
 • Højt abstraktionsniveau

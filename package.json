@@ -15,7 +15,7 @@
       "@heroui/react": "2.6.14",
       "@hookform/resolvers": "^3.9.1",
       "framer-motion": "^11.11.17",
-      "next": "^15.1.6",
+      "next": "^15.2.3",
       "next-sitemap": "^4.2.3",
       "react": "^18.3.1",
       "react-dom": "^18.3.1",
@@ -23,14 +23,14 @@
       "react-icons": "^5.3.0",
       "react-scroll": "^1.9.0",
       "react-toastify": "^10.0.6",
-      "swr": "^2.3.2",
       "zod": "^3.23.8",
       "zustand": "^5.0.3"
    },
    "devDependencies": {
+      "@types/next": "^9.0.0",
       "@types/node": "^20",
       "@types/react": "^18",
-      "@types/react-dom": "^18",
+      "@types/react-dom": "^19.0.4",
       "@typescript-eslint/eslint-plugin": "^6.21.0",
       "@typescript-eslint/parser": "^6.21.0",
       "eslint": "^8.56.0",
@@ -38,6 +38,6 @@
       "postcss": "^8",
       "rimraf": "^5.0.5",
       "tailwindcss": "^3.4.1",
-      "typescript": "^5"
+      "typescript": "^5.8.2"
    }
 }

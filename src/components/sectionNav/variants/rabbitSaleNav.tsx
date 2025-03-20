@@ -1,5 +1,4 @@
 // src/components/sectionNav/variants/forSaleNav.tsx
-// filepath: /c:/Users/mikkf/Documents/GitHub/DB-Angora-NextJS/src/components/sectionNav/variants/rabbitSaleNav.tsx
 
 'use client';
 import { Input, Button } from "@heroui/react";

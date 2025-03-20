@@ -1,0 +1,83 @@
+// About_Zustande.txt
+// En forklaring af Zustand state management og dets samspil med Server Actions i Next.js
+
+# ZUSTAND STORE VS. SERVER ACTIONS
+
+## Arkitekturel Overblik i Moderne Next.js
+
+Dit projekt følger en moderne Next.js arkitektur med klar adskillelse mellem server-side og client-side ansvarsområder:
+
+### Server-side (Server Actions)
+• Server Actions (mærket med 'use server') kører udelukkende på serveren
+• Håndterer direkte kommunikation med backend API'er og databaser
+• Har sikker adgang til cookies via det asynkrone cookies() API
+• Kan indeholde hemmelige API-nøgler og andre følsomme data
+• Sætter og læser HttpOnly cookies for sikker authentication
+
+### Client-side (Zustand Store)
+• Zustand stores kører i browseren
+• Håndterer UI-states og reaktiv brugeroplevelse
+• Kalder Server Actions når der er behov for kommunikation med serveren
+• Cacher data lokalt for at minimere server-roundtrips
+• Synkroniserer UI på tværs af komponenter
+
+## Hvorfor Begge Dele er Nødvendige
+
+1) Server Actions er nødvendige fordi:
+   • De muliggør direkte server-side kode uden separate API routes
+   • De kan sikkert opbevare cookies med HttpOnly flag (vigtigt for sikkerhed)
+   • De kan udføre operationer med højere sikkerhedskrav
+   • De kan tilgå server-only ressourcer som databaser og miljøvariabler
+   • De reducerer client-side JavaScript bundle størrelse
+
+2) Zustand Store er nødvendig fordi:
+   • Den håndterer kompleks state management på tværs af komponenter
+   • Den cacher data lokalt for bedre performance og offline-oplevelse
+   • Den giver et reaktivt interface der opdaterer UI automatisk
+   • Den kan gemme midlertidige brugerindstillinger
+   • Den minimerer server-roundtrips for en hurtigere brugeroplevelse
+
+## Samspillet mellem Server Actions og Zustand
+
+### Dataflow i Din Applikation
+1. **UI Interaktion**: Bruger interagerer med UI (f.eks. login-knap klik)
+2. **Zustand Action**: Zustand store kalder en funktion (f.eks. login())
+3. **Server Action Call**: Funktionen kalder en Server Action
+4. **Backend Kommunikation**: Server Action kommunikerer med backend
+5. **Server Response**: Server Action behandler svaret og sætter cookies
+6. **State Update**: Resultat sendes tilbage til Zustand store
+7. **UI Update**: Zustand opdaterer UI baseret på nye state
+
+### AuthStore Specifikt
+• **getSessionStatus** Server Action: Tjekker session cookies
+• **login/logout** Server Actions: Håndterer authentication
+• **AuthStore**: Cacher authentication status og brugerdetaljer
+
+## Fordele ved Denne Tilgang
+
+1. **Sikkerhed**: Følsom authentication-logik forbliver på serveren
+2. **Performance**: Minimeret data-overførsel mellem client og server
+3. **Developer Experience**: Klarere ansvarsadskillelse
+4. **Progressive Enhancement**: Virker selv med begrænset JavaScript
+5. **Typesikkerhed**: End-to-end typechecking mellem client og server
+
+## Best Practices
+
+1. Brug Zustand til:
+   • UI-tilstand (loading, error states, osv.)
+   • Caching af ofte-anvendte data
+   • Deling af state mellem komponenter
+   • Midlertidig state der ikke kræver persistens
+
+2. Brug Server Actions til:
+   • Authentication og authorization
+   • Database operationer
+   • API-kald til eksterne tjenester
+   • Filoperationer
+   • Andre server-side opgaver
+
+3. Hold applikationslogikken:
+   • Skarp adskilt mellem client og server
+   • Velstruktureret med klare ansvarsområder
+   • Typestærk med veldefinerede interfaces
+   • Testbar med isolerede ansvarsområder

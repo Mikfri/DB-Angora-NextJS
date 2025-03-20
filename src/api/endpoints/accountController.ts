@@ -1,3 +1,4 @@
+// src/api/endpoints/accountController.ts
 import { getApiUrl } from "../config/apiConfig";
 import {
     User_ProfileDTO,
@@ -17,13 +18,33 @@ export async function GetUserProfile(accessToken: string, userProfileId: string)
 
 //-------- ICollections
 //---- Rabbits
-export async function GetOwnRabbits(accessToken: string): Promise<Rabbits_PreviewList> {
-    const data = await fetch(getApiUrl('Account/Rabbits_Owned'), {
-        headers: { Authorization: `Bearer ${accessToken}` }
-    });
-    const ownRabbits = await data.json();
-    //console.log('API Response:', ownRabbits); // Debug log
-    return ownRabbits;
+export async function GetOwnRabbits(accessToken?: string | null): Promise<Rabbits_PreviewList> {
+    try {
+        // Tjek om token findes
+        if (!accessToken) {
+            console.log('No access token provided to GetOwnRabbits');
+            return []; // Returner tom array hvis ingen token
+        }
+
+        const response = await fetch(getApiUrl('Account/Rabbits_Owned'), {
+            headers: { Authorization: `Bearer ${accessToken}` }
+        });
+
+        // Håndter ikke-success statuskoder
+        if (!response.ok) {
+            console.error(`API error: ${response.status} ${response.statusText}`);
+            return []; // Returner tom array ved API fejl
+        }
+
+        // Sikker JSON parsing
+        const text = await response.text();
+        if (!text) return [];
+        
+        return JSON.parse(text);
+    } catch (error) {
+        console.error('Error fetching own rabbits:', error);
+        return []; // Returner tom array ved alle andre fejl
+    }
 }
 
 

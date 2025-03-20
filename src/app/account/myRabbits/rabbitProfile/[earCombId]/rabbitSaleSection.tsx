@@ -1,23 +1,28 @@
 // src/app/account/myRabbits/rabbitProfile/[earCombId]/rabbitSaleSection.tsx
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Rabbit_ProfileDTO, Rabbit_SaleDetailsDTO, Rabbit_CreateSaleDetailsDTO, Rabbit_UpdateSaleDetailsDTO } from '@/api/types/AngoraDTOs';
 import { Button, Card, CardBody, Spinner } from "@heroui/react";
 import { toast } from 'react-toastify';
 import { CreateSaleDetails, UpdateSaleDetails, DeleteSaleDetails } from '@/api/endpoints/rabbitController';
 import { formatCurrency, formatDate } from '@/lib/utils/formatters';
+import { useAuthStore } from '@/store/authStore';
 import SaleDetailsForm from './saleDetailsForm';
+// Fjernet import af getAccessToken fra session.ts da vi bruger useAuthStore
 
 interface RabbitSaleSectionProps {
     rabbitProfile: Rabbit_ProfileDTO;
     onSaleDetailsChange: (saleDetails: Rabbit_SaleDetailsDTO | null) => void;
 }
 
-export default function RabbitSaleSection({ 
-    rabbitProfile, 
-    onSaleDetailsChange 
+export default function RabbitSaleSection({
+    rabbitProfile,
+    onSaleDetailsChange
 }: RabbitSaleSectionProps) {
+    // Få auth state fra useAuthStore
+    const { getAccessToken, isLoggedIn, isLoading: authLoading } = useAuthStore();
+    
     const [accessToken, setAccessToken] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isCreating, setIsCreating] = useState(false);
@@ -42,26 +47,28 @@ export default function RabbitSaleSection({
             saleDescription: ''
         }
     );
-    
-    // Hent accessToken fra API
-    useEffect(() => {
-        async function fetchToken() {
-            try {
-                const response = await fetch('/api/auth/token');
-                if (response.ok) {
-                    const data = await response.json();
-                    setAccessToken(data.accessToken);
-                }
-                setIsLoading(false);
-            } catch (error) {
-                console.error('Failed to fetch token:', error);
-                setIsLoading(false);
-            }
-        }
-        
-        fetchToken();
-    }, []);
 
+    // Hent accessToken fra authStore
+    const fetchToken = useCallback(async () => {
+        try {
+            setIsLoading(true);
+            const token = await getAccessToken();
+            setAccessToken(token);
+        } catch (error) {
+            console.error('Failed to fetch token:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [getAccessToken]);
+
+    useEffect(() => {
+        if (isLoggedIn) {
+            fetchToken();
+        } else {
+            setIsLoading(false);
+        }
+    }, [isLoggedIn, fetchToken]);
+    
     // Handle form submit
     const handleSubmit = async () => {
         if (!accessToken) {
@@ -85,9 +92,9 @@ export default function RabbitSaleSection({
             } else {
                 // Create new sale details
                 const created = await CreateSaleDetails(
-                    { 
-                        ...formData as Rabbit_CreateSaleDetailsDTO, 
-                        rabbitId: rabbitProfile.earCombId 
+                    {
+                        ...formData as Rabbit_CreateSaleDetailsDTO,
+                        rabbitId: rabbitProfile.earCombId
                     },
                     accessToken
                 );
@@ -153,21 +160,21 @@ export default function RabbitSaleSection({
         setIsCreating(false);
     };
 
-    // Viser loading hvis token ikke er hentet endnu
-    if (isLoading) {
+    // Viser loading hvis auth tjekker eller token hentes
+    if (authLoading || isLoading) {
         return (
             <div className="flex justify-center items-center p-10">
                 <Spinner size="lg" />
             </div>
         );
     }
-    
-    // Viser fejl hvis token ikke kunne hentes
-    if (!accessToken) {
+
+    // Viser fejl hvis ikke logget ind eller token ikke kunne hentes
+    if (!isLoggedIn || !accessToken) {
         return (
             <div className="p-10 text-center">
                 <p className="text-red-500 mb-4">Du skal være logget ind for at administrere salgsprofiler</p>
-                <Button color="primary" onClick={() => window.location.reload()}>
+                <Button color="primary" onPress={() => window.location.reload()}>
                     Prøv igen
                 </Button>
             </div>
@@ -182,8 +189,7 @@ export default function RabbitSaleSection({
                     <h2 className="text-xl font-semibold mb-4">
                         {isCreating ? 'Opret salgsprofil' : 'Rediger salgsprofil'}
                     </h2>
-                    
-                    <SaleDetailsForm 
+                    <SaleDetailsForm
                         formData={formData}
                         setFormData={setFormData}
                         onSubmit={handleSubmit}
@@ -239,17 +245,17 @@ export default function RabbitSaleSection({
                     </div>
 
                     <div className="flex flex-wrap gap-2 justify-end">
-                        <Button 
-                            color="primary" 
-                            onPress={startEditing} 
+                        <Button
+                            color="primary"
+                            onPress={startEditing}
                             isDisabled={isDeleting}
                         >
                             Rediger
                         </Button>
-                        <Button 
-                            color="danger" 
-                            onPress={handleDelete} 
-                            isLoading={isDeleting} 
+                        <Button
+                            color="danger"
+                            onPress={handleDelete}
+                            isLoading={isDeleting}
                             isDisabled={isSaving}
                         >
                             {isDeleting ? 'Sletter...' : 'Fjern fra salg'}
@@ -264,8 +270,8 @@ export default function RabbitSaleSection({
     return (
         <div className="flex flex-col items-center justify-center p-10 bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 border border-zinc-700/50 rounded-lg">
             <p className="text-zinc-400 mb-6">Denne kanin er ikke sat til salg</p>
-            <Button 
-                color="primary" 
+            <Button
+                color="primary"
                 onPress={startCreating}
             >
                 Opret salgsprofil

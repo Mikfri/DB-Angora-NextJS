@@ -6,10 +6,6 @@
  * - Gemme brugerens egne kaniner lokalt for hurtigere adgang
  * - Håndtere favorit-kaniner
  * - Gemme midlertidig kanin-state (f.eks. under oprettelse)
- * 
- * Dette adskiller sig fra SWR ved at:
- * - SWR håndterer server-data fetching og caching
- * - Zustand håndterer client-side state som ikke direkte kommer fra serveren
  */
 
 import { create } from 'zustand';

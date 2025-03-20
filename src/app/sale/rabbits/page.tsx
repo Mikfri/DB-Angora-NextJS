@@ -2,7 +2,7 @@
 import { Metadata } from 'next';
 import { ForSaleFilters } from '@/api/types/filterTypes';
 import RabbitsForSale from './rabbitSaleList';
-import { GetRabbitsForSale } from '@/api/endpoints/rabbitController';
+import { getRabbitsForSale } from '@/app/actions/rabbit/forsale'; // Server Action
 
 type PageProps = {
   params: Promise<object>;
@@ -47,10 +47,15 @@ export default async function Page({ searchParams }: PageProps) {
     MaxZipCode: sp.MaxZipCode ? parseInt(sp.MaxZipCode) : null,
   };
 
-  const initialRabbits = await GetRabbitsForSale(filters);
-  return <RabbitsForSale
-    initialData={initialRabbits}
-    initialFilters={filters}
-    showSecondaryNav={true} // or true to enable
-  />;
+  // Brug Server Action
+  const result = await getRabbitsForSale(sp);
+  const rabbits = result.success ? result.data : [];
+  
+  return (
+    <RabbitsForSale
+      rabbits={rabbits}
+      initialFilters={filters}
+      showSecondaryNav={true}
+    />
+  );
 }

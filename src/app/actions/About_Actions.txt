@@ -1,0 +1,67 @@
+// About_Actions.txt
+// En forklaring af Server Actions og deres ansvar i Next.js applikationer
+
+# Ansvar for src/app/actions/ mappen
+
+Server Actions (actions/ mappen) har følgende primære ansvarsområder:
+
+1. SERVER-SIDE LOGIK UDFØRELSE
+   - Kode der kører på serveren, ikke i browseren
+   - Sikker håndtering af sensitive operationer
+
+2. DATA MANIPULATION
+   - CRUD operationer mod backend/databaser
+   - Transformation af data mellem server og client formater
+
+3. API-KALD ABSTRAKTION
+   - Indkapsler komplekse API-kald i enkle funktioner
+   - Centraliserer logik for forbindelse til eksterne tjenester
+
+4. SERVER-SIDE VALIDERING
+   - Validering og sanitering af data før persistering
+   - Beskyttelse mod skadelige input
+
+5. SIKKERHED
+   - Håndtering af autentificering og autorisering
+   - Beskyttelse af endpoint adgang
+
+# Server Actions vs. Client Hooks
+
+|---------------------|----------------------------------|----------------------------------|
+| Aspekt              | Server Actions (actions/)        | Client Hooks (hooks/)            |
+|---------------------|----------------------------------|----------------------------------|
+| Køretidsmiljø       | Server (Node.js)                 | Browser (JavaScript)             |
+| Adgang til          | Backend, databaser, filsystem,   | DOM, browser APIs, localStorage  |
+|                     | miljøvariabler                   |                                  |
+| Sikkerhed           | Kan indeholde hemmelige nøgler   | Kun offentlig kode, alt er       |
+|                     | og server-side logik             | synligt for brugeren             |
+| Datahåndtering      | Henter og manipulerer data       | Håndterer data modtaget fra      |
+|                     | direkte fra kilden               | server                           |
+| Indlæsning          | Kræver server-roundtrip          | Kører øjeblikkeligt              |
+| Mærket med          | 'use server' direktiv            | React hooks konventioner         |
+|                     |                                  | (useSomething)                   |
+|---------------------|----------------------------------|----------------------------------|
+
+# Praktiske eksempler i vores projekt:
+
+- auth/login.ts: Håndterer brugerlogin og gemmer session cookies
+- auth/logout.ts: Fjerner session cookies ved logout
+- auth/session.ts: Tjekker authentication status
+- rabbit/myRabbits.ts: Henter liste over brugerens kaniner
+- rabbit/forsale.ts: Søgning og filtrering af kaniner til salg
+
+# Fordele ved Server Actions:
+
+1. Reduceret client-side JavaScript bundle størrelse
+2. Direkte server-side execution uden separate API endpoints
+3. Progressive enhancement - fungerer selv uden JavaScript
+4. Automatisk validering og type-tjek via TypeScript
+5. Simplificeret arkitektur i forhold til API routes
+
+# Bedste praksis:
+
+1. Placer Server Actions i actions/ mappen for organisationens skyld
+2. Brug 'use server' direktiv i toppen af filen
+3. Implementér robust fejlhåndtering
+4. Returner typede resultater (success/error objekter)
+5. Hold funktioner fokuserede og genbrugbare

@@ -1,6 +1,9 @@
 // src/store/authStore.ts
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { login as loginAction } from '@/app/actions/auth/login';
+import { logout as logoutAction } from '@/app/actions/auth/logout';
+import { getSessionStatus, getAccessToken as getTokenAction } from '@/app/actions/auth/session';
 
 interface TokenCache {
   lastChecked: number;      // Tidspunkt for sidste check
@@ -15,7 +18,7 @@ interface AuthState {
   isLoading: boolean;
   tokenCache: TokenCache;
   checkAuth: () => Promise<boolean>;
-  getAccessToken: () => Promise<string | null>; // Ny funktion
+  getAccessToken: () => Promise<string | null>;
   login: (username: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;
 }
@@ -30,10 +33,10 @@ export const useAuthStore = create<AuthState>()(
       userName: '',
       userRole: '',
       isLoading: true,
-      tokenCache: { 
-        lastChecked: 0, 
+      tokenCache: {
+        lastChecked: 0,
         expiresIn: AUTH_CACHE_DURATION,
-        accessToken: null 
+        accessToken: null
       },
 
       // Access token hentning med cache
@@ -41,30 +44,29 @@ export const useAuthStore = create<AuthState>()(
         try {
           const now = Date.now();
           const { lastChecked, expiresIn, accessToken } = get().tokenCache;
-          
+
           // Returner cached token hvis gyldig
           if (accessToken && now - lastChecked < expiresIn) {
             console.log('🔑 Using cached token');
             return accessToken;
           }
-          
+
           console.log('🔄 Fetching fresh token');
-          const response = await fetch('/api/auth/token');
-          if (!response.ok) return null;
-          
-          const data = await response.json();
-          const newToken = data.accessToken;
-          
+          // Brug Server Action i stedet for fetch
+          const newToken = await getTokenAction();
+
+          if (!newToken) return null;
+
           // Cache det nye token
           set(state => ({
             ...state,
-            tokenCache: { 
-              lastChecked: now, 
+            tokenCache: {
+              lastChecked: now,
               expiresIn: AUTH_CACHE_DURATION,
               accessToken: newToken
             }
           }));
-          
+
           return newToken;
         } catch (error) {
           console.error('❌ Token fetch failed:', error);
@@ -76,7 +78,7 @@ export const useAuthStore = create<AuthState>()(
         try {
           const now = Date.now();
           const { lastChecked, expiresIn } = get().tokenCache;
-          
+
           // Hvis vi har tjekket for nylig, returner den cachede værdi
           if (now - lastChecked < expiresIn) {
             console.log('🔒 Using cached auth status');
@@ -86,33 +88,23 @@ export const useAuthStore = create<AuthState>()(
 
           // Ellers, sæt loading state
           set({ isLoading: true });
-          
-          // Og foretag et nyt kald - Direkte URL uden getAbsoluteUrl
-          const response = await fetch('/api/auth/token', {
-            method: 'HEAD',
-            credentials: 'include'
-          });
 
-          const isAuthenticated = response.headers.get('X-Is-Authenticated') === 'true';
-          const username = response.headers.get('X-User-Name') || '';
-          const role = response.headers.get('X-User-Role') || '';
-          
-          // Vi sætter ikke accessToken her, da vi bruger HEAD request
-          // Hvis vi skal bruge token, vil getAccessToken() hente det
-          
+          // Brug Server Action i stedet for fetch
+          const session = await getSessionStatus();
+
           set({
-            isLoggedIn: isAuthenticated,
-            userName: username,
-            userRole: role,
+            isLoggedIn: session.isAuthenticated,
+            userName: session.userName || '',
+            userRole: session.userRole || '',
             isLoading: false,
-            tokenCache: { 
+            tokenCache: {
               ...get().tokenCache,
-              lastChecked: now, 
+              lastChecked: now,
               expiresIn: AUTH_CACHE_DURATION
             }
           });
 
-          return isAuthenticated;
+          return session.isAuthenticated;
         } catch (error) {
           console.error('❌ Auth check failed:', error);
           set({ isLoggedIn: false, isLoading: false });
@@ -120,33 +112,32 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
-      // Eksisterende funktioner med opdateret cache handling
+      // Login med Server Action
       login: async (username, password) => {
         try {
           set({ isLoading: true });
-          
-          const response = await fetch('/api/auth/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userName: username, password })
-          });
 
-          if (!response.ok) {
+          // Brug Server Action i stedet for fetch
+          const result = await loginAction(username, password);
+
+          if (!result.success) {
             set({ isLoading: false });
             return false;
           }
 
           // Efter login, invalider hele token cache
-          set(state => ({
-            ...state,
-            tokenCache: { 
-              lastChecked: 0, 
+          set({
+            isLoggedIn: true,
+            userName: result.userName,
+            userRole: result.userRole,
+            isLoading: false,
+            tokenCache: {
+              lastChecked: Date.now(),
               expiresIn: AUTH_CACHE_DURATION,
-              accessToken: null
+              accessToken: null // Nulstil accessToken så det hentes friskt næste gang
             }
-          }));
-          
-          await get().checkAuth();
+          });
+
           return true;
         } catch (error) {
           console.error('❌ Login failed:', error);
@@ -155,25 +146,28 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
+      // Logout med Server Action
       logout: async () => {
         try {
-          const response = await fetch('/api/auth/logout', {
-            method: 'POST',
-            credentials: 'include'
-          });
+          const result = await logoutAction();
 
-          if (response.ok) {
+          if (result.success) {
             set({
               isLoggedIn: false,
               userName: '',
               userRole: '',
               isLoading: false,
-              tokenCache: { 
-                lastChecked: Date.now(), 
+              tokenCache: {
+                lastChecked: Date.now(),
                 expiresIn: AUTH_CACHE_DURATION,
                 accessToken: null
               }
             });
+
+            // Redirect til forsiden
+            if (typeof window !== 'undefined') {
+              window.location.href = '/';
+            }
           }
         } catch (error) {
           console.error('❌ Logout failed:', error);

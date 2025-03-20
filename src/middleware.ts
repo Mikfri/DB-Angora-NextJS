@@ -6,13 +6,18 @@ export function middleware(request: NextRequest) {
   const token = request.cookies.get('accessToken')
 
   if (!token || isTokenExpired(token.value)) {
-    // Create response with login redirect
-    const response = NextResponse.redirect(new URL('/', request.url))
+    // Get current URL to use as return URL
+    const returnUrl = encodeURIComponent(request.nextUrl.pathname);
+    
+    // Create response with login redirect, preserving the return URL
+    const loginUrl = new URL(`/?returnUrl=${returnUrl}`, request.url);
+    const response = NextResponse.redirect(loginUrl);
     
     // Clear expired tokens
     response.cookies.delete('accessToken')
     response.cookies.delete('userName')
     response.cookies.delete('userRole')
+    response.cookies.delete('userProfileId')
     
     return response
   }

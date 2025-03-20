@@ -1,37 +1,86 @@
 // src/app/sale/rabbits/rabbitSaleList.tsx
 'use client'
+
 import { useNav } from "@/components/Providers";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from 'next/navigation';
 import ForSaleNav from '@/components/sectionNav/variants/rabbitSaleNav';
 import RabbitForsaleCard from '@/components/cards/rabbitForsaleCard';
 import { Rabbits_SaleDetailsPreviewList } from '@/api/types/AngoraDTOs';
 import { ForSaleFilters } from '@/api/types/filterTypes';
 import MyNav from "@/components/sectionNav/variants/myNav";
-import { useRabbitsForSale } from "@/lib/hooks/useSWR/useRabbitForsaleSWR";
+import { getRabbitsForSale, ForSaleParams } from "@/app/actions/rabbit/forsale";
 import { Skeleton } from "@heroui/react";
 
+// Simple cache object (uden for komponenten)
+const filterCache: Record<string, Rabbits_SaleDetailsPreviewList> = {};
+
 interface Props {
-    initialData: Rabbits_SaleDetailsPreviewList;
+    rabbits: Rabbits_SaleDetailsPreviewList;
     initialFilters: ForSaleFilters;
     showSecondaryNav?: boolean;
 }
 
 export default function RabbitsForSale({
-    initialData,
+    rabbits: initialRabbits,
     initialFilters,
-    showSecondaryNav = false // default to false
+    showSecondaryNav = false
 }: Props) {
     const { setPrimaryNav, setSecondaryNav } = useNav();
     const router = useRouter();
-    const { rabbits, filters, updateFilters, isLoading } = useRabbitsForSale(initialData, initialFilters);
-
-    // Stabil callback for card click - undgår genskabelse ved hver render
+    
+    // Local state for client-side updates
+    const [rabbits, setRabbits] = useState(initialRabbits);
+    const [filters, setFilters] = useState(initialFilters);
+    const [isLoading, setIsLoading] = useState(false);
+    
+    // Update filters and refetch data
+    const updateFilters = useCallback(async (newFilters: Partial<ForSaleFilters>) => {
+        const updatedFilters = { ...filters, ...newFilters };
+        setFilters(updatedFilters);
+        
+        // Update URL
+        const params = new URLSearchParams();
+        Object.entries(updatedFilters).forEach(([key, value]) => {
+            if (value !== null && value !== undefined && value !== '') {
+                params.append(key, String(value));
+            }
+        });
+        
+        const queryString = params.toString();
+        const newPath = `/sale/rabbits${queryString ? `?${queryString}` : ''}`;
+        
+        // Update URL without page reload
+        router.replace(newPath, { scroll: false });
+        
+        // Generate cache key
+        const cacheKey = JSON.stringify(updatedFilters);
+        
+        // Check cache first
+        if (filterCache[cacheKey]) {
+            console.log("Using cached data for:", cacheKey);
+            setRabbits(filterCache[cacheKey]);
+            return;
+        }
+        
+        // Fetch new data with Server Action
+        setIsLoading(true);
+        const result = await getRabbitsForSale(updatedFilters as ForSaleParams);
+        setIsLoading(false);
+        
+        if (result.success) {
+            // Store in cache
+            filterCache[cacheKey] = result.data;
+            setRabbits(result.data);
+        }
+    }, [filters, router]);
+    
+    // Card click handler
     const handleCardClick = useCallback((earCombId: string) => {
         router.push(`/sale/rabbits/profile/${earCombId}`);
     }, [router]);
 
-    // Memoize primary nav component with unique key
+    // Primary nav component
     const primaryNav = useMemo(() => (
         <ForSaleNav
             key="forsale-nav"
@@ -40,20 +89,17 @@ export default function RabbitsForSale({
         />
     ), [filters, updateFilters]);
 
-    // Memoize secondary nav with unique key
+    // Secondary nav component
     const secondaryNav = useMemo(() => (
         <MyNav key="secondary-nav" />
     ), []);
 
-    // Set up both navigations with clear dependencies
+    // Set up navigations
     useEffect(() => {
         setPrimaryNav(primaryNav);
-        
-        // Only set secondary nav if showSecondaryNav is true
         if (showSecondaryNav) {
             setSecondaryNav(secondaryNav);
         } else {
-            // Ensure we clear secondary nav when not needed
             setSecondaryNav(null);
         }
         
@@ -64,7 +110,6 @@ export default function RabbitsForSale({
     }, [primaryNav, secondaryNav, setPrimaryNav, setSecondaryNav, showSecondaryNav]);
 
     // Loading state with skeleton UI
-    
     if (isLoading) {
         return (
             <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-6">
@@ -102,7 +147,7 @@ export default function RabbitsForSale({
         );
     }
 
-    // Results state
+    // Render rabbits
     return (
         <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center">
@@ -116,18 +161,4 @@ export default function RabbitsForSale({
             </div>
         </div>
     );
-    // return (
-    //     <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-6">
-    //         <div className="grid grid-template-columns-responsive gap-6">
-    //             {rabbits.map((rabbit) => (
-    //                 <div key={rabbit.earCombId} className="min-w-[300px] w-full">
-    //                     <RabbitForsaleCard 
-    //                         rabbit={rabbit} 
-    //                         onClick={() => handleCardClick(rabbit.earCombId)} 
-    //                     />
-    //                 </div>
-    //             ))}
-    //         </div>
-    //     </div>
-    // );
 }
