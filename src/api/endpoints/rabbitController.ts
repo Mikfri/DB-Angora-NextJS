@@ -1,6 +1,6 @@
 // src/api/endpoints/rabbitController.ts
 import { getApiUrl } from "../config/apiConfig";
-import { Rabbit_CreateDTO, Rabbit_ProfileDTO, Rabbits_SaleDetailsPreviewList, Rabbit_ForsaleProfileDTO, Rabbits_ForbreedingPreviewList, Rabbit_UpdateDTO, Rabbit_PreviewDTO, Rabbit_CreateSaleDetailsDTO, Rabbit_SaleDetailsDTO, Rabbit_UpdateSaleDetailsDTO } from "../types/AngoraDTOs";
+import { Rabbit_CreateDTO, Rabbit_ProfileDTO, Rabbits_SaleDetailsPreviewList, Rabbit_ForsaleProfileDTO, Rabbits_ForbreedingPreviewList, Rabbit_UpdateDTO, Rabbit_PreviewDTO, Rabbit_CreateSaleDetailsDTO, Rabbit_SaleDetailsDTO, Rabbit_UpdateSaleDetailsDTO, CloudinaryUploadSignatureDTO } from "../types/AngoraDTOs";
 import { ForSaleFilters } from "../types/filterTypes";
 
 
@@ -59,6 +59,33 @@ export async function CreateSaleDetails(
 }
 
 //-------------------- READ
+
+/**
+ * Anmoder om tilladelse til at uploade et foto til Cloudinary for en specifik kanin
+ * 
+ * @param accessToken - Brugerens JWT authentication token
+ * @param earCombId - Kaninens øremærke-id
+ * @returns Signatur og andre oplysninger til brug ved upload til Cloudinary
+ */
+export async function GetRabbitPhotoUploadPermission(
+    accessToken: string,
+    earCombId: string
+): Promise<CloudinaryUploadSignatureDTO> {
+    const response = await fetch(getApiUrl(`Rabbit/photo-upload-permission/${earCombId}`), {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${accessToken}`
+        }
+    });
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to get photo upload permission: ${response.status} - ${errorText}`);
+    }
+
+    return response.json();
+}
+
 /**
  * Henter kaniner til salg med angivne filtre
  * @param filters Valgfrie søgefiltre
@@ -69,7 +96,7 @@ export async function GetRabbitsForSale(filters?: ForSaleFilters): Promise<Rabbi
 
     if (filters) {
         const params = new URLSearchParams();
-        
+
         // Tilføj kun definerede værdier til URL
         Object.entries(filters).forEach(([key, value]) => {
             // Konverter kun værdier der faktisk findes (ikke undefined og ikke null)
@@ -77,7 +104,7 @@ export async function GetRabbitsForSale(filters?: ForSaleFilters): Promise<Rabbi
                 params.append(key, value.toString());
             }
         });
-        
+
         const queryString = params.toString();
         if (queryString) {
             url += '?' + queryString;
@@ -233,11 +260,11 @@ export async function DeleteSaleDetails(
             statusText: response.statusText,
             body: errorText
         });
-        
+
         if (response.status === 404) {
             throw new Error('Sale details not found or you do not have permission to delete them.');
         }
-        
+
         throw new Error(`Failed to delete sale details: ${response.status} ${response.statusText}`);
     }
 

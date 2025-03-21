@@ -10,6 +10,27 @@ export interface Photo_DTO {
     isProfilePicture: boolean;
 }
 
+export interface CloudinaryPhotoRegistryRequestDTO {
+    publicId: string;
+    cloudinaryUrl: string;
+    fileName: string;
+    entityId: string;
+    entityType: string;
+}
+
+export interface CloudinaryUploadSignatureDTO {
+    apiKey: string;
+    cloudName: string;
+    timestamp: string;
+    signature: string;
+    folder: string;
+    uploadPreset: string;
+    entityId: string;
+    entityType: string;
+    context: string;
+    tags: string;
+}
+
 export interface Rabbit_CreateDTO {
     rightEarId: string;
     leftEarId: string;
