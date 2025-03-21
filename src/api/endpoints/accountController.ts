@@ -18,6 +18,12 @@ export async function GetUserProfile(accessToken: string, userProfileId: string)
 
 //-------- ICollections
 //---- Rabbits
+/**
+ * Henter alle kaniner ejet af den aktuelle bruger
+ * @param accessToken 
+ * @returns En liste af kaniner [Rabbits_PreviewList]
+ */
+
 export async function GetOwnRabbits(accessToken?: string | null): Promise<Rabbits_PreviewList> {
     try {
         // Tjek om token findes

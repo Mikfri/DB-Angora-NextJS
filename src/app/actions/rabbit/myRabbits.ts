@@ -8,18 +8,38 @@ import { Rabbit_PreviewDTO } from '@/api/types/AngoraDTOs';
 /**
  * Server Action: Henter alle brugerens kaniner
  * Wrapper omkring GetOwnRabbits der håndterer token-hentning
- * @returns Array af brugerens kaniner eller tom array ved fejl
+ * @returns Object med success flag, data og evt. fejlbesked
  */
-export async function getMyRabbits(): Promise<Rabbit_PreviewDTO[]> {
+export async function getMyRabbits(): Promise<{
+  success: boolean;
+  data: Rabbit_PreviewDTO[];
+  error?: string;
+}> {
   try {
     // Hent token direkte via server action
     const accessToken = await getAccessToken();
     
+    if (!accessToken) {
+      return {
+        success: false,
+        data: [],
+        error: "Du skal være logget ind for at se dine kaniner"
+      };
+    }
+    
     // Brug den eksisterende GetOwnRabbits funktion
-    return await GetOwnRabbits(accessToken);
+    const rabbits = await GetOwnRabbits(accessToken);
+    return {
+      success: true,
+      data: rabbits
+    };
   } catch (error) {
     console.error("Error in getMyRabbits server action:", error);
-    return [];
+    return {
+      success: false,
+      data: [],
+      error: "Der opstod en fejl ved indlæsning af dine kaniner"
+    };
   }
 }
 

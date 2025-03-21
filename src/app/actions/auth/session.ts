@@ -37,6 +37,10 @@ export const getSessionStatus = cache(async (): Promise<SessionStatus> => {
   };
 });
 
+/**
+ * Henter access token fra cookie store (lib/utils/cookieStore.ts)
+ * @returns Access token || null hvis ikke logget ind eller token udløbet
+ */
 export async function getAccessToken(): Promise<string | null> {
   const cookieStore = getCookieStore();
   const accessToken = await cookieStore.get('accessToken');
