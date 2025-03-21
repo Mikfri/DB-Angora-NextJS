@@ -9,7 +9,6 @@ import { CreateSaleDetails, UpdateSaleDetails, DeleteSaleDetails } from '@/api/e
 import { formatCurrency, formatDate } from '@/lib/utils/formatters';
 import { useAuthStore } from '@/store/authStore';
 import SaleDetailsForm from './saleDetailsForm';
-// Fjernet import af getAccessToken fra session.ts da vi bruger useAuthStore
 
 interface RabbitSaleSectionProps {
     rabbitProfile: Rabbit_ProfileDTO;
