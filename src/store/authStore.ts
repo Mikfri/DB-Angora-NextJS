@@ -4,11 +4,13 @@ import { persist } from 'zustand/middleware';
 import { login as loginAction } from '@/app/actions/auth/login';
 import { logout as logoutAction } from '@/app/actions/auth/logout';
 import { getSessionStatus, getAccessToken as getTokenAction } from '@/app/actions/auth/session';
+import { getTokenExpiry, getTokenTimeRemaining, isTokenExpired } from '@/lib/utils/tokenUtils';
 
 interface TokenCache {
-  lastChecked: number;      // Tidspunkt for sidste check
-  expiresIn: number;        // Cache udløbstid i ms
-  accessToken: string | null; // Cachelagret token
+  lastChecked: number;
+  expiresIn: number;
+  accessToken: string | null;
+  tokenExpiry: number | null; // Tidspunkt hvor token udløber (fra JWT)
 }
 
 interface AuthState {
@@ -36,34 +38,90 @@ export const useAuthStore = create<AuthState>()(
       tokenCache: {
         lastChecked: 0,
         expiresIn: AUTH_CACHE_DURATION,
-        accessToken: null
+        accessToken: null,
+        tokenExpiry: null
       },
 
       // Access token hentning med cache
       getAccessToken: async () => {
         try {
           const now = Date.now();
-          const { lastChecked, expiresIn, accessToken } = get().tokenCache;
+          const { lastChecked, expiresIn, accessToken, tokenExpiry } = get().tokenCache;
 
-          // Returner cached token hvis gyldig
-          if (accessToken && now - lastChecked < expiresIn) {
-            console.log('🔑 Using cached token');
+          // Tjek om token er udløbet med isTokenExpired utility
+          if (accessToken && tokenExpiry && isTokenExpired(accessToken, tokenExpiry.toString())) {
+            console.log('⏰ Token expired at:', new Date(tokenExpiry).toLocaleString());
+
+            // Token er udløbet - hent et nyt
+            const newToken = await getTokenAction();
+
+            if (!newToken) {
+              // Hvis vi ikke kan få et nyt token, nulstil cache
+              set(state => ({
+                ...state,
+                tokenCache: {
+                  ...state.tokenCache,
+                  accessToken: null,
+                  tokenExpiry: null
+                }
+              }));
+              return null;
+            }
+
+            // Brug getTokenExpiry utility til at udtrække udløbstidspunkt
+            const newExpiry = getTokenExpiry(newToken);
+
+            set(state => ({
+              ...state,
+              tokenCache: {
+                lastChecked: now,
+                expiresIn: AUTH_CACHE_DURATION,
+                accessToken: newToken,
+                tokenExpiry: newExpiry
+              }
+            }));
+
+            return newToken;
+          }
+
+          // Returner cached token hvis gyldig (inden for cache periode og ikke udløbet)
+          if (accessToken && now - lastChecked < expiresIn &&
+            (!tokenExpiry || !isTokenExpired(accessToken, tokenExpiry.toString()))) {
+
+            // Brug getTokenTimeRemaining til bedre logging
+            const timeRemaining = accessToken ? getTokenTimeRemaining(accessToken) : null;
+            const minutesLeft = timeRemaining ? Math.floor(timeRemaining / 60000) : '?';
+
+            console.log(`🔑 Using cached token (expires in ~${minutesLeft} minutes)`);
             return accessToken;
           }
 
           console.log('🔄 Fetching fresh token');
-          // Brug Server Action i stedet for fetch
           const newToken = await getTokenAction();
 
-          if (!newToken) return null;
+          if (!newToken) {
+            // Hvis vi ikke kan få et token, nulstil cache
+            set(state => ({
+              ...state,
+              tokenCache: {
+                ...state.tokenCache,
+                accessToken: null,
+                tokenExpiry: null
+              }
+            }));
+            return null;
+          }
 
-          // Cache det nye token
+          // Brug getTokenExpiry utility til at udtrække udløbstidspunkt
+          const newExpiry = getTokenExpiry(newToken);
+
           set(state => ({
             ...state,
             tokenCache: {
               lastChecked: now,
               expiresIn: AUTH_CACHE_DURATION,
-              accessToken: newToken
+              accessToken: newToken,
+              tokenExpiry: newExpiry
             }
           }));
 
@@ -77,21 +135,25 @@ export const useAuthStore = create<AuthState>()(
       checkAuth: async () => {
         try {
           const now = Date.now();
-          const { lastChecked, expiresIn } = get().tokenCache;
-
-          // Hvis vi har tjekket for nylig, returner den cachede værdi
-          if (now - lastChecked < expiresIn) {
-            console.log('🔒 Using cached auth status');
-            set({ isLoading: false });
+          const { lastChecked, expiresIn, tokenExpiry } = get().tokenCache;
+      
+          // Brug cache hvis:
+          // 1. Vi har tjekket for nylig OG
+          // 2. Token ikke er udløbet
+          const tokenValid = tokenExpiry ? now < tokenExpiry : true;
+          const cacheValid = now - lastChecked < expiresIn;
+          
+          if (cacheValid && tokenValid) {
+            console.log('🔒 Using cached auth status (valid)');
             return get().isLoggedIn;
           }
-
-          // Ellers, sæt loading state
+      
+          console.log('🔄 Refreshing auth status');
           set({ isLoading: true });
-
-          // Brug Server Action i stedet for fetch
+          
+          // Brug Server Action til at tjekke session
           const session = await getSessionStatus();
-
+      
           set({
             isLoggedIn: session.isAuthenticated,
             userName: session.userName || '',
@@ -100,10 +162,11 @@ export const useAuthStore = create<AuthState>()(
             tokenCache: {
               ...get().tokenCache,
               lastChecked: now,
-              expiresIn: AUTH_CACHE_DURATION
+              expiresIn: AUTH_CACHE_DURATION,
+              tokenExpiry: session.tokenExpiry || null
             }
           });
-
+      
           return session.isAuthenticated;
         } catch (error) {
           console.error('❌ Auth check failed:', error);
@@ -111,13 +174,12 @@ export const useAuthStore = create<AuthState>()(
           return false;
         }
       },
-
+      
       // Login med Server Action
       login: async (username, password) => {
         try {
           set({ isLoading: true });
 
-          // Brug Server Action i stedet for fetch
           const result = await loginAction(username, password);
 
           if (!result.success) {
@@ -125,7 +187,7 @@ export const useAuthStore = create<AuthState>()(
             return false;
           }
 
-          // Efter login, invalider hele token cache
+          // Efter login, opdater cache med token udløbstidspunkt
           set({
             isLoggedIn: true,
             userName: result.userName,
@@ -134,7 +196,8 @@ export const useAuthStore = create<AuthState>()(
             tokenCache: {
               lastChecked: Date.now(),
               expiresIn: AUTH_CACHE_DURATION,
-              accessToken: null // Nulstil accessToken så det hentes friskt næste gang
+              accessToken: null, // Nulstil accessToken så det hentes friskt næste gang
+              tokenExpiry: result.tokenExpiry // Gem token udløbstidspunkt
             }
           });
 
@@ -160,14 +223,10 @@ export const useAuthStore = create<AuthState>()(
               tokenCache: {
                 lastChecked: Date.now(),
                 expiresIn: AUTH_CACHE_DURATION,
-                accessToken: null
+                accessToken: null,
+                tokenExpiry: null
               }
             });
-
-            // Redirect til forsiden
-            if (typeof window !== 'undefined') {
-              window.location.href = '/';
-            }
           }
         } catch (error) {
           console.error('❌ Logout failed:', error);

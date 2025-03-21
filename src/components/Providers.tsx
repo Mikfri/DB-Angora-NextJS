@@ -1,44 +1,57 @@
+// src/components/Providers.tsx
 'use client'
 import { createContext, useContext, ReactNode, useState, useEffect } from 'react'
 import { HeroUIProvider } from "@heroui/react"
 import { useAuthStore } from '@/store/authStore';
+import { EnumProvider } from '@/contexts/EnumContext';
 
-// Updated Nav Context Definition
+
 type NavContextType = {
   setPrimaryNav: (nav: ReactNode) => void;
   setSecondaryNav: (nav: ReactNode) => void;
   primaryNav: ReactNode | null;
   secondaryNav: ReactNode | null;
+  authInitialized: boolean; // Tilføj denne nye property
 };
 
 const NavContext = createContext<NavContextType>({
   setPrimaryNav: () => {},
   setSecondaryNav: () => {},
   primaryNav: null,
-  secondaryNav: null
+  secondaryNav: null,
+  authInitialized: false
 });
 
 export default function Providers({ children }: { children: ReactNode }) {
   const [primaryNav, setPrimaryNav] = useState<ReactNode | null>(null);
   const [secondaryNav, setSecondaryNav] = useState<ReactNode | null>(null);
+  const [authInitialized, setAuthInitialized] = useState(false);
 
-  // Global auth check ved app-initialisering
+  // Centralisér auth check ved app-initialisering
   useEffect(() => {
-    console.log('🔐 Running global auth check');
-    useAuthStore.getState().checkAuth();
+    const initAuth = async () => {
+      console.log('🔐 Running global auth check in Providers');
+      await useAuthStore.getState().checkAuth();
+      setAuthInitialized(true);
+    };
+    
+    initAuth();
   }, []);
 
   return (
-      <HeroUIProvider>
+    <HeroUIProvider>
+      <EnumProvider>
         <NavContext.Provider value={{ 
           primaryNav, 
           setPrimaryNav, 
           secondaryNav, 
-          setSecondaryNav 
+          setSecondaryNav,
+          authInitialized
         }}>
           {children}
         </NavContext.Provider>
-      </HeroUIProvider>
+      </EnumProvider>
+    </HeroUIProvider>
   );
 }
 

@@ -115,6 +115,9 @@ export async function GetRabbitsForBreeding(accessToken: string): Promise<Rabbit
     return forbreedingRabbits;
 }
 
+/**
+* Henter en kaninprofil ud fra øremærke
+*/
 export async function GetRabbitProfile(accessToken: string, earCombId: string): Promise<Rabbit_ProfileDTO> {
     const data = await fetch(getApiUrl(`Rabbit/Profile/${earCombId}`), {
         headers: { Authorization: `Bearer ${accessToken}` }

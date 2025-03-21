@@ -1,9 +1,9 @@
 // src/components/enumHandlers/enumAutocomplete.tsx
 "use client"
 
-import { GetEnumValues, RabbitEnum } from "@/api/endpoints/enumController";
 import { Autocomplete, AutocompleteItem } from "@heroui/react";
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
+import { useEnums, RabbitEnum } from '@/contexts/EnumContext';
 
 interface Props {
     enumType: RabbitEnum;
@@ -25,21 +25,32 @@ export default function EnumAutocomplete({
     placeholder 
 }: Props) {
     const [options, setOptions] = useState<string[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const { getEnumValues, isLoading } = useEnums();
+    const isMounted = useRef(true);
 
     useEffect(() => {
+        // Opsæt isMounted flag
+        isMounted.current = true;
+        
         const loadOptions = async () => {
             try {
-                const values = await GetEnumValues(enumType);
-                setOptions(values);
+                const values = await getEnumValues(enumType);
+                // Tjek om komponenten stadig er mounted før state opdateres
+                if (isMounted.current) {
+                    setOptions(values);
+                }
             } catch (error) {
                 console.error(`Failed to load ${enumType} options:`, error);
-            } finally {
-                setIsLoading(false);
             }
         };
+        
         loadOptions();
-    }, [enumType]);
+        
+        // Cleanup funktion der kører når komponenten unmounts
+        return () => {
+            isMounted.current = false;
+        };
+    }, [enumType, getEnumValues]);
 
     const uniqueId = id || `${enumType.toLowerCase()}-select`;
 
@@ -58,7 +69,7 @@ export default function EnumAutocomplete({
                 id={uniqueId}
                 defaultSelectedKey={value || undefined}
                 onSelectionChange={(key) => onChange(key as string)}
-                isLoading={isLoading}
+                isLoading={isLoading(enumType)}
                 aria-labelledby={ariaLabelledBy || `${uniqueId}-label`}
                 placeholder={placeholder || `Vælg ${label.toLowerCase()}`}
                 labelPlacement="outside"

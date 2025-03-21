@@ -1,6 +1,5 @@
 // src/app/account/myRabbits/rabbitProfile/[earCombId]/page.tsx
-import { getAccessToken } from "@/app/actions/auth/session";
-import { GetRabbitProfile } from "@/api/endpoints/rabbitController";
+import { getRabbitProfile } from "@/app/actions/rabbit/profile";
 import RabbitProfile from "./rabbitProfile";
 import { notFound } from "next/navigation";
 
@@ -9,27 +8,33 @@ type PageProps = {
 };
 
 export default async function RabbitProfilePage({ params }: PageProps) {
-    const { earCombId } = params;
-    
-    // Brug Server Action til at hente token
-    const accessToken = await getAccessToken();
-    
-    if (!accessToken) {
-        return (
-            <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-6">
-                <p className="text-red-500">Du skal være logget ind for at se denne side.</p>
-            </div>
-        );
-    }
-    
     try {
-        const rabbitProfile = await GetRabbitProfile(accessToken, earCombId);
+        // Sikre at params er korrekt håndteret - eksplicit await
+        const { earCombId } = await params;
         
-        if (!rabbitProfile) {
-            return notFound();
+        // Brug Server Action til at hente kaninprofil
+        const result = await getRabbitProfile(earCombId);
+        
+        if (!result.success) {
+            // Håndter forskellige fejlscenarier
+            if (result.status === 401) {
+                return (
+                    <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-6">
+                        <p className="text-red-500">Du skal være logget ind for at se denne side.</p>
+                    </div>
+                );
+            }
+            
+            if (result.status === 404) {
+                return notFound();
+            }
+            
+            // Generisk fejlhåndtering
+            throw new Error(result.error);
         }
         
-        return <RabbitProfile rabbitProfile={rabbitProfile} />;
+        // Returnér komponenten med profilen
+        return <RabbitProfile rabbitProfile={result.data} />;
     } catch (error) {
         console.error("Failed to load rabbit profile:", error);
         return notFound();

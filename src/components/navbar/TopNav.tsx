@@ -13,26 +13,33 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import LoginModal from '../modals/login/loginModal';
+import { useNav } from '@/components/Providers';
 
 export default function TopNav() {
     const pathname = usePathname();
     const [isLoginOpen, setIsLoginOpen] = useState(false);
     const { isLoggedIn, userName, userRole, logout, checkAuth: refresh } = useAuthStore();
-    useEffect(() => {
-        // Kun refresh auth på nøje udvalgte sider
-        const shouldRefresh =
-            pathname === '/' ||                     // Forsiden
-            pathname === '/login' ||                // Login side
-            pathname === '/account' ||              // Hovedkontosiden
-            pathname.startsWith('/admin') ||        // Admin sider
-            !isLoggedIn;                            // Hvis ikke logget ind endnu
+    const { authInitialized } = useNav();
 
-        if (shouldRefresh) {
-            console.log(`🔄 Auth refresh på sti: ${pathname}`);
+    // Luk login modal når bruger logger ind
+    useEffect(() => {
+        if (isLoggedIn) {
+            setIsLoginOpen(false);
+        }
+    }, [isLoggedIn]);
+
+    // Vi behøver kun at refreshe auth ved login/ud relaterede sider
+    // og kun når brugeren aktivt skifter til dem
+    useEffect(() => {
+        // Kun tjek auth igen på login-kritiske ruter
+        if (authInitialized && 
+            (pathname === '/login' || pathname === '/logout')) {
+            console.log(`🔄 Auth refresh on auth-critical path: ${pathname}`);
             refresh();
         }
-    }, [pathname, refresh, isLoggedIn]);
+    }, [pathname, refresh, authInitialized]);
 
+    // Luk login modal når bruger logger ind
     useEffect(() => {
         if (isLoggedIn) {
             setIsLoginOpen(false);

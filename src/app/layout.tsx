@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import LayoutWrapper from "./layoutWrapper";
 import Providers from "@/components/Providers";
+import AuthGuard from "@/components/auth/AuthGuard";
 
 export const metadata: Metadata = {
   title: {
@@ -51,7 +52,11 @@ export default function RootLayout({
     <html lang="da">
       <body>
         <Providers>
-          <LayoutWrapper>{children}</LayoutWrapper>
+          <AuthGuard>
+            <LayoutWrapper>
+              {children}
+            </LayoutWrapper>
+          </AuthGuard>
         </Providers>
       </body>
     </html>

@@ -1,8 +1,8 @@
-// src/app/actions/rabbit.ts
+// src/app/actions/rabbit/profile.ts
 'use server';
 
 import { GetRabbitProfile } from "@/api/endpoints/rabbitController";
-import { cookies } from 'next/headers';
+import { getAccessToken } from "@/app/actions/auth/session";
 import { Rabbit_ProfileDTO } from "@/api/types/AngoraDTOs";
 
 type ProfileResult = 
@@ -19,8 +19,8 @@ export async function getRabbitProfile(earCombId: string): Promise<ProfileResult
       };
     }
     
-    const cookieStore = await cookies();
-    const accessToken = cookieStore.get('accessToken')?.value;
+    // Brug getAccessToken i stedet for cookies
+    const accessToken = await getAccessToken();
     
     if (!accessToken) {
       return {

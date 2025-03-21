@@ -1,12 +1,12 @@
-// src/components/sectionNav/variants/forSaleNav.tsx
-
+// src/components/sectionNav/variants/rabbitSaleNav.tsx
 'use client';
 import { Input, Button } from "@heroui/react";
 import { ForSaleFilters } from "@/api/types/filterTypes";
 import SectionNav from '../base/baseSideNav';
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { IoMdClose } from "react-icons/io";
 import EnumAutocomplete from '@/components/enumHandlers/enumAutocomplete';
+import { useEnums, RabbitEnum } from '@/contexts/EnumContext'; // Importér fra EnumContext
 
 interface Props {
     activeFilters: ForSaleFilters;
@@ -15,8 +15,30 @@ interface Props {
 
 type FilterValue = string | number | undefined | null;
 
+// De enum typer der bruges i denne komponent
+const REQUIRED_ENUMS: RabbitEnum[] = ['Race', 'Color', 'Gender'];
+
 export default function ForSaleNav({ activeFilters, onFilterChange }: Props) {
     const [localFilters, setLocalFilters] = useState<ForSaleFilters>(activeFilters);
+    const { getMultipleEnumValues } = useEnums();
+    const [enumsLoaded, setEnumsLoaded] = useState(false);
+    
+    // Pre-hent nødvendige enums når komponenten indlæses
+    useEffect(() => {
+        const loadRequiredEnums = async () => {
+            try {
+                await getMultipleEnumValues(REQUIRED_ENUMS);
+                setEnumsLoaded(true);
+                console.log('✓ All required enums for ForSaleNav loaded');
+            } catch (error) {
+                console.error('Error loading ForSaleNav enums:', error);
+            }
+        };
+        
+        if (!enumsLoaded) {
+            loadRequiredEnums();
+        }
+    }, [getMultipleEnumValues, enumsLoaded]);
 
     // Memoize handlers to prevent unnecessary re-renders
     const handleLocalFilter = useCallback((key: keyof ForSaleFilters, value: FilterValue) => {
@@ -123,56 +145,3 @@ export default function ForSaleNav({ activeFilters, onFilterChange }: Props) {
         </SectionNav>
     );
 }
-/*
-graph TD
-    subgraph "ForSaleNav (SSR)"
-        A[User ændrer filter] --> B[Opdater localFilters state]
-        B --> C[Klik på Søg knap]
-        C --> D[onFilterChange trigger]
-        D --> E[URL params opdateres]
-        E --> F[Server-side API kald]
-        F --> G[Ny SSR render]
-    end
-
-    subgraph "OwnNav (CSR)"
-        H[User ændrer søgning] --> I[Direkte onChange event]
-        I --> J[Filter lokalt array]
-        J --> K[Re-render med filtreret data]
-    end
-
-//--------------------------
-FORSKELLE:
-ForSaleNav (SSR)
-• Filter genererer URL params
-• Server-side data fetching
-• God for SEO
-• Delbare URLs med filtre
-• Større dataset håndtering
-
-OwnNav (CSR)
-• In-memory filtrering
-• Beskyttet bag auth
-• Hurtigere feedback
-• Mindre dataset
-• Ingen SEO behov (private data)
-
-
-//--------------------
-LIDT OM SEO:
-Man kan ikke SEO optimere indhold bag login af flere grunde:
-
-Crawler Adgang
-• Søgemaskine crawlers kan ikke logge ind
-• Private data er ikke tilgængelig for indeksering
-
-Tekniske Begrænsninger
-• JavaScript-baseret auth blokerer crawlers
-• Cookie/session beskyttelse forhindrer adgang
-• CSR content genereres kun efter succesfuld auth
-
-Best Practices
-
-Private data bør ikke være søgbart
-• Personlige oplysninger skal forblive private
-• Auth er designet til at forhindre uautoriseret adgang
-*/
