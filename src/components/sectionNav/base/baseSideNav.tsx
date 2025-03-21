@@ -1,6 +1,7 @@
 // src/components/sectionNav/base/baseSideNav.tsx
 'use client';
 import { Button } from "@heroui/react";
+import { ReactNode } from "react";
 
 export type NavLink = {
     href: string;
@@ -96,7 +97,7 @@ export const filterLink = (link: NavLink, isLoggedIn: boolean, userRole: string)
 };
 
 interface NavAction {
-    label: string | JSX.Element;  // Allow both string and JSX
+    label: ReactNode;  // Bruger ReactNode i stedet for string | JSX.Element
     className?: string;
     onClick: () => void;
     color?: "primary" | "secondary" | "success" | "warning" | "danger";
@@ -124,7 +125,7 @@ export default function SectionNav({ title, headerActions = [], footerActions = 
                             <Button
                                 key={index}
                                 color={action.color || "primary"}
-                                onPress={action.onClick}
+                                onPress={() => action.onClick()} // Wrap onclick i en anonym funktion
                                 className={`w-full ${action.className || ''}`}
                                 disabled={action.disabled}
                             >
@@ -146,7 +147,7 @@ export default function SectionNav({ title, headerActions = [], footerActions = 
                             <Button
                                 key={index}
                                 color={action.color || "primary"}
-                                onPress={action.onClick}
+                                onPress={() => action.onClick()} // Wrap onclick i en anonym funktion
                                 className={`w-full ${action.className || ''}`}
                                 disabled={action.disabled}
                             >
