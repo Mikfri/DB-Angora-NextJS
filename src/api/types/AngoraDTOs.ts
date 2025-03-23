@@ -22,9 +22,24 @@ export interface CloudinaryUploadSignatureDTO {
     apiKey: string;
     cloudName: string;
     timestamp: string;
-    signature: string;
+    uploadSignature: string;
     folder: string;
     uploadPreset: string;
+    source: string;
+    entityId: string;
+    entityType: string;
+    context: string;
+    tags: string;
+}
+
+export interface CloudinaryUploadConfigDTO {
+    apiKey: string;
+    cloudName: string;
+    //timestamp: string;
+    //uploadSignature: string;
+    folder: string;
+    uploadPreset: string;
+    source: string;
     entityId: string;
     entityType: string;
     context: string;

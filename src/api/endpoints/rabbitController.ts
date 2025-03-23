@@ -1,6 +1,6 @@
 // src/api/endpoints/rabbitController.ts
 import { getApiUrl } from "../config/apiConfig";
-import { Rabbit_CreateDTO, Rabbit_ProfileDTO, Rabbits_SaleDetailsPreviewList, Rabbit_ForsaleProfileDTO, Rabbits_ForbreedingPreviewList, Rabbit_UpdateDTO, Rabbit_PreviewDTO, Rabbit_CreateSaleDetailsDTO, Rabbit_SaleDetailsDTO, Rabbit_UpdateSaleDetailsDTO, CloudinaryUploadSignatureDTO } from "../types/AngoraDTOs";
+import { Rabbit_CreateDTO, Rabbit_ProfileDTO, Rabbits_SaleDetailsPreviewList, Rabbit_ForsaleProfileDTO, Rabbits_ForbreedingPreviewList, Rabbit_UpdateDTO, Rabbit_PreviewDTO, Rabbit_CreateSaleDetailsDTO, Rabbit_SaleDetailsDTO, Rabbit_UpdateSaleDetailsDTO, CloudinaryUploadConfigDTO } from "../types/AngoraDTOs";
 import { ForSaleFilters } from "../types/filterTypes";
 
 
@@ -65,13 +65,15 @@ export async function CreateSaleDetails(
  * 
  * @param accessToken - Brugerens JWT authentication token
  * @param earCombId - Kaninens øremærke-id
- * @returns Signatur og andre oplysninger til brug ved upload til Cloudinary
+ * @returns Oplysninger til brug ved upload til Cloudinary
  */
 export async function GetRabbitPhotoUploadPermission(
     accessToken: string,
     earCombId: string
-): Promise<CloudinaryUploadSignatureDTO> {
-    const response = await fetch(getApiUrl(`Rabbit/photo-upload-permission/${earCombId}`), {
+): Promise<CloudinaryUploadConfigDTO> {
+    //const response = await fetch(getApiUrl(`Rabbit/photo-upload-permission/${earCombId}`), {
+    const response = await fetch(getApiUrl(`Rabbit/photo-upload-config/${earCombId}`), {
+
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${accessToken}`
