@@ -29,7 +29,7 @@ export default function IsolatedCloudinaryUploader({
     // Når uploadConfig ændres, skal vi opdatere iframe
     useEffect(() => {
         console.log("IsolatedCloudinaryUploader: Effect running with config", uploadConfig);
-        
+
         const handleMessage = (event: MessageEvent) => {
             // VIGTIG ændring: Ignorer meddelelser fra React DevTools
             if (typeof event.data === 'object' && event.data && 'source' in event.data) {
@@ -38,27 +38,27 @@ export default function IsolatedCloudinaryUploader({
                     return;
                 }
             }
-            
+
             // Log alle andre beskeder
-            console.log("IsolatedCloudinaryUploader received message:", 
+            console.log("IsolatedCloudinaryUploader received message:",
                 typeof event.data === 'string' ? event.data : '(non-string message)');
-            
+
             // Kun håndter beskeder fra vores iframe
             if (!iframeRef.current) {
                 console.log("No iframe ref available");
                 return;
             }
-            
+
             // Kun parse data som JSON hvis det er en string
             if (typeof event.data !== 'string') {
                 console.log("Skipping non-string message:", event.data);
                 return;
             }
-            
+
             try {
                 const data = JSON.parse(event.data);
                 setDebug(`Received: ${data.type}`);
-                
+
                 if (data.type === 'CLOUDINARY_IFRAME_READY') {
                     console.log("Iframe is ready, sending config");
                     // Send config to iframe when it signals it's ready
@@ -138,7 +138,7 @@ export default function IsolatedCloudinaryUploader({
             {error && (
                 <p className="text-red-500 text-sm mt-2">{error}</p>
             )}
-            
+
             {debug && (
                 <p className="text-blue-500 text-xs absolute top-1 right-1 z-50 bg-black/70 px-2 py-1 rounded">
                     Debug: {debug}
@@ -148,7 +148,7 @@ export default function IsolatedCloudinaryUploader({
             <iframe
                 ref={iframeRef}
                 src={`/cloudinaryframe?key=${uniqueKey}`}
-                className="w-full h-full border-0 rounded-lg bg-transparent"
+                className="w-full h-full min-h-[500px] border-0 rounded-lg bg-transparent"
                 title="Cloudinary Uploader"
                 onLoad={handleIframeLoad}
                 allow="camera"

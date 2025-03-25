@@ -1,7 +1,7 @@
 // src/components/cloudinary/CloudinaryFrame.tsx
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Script from 'next/script';
 import { CloudinaryPhotoRegistryRequestDTO } from '@/api/types/AngoraDTOs';
@@ -11,6 +11,14 @@ interface CloudinaryWidget {
   open: () => void;
   close: () => void;
   destroy: () => void;
+}
+
+interface CloudinaryWithWidgets {
+  createUploadWidget: (
+    options: Record<string, unknown>,
+    callback: (error: CloudinaryError | null, result?: CloudinaryResult) => void
+  ) => CloudinaryWidget;
+  _widgets?: unknown[];
 }
 
 interface CloudinaryResult {
@@ -48,24 +56,19 @@ interface CloudinaryConfig {
 }
 
 // Extend Window interface to include Cloudinary
-interface CloudinaryWindow extends Window {
-  cloudinary?: {
-    createUploadWidget: (
-      options: Record<string, unknown>,
-      callback: (error: CloudinaryError | null, result?: CloudinaryResult) => void
-    ) => CloudinaryWidget;
-    _widgets?: any[]; // Add this to handle cleanup
-  };
+declare global {
+  interface Window {
+    cloudinary?: CloudinaryWithWidgets;
+  }
 }
 
-declare let window: CloudinaryWindow;
-
-export default function CloudinaryFrame() {
+// Wrapper-komponent der bruger useSearchParams
+function CloudinaryFrameInner() {
   const searchParams = useSearchParams();
   const key = searchParams.get('key') || Date.now().toString();
   const [isLoaded, setIsLoaded] = useState(false);
   const [config, setConfig] = useState<CloudinaryConfig | null>(null);
-  const [debug, setDebug] = useState<string | null>(null); // Add debug state
+  const [debug, setDebug] = useState<string | null>(null);
   const widgetRef = useRef<CloudinaryWidget | null>(null);
   
   // Script loading handler
@@ -197,10 +200,18 @@ export default function CloudinaryFrame() {
         apiKey: uploadConfig.apiKey,
         uploadPreset: uploadConfig.uploadPreset,
         folder: uploadConfig.folder,
-        source: uploadConfig.source || 'uw',
+        // Sæt source til 'upload' for at fremhæve drag-and-drop
+        source: 'upload',
         tags: tagsArray,
         context: contextObj,
-        sources: ['local', 'url', 'camera'] as const,
+        
+        // Sæt upload-tab først for at prioritere drag-and-drop
+        sources: ['upload', 'local', 'url', 'camera'] as const,
+        
+        // Gør modalen større så den passer til indholdet
+        width: 700,
+        height: 500,
+        
         multiple: false,
         maxFiles: 1,
         resourceType: 'image' as const,
@@ -210,8 +221,81 @@ export default function CloudinaryFrame() {
         croppingAspectRatio: 1,
         croppingShowDimensions: true,
         language: 'da',
-        // Add a unique ID for each widget instance
-        widgetId: uniqueId
+        widgetId: uniqueId,
+        showPoweredBy: false,
+        
+        // Disse parametre aktiverer form-baseret drag-and-drop
+        form: '#upload-form',
+        fieldName: 'image-upload',
+        thumbnails: false,
+        
+        // Vis tab-indikator tydeligt
+        inlineContainer: '#cloudinary-target',
+        showSkipCropButton: false,
+        singleUploadAutoClose: false,
+        
+        // Dropzone styling for øget synlighed
+        dropboxWidth: '100%',
+        dropboxHeight: '300px',
+        dropboxBackgroundColor: "#000000",
+        dropboxBorderStyle: "dashed",
+        dropboxBorderWidth: "2px",
+        dropboxBorderColor: "#3448C5",
+        
+        text: {
+          da: {
+            // Overskriv nogle danske tekster
+            or: "eller",
+            menu: {
+              files: "Mine filer",
+              camera: "Kamera",
+              url: "URL",
+              upload: "Træk og slip"
+            },
+            local: {
+              browse: "Gennemse",
+              dd_title_single: "Træk og slip dit billede her",
+              dd_title_multi: "Træk og slip dine billeder her",
+              drop_title_single: "Slip din fil for at uploade",
+              drop_title_multi: "Slip dine filer for at uploade"
+            },
+            queue: {
+              title: "Filer at uploade",
+              close_btn: "Luk",
+              done_button: {
+                text: "Færdig"
+              }
+            }
+          }
+        },
+        // Forbedrede styles
+        styles: {
+          palette: {
+            window: "#000000",
+            windowBorder: "#333333",
+            tabIcon: "#FFFFFF",
+            menuIcons: "#CCCCCC",
+            textDark: "#FFFFFF",
+            textLight: "#FFFFFF",
+            link: "#0078FF", 
+            action: "#0078FF",
+            inactiveTabIcon: "#999999",
+            error: "#FF0000",
+            inProgress: "#0078FF",
+            complete: "#20B832",
+            sourceBg: "#191919"  // Mørkere baggrund for bedre kontrast
+          },
+          frame: {
+            background: "#000000"
+          },
+          // Direkte styling af dropzone
+          dropzone: {
+            border: "2px dashed #3448C5",
+            borderRadius: "6px",
+            background: "rgba(20, 20, 40, 0.4)",
+            minHeight: "250px"
+          }
+        }
       };
       
       // Widget callback
@@ -268,6 +352,19 @@ export default function CloudinaryFrame() {
         if (widgetRef.current) {
           console.log("CloudinaryFrame: Opening widget");
           widgetRef.current.open();
+          
+          // Forsøg at forbedre UI efter widget er indlæst
+          setTimeout(() => {
+            try {
+              // Find upload-tab og klik på den
+              const uploadTab = document.querySelector('[data-tab="upload"]');
+              if (uploadTab && uploadTab instanceof HTMLElement) {
+                uploadTab.click();
+              }
+            } catch (e) {
+              console.warn("Error enhancing widget UI:", e);
+            }
+          }, 500);
         } else {
           console.error("CloudinaryFrame: Widget not available when trying to open");
         }
@@ -292,24 +389,36 @@ export default function CloudinaryFrame() {
         strategy="afterInteractive"
       />
       
-      {!isLoaded && <p className="mb-2">Indlæser Cloudinary...</p>}
+      {/* Tilføj form element for at aktivere drag-and-drop */}
+      <form id="upload-form" className="w-full h-full min-h-[450px]">
+        <div 
+          id="cloudinary-target" 
+          className="w-full h-full min-h-[450px] flex items-center justify-center border-2 border-dashed border-blue-500 bg-black/30 rounded-lg"
+        >
+          {!isLoaded && <p className="mb-2">Indlæser Cloudinary...</p>}
+          
+          {isLoaded && !config && (
+            <div className="text-center p-6">
+              <p className="text-white">Træk og slip dit billede her når upload-boksen åbner</p>
+            </div>
+          )}
+        </div>
+      </form>
       
       {debug && (
         <p className="text-xs text-blue-400 bg-black/70 px-2 py-1 rounded absolute top-1 right-1">
           {debug}
         </p>
       )}
-      
-      {(!config || !isLoaded) && (
-        <div className="text-center">
-          <p className="text-sm text-zinc-400 mt-2">
-            {!config ? "Venter på konfiguration..." : "Script indlæses..."}
-          </p>
-        </div>
-      )}
-      
-      {/* This div is where Cloudinary will mount its widget */}
-      <div id="cloudinary-target" className="w-full h-full"></div>
     </div>
+  );
+}
+
+// Eksporter hovedkomponenten med Suspense boundary
+export default function CloudinaryFrame() {
+  return (
+    <Suspense fallback={<div className="p-4 text-center">Indlæser Cloudinary...</div>}>
+      <CloudinaryFrameInner />
+    </Suspense>
   );
 }

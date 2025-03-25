@@ -43,7 +43,7 @@ export default function SimpleModal({ isOpen, onClose, children, title }: Simple
       onClick={onClose}
     >
       <div
-        className="bg-zinc-950 border border-zinc-800 rounded-lg w-full max-w-md mx-4 overflow-hidden shadow-2xl"
+        className="bg-zinc-950 border border-zinc-800 rounded-lg w-full max-w-3xl mx-4 overflow-hidden shadow-2xl"
         onClick={stopPropagation}
       >
         {title && (
