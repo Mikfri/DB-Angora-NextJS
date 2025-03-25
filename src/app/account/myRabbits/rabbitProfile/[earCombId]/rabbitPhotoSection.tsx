@@ -2,38 +2,37 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Button, Spinner } from '@heroui/react';
+import { Button } from "@heroui/react";
 import { Photo_DTO, CloudinaryPhotoRegistryRequestDTO, CloudinaryUploadConfigDTO } from '@/api/types/AngoraDTOs';
-import { getRabbitPhotoUploadPermission, registerCloudinaryPhoto } from '@/app/actions/rabbit/photoPermission';
-import { GetPhotosForEntity, SetAsProfilePhoto, DeletePhoto } from '@/api/endpoints/photoController';
-import { useAuthStore } from '@/store/authStore';
-import { CldImage } from 'next-cloudinary';
-import Image from 'next/image';
+import { getRabbitPhotoUploadPermission } from '@/app/actions/rabbit/photoPermission';
+import { registerPhoto } from '@/app/actions/photo/registerPhoto';
+import { getPhotos } from '@/app/actions/photo/getPhotos';
+import { setAsProfilePhoto } from '@/app/actions/photo/setAsProfilePicture';
+import { deletePhoto } from '@/app/actions/photo/deletePhoto';
 import { toast } from 'react-toastify';
-import CustomCloudinaryUploadWidget from '@/components/cloudinary/CustomCloudinaryUploadWidget';
+import PhotoGallery from './rabbitPhotoGallery';
+import SimpleModal from '@/components/cloudinary/SimpleModal';
+import IsolatedCloudinaryUploader from '@/components/cloudinary/IsolatedCloudinaryUploader';
 
-// Type definitioner for cache
-interface PhotoCacheData {
-  data: Photo_DTO[];
-  timestamp: number;
-}
-
-interface UploadConfigCacheData {
-  data: {
+// Cache typer med bedre TypeScript diskriminering
+type CacheTypes = {
+  photos: Photo_DTO[];
+  uploadConfig: {
     success: boolean;
     data?: CloudinaryUploadConfigDTO;
     maxImageCount?: number;
     error?: string;
   };
+};
+
+interface CacheEntry<T> {
+  data: T;
   timestamp: number;
 }
 
-// Union type for alle mulige cache typer
-type CacheData = PhotoCacheData | UploadConfigCacheData;
-
-// Modul-niveau cache med specifik typedefinition
-const API_CACHE = new Map<string, CacheData>();
-const CACHE_LIFETIME = 30000; // 30 sekunder cache
+// Forbedret cache håndtering med generics
+const API_CACHE = new Map<string, CacheEntry<unknown>>();
+const CACHE_LIFETIME = 30_000; // 30 sekunder cache (brug numeric separator)
 
 interface PhotoSectionProps {
   earCombId: string;
@@ -41,219 +40,239 @@ interface PhotoSectionProps {
 
 export default function PhotoSection({ earCombId }: PhotoSectionProps) {
   const [isLoadingPhotos, setIsLoadingPhotos] = useState(true);
-  const [isLoadingUpload, setIsLoadingUpload] = useState(false);
   const [isLoadingProfileAction, setIsLoadingProfileAction] = useState<number | null>(null);
   const [isLoadingDeleteAction, setIsLoadingDeleteAction] = useState<number | null>(null);
   const [photos, setPhotos] = useState<Photo_DTO[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [uploadConfig, setUploadConfig] = useState<CloudinaryUploadConfigDTO | null>(null);
   const [maxImageCount, setMaxImageCount] = useState(0);
-  const getAccessToken = useAuthStore(state => state.getAccessToken);
 
-  // Hent fotos for kaninen - med caching
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [uploadComplete, setUploadComplete] = useState(false);
+  const [widgetKey, setWidgetKey] = useState(`upload-${Date.now()}`);
+
+  // Generic cache helper med type safety - uden ubrugt parameter
+  const getCachedData = <K extends keyof CacheTypes>(
+    cacheKey: string
+  ): { data: CacheTypes[K] | null, isValid: boolean } => {
+    const cachedEntry = API_CACHE.get(cacheKey) as CacheEntry<CacheTypes[K]> | undefined;
+    const now = Date.now();
+
+    if (cachedEntry && (now - cachedEntry.timestamp < CACHE_LIFETIME)) {
+      return { data: cachedEntry.data, isValid: true };
+    }
+
+    return { data: null, isValid: false };
+  };
+
+  // Generic cache setter med type safety - uden ubrugt parameter
+  const setCachedData = <K extends keyof CacheTypes>(
+    cacheKey: string,
+    data: CacheTypes[K]
+  ): void => {
+    API_CACHE.set(cacheKey, {
+      data,
+      timestamp: Date.now()
+    } as CacheEntry<unknown>);
+  };
+
+  // Hent fotos for kaninen - med forbedret caching
   const loadPhotos = useCallback(async () => {
     try {
-      // Check cache først
+      // Check cache først med vores typesikre helper
       const cacheKey = `photos-${earCombId}`;
-      const cachedData = API_CACHE.get(cacheKey) as PhotoCacheData | undefined;
-      const now = Date.now();
+      const { data: cachedPhotos, isValid } = getCachedData<'photos'>(cacheKey);
 
-      if (cachedData && (now - cachedData.timestamp < CACHE_LIFETIME)) {
+      if (isValid && cachedPhotos) {
         console.log("🔄 Returning cached photos");
-        setPhotos(cachedData.data);
+        setPhotos(cachedPhotos);
         setIsLoadingPhotos(false);
-        return; // Brug cache, undgå API kald
+        return;
       }
 
       setIsLoadingPhotos(true);
       setError(null);
 
-      const accessToken = await getAccessToken();
+      const result = await getPhotos('Rabbit', earCombId);
 
-      if (!accessToken) {
-        setError("Du skal være logget ind for at se billeder");
+      if (!result.success) {
+        setError(result.error ?? "Ukendt fejl ved indlæsning af billeder");
         return;
       }
 
-      const photoData = await GetPhotosForEntity(accessToken, 'Rabbit', earCombId);
-
-      // Cache resultat med korrekt type
-      API_CACHE.set(cacheKey, {
-        data: photoData,
-        timestamp: now
-      } as PhotoCacheData);
-
-      setPhotos(photoData);
+      // Cache resultat med vores typesikre helper
+      setCachedData<'photos'>(cacheKey, result.photos);
+      setPhotos(result.photos);
     } catch (err) {
       console.error("Error loading photos:", err);
-      setError("Der opstod en fejl ved indlæsning af billeder");
+      setError(err instanceof Error ? err.message : "Der opstod en fejl ved indlæsning af billeder");
     } finally {
       setIsLoadingPhotos(false);
     }
-  }, [getAccessToken, earCombId]);
+  }, [earCombId]);
 
-  // Hent uploadConfig - med caching
+  // Hent uploadConfig - med forbedret caching
   const loadUploadPermission = useCallback(async () => {
     try {
-      // Check cache først
+      // Check cache først med vores typesikre helper
       const cacheKey = `upload-config-${earCombId}`;
-      const cachedData = API_CACHE.get(cacheKey) as UploadConfigCacheData | undefined;
-      const now = Date.now();
+      const { data: cachedConfig, isValid } = getCachedData<'uploadConfig'>(cacheKey);
 
-      if (cachedData && (now - cachedData.timestamp < CACHE_LIFETIME)) {
+      if (isValid && cachedConfig?.data) {
         console.log("🔄 Returning cached upload config");
-        if (cachedData.data.data) {
-          setUploadConfig(cachedData.data.data);
-          setMaxImageCount(cachedData.data.maxImageCount || 0);
-          setIsLoadingUpload(false);
-          return; // Brug cache, undgå API kald
-        }
+        setUploadConfig(cachedConfig.data);
+        setMaxImageCount(cachedConfig.maxImageCount ?? 0);
+        return;
       }
 
-      setIsLoadingUpload(true);
       setError(null);
 
       const result = await getRabbitPhotoUploadPermission(earCombId);
 
       if (!result.success || !result.data) {
-        setError(result.error || "Kunne ikke hente upload konfiguration");
+        setError(result.error ?? "Kunne ikke hente upload konfiguration");
         return;
       }
 
-      // Cache resultat med det nye navn og korrekt type
-      API_CACHE.set(cacheKey, {
-        data: result,
-        timestamp: now
-      } as UploadConfigCacheData);
+      // Cache resultat med vores typesikre helper
+      setCachedData<'uploadConfig'>(cacheKey, result);
 
       setUploadConfig(result.data);
-      setMaxImageCount(result.maxImageCount || 0);
+      setMaxImageCount(result.maxImageCount ?? 0);
     } catch (err) {
       console.error("Error getting upload permission:", err);
-      setError("Der opstod en fejl ved anmodning om upload konfiguration");
-    } finally {
-      setIsLoadingUpload(false);
+      setError(err instanceof Error ? err.message : "Der opstod en fejl ved anmodning om upload konfiguration");
     }
   }, [earCombId]);
 
-  // Resten af funktionen forbliver stort set uændret...
-
-  // Initial load - nu med korrekte dependencies
+  // Initial load
   useEffect(() => {
     loadPhotos();
     loadUploadPermission();
-  }, [earCombId, loadPhotos, loadUploadPermission]);
+  }, [loadPhotos, loadUploadPermission]);
 
-  // Når et billede er blevet uploadet til Cloudinary
-  const handlePhotoUploaded = async (photoData: CloudinaryPhotoRegistryRequestDTO) => {
+  // Håndter foto upload fra Cloudinary
+  const handlePhotoUploaded = async (photoData: CloudinaryPhotoRegistryRequestDTO): Promise<void> => {
     try {
-      const result = await registerCloudinaryPhoto(photoData);
+      const result = await registerPhoto(photoData);
 
-      if (!result.success || !result.data) {
-        toast.error(result.error || "Kunne ikke registrere billede");
+      if (!result.success) {
+        toast.error(result.error ?? "Kunne ikke registrere billede");
         return;
       }
 
-      // Opdater listen over billeder
-      setPhotos(prev => [...prev, result.data!]);
+      // Opdater lokalt state med spread + object spread
+      setPhotos(prev => [...prev, result.data]);
 
-      // Invalider billed-cachen så næste indlæsning henter friske data
+      // Invalider cachen
       API_CACHE.delete(`photos-${earCombId}`);
 
-      toast.success("Billedet blev uploadet og registreret");
-
-      return result;
+      toast.success(result.message ?? "Billedet blev uploadet og registreret");
     } catch (err) {
       console.error("Error registering photo:", err);
-      toast.error("Der opstod en fejl ved registrering af billedet");
-      throw err;
+      toast.error(err instanceof Error ? err.message : "Der opstod en fejl ved registrering af billedet");
     }
   };
 
-  // Sæt billede som profilbillede
+  // Sæt som profilbillede
   const handleSetAsProfile = async (photoId: number) => {
     try {
       setIsLoadingProfileAction(photoId);
       setError(null);
 
-      const accessToken = await getAccessToken();
+      const result = await setAsProfilePhoto(photoId);
 
-      if (!accessToken) {
-        setError("Du skal være logget ind for at ændre profilbillede");
+      if (!result.success) {
+        setError(result.error ?? "Ukendt fejl");
         return;
       }
 
-      await SetAsProfilePhoto(accessToken, photoId);
+      // Opdater lokalt state med immutabel map + object spread
+      setPhotos(prev =>
+        prev.map(photo => ({
+          ...photo,
+          isProfilePicture: photo.id === photoId
+        }))
+      );
 
-      // Opdater lokalt state
-      setPhotos(prev => prev.map(photo => ({
-        ...photo,
-        isProfilePicture: photo.id === photoId
-      })));
-
-      // Invalider billed-cachen så næste indlæsning henter friske data
+      // Invalider cachen
       API_CACHE.delete(`photos-${earCombId}`);
 
-      toast.success("Profilbillede blev opdateret");
+      toast.success(result.message ?? "Profilbillede blev opdateret");
     } catch (err) {
       console.error("Error setting profile photo:", err);
-      toast.error("Der opstod en fejl ved ændring af profilbillede");
+      toast.error(err instanceof Error ? err.message : "Der opstod en fejl ved ændring af profilbillede");
     } finally {
       setIsLoadingProfileAction(null);
     }
   };
 
-  // Slet billede
+  // Slet foto
   const handleDeletePhoto = async (photoId: number) => {
     try {
       setIsLoadingDeleteAction(photoId);
       setError(null);
 
-      const accessToken = await getAccessToken();
+      const result = await deletePhoto(photoId);
 
-      if (!accessToken) {
-        setError("Du skal være logget ind for at slette billeder");
+      if (!result.success) {
+        setError(result.error ?? "Kunne ikke slette billedet");
         return;
       }
 
-      await DeletePhoto(accessToken, photoId);
-
-      // Fjern billedet fra listen
+      // Opdater lokalt state med array filtering
       setPhotos(prev => prev.filter(photo => photo.id !== photoId));
 
-      // Invalider billed-cachen så næste indlæsning henter friske data
+      // Invalider cachen
       API_CACHE.delete(`photos-${earCombId}`);
 
-      toast.success("Billedet er slettet");
+      toast.success(result.message ?? "Billedet er slettet");
     } catch (err) {
       console.error("Error deleting photo:", err);
-      toast.error("Der opstod en fejl ved sletning af billedet");
+      toast.error(err instanceof Error ? err.message : "Der opstod en fejl ved sletning af billedet");
     } finally {
       setIsLoadingDeleteAction(null);
     }
   };
 
-  // Vis genindlæs knap, hvis der opstår en fejl
+  // Genindlæs data
   const handleReload = () => {
-    // Ryd cache ved manuel genindlæsning
+    // Ryd cache
     API_CACHE.delete(`photos-${earCombId}`);
-    API_CACHE.delete(`upload-config-${earCombId}`); // Opdateret cache key
+    API_CACHE.delete(`upload-config-${earCombId}`);
 
     loadPhotos();
     loadUploadPermission();
   };
 
-  if (isLoadingPhotos && photos.length === 0) {
-    return (
-      <div className="flex justify-center items-center py-8">
-        <Spinner size="lg" color="primary" />
-      </div>
-    );
-  }
+  // Modal handlers
+  const handleOpenModal = () => {
+    console.log("Opening modal");
+    setIsModalOpen(true);
+    setUploadComplete(false);
+    setWidgetKey(`upload-${Date.now()}`);
+  };
 
-  // Udled entity type fra uploadConfig eller default til "kanin"
-  const entityTypeName = uploadConfig?.entityType === 'Rabbit' ? 'kanin' :
-    (uploadConfig?.entityType?.toLowerCase() || 'kanin');
+  const handleCloseModal = () => {
+    console.log("Closing modal");
+    setIsModalOpen(false);
+    setTimeout(() => setUploadComplete(false), 500);
+  };
+
+  // Modificeret upload handler for modal
+  const handleModalUpload = async (photoData: CloudinaryPhotoRegistryRequestDTO) => {
+    try {
+      await handlePhotoUploaded(photoData);
+      setUploadComplete(true);
+    } catch (err) {
+      console.error("Modal upload error:", err);
+    }
+  };
+
+  // Udled entity type fra uploadConfig med optional chaining og nullish coalescing
+  const entityTypeName = uploadConfig?.entityType === 'Rabbit'
+    ? 'kanin'
+    : uploadConfig?.entityType?.toLowerCase() ?? 'kanin';
 
   return (
     <div className="space-y-6">
@@ -264,7 +283,7 @@ export default function PhotoSection({ earCombId }: PhotoSectionProps) {
           size="sm"
           variant="ghost"
           onPress={handleReload}
-          isLoading={isLoadingPhotos || isLoadingUpload}
+          isLoading={isLoadingPhotos}
         >
           Genindlæs
         </Button>
@@ -283,100 +302,78 @@ export default function PhotoSection({ earCombId }: PhotoSectionProps) {
           </Button>
         </div>
       )}
-      {/* Upload-sektion - forbedret formatering */}
-      {uploadConfig && (
+
+      {/* Upload widget med modal */}
+      {uploadConfig && !isLoadingPhotos && (
         <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-4">
-          <CustomCloudinaryUploadWidget
-            uploadConfig={uploadConfig}
-            maxImageCount={maxImageCount}
-            currentImageCount={photos.length}
-            onPhotoUploaded={async (photoData) => {
-              await handlePhotoUploaded(photoData);
-            }}
-          />
-        </div>
-      )}
-
-      {/* Loading overlay når der hentes billeder, men der allerede findes billeder */}
-      {isLoadingPhotos && photos.length > 0 && (
-        <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-4 flex justify-center">
-          <Spinner size="md" color="primary" />
-        </div>
-      )}
-
-      {/* Billedgalleri */}
-      {photos.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {photos.map(photo => (
-            <div
-              key={photo.id}
-              className={`bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border ${photo.isProfilePicture ? 'border-blue-500' : 'border-zinc-700/50'
-                } overflow-hidden`}
+          <div className="flex flex-col gap-2">
+            <Button
+              color="primary"
+              onPress={handleOpenModal}
+              isDisabled={maxImageCount <= photos.length}
+              className="w-full"
             >
-              <div className="aspect-square relative">
-                {/* Brug CldImage for at få fordele af Cloudinary image transformation */}
-                {photo.cloudinaryPublicId ? (
-                  <CldImage
-                    src={photo.cloudinaryPublicId}
-                    width={300}
-                    height={300}
-                    crop="fill"
-                    gravity="auto"
-                    alt={`Billede af ${entityTypeName} ${earCombId}`}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  // Bruger next/image i stedet for standard img tag
-                  <Image
-                    src={photo.filePath}
-                    alt={`Billede af ${entityTypeName} ${earCombId}`}
-                    className="w-full h-full object-cover"
-                    width={300}
-                    height={300}
-                    style={{ objectFit: "cover" }}
-                    unoptimized={true}
-                  />
-                )}
-              </div>
+              Upload Billede
+            </Button>
 
-              <div className="p-3 flex flex-col gap-2">
-                {photo.isProfilePicture ? (
-                  <p className="text-sm text-blue-500 text-center">Profilbillede</p>
-                ) : (
-                  <Button
-                    size="sm"
-                    color="primary"
-                    className="w-full"
-                    onPress={() => handleSetAsProfile(photo.id)}
-                    isLoading={isLoadingProfileAction === photo.id}
-                    isDisabled={isLoadingProfileAction !== null || isLoadingDeleteAction !== null}
-                  >
-                    Sæt som profil
-                  </Button>
-                )}
+            <p className="text-xs text-zinc-400">
+              {maxImageCount - photos.length > 0
+                ? `Du kan uploade ${maxImageCount - photos.length} billede${maxImageCount - photos.length !== 1 ? 'r' : ''} mere`
+                : 'Du har nået grænsen for antal billeder'
+              }
+            </p>
+          </div>
 
-                <Button
-                  size="sm"
-                  color="danger"
-                  variant="ghost"
-                  className="w-full"
-                  onPress={() => handleDeletePhoto(photo.id)}
-                  isLoading={isLoadingDeleteAction === photo.id}
-                  isDisabled={isLoadingProfileAction !== null || isLoadingDeleteAction !== null}
-                >
-                  Slet
+          {/* SimpleModal med isoleret Cloudinary iframe */}
+          <SimpleModal
+            isOpen={isModalOpen}
+            onClose={handleCloseModal}
+            title="Upload Billede"
+          >
+            {uploadComplete ? (
+              <div className="py-6 text-center">
+                <div className="mb-4 text-green-500 flex justify-center">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z"
+                      stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </div>
+                <h3 className="font-semibold text-lg mb-2">Billedet blev uploadet!</h3>
+                <p className="text-zinc-400 mb-4">Dit billede er nu tilgængeligt i galleriet.</p>
+                <Button color="primary" onPress={handleCloseModal}>
+                  Luk
                 </Button>
               </div>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-6 text-center">
-          <p className="text-zinc-400">
-            Der er endnu ikke uploadet billeder til denne {entityTypeName}.
-          </p>
+            ) : (
+              // Ændr højden så den fylder mere
+              <div key={widgetKey} className="h-[500px]"> {/* Øg højden yderligere for at sikre, at Cloudinary widget har plads */}
+                {/* Bruger IsolatedCloudinaryUploader komponenten */}
+                {uploadConfig && (
+                  <IsolatedCloudinaryUploader
+                    uploadConfig={uploadConfig}
+                    maxImageCount={maxImageCount}
+                    currentImageCount={photos.length}
+                    onPhotoUploaded={handleModalUpload}
+                    uniqueKey={widgetKey}
+                  />
+                )}
+              </div>
+            )}
+          </SimpleModal>
         </div>
       )}
+
+      {/* Billede galleri */}
+      <PhotoGallery
+        photos={photos}
+        entityTypeName={entityTypeName}
+        entityId={earCombId}
+        isLoading={isLoadingPhotos}
+        isLoadingProfileAction={isLoadingProfileAction}
+        isLoadingDeleteAction={isLoadingDeleteAction}
+        onSetAsProfile={handleSetAsProfile}
+        onDelete={handleDeletePhoto}
+      />
     </div>
   );
 }

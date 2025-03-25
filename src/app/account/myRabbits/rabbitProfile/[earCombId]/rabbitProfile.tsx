@@ -1,5 +1,4 @@
-// src/account/myRabbits/rabbitProfile/[earCombId]/rabbitProfile.tsx
-/// ANSVAR: State management og at rendere modaler
+// src/app/account/myRabbits/rabbitProfile/[earCombId]/rabbitProfile.tsx
 "use client";
 import { Rabbit_ProfileDTO, Rabbit_SaleDetailsDTO } from '@/api/types/AngoraDTOs';
 import { useRabbitProfile } from '@/lib/hooks/rabbits/useRabbitProfile';
@@ -9,72 +8,60 @@ import RabbitChildren from './rabbitChildren';
 import RabbitSaleSection from './rabbitSaleSection';
 import { Tabs, Tab } from "@heroui/react";
 import { useNav } from "@/components/Providers";
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo } from 'react'; // Fjern useState da vi ikke bruger det længere
 import MyNav from "@/components/sectionNav/variants/myNav";
 import DeleteRabbitModal from '@/components/modals/rabbit/deleteRabbitModal';
 import TransferOwnershipModal from '@/components/modals/rabbit/transferRabbitModal';
 
 export default function RabbitProfile({ rabbitProfile: initialRabbitProfile }: { rabbitProfile: Rabbit_ProfileDTO }) {
-    // Gør rabbitProfile til en state-variabel
-    const [rabbitProfile, setRabbitProfile] = useState<Rabbit_ProfileDTO>(initialRabbitProfile);
-    
+    // Fjern rabbitProfile state - brug currentProfile fra hook i stedet
+    // const [rabbitProfile, setRabbitProfile] = useState<Rabbit_ProfileDTO>(initialRabbitProfile);
+
     // Hent hooks-funktioner fra useNav
     const { setPrimaryNav, setSecondaryNav } = useNav();
 
     // Hent hooks-funktioner fra custom hook
     const {
+        currentProfile, // Nu bruger vi denne i stedet for den lokale state
         isEditing,
         isSaving,
         isDeleting,
         showTransferModal,
+        isDeleteModalOpen,
         editedData,
         setEditedData,
         setIsEditing,
         handleSave,
-        handleDelete,
+        handleCancelEdit, // Vi sender denne videre til RabbitDetails
+        handleDeleteClick,
+        handleDeleteConfirm,
+        handleDeleteCancel,
         handleTransferOwnershipClick,
         handleCloseTransferModal
-    } = useRabbitProfile(rabbitProfile);
-    
-    // Lokal state for delete modal
-    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    } = useRabbitProfile(initialRabbitProfile);
 
-    // Memoized callbacks for UI interactions
+    // Opdater handler til at bruge currentProfile
     const handleSaleDetailsChange = useCallback((saleDetails: Rabbit_SaleDetailsDTO | null) => {
-        setRabbitProfile(prevProfile => ({
-            ...prevProfile,
-            saleDetails
-        }));
+        // Vi skal implementere salgsdetaljer ændringer i useRabbitProfile hook
+        // Dette er en midlertidig løsning (eller fjern helt hvis ikke nødvendig)
+        console.log("Sale details changed:", saleDetails);
     }, []);
 
-    const handleDeleteClick = useCallback(() => {
-        setShowDeleteModal(true);
-    }, []);
+    // Memoized værdier - opdater til at bruge currentProfile i stedet for rabbitProfile
 
-    const handleConfirmDelete = useCallback(() => {
-        handleDelete();
-        setShowDeleteModal(false); // Lukker modalen efter sletning er igangsat
-    }, [handleDelete]);
-
-    const handleCloseDeleteModal = useCallback(() => {
-        setShowDeleteModal(false);
-    }, []);
-
-    // Memoized værdier - kun opdateret når dependencies ændres
-    
     // 1. Key for rabbit nav component
-    const earCombKey = useMemo(() => `nav-${rabbitProfile.earCombId}`, [rabbitProfile.earCombId]);
-    
+    const earCombKey = useMemo(() => `nav-${currentProfile.earCombId}`, [currentProfile.earCombId]);
+
     // 2. Navigation data object
     const navData = useMemo(() => ({
-        rabbitName: rabbitProfile.nickName || rabbitProfile.earCombId,
-        earCombId: rabbitProfile.earCombId,
-        originBreeder: rabbitProfile.originFullName,
-        owner: rabbitProfile.ownerFullName,
-        approvedRaceColor: rabbitProfile.approvedRaceColorCombination,
-        isJuvenile: rabbitProfile.isJuvenile,
-        profilePicture: rabbitProfile.profilePicture
-    }), [rabbitProfile]);
+        rabbitName: currentProfile.nickName || currentProfile.earCombId,
+        earCombId: currentProfile.earCombId,
+        originBreeder: currentProfile.originFullName,
+        owner: currentProfile.ownerFullName,
+        approvedRaceColor: currentProfile.approvedRaceColorCombination,
+        isJuvenile: currentProfile.isJuvenile,
+        profilePicture: currentProfile.profilePicture
+    }), [currentProfile]);
 
     // 3. Display name for rabbit (for modals etc.)
     const displayName = useMemo(() => navData.rabbitName, [navData.rabbitName]);
@@ -84,7 +71,7 @@ export default function RabbitProfile({ rabbitProfile: initialRabbitProfile }: {
         <RabbitProfileNav
             key={earCombKey}
             {...navData}
-            onDelete={handleDeleteClick}
+            onDeleteClick={handleDeleteClick}
             onChangeOwner={handleTransferOwnershipClick}
             isDeleting={isDeleting}
         />
@@ -100,7 +87,7 @@ export default function RabbitProfile({ rabbitProfile: initialRabbitProfile }: {
         // Sæt navigation med de memoized komponenter
         setPrimaryNav(primaryNavComponent);
         setSecondaryNav(secondaryNavComponent);
-        
+
         // Cleanup function
         return () => {
             setPrimaryNav(null);
@@ -120,11 +107,12 @@ export default function RabbitProfile({ rabbitProfile: initialRabbitProfile }: {
                 <Tabs aria-label="Kanin information" variant="solid" color="primary">
                     <Tab key="details" title="Detaljer">
                         <RabbitDetails
-                            rabbitProfile={rabbitProfile}
+                            rabbitProfile={currentProfile}
                             isEditing={isEditing}
                             isSaving={isSaving}
                             setIsEditing={setIsEditing}
                             handleSave={handleSave}
+                            handleCancel={handleCancelEdit}
                             editedData={editedData}
                             setEditedData={setEditedData}
                         />
@@ -132,13 +120,13 @@ export default function RabbitProfile({ rabbitProfile: initialRabbitProfile }: {
 
                     <Tab key="children" title="Afkom">
                         <RabbitChildren>
-                            {rabbitProfile.children}
+                            {currentProfile.children || []}
                         </RabbitChildren>
                     </Tab>
-                    
+
                     <Tab key="sale" title="Salgsprofil">
                         <RabbitSaleSection
-                            rabbitProfile={rabbitProfile}
+                            rabbitProfile={currentProfile}
                             onSaleDetailsChange={handleSaleDetailsChange}
                         />
                     </Tab>
@@ -147,19 +135,19 @@ export default function RabbitProfile({ rabbitProfile: initialRabbitProfile }: {
 
             {/* Modal for deletion confirmation */}
             <DeleteRabbitModal
-                isOpen={showDeleteModal}
-                onClose={handleCloseDeleteModal}
-                onConfirm={handleConfirmDelete}
+                isOpen={isDeleteModalOpen}
+                onClose={handleDeleteCancel}
+                onConfirm={handleDeleteConfirm}
                 rabbitName={displayName}
                 isDeleting={isDeleting}
             />
-            
+
             {/* TransferOwnershipModal med sammenhængende props */}
             <TransferOwnershipModal
                 isOpen={showTransferModal}
                 onClose={handleCloseTransferModal}
                 rabbitName={displayName}
-                rabbitEarCombId={rabbitProfile.earCombId}
+                rabbitEarCombId={currentProfile.earCombId}
             />
         </>
     );

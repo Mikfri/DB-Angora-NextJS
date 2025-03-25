@@ -4,8 +4,8 @@
 import { useState, useEffect } from 'react';
 import { Button } from "@heroui/react";
 import { Rabbit_ProfileDTO, Rabbit_UpdateDTO } from "@/api/types/AngoraDTOs";
-import { renderCell } from "@/app/account/myRabbits/rabbitProfile/[earCombId]/renderCell";
-import PhotoSection from './rabbitPhotoSection'; // Import PhotoSection
+import { renderCell, editableFieldLabels } from "./rabbitCellRenderer"; // Importér editableFieldLabels
+import PhotoSection from './rabbitPhotoSection';
 
 interface RabbitDetailsProps {
   rabbitProfile: Rabbit_ProfileDTO;
@@ -13,21 +13,10 @@ interface RabbitDetailsProps {
   isSaving: boolean;
   setIsEditing: (isEditing: boolean) => void;
   handleSave: () => void;
+  handleCancel: () => void; // Ny prop
   editedData: Rabbit_ProfileDTO;
   setEditedData: (data: Rabbit_ProfileDTO) => void;
 }
-
-const editableFieldLabels: Record<keyof Rabbit_UpdateDTO, string> = {
-  nickName: "Navn",
-  race: "Race",
-  color: "Farve",
-  dateOfBirth: "Fødselsdato",
-  dateOfDeath: "Dødsdato",
-  gender: "Køn",
-  forBreeding: "Til avl",
-  fatherId_Placeholder: "Far ID",
-  motherId_Placeholder: "Mor ID"
-};
 
 export default function RabbitDetails({
   rabbitProfile,
@@ -35,18 +24,17 @@ export default function RabbitDetails({
   isSaving,
   setIsEditing,
   handleSave,
+  handleCancel, // Ny prop
   editedData,
   setEditedData
 }: RabbitDetailsProps) {
   const [changedFields, setChangedFields] = useState<Set<keyof Rabbit_UpdateDTO>>(new Set());
 
-  // Reset function to handle cancel
-  const handleCancel = () => {
-    setEditedData(rabbitProfile); // Reset to original values
-    setChangedFields(new Set()); // Clear tracked changes
-    setIsEditing(false);
+  // Ved cancel, nulstil også changedFields
+  const handleCancelWithReset = () => {
+    handleCancel(); // Kald parent handler
+    setChangedFields(new Set()); // Clear tracked changes lokalt
   };
-
   // Track changes
   useEffect(() => {
     if (!isEditing) return; // Only track changes while editing
@@ -60,8 +48,8 @@ export default function RabbitDetails({
       if (originalValue !== currentValue) {
         // Special handling for dates
         if (key === 'dateOfBirth' || key === 'dateOfDeath') {
-          const date1 = originalValue ? new Date(originalValue).getTime() : null;
-          const date2 = currentValue ? new Date(currentValue).getTime() : null;
+          const date1 = originalValue ? new Date(originalValue as string).getTime() : null;
+          const date2 = currentValue ? new Date(currentValue as string).getTime() : null;
           if (date1 !== date2) {
             newChangedFields.add(key);
           }
@@ -97,10 +85,10 @@ export default function RabbitDetails({
               </Button>
             ) : (
               <div className="space-x-2">
-                <Button 
-                  size="sm" 
+                <Button
+                  size="sm"
                   color="success"
-                  onPress={handleSave} 
+                  onPress={handleSave}
                   isDisabled={isSaving || !hasUnsavedChanges}
                   className='text-white'
                 >
@@ -109,7 +97,7 @@ export default function RabbitDetails({
                 <Button
                   size="sm"
                   color="secondary"
-                  onPress={handleCancel}
+                  onPress={handleCancelWithReset} // Brug ny handler
                   isDisabled={isSaving}
                 >
                   Annuller
@@ -145,7 +133,7 @@ export default function RabbitDetails({
           ))}
         </form>
       </div>
-      
+
       {/* Fotosektionen - kun vist når ikke i redigeringstilstand */}
       {!isEditing && (
         <PhotoSection earCombId={rabbitProfile.earCombId} />

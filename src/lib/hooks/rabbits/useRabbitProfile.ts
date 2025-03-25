@@ -4,7 +4,8 @@ import { useState, useCallback } from 'react';
 import { Rabbit_ProfileDTO } from '@/api/types/AngoraDTOs';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
-import { EditRabbit, DeleteRabbit } from '@/api/endpoints/rabbitController';
+import { deleteRabbit } from '@/app/actions/rabbit/delete';
+import { updateRabbit } from '@/app/actions/rabbit/update';
 
 export function useRabbitProfile(initialProfile: Rabbit_ProfileDTO) {
     const router = useRouter();
@@ -12,57 +13,82 @@ export function useRabbitProfile(initialProfile: Rabbit_ProfileDTO) {
     const [isSaving, setIsSaving] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [showTransferModal, setShowTransferModal] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    
+    // Tilføj currentProfile state for at holde styr på den aktuelle version
+    const [currentProfile, setCurrentProfile] = useState<Rabbit_ProfileDTO>(initialProfile);
 
-    // Vigtigt: Behandl initialProfile som en ref-værdi, ikke en dependency
+    // Opret editedData fra currentProfile i stedet for initialProfile
     const [editedData, setEditedData] = useState<Rabbit_ProfileDTO>({
-        ...initialProfile
+        ...currentProfile
     });
 
-    // Brug useCallback for alle handlere
+    // Handler for at åbne delete modal
+    const handleDeleteClick = useCallback(() => {
+        setIsDeleteModalOpen(true);
+    }, []);
+
+    // Handler for at lukke delete modal uden at slette
+    const handleDeleteCancel = useCallback(() => {
+        setIsDeleteModalOpen(false);
+    }, []);
+
+    // Handler for den faktiske sletning
+    const handleDeleteConfirm = useCallback(async () => {
+        try {
+            setIsDeleting(true);
+            const result = await deleteRabbit(currentProfile.earCombId);
+            
+            if (result.success) {
+                toast.success('Kaninen blev slettet');
+                router.push('/account/myRabbits');
+            } else {
+                toast.error(result.error || 'Der skete en fejl ved sletning af kaninen');
+                setIsDeleteModalOpen(false); // Luk kun modal ved fejl
+            }
+        } catch (error) {
+            console.error('Delete failed:', error);
+            toast.error('Der skete en fejl ved sletning af kaninen');
+            setIsDeleteModalOpen(false); // Luk kun modal ved fejl
+        } finally {
+            setIsDeleting(false);
+        }
+    }, [currentProfile.earCombId, router]);
+
+    // Opdateret håndtering af gemning med server action
     const handleSave = useCallback(async () => {
         try {
             setIsSaving(true);
-            const response = await fetch('/api/auth/token');
-            const { accessToken } = await response.json();
             
-            if (!accessToken) {
-                toast.error('Du er ikke logget ind');
-                return;
+            // Brug server action i stedet for direkte API kald
+            const result = await updateRabbit(currentProfile.earCombId, editedData);
+            
+            if (result.success) {
+                setIsEditing(false);
+                toast.success('Kaninen blev opdateret');
+                
+                // Opdater currentProfile med de nye data
+                setCurrentProfile(editedData);
+                
+                // Refresh router data uden fuld page reload
+                router.refresh();
+            } else {
+                toast.error(result.error || 'Der skete en fejl ved opdatering af kaninen');
             }
-
-            await EditRabbit(initialProfile.earCombId, editedData, accessToken);
-            setIsEditing(false);
-            toast.success('Kaninen blev opdateret');
-            window.location.reload();
         } catch (error) {
             console.error('Error saving:', error);
             toast.error('Der skete en fejl ved opdatering af kaninen');
         } finally {
             setIsSaving(false);
         }
-    }, [initialProfile.earCombId, editedData]);
+    }, [currentProfile.earCombId, editedData, router]);
 
-    const handleDelete = useCallback(async () => {
-        try {
-            setIsDeleting(true);
-            const response = await fetch('/api/auth/token');
-            const { accessToken } = await response.json();
-            
-            if (!accessToken) {
-                toast.error('Du er ikke logget ind');
-                return;
-            }
-
-            await DeleteRabbit(initialProfile.earCombId, accessToken);
-            toast.success('Kaninen blev slettet');
-            router.push('/account/myRabbits');
-        } catch (error) {
-            console.error('Delete failed:', error);
-            toast.error('Der skete en fejl ved sletning af kaninen');
-        } finally {
-            setIsDeleting(false);
-        }
-    }, [initialProfile.earCombId, router]);
+    // Tilføj en reset funktion i tilfælde af cancel
+    const handleCancelEdit = useCallback(() => {
+        // Reset editedData til currentProfile
+        setEditedData({...currentProfile});
+        setIsEditing(false);
+    }, [currentProfile]);
 
     // Stable callback for transfer ownership
     const handleTransferOwnershipClick = useCallback(() => {
@@ -75,15 +101,20 @@ export function useRabbitProfile(initialProfile: Rabbit_ProfileDTO) {
     }, []);
 
     return {
+        currentProfile,      // Eksporter currentProfile
         editedData,
         isEditing,
         isSaving,
         isDeleting,
         showTransferModal,
+        isDeleteModalOpen,
         setEditedData,
         setIsEditing,
         handleSave,
-        handleDelete,
+        handleCancelEdit,    // Tilføj cancel funktion
+        handleDeleteClick,
+        handleDeleteConfirm,
+        handleDeleteCancel,
         handleTransferOwnershipClick,
         handleCloseTransferModal
     };

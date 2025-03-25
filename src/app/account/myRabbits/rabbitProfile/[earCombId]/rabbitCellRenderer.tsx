@@ -1,17 +1,12 @@
-// src/utils/renderCell.tsx
+// src/app/account/myRabbits/rabbitProfile/[earCombId]/rabbitCellRenderer.tsx
 import React, { ReactNode } from "react";
 import { PiRabbitFill, PiRabbit } from "react-icons/pi";
 import { Input, Switch } from "@heroui/react";
 import { Rabbit_ProfileDTO, Rabbit_UpdateDTO } from "@/api/types/AngoraDTOs";
 import EnumAutocomplete from "@/components/enumHandlers/enumAutocomplete";
 
-// Helper function for parent validation
-function isParentValid(placeholderId: string | null, actualId: string | null): boolean {
-  return !!placeholderId && placeholderId === actualId;
-}
-
-// First, add the editableFieldLabels constant at the top with other constants
-const editableFieldLabels: Record<keyof Rabbit_UpdateDTO, string> = {
+// Eksporter konstanten, så den kan bruges andre steder
+export const editableFieldLabels: Record<keyof Rabbit_UpdateDTO, string> = {
   nickName: "Navn",
   race: "Race",
   color: "Farve",
@@ -22,6 +17,11 @@ const editableFieldLabels: Record<keyof Rabbit_UpdateDTO, string> = {
   fatherId_Placeholder: "Far ID",
   motherId_Placeholder: "Mor ID"
 };
+
+// Helper function for parent validation
+function isParentValid(placeholderId: string | null, actualId: string | null): boolean {
+  return !!placeholderId && placeholderId === actualId;
+}
 
 export function renderCell(
   key: keyof Rabbit_UpdateDTO,
