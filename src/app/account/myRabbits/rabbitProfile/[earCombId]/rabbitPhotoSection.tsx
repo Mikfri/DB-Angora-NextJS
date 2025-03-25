@@ -11,8 +11,7 @@ import { setAsProfilePhoto } from '@/app/actions/photo/setAsProfilePicture';
 import { deletePhoto } from '@/app/actions/photo/deletePhoto';
 import { toast } from 'react-toastify';
 import PhotoGallery from './rabbitPhotoGallery';
-import SimpleModal from '@/components/cloudinary/SimpleModal';
-import IsolatedCloudinaryUploader from '@/components/cloudinary/IsolatedCloudinaryUploader';
+import SimpleCloudinaryWidget from '@/components/cloudinary/SimpleCloudinaryWidget';
 
 // Cache typer med bedre TypeScript diskriminering
 type CacheTypes = {
@@ -46,12 +45,11 @@ export default function PhotoSection({ earCombId }: PhotoSectionProps) {
   const [error, setError] = useState<string | null>(null);
   const [uploadConfig, setUploadConfig] = useState<CloudinaryUploadConfigDTO | null>(null);
   const [maxImageCount, setMaxImageCount] = useState(0);
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [uploadComplete, setUploadComplete] = useState(false);
-  const [widgetKey, setWidgetKey] = useState(`upload-${Date.now()}`);
+  const [showWidget, setShowWidget] = useState(false);
+  const [widgetKey, setWidgetKey] = useState(`widget-${Date.now()}`);
 
-  // Generic cache helper med type safety - uden ubrugt parameter
+  // Generic cache helper med type safety
   const getCachedData = <K extends keyof CacheTypes>(
     cacheKey: string
   ): { data: CacheTypes[K] | null, isValid: boolean } => {
@@ -65,7 +63,7 @@ export default function PhotoSection({ earCombId }: PhotoSectionProps) {
     return { data: null, isValid: false };
   };
 
-  // Generic cache setter med type safety - uden ubrugt parameter
+  // Generic cache setter med type safety
   const setCachedData = <K extends keyof CacheTypes>(
     cacheKey: string,
     data: CacheTypes[K]
@@ -174,6 +172,14 @@ export default function PhotoSection({ earCombId }: PhotoSectionProps) {
     }
   };
 
+  // Reset widgetKey og forcer nyt instance hver gang
+  const handleShowWidget = () => {
+    // Generate a truly unique key that forces full reload
+    setWidgetKey(`widget-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+    setShowWidget(true);
+    setUploadComplete(false);
+  };
+
   // Sæt som profilbillede
   const handleSetAsProfile = async (photoId: number) => {
     try {
@@ -245,30 +251,6 @@ export default function PhotoSection({ earCombId }: PhotoSectionProps) {
     loadUploadPermission();
   };
 
-  // Modal handlers
-  const handleOpenModal = () => {
-    console.log("Opening modal");
-    setIsModalOpen(true);
-    setUploadComplete(false);
-    setWidgetKey(`upload-${Date.now()}`);
-  };
-
-  const handleCloseModal = () => {
-    console.log("Closing modal");
-    setIsModalOpen(false);
-    setTimeout(() => setUploadComplete(false), 500);
-  };
-
-  // Modificeret upload handler for modal
-  const handleModalUpload = async (photoData: CloudinaryPhotoRegistryRequestDTO) => {
-    try {
-      await handlePhotoUploaded(photoData);
-      setUploadComplete(true);
-    } catch (err) {
-      console.error("Modal upload error:", err);
-    }
-  };
-
   // Udled entity type fra uploadConfig med optional chaining og nullish coalescing
   const entityTypeName = uploadConfig?.entityType === 'Rabbit'
     ? 'kanin'
@@ -303,63 +285,55 @@ export default function PhotoSection({ earCombId }: PhotoSectionProps) {
         </div>
       )}
 
-      {/* Upload widget med modal */}
+      {/* Upload widget sektion - nu direkte i siden */}
       {uploadConfig && !isLoadingPhotos && (
         <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-4">
-          <div className="flex flex-col gap-2">
-            <Button
-              color="primary"
-              onPress={handleOpenModal}
-              isDisabled={maxImageCount <= photos.length}
-              className="w-full"
-            >
-              Upload Billede
-            </Button>
+          {!showWidget ? (
+            <div className="flex flex-col gap-2">
+              <Button
+                color="primary"
+                onPress={handleShowWidget}
+                isDisabled={maxImageCount <= photos.length}
+                className="w-full"
+              >
+                Upload Billede
+              </Button>
 
-            <p className="text-xs text-zinc-400">
-              {maxImageCount - photos.length > 0
-                ? `Du kan uploade ${maxImageCount - photos.length} billede${maxImageCount - photos.length !== 1 ? 'r' : ''} mere`
-                : 'Du har nået grænsen for antal billeder'
-              }
-            </p>
-          </div>
-
-          {/* SimpleModal med isoleret Cloudinary iframe */}
-          <SimpleModal
-            isOpen={isModalOpen}
-            onClose={handleCloseModal}
-            title="Upload Billede"
-          >
-            {uploadComplete ? (
-              <div className="py-6 text-center">
-                <div className="mb-4 text-green-500 flex justify-center">
-                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z"
-                      stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </div>
-                <h3 className="font-semibold text-lg mb-2">Billedet blev uploadet!</h3>
-                <p className="text-zinc-400 mb-4">Dit billede er nu tilgængeligt i galleriet.</p>
-                <Button color="primary" onPress={handleCloseModal}>
-                  Luk
-                </Button>
+              <p className="text-xs text-zinc-400">
+                {maxImageCount - photos.length > 0
+                  ? `Du kan uploade ${maxImageCount - photos.length} billede${maxImageCount - photos.length !== 1 ? 'r' : ''} mere`
+                  : 'Du har nået grænsen for antal billeder'
+                }
+              </p>
+            </div>
+          ) : uploadComplete ? (
+            <div className="py-6 text-center">
+              <div className="mb-4 text-green-500 flex justify-center">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z"
+                    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
               </div>
-            ) : (
-              // Ændr højden så den fylder mere
-              <div key={widgetKey} className="h-[500px]"> {/* Øg højden yderligere for at sikre, at Cloudinary widget har plads */}
-                {/* Bruger IsolatedCloudinaryUploader komponenten */}
-                {uploadConfig && (
-                  <IsolatedCloudinaryUploader
-                    uploadConfig={uploadConfig}
-                    maxImageCount={maxImageCount}
-                    currentImageCount={photos.length}
-                    onPhotoUploaded={handleModalUpload}
-                    uniqueKey={widgetKey}
-                  />
-                )}
-              </div>
-            )}
-          </SimpleModal>
+              <h3 className="font-semibold text-lg mb-2">Billedet blev uploadet!</h3>
+              <p className="text-zinc-400 mb-4">Dit billede er nu tilgængeligt i galleriet.</p>
+              <Button color="primary" onPress={() => setShowWidget(false)}>
+                Luk
+              </Button>
+            </div>
+          ) : (
+            <div className="min-h-[400px]" key={widgetKey}>
+              <SimpleCloudinaryWidget
+                uploadConfig={uploadConfig}
+                onPhotoUploaded={async (photoData) => {
+                  await handlePhotoUploaded(photoData);
+                  setUploadComplete(true);
+                }}
+                onClose={() => setShowWidget(false)}
+                widgetKey={widgetKey}
+                forceReload={true}
+              />
+            </div>
+          )}
         </div>
       )}
 
