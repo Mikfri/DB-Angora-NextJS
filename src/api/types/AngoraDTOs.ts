@@ -55,7 +55,7 @@ export interface Rabbit_CreateDTO {
     dateOfBirth: string;
     dateOfDeath?: string | null;
     gender: string;
-    forBreeding: string;
+    isForBreeding: boolean;
     father_EarCombId?: string | null;
     mother_EarCombId?: string | null;
 }
@@ -77,7 +77,7 @@ export interface Rabbit_ForsaleProfileDTO {
     color: string;
     dateOfBirth: string;
     gender: string;
-    forBreeding: string;
+    isForBreeding: boolean;
     profilePicture: string;
     photos: Photo_DTO[];
     ownerFullName: string;
@@ -98,7 +98,7 @@ export interface Rabbit_ForbreedingPreviewDTO {    // Preview for avlerer
     //dateOfDeath: string | null;
     isJuvenile: boolean | null;
     gender: string | null;
-    forBreeding: string | null;
+    //isForBreeding: boolean | null;
     zipCode: number;
     city: string;
     fatherId_Placeholder: string | null;
@@ -121,7 +121,7 @@ export interface Rabbit_PreviewDTO {    // Preview for avlerer
     dateOfDeath: string | null;
     isJuvenile: boolean | null;
     gender: string | null;
-    forBreeding: string | null;
+    isForBreeding: boolean | null;
     hasSaleDetails: boolean;
     fatherId_Placeholder: string | null;
     father_EarCombId: string | null;
@@ -144,7 +144,7 @@ export interface Rabbit_ProfileDTO {
     dateOfDeath: string | null;
     isJuvenile: boolean | null;
     gender: string | null;
-    forBreeding: string | null;
+    isForBreeding: boolean | null;
     fatherId_Placeholder: string | null;
     father_EarCombId: string | null;
     profilePicture: string | null;
@@ -187,7 +187,7 @@ export interface Rabbit_UpdateDTO {
     dateOfBirth: string | null;
     dateOfDeath: string | null;
     gender: string | null;
-    forBreeding: string | null;
+    isForBreeding: boolean | null;
     fatherId_Placeholder: string | null;
     motherId_Placeholder: string | null;
 }
