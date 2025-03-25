@@ -44,7 +44,7 @@ interface SimpleCloudinaryWidgetProps {
     uploadConfig: CloudinaryUploadConfigDTO;
     onPhotoUploaded: (photoData: CloudinaryPhotoRegistryRequestDTO) => Promise<void>;
     onComplete?: () => void;
-    onClose?: () => void;  // Ny prop
+    onClose?: () => void;
     widgetKey?: string;
     forceReload?: boolean;
   }
@@ -244,7 +244,7 @@ interface SimpleCloudinaryWidgetProps {
         apiKey: uploadConfig.apiKey,
         uploadPreset: uploadConfig.uploadPreset,
         folder: uploadConfig.folder,
-        source: 'local', // Skift til 'local' for mere stabil upload
+        source: 'local',
         tags: tagsArray,
         context: contextObj,
         sources: ['local', 'url', 'camera', 'upload'] as const,
@@ -261,22 +261,22 @@ interface SimpleCloudinaryWidgetProps {
         showPoweredBy: false,
         styles: {
           palette: {
-            window: "#000000",
-            windowBorder: "#333333",
+            window: "rgba(40, 40, 40)",  // Semi-transparent mørk grå
+            windowBorder: "rgba(70, 70, 70, 0.5)",
             tabIcon: "#FFFFFF",
             menuIcons: "#CCCCCC",
             textDark: "#FFFFFF",
             textLight: "#FFFFFF",
             link: "#0078FF", 
-            action: "#0078FF",
+            action: "#0078FF", 
             inactiveTabIcon: "#999999",
             error: "#FF0000",
             inProgress: "#0078FF",
             complete: "#20B832",
-            sourceBg: "#191919"
+            sourceBg: "rgba(35, 35, 35)" // Semi-transparent for source background
           },
           frame: {
-            background: "#000000"
+            background: "rgba(20, 20, 20, 0.7)"  // Semi-transparent baggrund
           }
         },
         text: {
@@ -341,8 +341,7 @@ interface SimpleCloudinaryWidgetProps {
     
     // Cleanup on unmount
     return cleanupWidget;
-  }, [scriptLoaded, uploadConfig, onPhotoUploaded, onComplete, widgetKey, cleanupWidget]); // Add cleanupWidget as dependency
-  
+  }, [scriptLoaded, uploadConfig, onPhotoUploaded, onComplete, widgetKey, cleanupWidget, onClose]);   
   return (
     <div 
       className="upload-widget-container"

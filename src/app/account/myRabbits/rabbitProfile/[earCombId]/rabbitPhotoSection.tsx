@@ -172,6 +172,10 @@ export default function PhotoSection({ earCombId }: PhotoSectionProps) {
     }
   };
 
+  const handleWidgetClose = useCallback(() => {
+    setShowWidget(false);
+  }, []);
+
   // Reset widgetKey og forcer nyt instance hver gang
   const handleShowWidget = () => {
     // Generate a truly unique key that forces full reload
@@ -328,7 +332,7 @@ export default function PhotoSection({ earCombId }: PhotoSectionProps) {
                   await handlePhotoUploaded(photoData);
                   setUploadComplete(true);
                 }}
-                onClose={() => setShowWidget(false)}
+                onClose={handleWidgetClose}
                 widgetKey={widgetKey}
                 forceReload={true}
               />
