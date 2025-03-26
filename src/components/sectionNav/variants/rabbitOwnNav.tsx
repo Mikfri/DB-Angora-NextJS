@@ -1,14 +1,13 @@
 // src/components/sectionNav/variants/rabbitOwnNav.tsx
-
 'use client';
 import { Input, Switch } from "@heroui/react";
 import SectionNav from '../base/baseSideNav';
 import { useRouter } from 'next/navigation';
 import { PiRabbitFill } from "react-icons/pi";
 import EnumAutocomplete from '@/components/enumHandlers/enumAutocomplete';
-import { OwnFilters } from '@/lib/hooks/rabbits/useRabbitOwnFilter';
+// Import direkte fra filterTypes for at undgå konflikter
+import { OwnFilters } from '@/api/types/filterTypes';
 import EnumLocalAutocomplete, { RaceColorApproval } from "@/components/enumHandlers/enumLocalAutocomplete";
-
 interface Props {
     activeFilters: OwnFilters;
     onFilterChange: (filters: Partial<OwnFilters>) => void;
@@ -36,7 +35,7 @@ export default function OwnNav({ activeFilters, onFilterChange }: Props) {
         >
             <div className="flex flex-col gap-4">
                 <Input
-                    value={activeFilters.search}
+                    value={activeFilters.search || ''}
                     onChange={(e) => onFilterChange({ search: e.target.value })}
                     placeholder="Navn, øremærke eller race"
                     aria-label="Søg efter kaniner"
@@ -49,50 +48,71 @@ export default function OwnNav({ activeFilters, onFilterChange }: Props) {
                     onChange={(e) => onFilterChange({ bornAfterDate: e.target.value || null })}
                     placeholder="Vælg dato"
                 />
+
+                {/* Gruppe 1: Selektorer */}
                 <EnumAutocomplete
                     enumType="Gender"
-                    value={activeFilters.Gender ?? null}
-                    onChange={(value) => onFilterChange({ Gender: value })}
+                    value={activeFilters.gender || null}
+                    onChange={(value) => onFilterChange({ gender: value })}
                     label="Køn"
                 />
                 <EnumAutocomplete
                     enumType="Race"
-                    value={activeFilters.Race ?? null}
-                    onChange={(value) => onFilterChange({ Race: value })}
+                    value={activeFilters.race || null}
+                    onChange={(value) => onFilterChange({ race: value })}
                     label="Race"
                 />
                 <EnumAutocomplete
                     enumType="Color"
-                    value={activeFilters.Color ?? null}
-                    onChange={(value) => onFilterChange({ Color: value })}
+                    value={activeFilters.color || null}
+                    onChange={(value) => onFilterChange({ color: value })}
                     label="Farve"
                 />
                 <EnumLocalAutocomplete
                     enumType={RaceColorApproval}
-                    value={activeFilters.raceColorApproval ?? null}
+                    value={activeFilters.raceColorApproval || null}
                     onChange={(value) => onFilterChange({ raceColorApproval: value })}
                     label="Godkendt race/farve"
                 />
+
+                {/* Divider for bedre visuel gruppering */}
+                <div className="border-t border-zinc-700 my-2"></div>
+
+                {/* Gruppe 2: Juvenile filter */}
                 <Switch
                     size="sm"
-                    isSelected={activeFilters.ForSale}
-                    onValueChange={(checked) => onFilterChange({ ForSale: checked })}
+                    isSelected={activeFilters.showJuveniles || false}
+                    onValueChange={(checked) => onFilterChange({ showJuveniles: checked })}
+                    aria-label="Vis kun ungdyr"
+                >
+                    Kun ungdyr
+                </Switch>
+
+                {/* Gruppe 3: Formål-filtre */}
+                <Switch
+                    size="sm"
+                    isSelected={activeFilters.forSale || false}
+                    onValueChange={(checked) => onFilterChange({ forSale: checked })}
                     aria-label="Vis kun til salg"
                 >
                     Til Salg
                 </Switch>
                 <Switch
                     size="sm"
-                    isSelected={activeFilters.ForBreeding}
-                    onValueChange={(checked) => onFilterChange({ ForBreeding: checked })}
+                    isSelected={activeFilters.isForBreeding || false}
+                    onValueChange={(checked) => onFilterChange({ isForBreeding: checked })}
                     aria-label="Vis kun til avl"
                 >
                     Til Avl
                 </Switch>
 
+                {/* Divider for at adskille død-filteret */}
+                <div className="border-t border-zinc-700 my-2"></div>
+
+                {/* Gruppe 4: Status-filtre */}
                 <Switch
                     size="sm"
-                    isSelected={activeFilters.showDeceased}
+                    isSelected={activeFilters.showDeceased || false}
                     onValueChange={(checked) => onFilterChange({ showDeceased: checked })}
                     aria-label="Vis afdøde kaniner"
                 >

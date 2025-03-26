@@ -1,36 +1,35 @@
 // src/lib/hooks/rabbits/useRabbitOwnFilter.ts
-
 import { useState } from 'react';
 import { Rabbit_PreviewDTO } from '@/api/types/AngoraDTOs';
+import { OwnFilters } from '@/api/types/filterTypes';
 
-export interface OwnFilters {
-    search: string;
-    Gender: string | undefined;
-    Race: string | undefined;
-    Color: string | undefined;
-    ForSale: boolean;
-    ForBreeding: boolean;
-    showDeceased: boolean;
-    raceColorApproval: string | undefined;
-    bornAfterDate: string | null;
-}
+// Udvidelse af OwnFilters til at sikre nødvendige felter er påkrævet
+// src/lib/hooks/rabbits/useRabbitOwnFilter.ts
+type RequiredOwnFilters = {
+    [K in keyof OwnFilters]-?: OwnFilters[K] extends undefined | null ? OwnFilters[K] : OwnFilters[K];
+};
 
 export function useOwnRabbits(initialRabbits: Rabbit_PreviewDTO[]) {
-    const [filters, setFilters] = useState<OwnFilters>({
+    const [filters, setFilters] = useState<RequiredOwnFilters>({
         search: '',
-        Gender: undefined,
-        Race: undefined,
-        Color: undefined,
-        ForSale: false,
-        ForBreeding: false,
+        gender: null,
+        race: null,
+        color: null,
+        forSale: false,
+        isForBreeding: false,
         showDeceased: false,
-        raceColorApproval: undefined,
+        showJuveniles: false,
+        raceColorApproval: null,
         bornAfterDate: null,
     });
 
     const filteredRabbits = initialRabbits.filter(rabbit => {
+        // Tjek for afdøde kaniner
         const isDeceased = rabbit.dateOfDeath !== null;
-        if (filters.showDeceased !== isDeceased) return false;
+        if (!filters.showDeceased && isDeceased) return false;
+        
+        // Tjek for ungdyr via API-egenskaben
+        if (filters.showJuveniles && !rabbit.isJuvenile) return false;
 
         const matchesSearch = filters.search === '' || (
             (rabbit.nickName?.toLowerCase().includes(filters.search.toLowerCase()) ?? false) ||
@@ -44,11 +43,13 @@ export function useOwnRabbits(initialRabbits: Rabbit_PreviewDTO[]) {
             (filters.raceColorApproval === 'NotApproved' && rabbit.approvedRaceColorCombination === false);
         const matchesBornAfter = !filters.bornAfterDate ||
             (rabbit.dateOfBirth && new Date(rabbit.dateOfBirth) >= new Date(filters.bornAfterDate));
-        const matchesGender = !filters.Gender || rabbit.gender === filters.Gender;
-        const matchesRace = !filters.Race || rabbit.race === filters.Race;
-        const matchesColor = !filters.Color || rabbit.color === filters.Color;
-        const matchesForSale = !filters.ForSale || rabbit.hasSaleDetails === true;
-        const matchesForBreeding = !filters.ForBreeding || rabbit.forBreeding === 'Ja';
+        const matchesGender = !filters.gender || rabbit.gender === filters.gender;
+        const matchesRace = !filters.race || rabbit.race === filters.race;
+        const matchesColor = !filters.color || rabbit.color === filters.color;
+        const matchesForSale = !filters.forSale || rabbit.hasSaleDetails === true;
+        
+        // Forenklet - brug direkte isForBreeding property
+        const matchesForBreeding = !filters.isForBreeding || rabbit.isForBreeding === true;
 
         return matchesSearch &&
             matchesGender &&

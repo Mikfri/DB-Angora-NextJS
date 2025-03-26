@@ -14,8 +14,11 @@ import SectionNav, {
     navigationLinks,
     homeNavigationLinks,
     saleNavigationLinks,
+    BREEDER_ROLES,
+    MODERATOR_ROLES,
     type NavGroup 
 } from '../base/baseSideNav';
+import { hasAnyRole } from '@/types/auth';
 
 // Constants for better maintainability
 const SECTION_TITLES = {
@@ -48,16 +51,7 @@ const ICON_MAP = {
 
 export default function MyNav() {
     const pathname = usePathname();
-    const { isLoggedIn, userRole } = useAuthStore();
-    //const { isLoggedIn, userRole, checkAuth } = useAuthStore();   
-    // udkommenteret ovenstående og nedestående grundet TopNav allerede har kaldt checkAuth
-
-
-    // Simplified useEffect without subscription    
-    // useEffect(() => {
-    //     // Refresh auth state ved mount
-    //     checkAuth();
-    // }, [checkAuth]);
+    const { isLoggedIn, userIdentity } = useAuthStore();
 
     // Stable function for icon retrieval
     const getIconForLink = useCallback((href: string) => {
@@ -77,6 +71,17 @@ export default function MyNav() {
         return undefined;
     }, []);
 
+    // Tjek om brugeren har specifikke roller - brug konstanter fra baseSideNav
+    const hasBreederRoles = useMemo(() => 
+        hasAnyRole(userIdentity, BREEDER_ROLES),
+        [userIdentity]
+    );
+    
+    const hasModeratorRoles = useMemo(() => 
+        hasAnyRole(userIdentity, MODERATOR_ROLES),
+        [userIdentity]
+    );
+
     // Memoize the current links to prevent unnecessary recalculations
     const currentLinks = useMemo(() => {
         const links: NavGroup[] = [];
@@ -92,23 +97,18 @@ export default function MyNav() {
             // Add regular navigation links first (account related)
             links.push(...navigationLinks);
     
-            // Then add role-based links if they exist
-            if (userRole) {
-                const roleBasedLinks = {
-                    'BreederBasic': breederNavigationLinks,
-                    'BreederPremium': breederNavigationLinks,
-                    'Admin': [...moderatorNavigationLinks, ...breederNavigationLinks],
-                    'Moderator': [...moderatorNavigationLinks, ...breederNavigationLinks]
-                }[userRole];
-    
-                if (roleBasedLinks) {
-                    links.push(...roleBasedLinks);
-                }
+            // Tilføj rollebaserede links baseret på userIdentity
+            if (hasBreederRoles) {
+                links.push(...breederNavigationLinks);
+            }
+            
+            if (hasModeratorRoles) {
+                links.push(...moderatorNavigationLinks);
             }
         }
     
         return links;
-    }, [pathname, isLoggedIn, userRole]);
+    }, [pathname, isLoggedIn, hasBreederRoles, hasModeratorRoles]);
 
     // Memoize disabled keys for performance
     const disabledKeys = useMemo(() => {

@@ -45,7 +45,7 @@ export default function LoginForm({ onSuccess }: Props) {
     return (
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <Input
-                label="Brugernavn"
+                label="Brugernavn/email"
                 value={userName}
                 onChange={(e) => setUserName(e.target.value)}
                 isDisabled={isLoading}

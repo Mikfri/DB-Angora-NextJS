@@ -13,7 +13,7 @@ export const editableFieldLabels: Record<keyof Rabbit_UpdateDTO, string> = {
   dateOfBirth: "Fødselsdato",
   dateOfDeath: "Dødsdato",
   gender: "Køn",
-  forBreeding: "Til avl",
+  isForBreeding: "Til avl",  // Rettet fra forBreeding til isForBreeding
   fatherId_Placeholder: "Far ID",
   motherId_Placeholder: "Mor ID"
 };
@@ -55,6 +55,17 @@ function renderViewMode(
     return (
       <span className={textClassName}>
         {value ? new Date(value as string).toLocaleDateString() : "Ikke angivet"}
+      </span>
+    );
+  }
+
+  // Boolean fields
+  if (key === "isForBreeding") {
+    // Tager højde for at værdien nu er en boolean
+    const booleanValue = value === true || value === "true" || value === "Ja";
+    return (
+      <span className={textClassName}>
+        {booleanValue ? "Ja" : "Nej"}
       </span>
     );
   }
@@ -114,15 +125,25 @@ function renderEditMode(
     );
   }
 
-  // Boolean switches
-  if (key === "forBreeding") {
+  if (key === "isForBreeding") {
+    // Brug typeguard til at håndtere forskellige typer
+    let isSelected = false;
+    
+    // Konverter til boolean uanset input type
+    if (typeof editedData[key] === 'boolean') {
+      isSelected = editedData[key] as boolean;
+    } else if (typeof editedData[key] === 'string') {
+      isSelected = (editedData[key] as string) === "true" || (editedData[key] as string) === "Ja";
+    }
+    
     return (
       <Switch
         id={`${key}-input`}
         size="sm"
-        isSelected={editedData[key] === "Ja"}
+        isSelected={isSelected}
         onValueChange={(checked) =>
-          setEditedData({ ...editedData, [key]: checked ? "Ja" : "Nej" })
+          // Brug boolean værdi direkte, da feltet nu forventer en boolean
+          setEditedData({ ...editedData, [key]: checked })
         }
         className={className}
         aria-label={editableFieldLabels[key]}

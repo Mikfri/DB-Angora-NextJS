@@ -1,38 +1,61 @@
 // src/app/actions/auth/session.ts
-
 'use server';
 
 import { getCookieStore } from '@/lib/utils/cookieStore';
-import { isTokenExpired } from '@/lib/utils/tokenUtils';
+import { isTokenExpired, extractUserIdentity } from '@/lib/utils/tokenUtils';
+import { UserIdentity, formatRoles } from '@/types/auth';
 import { cache } from 'react';
 
-type SessionStatus = {
+export type SessionStatus = {
   isAuthenticated: boolean;
   userName?: string;
   userRole?: string;
-  userProfileId?: string;
+  userIdentity?: UserIdentity;
   tokenExpiry?: number;
 };
 
-// Tilføj cache() wrapper for at undgå gentagende kald indenfor samme request
 export const getSessionStatus = cache(async (): Promise<SessionStatus> => {
   const cookieStore = getCookieStore();
   
   const accessToken = await cookieStore.get('accessToken');
   const tokenExpiry = await cookieStore.get('tokenExpiry');
-  const userName = await cookieStore.get('userName');
-  const userRole = await cookieStore.get('userRole');
-  const userProfileId = await cookieStore.get('userProfileId');
+  const userIdentityCookie = await cookieStore.get('userIdentity');
   
   if (!accessToken || isTokenExpired(accessToken.value, tokenExpiry?.value)) {
     return { isAuthenticated: false };
   }
   
+  // Hent brugeridentitet fra cookie eller udtræk fra token hvis nødvendigt
+  let userIdentity: UserIdentity | undefined;
+  
+  try {
+    if (userIdentityCookie?.value) {
+      userIdentity = JSON.parse(userIdentityCookie.value);
+    } else if (accessToken.value) {
+      // Fallback: Udtræk fra token
+      userIdentity = extractUserIdentity(accessToken.value) || undefined;
+    }
+  } catch (e) {
+    console.error('Failed to parse userIdentity cookie:', e);
+  }
+  
+  // Hvis vi ikke kan få brugeridentitet, men har et gyldigt token,
+  // returnér stadig som authenticated med begrænsede detaljer
+  if (!userIdentity) {
+    return { 
+      isAuthenticated: true,
+      tokenExpiry: tokenExpiry ? parseInt(tokenExpiry.value, 10) : undefined
+    };
+  }
+  
+  // Formater roller til visning
+  const displayRole = formatRoles(userIdentity.roles);
+  
   return {
     isAuthenticated: true,
-    userName: userName?.value,
-    userRole: userRole?.value,
-    userProfileId: userProfileId?.value,
+    userName: userIdentity.username,
+    userRole: displayRole,
+    userIdentity,
     tokenExpiry: tokenExpiry ? parseInt(tokenExpiry.value, 10) : undefined
   };
 });

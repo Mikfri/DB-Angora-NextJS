@@ -5,7 +5,7 @@ import Image from 'next/image';
 import {
     Navbar, NavbarBrand, NavbarContent, NavbarItem,
     Dropdown, DropdownTrigger, DropdownMenu,
-    DropdownItem, Tooltip
+    DropdownItem, Tooltip, Chip
 } from "@heroui/react";
 import { PiUserCircleFill, PiUserCircleCheckFill } from "react-icons/pi";
 import { MdOutlineLogout } from 'react-icons/md';
@@ -14,12 +14,17 @@ import { useEffect, useState } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import LoginModal from '../modals/login/loginModal';
 import { useNav } from '@/components/Providers';
+import { roleDisplayNames } from '@/types/auth';
 
 export default function TopNav() {
     const pathname = usePathname();
     const [isLoginOpen, setIsLoginOpen] = useState(false);
-    const { isLoggedIn, userName, userRole, logout, checkAuth: refresh } = useAuthStore();
+    const { isLoggedIn, userName, userRole, userIdentity, logout, checkAuth: refresh } = useAuthStore();
     const { authInitialized } = useNav();
+
+    // Få roller direkte fra userIdentity
+    const roles = userIdentity?.roles || [];
+    const hasMultipleRoles = roles.length > 1;
 
     // Luk login modal når bruger logger ind
     useEffect(() => {
@@ -32,19 +37,12 @@ export default function TopNav() {
     // og kun når brugeren aktivt skifter til dem
     useEffect(() => {
         // Kun tjek auth igen på login-kritiske ruter
-        if (authInitialized && 
+        if (authInitialized &&
             (pathname === '/login' || pathname === '/logout')) {
             console.log(`🔄 Auth refresh on auth-critical path: ${pathname}`);
             refresh();
         }
     }, [pathname, refresh, authInitialized]);
-
-    // Luk login modal når bruger logger ind
-    useEffect(() => {
-        if (isLoggedIn) {
-            setIsLoginOpen(false);
-        }
-    }, [isLoggedIn]);
 
     return (
         <>
@@ -105,11 +103,28 @@ export default function TopNav() {
                                     <div className="flex items-center gap-5 cursor-pointer">
                                         <div className="flex flex-col items-end">
                                             <span className="text-slate-300 nav-text">{userName}</span>
-                                            <span className="text-xs text-warning-300">{userRole}</span>
+                                            {hasMultipleRoles ? (
+                                                <div className="flex gap-1 mt-1 flex-wrap justify-end">
+                                                    {roles.map(role => (
+                                                        <Chip
+                                                            key={role}
+                                                            size="sm"
+                                                            color="warning"
+                                                            variant="light"
+                                                            className="text-[10px] h-4 px-1"
+                                                        >
+                                                            {roleDisplayNames[role] || role}
+                                                        </Chip>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <span className="text-xs text-warning-300">{userRole}</span>
+                                            )}
                                         </div>
                                         <PiUserCircleCheckFill size={32} className="text-primary hover:text-primary-400" />
                                     </div>
                                 </DropdownTrigger>
+
                                 <DropdownMenu aria-label="Profil handlinger" className="nav-dropdown text-zinc-600">
                                     <DropdownItem key="min-side" textValue="Min side">
                                         <NextLink href="/account" className="w-full block nav-text">

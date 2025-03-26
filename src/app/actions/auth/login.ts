@@ -3,45 +3,44 @@
 
 import { Login } from "@/api/endpoints/authController";
 import { getCookieStore } from '@/lib/utils/cookieStore';
-import { getTokenExpiry, getTokenClaim } from '@/lib/utils/tokenUtils';
+import { getTokenExpiry, extractUserIdentity } from '@/lib/utils/tokenUtils';
+import { UserIdentity, formatRoles } from '@/types/auth';
 
 export type LoginResult = 
-  | { success: true; userName: string; userRole: string; tokenExpiry: number }
+  | { success: true; userName: string; userRole: string; userIdentity: UserIdentity; tokenExpiry: number }
   | { success: false; error: string };
 
-  export async function login(userName: string, password: string): Promise<LoginResult> {
-    try {
-      const loginResponse = await Login(userName, password);
-  
-      if (!loginResponse?.accessToken) {
-        return { success: false, error: 'Invalid credentials' };
-      }
-  
-      // Brug getTokenClaim med eksplicit type annotation
-      const userProfileId = getTokenClaim<string>(
-        loginResponse.accessToken, 
-        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"
-      );
-      
-      const userRole = getTokenClaim<string>(
-        loginResponse.accessToken, 
-        "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
-      );
-      
-      if (!userProfileId || !userRole) {
-        return { success: false, error: 'Missing required claims in token' };
-      }
-      
-      // Brug getTokenExpiry utility
-      const tokenExpiry = getTokenExpiry(loginResponse.accessToken);
-      
-      if (!tokenExpiry) {
-        return { success: false, error: 'Invalid token expiry' };
-      }
-    
-    // Brug vores typesikre cookieStore helper
-    const cookieStore = getCookieStore();
+// src/app/actions/auth/login.ts
+export async function login(userName: string, password: string): Promise<LoginResult> {
+  try {
+    const loginResponse = await Login(userName, password);
 
+    if (!loginResponse?.accessToken) {
+      return { success: false, error: 'Invalid credentials' };
+    }
+
+    // Udtræk brugeridentitet fra token
+    const userIdentity = extractUserIdentity(loginResponse.accessToken);
+    
+    if (!userIdentity) {
+      return { success: false, error: 'Missing required claims in token' };
+    }
+    
+    // Sikr at vi bruger loginResponse.userName, som bør indeholde emailen
+    userIdentity.username = loginResponse.userName || userIdentity.username;
+    
+    // Formatter roller til visning
+    const displayRole = formatRoles(userIdentity.roles);
+    
+    // Hent token udløbstidspunkt
+    const tokenExpiry = getTokenExpiry(loginResponse.accessToken);
+    
+    if (!tokenExpiry) {
+      return { success: false, error: 'Invalid token expiry' };
+    }
+  
+    // Gem cookie data
+    const cookieStore = getCookieStore();
     const cookieOptions = {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -49,18 +48,19 @@ export type LoginResult =
       path: '/'
     };
 
-    // Tilføj token-udløbs cookie for at hjælpe client-side
     await cookieStore.set('accessToken', loginResponse.accessToken, cookieOptions);
     await cookieStore.set('tokenExpiry', tokenExpiry.toString(), cookieOptions);
-    await cookieStore.set('userName', userName, cookieOptions);
-    await cookieStore.set('userProfileId', userProfileId, cookieOptions);
-    await cookieStore.set('userRole', userRole, cookieOptions);
+    await cookieStore.set('userName', userIdentity.username, cookieOptions);
+    await cookieStore.set('userProfileId', userIdentity.id, cookieOptions);
+    await cookieStore.set('userRole', displayRole, cookieOptions);
+    await cookieStore.set('userIdentity', JSON.stringify(userIdentity), cookieOptions);
 
     return { 
       success: true, 
-      userName: userName,
-      userRole: userRole,
-      tokenExpiry: tokenExpiry
+      userName: userIdentity.username,
+      userRole: displayRole,
+      userIdentity,
+      tokenExpiry
     };
   } catch (error) {
     console.error('Login error:', error);

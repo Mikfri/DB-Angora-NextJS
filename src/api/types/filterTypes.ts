@@ -18,15 +18,17 @@ export interface ForSaleFilters {
  * Filter interface for brugerens egne kaniner
  * Alle filtre er valgfrie søgeparametre
  */
+// src/api/types/filterTypes.ts
 export interface OwnFilters {
     search?: string;
-    Gender?: string;
-    Race?: string;
-    Color?: string;
-    ForSale?: boolean;
-    ForBreeding?: boolean;
+    gender?: string | null;
+    race?: string | null;
+    color?: string | null;
+    forSale?: boolean;
+    isForBreeding?: boolean;
     showDeceased?: boolean;
-    raceColorApproval?: string;
+    showJuveniles?: boolean; 
+    raceColorApproval?: string | null;
     bornAfterDate?: string | null;
 }
 

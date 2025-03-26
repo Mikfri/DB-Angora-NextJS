@@ -5,20 +5,30 @@ import { login as loginAction } from '@/app/actions/auth/login';
 import { logout as logoutAction } from '@/app/actions/auth/logout';
 import { getSessionStatus, getAccessToken as getTokenAction } from '@/app/actions/auth/session';
 import { getTokenExpiry, getTokenTimeRemaining, isTokenExpired } from '@/lib/utils/tokenUtils';
+import { UserIdentity, UserRole, hasRole, hasAnyRole, roleGroups } from '@/types/auth';
 
 interface TokenCache {
   lastChecked: number;
   expiresIn: number;
   accessToken: string | null;
-  tokenExpiry: number | null; // Tidspunkt hvor token udløber (fra JWT)
+  tokenExpiry: number | null;
 }
 
 interface AuthState {
   isLoggedIn: boolean;
   userName: string;
   userRole: string;
+  userIdentity: UserIdentity | null;
   isLoading: boolean;
   tokenCache: TokenCache;
+  // Rolle-hjælpefunktioner
+  hasRole: (role: UserRole) => boolean;
+  hasAnyRole: (roles: UserRole[]) => boolean;
+  isAdmin: () => boolean;
+  isModerator: () => boolean;
+  isBreeder: () => boolean;
+  isPremiumUser: () => boolean;
+  // Funktioner til at hente/opdatere auth status
   checkAuth: () => Promise<boolean>;
   getAccessToken: () => Promise<string | null>;
   login: (username: string, password: string) => Promise<boolean>;
@@ -34,6 +44,7 @@ export const useAuthStore = create<AuthState>()(
       isLoggedIn: false,
       userName: '',
       userRole: '',
+      userIdentity: null,
       isLoading: true,
       tokenCache: {
         lastChecked: 0,
@@ -42,13 +53,21 @@ export const useAuthStore = create<AuthState>()(
         tokenExpiry: null
       },
 
+      // Rolle-hjælpefunktioner
+      hasRole: (role: UserRole) => hasRole(get().userIdentity, role),
+      hasAnyRole: (roles: UserRole[]) => hasAnyRole(get().userIdentity, roles),
+      isAdmin: () => hasRole(get().userIdentity, 'Admin'),
+      isModerator: () => get().isAdmin() || hasAnyRole(get().userIdentity, roleGroups.moderators),
+      isBreeder: () => hasAnyRole(get().userIdentity, roleGroups.breeders),
+      isPremiumUser: () => hasAnyRole(get().userIdentity, roleGroups.premiumUsers),
+
       // Access token hentning med cache
       getAccessToken: async () => {
         try {
           const now = Date.now();
           const { lastChecked, expiresIn, accessToken, tokenExpiry } = get().tokenCache;
 
-          // Tjek om token er udløbet med isTokenExpired utility
+          // Tjek om token er udløbet
           if (accessToken && tokenExpiry && isTokenExpired(accessToken, tokenExpiry.toString())) {
             console.log('⏰ Token expired at:', new Date(tokenExpiry).toLocaleString());
 
@@ -84,7 +103,7 @@ export const useAuthStore = create<AuthState>()(
             return newToken;
           }
 
-          // Returner cached token hvis gyldig (inden for cache periode og ikke udløbet)
+          // Returner cached token hvis gyldig
           if (accessToken && now - lastChecked < expiresIn &&
             (!tokenExpiry || !isTokenExpired(accessToken, tokenExpiry.toString()))) {
 
@@ -137,9 +156,7 @@ export const useAuthStore = create<AuthState>()(
           const now = Date.now();
           const { lastChecked, expiresIn, tokenExpiry } = get().tokenCache;
       
-          // Brug cache hvis:
-          // 1. Vi har tjekket for nylig OG
-          // 2. Token ikke er udløbet
+          // Brug cache hvis gyldig
           const tokenValid = tokenExpiry ? now < tokenExpiry : true;
           const cacheValid = now - lastChecked < expiresIn;
           
@@ -158,6 +175,7 @@ export const useAuthStore = create<AuthState>()(
             isLoggedIn: session.isAuthenticated,
             userName: session.userName || '',
             userRole: session.userRole || '',
+            userIdentity: session.userIdentity || null,
             isLoading: false,
             tokenCache: {
               ...get().tokenCache,
@@ -187,11 +205,12 @@ export const useAuthStore = create<AuthState>()(
             return false;
           }
 
-          // Efter login, opdater cache med token udløbstidspunkt
+          // Efter login, opdater state med brugeridentitet
           set({
             isLoggedIn: true,
             userName: result.userName,
             userRole: result.userRole,
+            userIdentity: result.userIdentity,
             isLoading: false,
             tokenCache: {
               lastChecked: Date.now(),
@@ -219,6 +238,7 @@ export const useAuthStore = create<AuthState>()(
               isLoggedIn: false,
               userName: '',
               userRole: '',
+              userIdentity: null,
               isLoading: false,
               tokenCache: {
                 lastChecked: Date.now(),
@@ -238,7 +258,8 @@ export const useAuthStore = create<AuthState>()(
       partialize: (state) => ({
         isLoggedIn: state.isLoggedIn,
         userName: state.userName,
-        userRole: state.userRole
+        userRole: state.userRole,
+        userIdentity: state.userIdentity
       }),
       skipHydration: true
     }

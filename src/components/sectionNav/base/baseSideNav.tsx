@@ -2,12 +2,25 @@
 'use client';
 import { Button } from "@heroui/react";
 import { ReactNode } from "react";
+import { UserIdentity, UserRole, hasAnyRole, roleGroups } from "@/types/auth";
+
+// Brug roleGroups fra auth.ts med eksplicit typeangivelse for at sikre type-sikkerhed
+export const BREEDER_ROLES: UserRole[] = [
+  ...roleGroups.breeders as UserRole[], 
+  'Admin' as UserRole, 
+  'ModeratorBreeder' as UserRole
+];
+
+export const MODERATOR_ROLES: UserRole[] = [
+  ...roleGroups.moderators as UserRole[],
+  'Admin' as UserRole
+];
 
 export type NavLink = {
     href: string;
     label: string;
     requiresAuth?: boolean;
-    requiredRole?: string[];
+    requiredRoles?: UserRole[];
     disabled?: boolean;
 };
 
@@ -25,7 +38,8 @@ export const navigationLinks: NavGroup[] = [
         ]
     }
 ];
-// Add role-specific navigation groups
+
+// Brug konstanter i alle navigation links
 export const breederNavigationLinks: NavGroup[] = [
     {
         title: "Avler funktioner",
@@ -34,13 +48,13 @@ export const breederNavigationLinks: NavGroup[] = [
                 href: '/account/myRabbits',
                 label: 'Mine kaniner',
                 requiresAuth: true,
-                requiredRole: ['BreederBasic', 'BreederPremium', 'Moderator', 'Admin']
+                requiredRoles: BREEDER_ROLES
             },
             {
                 href: '/account/rabbitsForbreeding',
                 label: 'Find avlskaniner',
                 requiresAuth: true,
-                requiredRole: ['BreederBasic', 'BreederPremium', 'Moderator', 'Admin']
+                requiredRoles: BREEDER_ROLES
             },
         ]
     }
@@ -54,13 +68,13 @@ export const moderatorNavigationLinks: NavGroup[] = [
                 href: '/admin/users',
                 label: 'Find bruger',
                 requiresAuth: true,
-                requiredRole: ['Moderator', 'Admin']
+                requiredRoles: MODERATOR_ROLES
             },
             {
                 href: '/admin/posts',
                 label: 'Opret indlæg',
                 requiresAuth: true,
-                requiredRole: ['Moderator', 'Admin']
+                requiredRoles: MODERATOR_ROLES
             },
         ]
     }
@@ -89,15 +103,25 @@ export const saleNavigationLinks: NavGroup[] = [
     }
 ];
 
-export const filterLink = (link: NavLink, isLoggedIn: boolean, userRole: string) => {
+// Opdateret filterLink til at bruge UserIdentity
+export const filterLink = (link: NavLink, isLoggedIn: boolean, userIdentity: UserIdentity | null) => {
+    // Hvis linket ikke kræver auth, vis det
     if (!link.requiresAuth) return true;
+    
+    // Hvis linket kræver auth, men brugeren ikke er logget ind, skjul det
     if (link.requiresAuth && !isLoggedIn) return false;
-    if (link.requiredRole && !link.requiredRole.includes(userRole)) return false;
+    
+    // Hvis linket kræver bestemte roller, tjek om brugeren har mindst én af dem
+    if (link.requiredRoles && userIdentity) {
+        return hasAnyRole(userIdentity, link.requiredRoles);
+    }
+    
+    // Hvis linket kun kræver auth (ingen specifikke roller), og brugeren er logget ind
     return true;
 };
 
 interface NavAction {
-    label: ReactNode;  // Bruger ReactNode i stedet for string | JSX.Element
+    label: ReactNode;
     className?: string;
     onClick: () => void;
     color?: "primary" | "secondary" | "success" | "warning" | "danger";
@@ -125,7 +149,7 @@ export default function SectionNav({ title, headerActions = [], footerActions = 
                             <Button
                                 key={index}
                                 color={action.color || "primary"}
-                                onPress={() => action.onClick()} // Wrap onclick i en anonym funktion
+                                onPress={() => action.onClick()}
                                 className={`w-full ${action.className || ''}`}
                                 disabled={action.disabled}
                             >
@@ -147,7 +171,7 @@ export default function SectionNav({ title, headerActions = [], footerActions = 
                             <Button
                                 key={index}
                                 color={action.color || "primary"}
-                                onPress={() => action.onClick()} // Wrap onclick i en anonym funktion
+                                onPress={() => action.onClick()}
                                 className={`w-full ${action.className || ''}`}
                                 disabled={action.disabled}
                             >

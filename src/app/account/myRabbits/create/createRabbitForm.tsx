@@ -161,10 +161,10 @@ export default function CreateRabbitForm() {
                             <div className="w-2/3">
                                 <Switch
                                     size="sm"
-                                    isSelected={formData.forBreeding === 'Ja'}
+                                    isSelected={formData.isForBreeding === true}
                                     onValueChange={(value) => setFormData({
                                         ...formData,
-                                        forBreeding: value ? 'Ja' : 'Nej'
+                                        isForBreeding: value
                                     })}
                                     aria-label="Til avl switch"
                                     defaultSelected={false}

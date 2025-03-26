@@ -47,7 +47,7 @@ export default function RabbitPreviewCard({ rabbit, onClick }: Props) {
                 <p>Race: {rabbit.race}</p>
                 <p>Farve: {rabbit.color}</p>
                 <p>Køn: {rabbit.gender}</p>
-                <p>Til avl: {rabbit.forBreeding}</p>
+                <p>Til avl: {rabbit.isForBreeding}</p>
             </CardBody>
         </Card>
     );

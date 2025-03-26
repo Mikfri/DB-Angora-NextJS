@@ -9,7 +9,7 @@ export function useCreateRabbit() {
     const router = useRouter();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formData, setFormData] = useState<Partial<Rabbit_CreateDTO>>({
-        forBreeding: "Nej"
+        isForBreeding: false
     });
 
     const handleSubmit = async (e: React.FormEvent) => {

@@ -1,4 +1,5 @@
 // src/app/sale/rabbits/profile/[earCombId]/rabbitSaleProfile.tsx
+// src/app/sale/rabbits/profile/[earCombId]/rabbitSaleProfile.tsx
 'use client'
 import { Rabbit_ForsaleProfileDTO } from '@/api/types/AngoraDTOs';
 import { Card, CardBody, CardHeader, Divider } from "@heroui/react";
@@ -48,7 +49,7 @@ export default function RabbitForsaleProfile({ rabbitProfile }: Props) {
                                 <p><span className="text-zinc-400">Farve:</span> {rabbitProfile.color}</p>
                                 <p><span className="text-zinc-400">Køn:</span> {rabbitProfile.gender}</p>
                                 <p><span className="text-zinc-400">Fødselsdato:</span> {formatDate(rabbitProfile.dateOfBirth)}</p>
-                                <p><span className="text-zinc-400">Til avl:</span> {rabbitProfile.forBreeding}</p>
+                                <p><span className="text-zinc-400">Til avl:</span> {rabbitProfile.isForBreeding ? 'Ja' : 'Nej'}</p>
                             </div>
                             
                             <Divider className="my-4" />
