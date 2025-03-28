@@ -120,12 +120,14 @@ export const filterLink = (link: NavLink, isLoggedIn: boolean, userIdentity: Use
     return true;
 };
 
+// Opdateret NavAction interface med alle nødvendige properties
 interface NavAction {
     label: ReactNode;
     className?: string;
     onClick: () => void;
     color?: "primary" | "secondary" | "success" | "warning" | "danger";
     disabled?: boolean;
+    variant?: 'solid' | 'bordered' | 'flat' | 'light' | 'ghost' | 'shadow' | 'faded';
 }
 
 interface SectionNavProps {
@@ -137,43 +139,45 @@ interface SectionNavProps {
 
 export default function SectionNav({ title, headerActions = [], footerActions = [], children }: SectionNavProps) {
     return (
-        <nav className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 p-4 rounded-xl border-b-2 border-zinc-800/50 shadow-lg h-fit">
-            <div className="flex flex-col gap-6">
-                {/* Title */}
-                <h2 className="text-2xl font-bold text-white">{title}</h2>
+        <nav className="side-nav">
+            <div className="flex flex-col gap-4">
+                {/* Title and header row */}
+                <div className="flex justify-between items-center mb-2 pb-2 border-b border-zinc-700/50">
+                    <h2 className="text-lg font-semibold text-zinc-100">{title}</h2>
+                    {headerActions.length > 0 && (
+                        <div className="flex gap-2">
+                            {headerActions.map((action, index) => (
+                                <Button
+                                    key={`header-action-${index}`}
+                                    size="sm"
+                                    color={action.color}
+                                    variant={action.variant || 'solid'}
+                                    onPress={action.onClick}
+                                    isDisabled={action.disabled}
+                                >
+                                    {action.label}
+                                </Button>
+                            ))}
+                        </div>
+                    )}
+                </div>
 
-                {/* Header Actions */}
-                {headerActions.length > 0 && (
-                    <div className="flex flex-col gap-2">
-                        {headerActions.map((action, index) => (
-                            <Button
-                                key={index}
-                                color={action.color || "primary"}
-                                onPress={() => action.onClick()}
-                                className={`w-full ${action.className || ''}`}
-                                disabled={action.disabled}
-                            >
-                                {action.label}
-                            </Button>
-                        ))}
-                    </div>
-                )}
-
-                {/* Children (Navigation Content) */}
-                <div className="flex flex-col gap-4">
+                {/* Content */}
+                <div className="w-full">
                     {children}
                 </div>
 
-                {/* Footer Actions */}
+                {/* Footer */}
                 {footerActions.length > 0 && (
-                    <div className="flex flex-col gap-2 mt-auto">
+                    <div className="flex justify-end gap-2 mt-4 pt-2 border-t border-zinc-700/50">
                         {footerActions.map((action, index) => (
                             <Button
-                                key={index}
-                                color={action.color || "primary"}
-                                onPress={() => action.onClick()}
-                                className={`w-full ${action.className || ''}`}
-                                disabled={action.disabled}
+                                key={`footer-action-${index}`}
+                                size="sm"
+                                color={action.color}
+                                variant={action.variant || 'light'}
+                                onPress={action.onClick}
+                                isDisabled={action.disabled}
                             >
                                 {action.label}
                             </Button>

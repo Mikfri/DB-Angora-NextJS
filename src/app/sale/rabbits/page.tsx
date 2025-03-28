@@ -1,6 +1,5 @@
 // src/app/sale/rabbits/page.tsx
 import { Metadata } from 'next';
-import { ForSaleFilters } from '@/api/types/filterTypes';
 import RabbitsForSale from './rabbitSaleList';
 import { getRabbitsForSale } from '@/app/actions/rabbit/forsale'; // Server Action
 
@@ -37,16 +36,6 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
 export default async function Page({ searchParams }: PageProps) {
   const sp = searchParams ? await searchParams : {};
 
-  const filters: ForSaleFilters = {
-    Race: sp.Race ?? null,
-    Color: sp.Color ?? null,
-    Gender: sp.Gender ?? null,
-    RightEarId: sp.RightEarId ?? null,
-    BornAfter: sp.BornAfter ?? null,
-    MinZipCode: sp.MinZipCode ? parseInt(sp.MinZipCode) : null,
-    MaxZipCode: sp.MaxZipCode ? parseInt(sp.MaxZipCode) : null,
-  };
-
   // Brug Server Action
   const result = await getRabbitsForSale(sp);
   const rabbits = result.success ? result.data : [];
@@ -54,8 +43,6 @@ export default async function Page({ searchParams }: PageProps) {
   return (
     <RabbitsForSale
       rabbits={rabbits}
-      initialFilters={filters}
-      showSecondaryNav={true}
     />
   );
 }

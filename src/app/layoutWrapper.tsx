@@ -1,61 +1,43 @@
-// src/app/layoutWrapper.tsx (client component)
+// src/app/layoutWrapper.tsx
 'use client'
-import { useNav } from "@/components/Providers";
 import TopNav from "@/components/navbar/TopNav";
 import Footer from "@/components/footer/footer";
-import MyNav from "@/components/sectionNav/variants/myNav";
 import "react-toastify/dist/ReactToastify.css";
-import { ToastContainer } from "react-toastify";
 import PageHeader from "@/components/header/pageHeader";
+import { usePathname } from "next/navigation";
 
-interface LayoutWrapperProps {
-  children: React.ReactNode;
-}
+export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
 
-export default function LayoutWrapper({ children }: LayoutWrapperProps) {
-  const { primaryNav, secondaryNav } = useNav();
-
+  // Stier, der skal have fuld bredde
+const fullWidthPaths = ['/', '/sale', '/sale/rabbits'];  // Vi kan også definere, hvilke sider der skal IKKE have sidenav
+  //const noSideNavPaths = ['/', '/account/profile', '/sale/rabbits/profile'];
+  
+  const isFullWidth = fullWidthPaths.some(path => pathname === path);
+  //const shouldHaveSideNav = !noSideNavPaths.some(path => pathname.startsWith(path));
+  
   return (
-    <div className="min-h-screen flex flex-col">
-      <TopNav />
-
-      {/* Breadcrumbs section */}
-      <div className="w-full">
-        <div className="max-w-7xl mx-auto w-full px-4 py-4">
-          <div className="p-4 bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border-b-2 border-zinc-800/50">
+    <div className="flex flex-col min-h-screen">
+      {/* TopNav med fuld bredde */}
+      <div className="w-full border-b border-zinc-800/50">
+        <div className="w-full px-4 mx-auto">
+          <TopNav />
+        </div>
+      </div>
+      
+      {/* Hovedindhold med tilpasset maksimal bredde */}
+      <main className="flex-grow w-full px-4">
+        <div className={`mx-auto ${isFullWidth ? 'max-w-screen-2xl' : 'max-w-screen-xl'}`}>
+          <div className="py-4">
             <PageHeader />
           </div>
+          
+          {children}
         </div>
-      </div>
-
-      <div className="flex-1 flex flex-col">
-        {/* Main content with sticky sidebars */}
-        <div className="flex-1 w-full">
-          <div className="max-w-7xl mx-auto px-4 py-6">
-            <div className="flex gap-6">
-              {/* Sidebar column - always present */}
-              <div className="w-[280px] flex-shrink-0 flex flex-col gap-6">
-                <div className="sticky top-6">
-                  {primaryNav || <MyNav />}
-                  {secondaryNav && (
-                    <div className="mt-6">
-                      {secondaryNav}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Main content column */}
-              <div className="flex-1 min-w-0">
-                {children}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
+      </main>
+      
+      {/* Footer med fuld bredde */}
       <Footer />
-      <ToastContainer position="bottom-center" />
     </div>
   );
 }

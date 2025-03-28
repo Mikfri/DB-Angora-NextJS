@@ -46,8 +46,8 @@ export default function TopNav() {
 
     return (
         <>
-            <div className="sticky top-0 z-50 w-full max-w-7xl mx-auto">
-                <Navbar isBordered className="h-16 bg-zinc-900/70 backdrop-blur-md backdrop-saturate-150 rounded-lg nav-text" maxWidth="full">
+            <div className="w-full">
+                <Navbar isBordered className="h-16 bg-zinc-900/70 backdrop-blur-md backdrop-saturate-150 nav-text" maxWidth="full">
                     <NavbarContent justify="start">
                         <NavbarBrand>
                             <NextLink href="/" className="flex items-center gap-2">

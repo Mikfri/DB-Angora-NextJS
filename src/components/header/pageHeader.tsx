@@ -44,23 +44,25 @@ export default function PageHeader() {
   }, [{ path: '/', label: 'Forside', isProfilePage: false }]);
 
   return (
-    <Breadcrumbs
-      className="text-sm"
-      classNames={{
-        list: "gap-2",
-        base: "text-zinc-300 hover:text-zinc-100",
-        separator: "mx-2 text-zinc-500"
-      }}
-    >
-      {breadcrumbItems.map((item) => (
-        <BreadcrumbItem
-          key={item.path}
-          href={item.isProfilePage ? undefined : item.path}
-          isDisabled={item.isProfilePage}
-        >
-          {item.label}
-        </BreadcrumbItem>
-      ))}
-    </Breadcrumbs>
+    <div className="w-full py-2">
+      <Breadcrumbs
+        className="text-sm"
+        classNames={{
+          list: "gap-2",
+          base: "text-zinc-300 hover:text-zinc-100",
+          separator: "mx-2 text-zinc-500"
+        }}
+      >
+        {breadcrumbItems.map((item) => (
+          <BreadcrumbItem
+            key={item.path}
+            href={item.isProfilePage ? undefined : item.path}
+            isDisabled={item.isProfilePage}
+          >
+            {item.label}
+          </BreadcrumbItem>
+        ))}
+      </Breadcrumbs>
+    </div>
   );
 }

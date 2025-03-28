@@ -11,7 +11,7 @@ type NavContextType = {
   setSecondaryNav: (nav: ReactNode) => void;
   primaryNav: ReactNode | null;
   secondaryNav: ReactNode | null;
-  authInitialized: boolean; // Tilføj denne nye property
+  authInitialized: boolean;
 };
 
 const NavContext = createContext<NavContextType>({

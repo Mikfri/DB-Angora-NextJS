@@ -49,8 +49,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="da">
-      <body>
+    <html lang="da" className="h-full">
+      <body className="min-h-full flex flex-col bg-zinc-900">
         <Providers>
           <AuthGuard>
             <LayoutWrapper>
