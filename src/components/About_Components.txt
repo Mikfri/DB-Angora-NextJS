@@ -1,0 +1,25 @@
+// src/components/About_Components.txt
+Denne mappe indeholder alle UI-komponenter for applikationen.
+
+Formål:
+- Organisere UI-elementer efter formål og funktion
+- Adskille præsentation fra data og logik
+- Muliggøre genbrug af UI-komponenter
+
+Undermapper:
+- /layouts: Layout-komponenter til strukturering af siden
+- /nav: Navigation-relaterede komponenter
+  - /base: Basale byggeklodser for navigation
+  - /top: Topnavigation komponenter
+  - /side: Sidenavigation komponenter og varianter
+- /ui: Generiske UI-komponenter (buttons, inputs, etc.)
+- /form: Formular-relaterede komponenter
+- /modal: Modal og dialog komponenter
+- /cards: Forskellige kort-komponenter
+- /data: Komponenter til datavisning (tabeller, lister, etc.)
+
+Organisationsprincipper:
+- Hver komponent har sit eget filnavn svarende til komponenten
+- Komplekse komponenter kan have egne undermapper
+- Server-komponenter er default exports
+- Client-komponenter markeres med 'use client' direktivet

@@ -1,9 +1,9 @@
 // src/app/layoutWrapper.tsx
 'use client'
-import TopNav from "@/components/navbar/TopNav";
+import TopNav from "@/components/nav/top/TopNavClient";
 import Footer from "@/components/footer/footer";
 import "react-toastify/dist/ReactToastify.css";
-import PageHeader from "@/components/header/pageHeader";
+import PageHeader from "@/components/nav/headerBreadcrumb/Breadcrumbs";
 import { usePathname } from "next/navigation";
 
 export default function LayoutWrapper({ children }: { children: React.ReactNode }) {

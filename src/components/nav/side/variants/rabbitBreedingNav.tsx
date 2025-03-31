@@ -1,7 +1,7 @@
 // src/components/sectionNav/variants/rabbitBreedingNav.tsx
 'use client'
 import { Input } from "@heroui/react";
-import SectionNav from '../base/baseSideNav';
+import SectionNav from '../../base/baseSideNav';
 import EnumAutocomplete from '@/components/enumHandlers/enumAutocomplete';
 import EnumLocalAutocomplete, { RaceColorApproval } from "@/components/enumHandlers/enumLocalAutocomplete";
 import { BreedingFilters } from '@/api/types/filterTypes';

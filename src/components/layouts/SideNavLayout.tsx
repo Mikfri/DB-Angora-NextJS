@@ -1,4 +1,4 @@
-// src/components/layout/SideNavLayout.tsx
+// src/components/layouts/SideNavLayout.tsx
 import React from 'react';
 
 interface SideNavLayoutProps {

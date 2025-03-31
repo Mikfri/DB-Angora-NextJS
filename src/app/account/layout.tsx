@@ -1,8 +1,8 @@
 // src/app/account/layout.tsx
 'use client'
 import { usePathname } from 'next/navigation';
-import MyNav from '@/components/sectionNav/variants/myNav';
-import RabbitOwnNav from '@/components/sectionNav/variants/rabbitOwnNav';
+import MyNav from '@/components/nav/side/variants/myNav';
+import RabbitOwnNav from '@/components/nav/side/variants/rabbitOwnNav';
 import SideNavLayout from '@/components/layouts/SideNavLayout';
 
 export default function AccountLayout({ children }: { children: React.ReactNode }) {

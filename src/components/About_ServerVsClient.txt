@@ -1,0 +1,21 @@
+// src/components/About_ServerVsClient.txt
+Denne applikation bruger React Server Components (RSC) og Client Components.
+
+Server Components:
+- Komponenter uden 'use client' direktiv øverst i filen
+- Renderes på serveren og sender HTML til klienten
+- Har ikke adgang til browser-APIs eller React hooks
+- Kan ikke bruge event handlers (onClick, etc.)
+- Fordele: Mindre JavaScript sendt til klienten, hurtigere FCP
+- Typisk navngivning: Component.tsx
+
+Client Components:
+- Komponenter markeret med 'use client' direktiv øverst i filen
+- Renderes på klienten (i browseren)
+- Kan bruge browser-APIs, hooks, state, og event handlers
+- Fordele: Interaktivitet, dynamisk opdatering
+- Typisk navngivning: ComponentClient.tsx
+
+Pattern for opdeling:
+1. Server Component (Component.tsx): Håndterer struktur og statisk indhold
+2. Client Component (ComponentClient.tsx): Håndterer interaktion og dynamisk UI

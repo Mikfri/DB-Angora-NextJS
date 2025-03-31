@@ -2,8 +2,8 @@
 'use client'
 import { usePathname } from 'next/navigation';
 import SideNavLayout from '@/components/layouts/SideNavLayout';
-import MyNav from '@/components/sectionNav/variants/myNav';
-import ForSaleNav from '@/components/sectionNav/variants/rabbitSaleNav';
+import MyNav from '@/components/nav/side/variants/MyNav';
+import ForSaleNav from '@/components/nav/side/variants/RabbitSaleNav2';
 
 // Definér konstanter for sidenavs og routes
 const NO_SIDENAV_PATHS = ['/sale/rabbits/profile'];

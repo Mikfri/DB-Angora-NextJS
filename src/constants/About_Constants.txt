@@ -1,0 +1,18 @@
+// src/constants/About_Constants.txt
+Denne mappe indeholder applikationens konstanter og statiske data.
+
+Formål:
+- Centralisere hardcoded værdier og data
+- Adskille statiske data fra komponent-implementationer 
+- Muliggøre genbrug af værdier på tværs af komponenter
+- Forenkle ændringer af standard-værdier og konfiguration
+
+Typiske filer:
+- navigation.ts: Navigationsstruktur og menu-definitioner
+- config.ts: Applikationskonfiguration
+- theme.ts: Tema-konstanter
+- validation.ts: Valideringsregler
+- urls.ts: API og route endpoints
+
+Eksempel:
+Statisk data og værdier, ikke funktionalitet eller komponenter.

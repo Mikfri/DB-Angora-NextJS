@@ -2,7 +2,7 @@
 'use client';
 
 import { useState } from 'react';
-import SectionNav from '../base/baseSideNav';
+import SectionNav from '../../base/baseSideNav';
 import Image from 'next/image';
 
 interface Props {

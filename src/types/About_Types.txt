@@ -1,0 +1,18 @@
+// src/types/About_Types.txt
+Denne mappe indeholder TypeScript type definitioner der bruges på tværs af applikationen.
+
+Formål:
+- Centralisere type-definitioner for at sikre konsistens
+- Give et enkelt referencepunkt for data-strukturer
+- Reducere duplikering af type-definitioner
+- Forenkle ændringer af data-strukturer
+
+Typiske filer:
+- auth.ts: Autentificerings- og brugerrelaterede typer
+- navigation.ts: Typer til navigation og menuer
+- entities/*.ts: Forretningsdomæne-entiteter (fx rabbit.ts, breeder.ts)
+- api/*.ts: API-response og request-typer
+- utils/*.ts: Hjælpe-typer og type-utilities
+
+Eksempel:
+Interface og type-definitioner, ikke implementationer.

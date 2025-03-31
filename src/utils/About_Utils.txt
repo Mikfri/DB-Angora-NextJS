@@ -1,0 +1,19 @@
+// src/utils/About_Utils.txt
+Denne mappe indeholder genbrugelige hjælpefunktioner og utilities.
+
+Formål:
+- Centralisere ren funktionel logik
+- Adskille beregninger og datamanipulation fra komponenter
+- Muliggøre genbrug af logik på tværs af komponenter
+- Forenkle test af logik uafhængigt af UI
+
+Typiske filer:
+- navigation.ts: Hjælpefunktioner til navigation
+- format.ts: Formatteringsfunktioner (datoer, valuta, etc.)
+- validation.ts: Valideringsfunktioner
+- calculations.ts: Matematiske beregningsfunktioner
+- api.ts: API-hjælpefunktioner
+- hooks/*.ts: Genbrugelige React hooks
+
+Eksempel:
+Rene funktioner der modtager input og returnerer output, uden side-effekter.

@@ -4,10 +4,10 @@ import { Rabbit_PreviewDTO } from '@/api/types/AngoraDTOs';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo } from 'react';
 import { useNav } from "@/components/Providers";
-import OwnNav from '@/components/sectionNav/variants/rabbitOwnNav';
+import OwnNav from '@/components/nav/side/variants/rabbitOwnNav';
 import { useOwnRabbits } from '@/lib/hooks/rabbits/useRabbitOwnFilter';
 import RabbitPreviewCard from '@/components/cards/rabbitPreviewCard';
-import MyNav from "@/components/sectionNav/variants/myNav";
+import MyNav from "@/components/nav/side/variants/myNav";
 
 type Props = {
     rabbits: Rabbit_PreviewDTO[];

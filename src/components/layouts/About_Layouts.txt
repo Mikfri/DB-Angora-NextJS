@@ -1,0 +1,9 @@
+Heri findes layouts som kan bruges på tværs af hele applikationen.
+Ex 'SideNavLayout' som bidrager til at man kan få vist 2 kollonner: 
+1 til sidenav og 1 til maincontent
+
+Fælles for alle layouts i denne mappe er at de ikke har forbindelse til routing eller app struktur.
+• Håndterer præsentation og UI-struktur (fx 2-kolonne layout, grid layout)
+• Er agnostiske ift. routing - de ved ikke hvilken side de bruges på
+• Kan genbruges på tværs af forskellige routes
+• Følger komponent-composability principper - bygget til at sammensættes med andre komponenter

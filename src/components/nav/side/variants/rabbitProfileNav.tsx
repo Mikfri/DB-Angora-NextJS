@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, memo } from 'react';
-import SectionNav from '../base/baseSideNav';
+import SectionNav from '../../base/baseSideNav';
 import { FaTrash, FaExchangeAlt } from "react-icons/fa";
 import Image from 'next/image';
 // Fjern DeleteRabbitModal import

@@ -5,8 +5,8 @@ import { User_ProfileDTO } from "@/api/types/AngoraDTOs";
 import { useUserProfile, type EditableUserProfile } from "@/lib/hooks/users/useUserProfile";
 import { useNav } from "@/components/Providers";
 import { useEffect, useMemo } from 'react';
-import UserProfileNav from "@/components/sectionNav/variants/userProfileNav";
-import MyNav from "@/components/sectionNav/variants/myNav";
+import UserProfileNav from "@/components/nav/side/variants/userProfileNav";
+import MyNav from "@/components/nav/side/variants/myNav";
 import UserDetails from "./userDetails";
 
 interface Props {
