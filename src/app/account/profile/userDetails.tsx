@@ -1,7 +1,7 @@
 // src/app/account/profile/userDetails.tsx
 'use client';
 
-import { EditableUserProfile } from "@/lib/hooks/users/useUserProfile";
+import { EditableUserProfile } from "@/hooks/users/useUserProfile";
 import { User_ProfileDTO } from "@/api/types/AngoraDTOs";
 import { Input, Button } from "@heroui/react";
 import { useState, useEffect } from 'react';

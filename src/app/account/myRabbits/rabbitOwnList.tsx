@@ -5,9 +5,9 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useMemo } from 'react';
 import { useNav } from "@/components/Providers";
 import OwnNav from '@/components/nav/side/variants/rabbitOwnNav';
-import { useOwnRabbits } from '@/lib/hooks/rabbits/useRabbitOwnFilter';
+import { useOwnRabbits } from '@/hooks/rabbits/useRabbitOwnFilter';
 import RabbitPreviewCard from '@/components/cards/rabbitPreviewCard';
-import MyNav from "@/components/nav/side/variants/myNav";
+import MyNav from "@/components/nav/side/index/MyNavWrapper";
 
 type Props = {
     rabbits: Rabbit_PreviewDTO[];

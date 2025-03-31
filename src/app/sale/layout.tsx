@@ -2,8 +2,8 @@
 'use client'
 import { usePathname } from 'next/navigation';
 import SideNavLayout from '@/components/layouts/SideNavLayout';
-import MyNav from '@/components/nav/side/variants/MyNav';
-import ForSaleNav from '@/components/nav/side/variants/RabbitSaleNav2';
+import RabbitSaleNav from '@/components/nav/side/index/RabbitSaleNav';
+import MyNav from '@/components/nav/side/index/MyNavWrapper';
 
 // Definér konstanter for sidenavs og routes
 const NO_SIDENAV_PATHS = ['/sale/rabbits/profile'];
@@ -24,7 +24,7 @@ export default function SaleLayout({ children }: { children: React.ReactNode }) 
   
   // Vælg den korrekte sidenav baseret på path
   const sideNav = pathname.includes('/sale/rabbits') && !pathname.includes('/profile')
-    ? <ForSaleNav activeFilters={{}} />
+    ? <RabbitSaleNav activeFilters={{}} /> // Opdateret komponent navn
     : <MyNav />;
   
   return (

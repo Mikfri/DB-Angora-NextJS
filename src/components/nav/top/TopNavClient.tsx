@@ -3,8 +3,8 @@
 import NextLink from 'next/link';
 import {
     Dropdown, DropdownTrigger, DropdownMenu,
-    DropdownItem, Tooltip, Chip
-} from "@heroui/react";
+    DropdownItem, Chip
+} from "@heroui/react"; // Fjernet Tooltip import
 import { PiUserCircleFill, PiUserCircleCheckFill } from "react-icons/pi";
 import { MdOutlineLogout } from 'react-icons/md';
 import { usePathname } from 'next/navigation';

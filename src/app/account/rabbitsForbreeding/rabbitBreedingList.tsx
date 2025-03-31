@@ -3,11 +3,11 @@
 import { useRouter } from 'next/navigation';
 import BreedingNav from '@/components/nav/side/variants/rabbitBreedingNav';
 import RabbitForbreedingCard from '@/components/cards/rabbitForbreedingCard';
-import { useBreedingRabbits } from '@/lib/hooks/rabbits/useRabbitBreedingFilter';
+import { useBreedingRabbits } from '@/hooks/rabbits/useRabbitBreedingFilter';
 import { Rabbit_ForbreedingPreviewDTO } from '@/api/types/AngoraDTOs';
 import { useNav } from "@/components/Providers";
 import { useEffect, useMemo } from 'react';
-import MyNav from "@/components/nav/side/variants/myNav";
+import MyNav from "@/components/nav/side/index/MyNavWrapper";
 
 type Props = {
     rabbits: Rabbit_ForbreedingPreviewDTO[];

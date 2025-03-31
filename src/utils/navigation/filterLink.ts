@@ -2,7 +2,13 @@
 import { NavLink } from "@/types/navigation";
 import { UserIdentity, hasAnyRole } from "@/types/auth";
 
-// Opdateret filterLink til at bruge UserIdentity
+/**
+ * Filter function to determine if a navigation link should be displayed based on user authentication and roles.
+ * @param {NavLink} link - The navigation link to filter.
+ * @param {boolean} isLoggedIn - Indicates if the user is logged in.
+ * @param {UserIdentity | null} userIdentity - The user's identity object, or null if not logged in.
+ * @returns {boolean} - Returns true if the link should be displayed, false otherwise.
+ */
 export const filterLink = (link: NavLink, isLoggedIn: boolean, userIdentity: UserIdentity | null) => {
     // Hvis linket ikke kræver auth, vis det
     if (!link.requiresAuth) return true;

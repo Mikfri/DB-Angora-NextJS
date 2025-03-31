@@ -1,19 +1,15 @@
 // src/components/nav/top/TopNavServer.tsx
+import { TopNavClient } from "./TopNavClient";
 import Image from 'next/image';
 import Link from 'next/link';
-import TopNavClient from './TopNavClient';
 
-// Hardcoded links der kan caches og renderes på serveren
+// Hardcoded links med UNIKKE KEYS
 const NAV_LINKS = [
-  { href: '/sale', label: 'Til salg', enabled: true },
-  { href: '#', label: 'Opdrætter & race katalog', enabled: false },
-  { href: '#', label: 'Pleje & pasning', enabled: false }
+  { href: '/sale', label: 'Til salg', enabled: true, key: 'sale' },
+  { href: '#', label: 'Opdrætter & race katalog', enabled: false, key: 'breeders' },
+  { href: '#', label: 'Pleje & pasning', enabled: false, key: 'care' }
 ];
 
-/**
- * Server component for top navigation
- * Handles static structure and navigation links
- */
 export default function TopNav() {
   return (
     <div className="w-full">
@@ -38,7 +34,7 @@ export default function TopNav() {
               {NAV_LINKS.map(link => (
                 link.enabled ? (
                   <Link 
-                    key={link.href}
+                    key={link.key} // BRUG UNIK KEY HER
                     href={link.href}
                     className="text-zinc-300 hover:text-zinc-100 nav-text"
                   >
@@ -46,7 +42,7 @@ export default function TopNav() {
                   </Link>
                 ) : (
                   <span 
-                    key={link.href}
+                    key={link.key} // BRUG UNIK KEY HER
                     className="cursor-not-allowed text-zinc-400/50 nav-text"
                     title="Under udvikling"
                   >

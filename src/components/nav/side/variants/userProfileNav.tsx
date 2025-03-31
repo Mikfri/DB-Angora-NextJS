@@ -2,8 +2,8 @@
 'use client';
 
 import { useState } from 'react';
-import SectionNav from '../../base/baseSideNav';
 import Image from 'next/image';
+import SectionNav from '@/components/sectionNav/base/baseSideNav';
 
 interface Props {
     breederRegNo: string | null;

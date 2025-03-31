@@ -1,10 +1,10 @@
 // src/components/sectionNav/variants/rabbitBreedingNav.tsx
 'use client'
 import { Input } from "@heroui/react";
-import SectionNav from '../../base/baseSideNav';
 import EnumAutocomplete from '@/components/enumHandlers/enumAutocomplete';
 import EnumLocalAutocomplete, { RaceColorApproval } from "@/components/enumHandlers/enumLocalAutocomplete";
 import { BreedingFilters } from '@/api/types/filterTypes';
+import SectionNav from "@/components/sectionNav/base/baseSideNav";
 interface Props {
     activeFilters: BreedingFilters;
     onFilterChange: (filters: Partial<BreedingFilters>) => void;

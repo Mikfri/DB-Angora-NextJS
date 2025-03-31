@@ -1,12 +1,12 @@
 // src/components/sectionNav/variants/rabbitOwnNav.tsx
 'use client';
 import { Input, Switch } from "@heroui/react";
-import SectionNav from '../../base/baseSideNav';
 import { useRouter } from 'next/navigation';
 import { PiRabbitFill } from "react-icons/pi";
 import EnumAutocomplete from '@/components/enumHandlers/enumAutocomplete';
 import { OwnFilters } from '@/api/types/filterTypes';
 import EnumLocalAutocomplete, { RaceColorApproval } from "@/components/enumHandlers/enumLocalAutocomplete";
+import SectionNav from "@/components/sectionNav/base/baseSideNav";
 interface Props {
     activeFilters: OwnFilters;
     onFilterChange: (filters: Partial<OwnFilters>) => void;

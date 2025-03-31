@@ -2,11 +2,11 @@
 'use client';
 
 import { User_ProfileDTO } from "@/api/types/AngoraDTOs";
-import { useUserProfile, type EditableUserProfile } from "@/lib/hooks/users/useUserProfile";
+import { useUserProfile, type EditableUserProfile } from "@/hooks/users/useUserProfile";
 import { useNav } from "@/components/Providers";
 import { useEffect, useMemo } from 'react';
 import UserProfileNav from "@/components/nav/side/variants/userProfileNav";
-import MyNav from "@/components/nav/side/variants/myNav";
+import MyNav from "@/components/nav/side/index/MyNavWrapper";
 import UserDetails from "./userDetails";
 
 interface Props {

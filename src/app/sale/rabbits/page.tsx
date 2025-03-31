@@ -1,8 +1,7 @@
 // src/app/sale/rabbits/page.tsx
 import { Metadata } from 'next';
 import RabbitsForSale from './rabbitSaleList';
-import { getRabbitsForSale } from '@/app/actions/rabbit/forsale'; // Server Action
-
+import { getRabbitsForSale } from '@/app/actions/rabbit/forsale';
 type PageProps = {
   params: Promise<object>;
   searchParams?: Promise<{

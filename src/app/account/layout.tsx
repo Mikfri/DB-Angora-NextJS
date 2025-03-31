@@ -1,7 +1,7 @@
 // src/app/account/layout.tsx
 'use client'
 import { usePathname } from 'next/navigation';
-import MyNav from '@/components/nav/side/variants/myNav';
+import MyNav from '@/components/nav/side/index/MyNavWrapper';
 import RabbitOwnNav from '@/components/nav/side/variants/rabbitOwnNav';
 import SideNavLayout from '@/components/layouts/SideNavLayout';
 

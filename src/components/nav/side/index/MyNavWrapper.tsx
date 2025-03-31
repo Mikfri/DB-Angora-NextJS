@@ -1,6 +1,6 @@
 // src/components/nav/side/variants/MyNav.tsx
-import MyNavBase from './MyNavBase';
-import { MyNavClient } from './MyNavClient';
+import MyNavBase from '../base/MyNavBase';
+import { MyNavClient } from '../client/MyNavClient';
 
 /**
  * Combined MyNav component

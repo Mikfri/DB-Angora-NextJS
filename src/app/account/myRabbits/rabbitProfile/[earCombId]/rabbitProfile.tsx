@@ -1,7 +1,7 @@
 // src/app/account/myRabbits/rabbitProfile/[earCombId]/rabbitProfile.tsx
 "use client";
 import { Rabbit_ProfileDTO, Rabbit_SaleDetailsDTO } from '@/api/types/AngoraDTOs';
-import { useRabbitProfile } from '@/lib/hooks/rabbits/useRabbitProfile';
+import { useRabbitProfile } from '@/hooks/rabbits/useRabbitProfile';
 import RabbitProfileNav from '@/components/nav/side/variants/rabbitProfileNav';
 import RabbitDetails from './rabbitDetails';
 import RabbitChildren from './rabbitChildren';
@@ -9,7 +9,7 @@ import RabbitSaleSection from './rabbitSaleSection';
 import { Tabs, Tab } from "@heroui/react";
 import { useNav } from "@/components/Providers";
 import { useCallback, useEffect, useMemo } from 'react'; // Fjern useState da vi ikke bruger det længere
-import MyNav from "@/components/nav/side/variants/myNav";
+import MyNav from "@/components/nav/side/index/MyNavWrapper";
 import DeleteRabbitModal from '@/components/modals/rabbit/deleteRabbitModal';
 import TransferOwnershipModal from '@/components/modals/rabbit/transferRabbitModal';
 
