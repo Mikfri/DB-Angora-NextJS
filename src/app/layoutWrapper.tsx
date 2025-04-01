@@ -10,7 +10,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
   const pathname = usePathname();
 
   // Stier, der skal have fuld bredde
-const fullWidthPaths = ['/', '/sale', '/sale/rabbits'];  // Vi kan også definere, hvilke sider der skal IKKE have sidenav
+const fullWidthPaths = ['/', '/sale', '/sale/rabbits', '/account/','/account/myRabbits' ];  // Vi kan også definere, hvilke sider der skal IKKE have sidenav
   //const noSideNavPaths = ['/', '/account/profile', '/sale/rabbits/profile'];
   
   const isFullWidth = fullWidthPaths.some(path => pathname === path);

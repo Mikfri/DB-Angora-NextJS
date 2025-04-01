@@ -1,34 +1,23 @@
-// src/app/account/layout.tsx
 'use client'
 import { usePathname } from 'next/navigation';
-import MyNav from '@/components/nav/side/index/MyNavWrapper';
-import RabbitOwnNav from '@/components/nav/side/variants/rabbitOwnNav';
 import SideNavLayout from '@/components/layouts/SideNavLayout';
+import MyNav from '@/components/nav/side/index/MyNavWrapper';
 
 export default function AccountLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   
-  // Bestem hvilken sidenav der skal bruges baseret på path
-  const getSideNav = () => {
-    if (pathname.includes('/account/myRabbits')) {
-      // Du har allerede RabbitOwnNav
-      return <RabbitOwnNav activeFilters={{}} onFilterChange={() => {}} />;
-    }
-    
-    // Brug din eksisterende MyNav komponent som default
-    return <MyNav />;
-  };
-  
   // Sider der ikke skal have sidenav
-  const noSideNavPaths = ['/account/profile'];
-  const shouldHaveSideNav = !noSideNavPaths.some(path => pathname.startsWith(path));
+  const noSideNavPaths = ['/account/profile', '/account/myRabbits'];
+  const shouldHaveSideNav = !noSideNavPaths.some(path => pathname === path || pathname.startsWith(path));
   
   if (!shouldHaveSideNav) {
+    // Returner indholdet uden en sidenav
     return children;
   }
   
+  // For alle andre sider, brug default sidenav
   return (
-    <SideNavLayout sideNav={getSideNav()}>
+    <SideNavLayout sideNav={<MyNav />}>
       {children}
     </SideNavLayout>
   );
