@@ -30,9 +30,9 @@ const FILTER_SECTIONS = {
     STATUS: 'Status'
 } as const;
 
-export function RabbitOwnNavClient({ 
-    activeFilters = {}, 
-    onFilterChange 
+export function RabbitOwnNavClient({
+    activeFilters = {},
+    onFilterChange
 }: RabbitOwnNavClientProps) {
     const router = useRouter();
     const { getMultipleEnumValues } = useEnums();
@@ -50,10 +50,10 @@ export function RabbitOwnNavClient({
     // Typestærk handler til filteropdateringer
     const handleFilterChange = useCallback((updates: Partial<OwnFilters>) => {
         console.log("RabbitOwnNavClient - Sending filter update:", updates);
-        
+
         // Sikrer os at boolske værdier er faktisk booleans
         const processedUpdates = { ...updates };
-        
+
         if ('forSale' in updates) {
             processedUpdates.forSale = Boolean(updates.forSale);
         }
@@ -66,10 +66,10 @@ export function RabbitOwnNavClient({
         if ('showJuveniles' in updates) {
             processedUpdates.showJuveniles = Boolean(updates.showJuveniles);
         }
-        
+
         onFilterChange(processedUpdates);
     }, [onFilterChange]);
-    
+
     // Sikre værdier fra activeFilters
     const filters = {
         search: activeFilters?.search || '',
@@ -306,7 +306,7 @@ export function RabbitOwnNavClient({
                     </div>
 
 
-                    {/* Afdøde filter */}
+                    {/* Afdøde filter - Opdateret til enten/eller */}
                     <div className="flex items-center">
                         <div className="w-1/3 flex items-center gap-2">
                             <TbStatusChange className="text-lg text-default-500" />
@@ -319,7 +319,7 @@ export function RabbitOwnNavClient({
                                 onValueChange={(checked) => handleFilterChange({ showDeceased: checked })}
                                 className="ml-1"
                             >
-                                <span className="text-xs">Vis afdøde</span>
+                                <span className="text-xs">Kun døde</span>
                             </Switch>
                         </div>
                     </div>

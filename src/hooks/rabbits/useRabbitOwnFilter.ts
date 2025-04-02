@@ -10,7 +10,7 @@ const DEFAULT_FILTERS: Required<OwnFilters> = {
     color: null,
     forSale: false,
     isForBreeding: false,
-    showDeceased: false,
+    showDeceased: false,  // false = kun levende, true = kun døde
     showJuveniles: false,
     raceColorApproval: null,
     bornAfterDate: null,
@@ -25,9 +25,14 @@ export function useOwnRabbits(initialRabbits: Rabbit_PreviewDTO[]) {
         console.log('useOwnRabbits - Applying filters:', filters);
         
         return rabbits.filter(rabbit => {
-            // Check for deceased rabbits
+            // Check for deceased rabbits - ENTEN/ELLER logik
             const isDeceased = rabbit.dateOfDeath !== null;
-            if (!filters.showDeceased && isDeceased) return false;
+            
+            // Hvis showDeceased er false: vis kun levende
+            // Hvis showDeceased er true: vis kun afdøde
+            if (filters.showDeceased !== isDeceased) {
+                return false;
+            }
             
             // Check for juvenile filter
             if (filters.showJuveniles && !rabbit.isJuvenile) return false;
@@ -71,7 +76,7 @@ export function useOwnRabbits(initialRabbits: Rabbit_PreviewDTO[]) {
         });
     }, [rabbits, filters]);
 
-    // Handler for updating filters - explicit handling for boolean values
+    // Resten af koden forbliver uændret
     const updateFilters = useCallback((newFilters: Partial<OwnFilters>) => {
         console.log('useOwnRabbits - Updating filters with:', newFilters);
         

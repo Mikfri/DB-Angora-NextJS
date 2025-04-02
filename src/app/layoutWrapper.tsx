@@ -9,12 +9,25 @@ import { usePathname } from "next/navigation";
 export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
-  // Stier, der skal have fuld bredde
-const fullWidthPaths = ['/', '/sale', '/sale/rabbits', '/account/','/account/myRabbits' ];  // Vi kan også definere, hvilke sider der skal IKKE have sidenav
-  //const noSideNavPaths = ['/', '/account/profile', '/sale/rabbits/profile'];
+  // Stier, der skal have reduceret bredde (smallWidth)
+  const smallWidthPaths = [
+    '/sale/rabbits/profile', 
+    '/account/profile',
+    // Tilføj andre sider der skal have smallWidth her
+  ];
   
-  const isFullWidth = fullWidthPaths.some(path => pathname === path);
-  //const shouldHaveSideNav = !noSideNavPaths.some(path => pathname.startsWith(path));
+  // Standard er nu fuld bredde, med undtagelser for smallWidth
+  const shouldUseSmallWidth = smallWidthPaths.some(path => pathname.startsWith(path));
+  
+  // Stier, hvor pageHeader ikke skal vises
+  const hideHeaderPaths = [
+    '/auth/login',
+    '/auth/register',
+    '/auth/forgot-password',
+    // Tilføj andre sider uden header her
+  ];
+  
+  const shouldShowHeader = !hideHeaderPaths.some(path => pathname.startsWith(path));
   
   return (
     <div className="flex flex-col min-h-screen">
@@ -25,12 +38,14 @@ const fullWidthPaths = ['/', '/sale', '/sale/rabbits', '/account/','/account/myR
         </div>
       </div>
       
-      {/* Hovedindhold med tilpasset maksimal bredde */}
+      {/* Hovedindhold - nu med standard full width og undtagelser for small width */}
       <main className="flex-grow w-full px-4">
-        <div className={`mx-auto ${isFullWidth ? 'max-w-screen-2xl' : 'max-w-screen-xl'}`}>
-          <div className="py-4">
-            <PageHeader />
-          </div>
+        <div className={`mx-auto ${shouldUseSmallWidth ? 'max-w-screen-xl' : 'max-w-screen-2xl'}`}>
+          {shouldShowHeader && (
+            <div className="py-4">
+              <PageHeader />
+            </div>
+          )}
           
           {children}
         </div>
