@@ -7,7 +7,7 @@ import RabbitDetails from './rabbitDetails';
 import RabbitChildren from './rabbitChildren';
 import RabbitSaleSection from './rabbitSaleSection';
 import { Tabs, Tab } from "@heroui/react";
-import { useNav } from "@/components/Providers";
+import { useNav } from "@/components/providers/Providers";
 import { useCallback, useEffect, useMemo } from 'react'; // Fjern useState da vi ikke bruger det længere
 import MyNav from "@/components/nav/side/index/MyNavWrapper";
 import DeleteRabbitModal from '@/components/modals/rabbit/deleteRabbitModal';

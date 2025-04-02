@@ -7,8 +7,15 @@ export default function AccountLayout({ children }: { children: React.ReactNode 
   const pathname = usePathname();
   
   // Sider der ikke skal have sidenav
-  const noSideNavPaths = ['/account/profile', '/account/myRabbits'];
-  const shouldHaveSideNav = !noSideNavPaths.some(path => pathname === path || pathname.startsWith(path));
+  // Bemærk: Vi ekskluderer nu specifikt kun '/account/profile' og '/account/myRabbits'
+  // men ikke '/account/myRabbits/rabbitProfile' som får sin egen nav via child layout
+  const noSideNavPaths = [
+    '/account/profile',
+    '/account/myRabbits'
+  ];
+  
+  // Ekskluder kun de eksakte paths - ikke deres underruter
+  const shouldHaveSideNav = !noSideNavPaths.includes(pathname);
   
   if (!shouldHaveSideNav) {
     // Returner indholdet uden en sidenav

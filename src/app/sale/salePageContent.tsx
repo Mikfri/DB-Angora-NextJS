@@ -1,5 +1,5 @@
 'use client'
-import { useNav } from "@/components/Providers";
+import { useNav } from "@/components/providers/Providers";
 import { useEffect, useMemo } from "react";
 import PageNavigationCard from '@/components/cards/pageNavigationCard';
 import MyNav from '@/components/nav/side/index/MyNavWrapper';

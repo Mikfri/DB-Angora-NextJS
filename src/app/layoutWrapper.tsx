@@ -2,7 +2,6 @@
 'use client'
 import TopNav from "@/components/nav/top/TopNavServer";
 import Footer from "@/components/footer/footer";
-import "react-toastify/dist/ReactToastify.css";
 import PageHeader from "@/components/nav/headerBreadcrumb/Breadcrumbs";
 import { usePathname } from "next/navigation";
 

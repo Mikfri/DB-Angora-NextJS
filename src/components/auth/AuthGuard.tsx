@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { usePathname, useRouter } from 'next/navigation';
-import { useNav } from '@/components/Providers';
+import { useNav } from '@/components/providers/Providers';
 
 /**
  * AuthGuard - Client-side beskyttelse af routes

@@ -2,9 +2,10 @@
 'use client'
 import { createContext, useContext, ReactNode, useState, useEffect } from 'react'
 import { HeroUIProvider } from "@heroui/react"
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css"; // Importér CSS
 import { useAuthStore } from '@/store/authStore';
 import { EnumProvider } from '@/contexts/EnumContext';
-
 
 type NavContextType = {
   setPrimaryNav: (nav: ReactNode) => void;
@@ -51,6 +52,20 @@ export default function Providers({ children }: { children: ReactNode }) {
           {children}
         </NavContext.Provider>
       </EnumProvider>
+      
+      {/* ToastContainer fra react-toastify */}
+      <ToastContainer 
+        position="bottom-center"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark" // Tilpas til dit tema
+      />
     </HeroUIProvider>
   );
 }

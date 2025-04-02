@@ -11,7 +11,7 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import LoginModal from '../../modals/login/loginModal';
-import { useNav } from '@/components/Providers';
+import { useNav } from '@/components/providers/Providers';
 import { roleDisplayNames } from '@/types/auth';
 
 // Kun autentikations- og dropdown-delene er nu i denne komponent

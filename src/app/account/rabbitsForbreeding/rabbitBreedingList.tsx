@@ -5,7 +5,7 @@ import BreedingNav from '@/components/nav/side/variants/rabbitBreedingNav';
 import RabbitForbreedingCard from '@/components/cards/rabbitForbreedingCard';
 import { useBreedingRabbits } from '@/hooks/rabbits/useRabbitBreedingFilter';
 import { Rabbit_ForbreedingPreviewDTO } from '@/api/types/AngoraDTOs';
-import { useNav } from "@/components/Providers";
+import { useNav } from "@/components/providers/Providers";
 import { useEffect, useMemo } from 'react';
 import MyNav from "@/components/nav/side/index/MyNavWrapper";
 
