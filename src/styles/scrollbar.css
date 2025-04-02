@@ -1,0 +1,52 @@
+/* src/styles/scrollbar.css */
+
+/* Styling for sidenav scrollbar */
+.side-nav::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+  
+  .side-nav::-webkit-scrollbar-track {
+    background: transparent;
+    margin-top: 8px;    /* Top margin - afstand fra top */
+    margin-bottom: 8px; /* Bottom margin - afstand fra bund */
+  }
+  
+  .side-nav::-webkit-scrollbar-thumb {
+    background-color: rgba(161, 161, 170, 0.3);
+    border-radius: 20px;
+    transition: background-color 0.2s ease;
+  }
+  
+  .side-nav::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(161, 161, 170, 0.5);
+  }
+  
+  /* Firefox support */
+  .side-nav {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(161, 161, 170, 0.3) transparent;
+  }
+  
+  /* Generel styling for custom scrollbars andre steder */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 5px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: rgba(161, 161, 170, 0.3);
+    border-radius: 10px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(161, 161, 170, 0.5);
+  }
+  
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(161, 161, 170, 0.3) transparent;
+  }

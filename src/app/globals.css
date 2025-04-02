@@ -1,5 +1,6 @@
 /* src/app/globals.css - optimeret version */
 @import url('https://fonts.googleapis.com/css2?family=Raleway:wght@600;700&display=swap');
+@import '../styles/scrollbar.css'; /* Importér scrollbar styling */
 
 @tailwind base;
 @tailwind components;

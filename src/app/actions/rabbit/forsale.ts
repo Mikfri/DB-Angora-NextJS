@@ -1,9 +1,9 @@
-// src/app/actions/rabbit/forsale.ts
 'use server';
 
 import { GetRabbitsForSale } from "@/api/endpoints/rabbitController";
 import { ForSaleFilters } from "@/api/types/filterTypes";
 import { Rabbit_SaleDetailsPreviewDTO } from "@/api/types/AngoraDTOs";
+import { cache } from 'react';
 
 export type ForSaleParams = Record<string, string | number | null | undefined>;
 
@@ -27,17 +27,24 @@ function parseSearchParamsToFilters(params: ForSaleParams): ForSaleFilters {
   };
 }
 
-/**
- * Henter kaniner til salg med mulighed for filtrering
- */
-export async function getRabbitsForSale(
+
+// Cache the rabbits fetch function to prevent duplicate API calls
+export const getRabbitsForSale = cache(async function(
   searchParams: ForSaleParams
 ): Promise<RabbitsForSaleResult> {
   try {
+    // Performance measurement
+    const startTime = performance.now();
+    
     // Konverter searchParams til filters med vores egen funktion
     const filters = parseSearchParamsToFilters(searchParams);
     
+    // Get data from API
     const rabbits = await GetRabbitsForSale(filters);
+    
+    // Log performance
+    const endTime = performance.now();
+    console.log(`Fetched ${rabbits.length} rabbits in ${Math.round(endTime - startTime)}ms`);
     
     return {
       success: true,
@@ -51,4 +58,4 @@ export async function getRabbitsForSale(
       status: 500
     };
   }
-}
+});

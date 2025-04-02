@@ -2,7 +2,7 @@
 'use client';
 import { Rabbit_SaleDetailsPreviewDTO } from '@/api/types/AngoraDTOs';
 import { Card, CardFooter, Image } from "@heroui/react";
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { FaMars, FaVenus, FaRegHeart, FaHeart, FaBirthdayCake } from "react-icons/fa";
 import { GiRabbit } from "react-icons/gi";
 import { ImPriceTag } from 'react-icons/im';
@@ -13,7 +13,8 @@ interface Props {
     onClick?: () => void;
 }
 
-export default function RabbitForsaleCard({ rabbit, onClick }: Props) {
+// Memorize the card component to prevent unnecessary re-renders
+const RabbitForsaleCard = memo(function RabbitForsaleCard({ rabbit, onClick }: Props) {
     const [imageError, setImageError] = useState(false);
     const [isFavorite, setIsFavorite] = useState(false);
     const defaultImage = '/images/default-rabbit.jpg';
@@ -54,7 +55,7 @@ export default function RabbitForsaleCard({ rabbit, onClick }: Props) {
                     base: "border-b-2 border-zinc-800/80 hover:shadow-lg hover:shadow-black/40",
                 }}
             >
-                {/* Image Container */}
+                {/* Image Container - optimized for faster loading */}
                 <div className="relative w-full h-[240px] overflow-hidden select-none rounded-t-xl">
                     {/* Billede */}
                     <div className="absolute inset-0 z-0">
@@ -64,6 +65,7 @@ export default function RabbitForsaleCard({ rabbit, onClick }: Props) {
                                 group-hover:scale-110"
                             src={profileImage}
                             onError={() => setImageError(true)}
+                            loading="lazy" // Add lazy loading to defer offscreen images
                         />
                     </div>
 
@@ -138,4 +140,7 @@ export default function RabbitForsaleCard({ rabbit, onClick }: Props) {
             </Card>
         </div>
     );
-}
+});
+
+// Better export for named component
+export default RabbitForsaleCard;

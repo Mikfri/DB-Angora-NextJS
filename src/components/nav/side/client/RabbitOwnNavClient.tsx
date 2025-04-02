@@ -85,11 +85,11 @@ export function RabbitOwnNavClient({
     };
 
     return (
-        <div className="w-full p-2 space-y-6">
-            {/* Rest of your UI - no changes needed here */}
-            {/* Handlinger sektion */}
+        <div className="w-full p-2 space-y-3">
+            {/* Handlinger sektion - opdateret styling */}
             <div>
-                <h3 className="text-xs font-semibold text-zinc-300 mb-3 border-b border-zinc-700/50 pb-1 uppercase tracking-wider">
+                {/* Opdateret overskriftstil med mindre margin */}
+                <h3 className="text-[13px] font-medium text-zinc-400 mb-2">
                     {FILTER_SECTIONS.ACTIONS}
                 </h3>
 
@@ -99,21 +99,24 @@ export function RabbitOwnNavClient({
                     fullWidth
                     startContent={<MdAdd />}
                     onPress={() => router.push('/account/myRabbits/create')}
-                    className="mb-2"
                 >
                     Opret ny kanin
                 </Button>
             </div>
 
-            <Divider className="bg-zinc-700/50 my-1" />
+            {/* Divider mellem sektioner med konsistent styling */}
+            <div className="pt-1">
+                <Divider className="bg-zinc-200/5" />
+            </div>
 
-            {/* Grundfiltre sektion */}
-            <div>
-                <h3 className="text-xs font-semibold text-zinc-300 mb-3 border-b border-zinc-700/50 pb-1 uppercase tracking-wider">
+            {/* Grundfiltre sektion - med mindre spacing til divider ovenover */}
+            <div className="pt-1.5">
+                {/* Opdateret overskriftstil */}
+                <h3 className="text-[13px] font-medium text-zinc-400 mb-2">
                     {FILTER_SECTIONS.BASIC}
                 </h3>
 
-                <div className="space-y-4">
+                <div className="space-y-3">
                     {/* Søgefelt */}
                     <div className="flex items-center">
                         <div className="w-1/3 flex items-center gap-2">
@@ -204,15 +207,19 @@ export function RabbitOwnNavClient({
                 </div>
             </div>
 
-            <Divider className="bg-zinc-700/50 my-1" />
+            {/* Divider mellem sektioner med konsistent styling */}
+            <div className="pt-1">
+                <Divider className="bg-zinc-200/5" />
+            </div>
 
-            {/* Egenskaber sektion */}
-            <div>
-                <h3 className="text-xs font-semibold text-zinc-300 mb-3 border-b border-zinc-700/50 pb-1 uppercase tracking-wider">
+            {/* Egenskaber sektion - med mindre spacing til divider ovenover */}
+            <div className="pt-1.5">
+                {/* Opdateret overskriftstil */}
+                <h3 className="text-[13px] font-medium text-zinc-400 mb-2">
                     {FILTER_SECTIONS.ATTRIBUTES}
                 </h3>
 
-                <div className="space-y-4">
+                <div className="space-y-3">
                     {/* Race/farve godkendelse */}
                     <div className="flex items-center">
                         <div className="w-1/3 flex items-center gap-2">
@@ -249,15 +256,19 @@ export function RabbitOwnNavClient({
                 </div>
             </div>
 
-            <Divider className="bg-zinc-700/50 my-1" />
+            {/* Divider mellem sektioner med konsistent styling */}
+            <div className="pt-1">
+                <Divider className="bg-zinc-200/5" />
+            </div>
 
-            {/* Status sektion */}
-            <div>
-                <h3 className="text-xs font-semibold text-zinc-300 mb-3 border-b border-zinc-700/50 pb-1 uppercase tracking-wider">
+            {/* Status sektion - med mindre spacing til divider ovenover */}
+            <div className="pt-1.5">
+                {/* Opdateret overskriftstil */}
+                <h3 className="text-[13px] font-medium text-zinc-400 mb-2">
                     {FILTER_SECTIONS.STATUS}
                 </h3>
 
-                <div className="space-y-4">
+                <div className="space-y-3">
                     {/* Til salg filter */}
                     <div className="flex items-center">
                         <div className="w-1/3 flex items-center gap-2">
@@ -314,16 +325,6 @@ export function RabbitOwnNavClient({
                     </div>
                 </div>
             </div>
-
-            {/* Reset filter knap */}
-            <Button
-                color="default"
-                variant="flat"
-                fullWidth
-                className="mt-2"
-            >
-                Nulstil filtre
-            </Button>
         </div>
     );
 }

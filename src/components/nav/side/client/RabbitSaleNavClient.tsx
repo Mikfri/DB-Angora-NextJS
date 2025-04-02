@@ -1,7 +1,8 @@
+// src/components/nav/side/client/RabbitSaleNavClient.tsx
 'use client';
 import { Input, Button, Divider } from "@heroui/react";
 import { ForSaleFilters } from "@/api/types/filterTypes";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, memo } from 'react';
 import { IoMdClose } from "react-icons/io";
 import { MdFilterList, MdCalendarMonth, MdOutlineLocationOn } from "react-icons/md";
 import { LuRabbit } from "react-icons/lu";
@@ -26,7 +27,8 @@ const FILTER_SECTIONS = {
     ADVANCED: 'Avanceret'
 } as const;
 
-export function RabbitSaleNavClient({
+// Memoize component to prevent unnecessary re-renders
+export const RabbitSaleNavClient = memo(function RabbitSaleNavClient({
     activeFilters = {},
     onFilterChange
 }: RabbitSaleNavClientProps) {
@@ -43,20 +45,28 @@ export function RabbitSaleNavClient({
     const { getMultipleEnumValues } = useEnums();
     const [enumsLoaded, setEnumsLoaded] = useState(false);
 
-    // Load enums når komponenten mounter
+    // Load enums when component mounts
     useEffect(() => {
-        if (!enumsLoaded) {
-            getMultipleEnumValues(REQUIRED_ENUMS)
-                .then(() => setEnumsLoaded(true))
-                .catch(error => console.error('Error loading ForSaleNav enums:', error));
-        }
+        if (enumsLoaded) return;
+        
+        const loadEnums = async () => {
+            try {
+                await getMultipleEnumValues(REQUIRED_ENUMS);
+                setEnumsLoaded(true);
+            } catch (error) {
+                console.error('Error loading ForSaleNav enums:', error);
+            }
+        };
+        
+        loadEnums();
     }, [getMultipleEnumValues, enumsLoaded]);
 
     return (
-        <div className="w-full p-2 space-y-6">
-            {/* Grundfiltre sektion */}
+        <div className="w-full p-2 space-y-3">
+            {/* Grundfiltre sektion - med mindre spacing */}
             <div>
-                <h3 className="text-xs font-semibold text-zinc-300 mb-3 border-b border-zinc-700/50 pb-1 uppercase tracking-wider">
+                {/* Justeret overskriftstil med mindre margin */}
+                <h3 className="text-[13px] font-medium text-zinc-400 mb-2">
                     {FILTER_SECTIONS.BASIC}
                 </h3>
 
@@ -171,11 +181,15 @@ export function RabbitSaleNavClient({
                 </div>
             </div>
 
-            <Divider className="bg-zinc-700/50 my-1" />
+            {/* Divider mellem sektioner med mindre afstand til næste overskrift */}
+            <div className="pt-1">
+                <Divider className="bg-zinc-200/5" />
+            </div>
 
-            {/* Lokation sektion */}
-            <div>
-                <h3 className="text-xs font-semibold text-zinc-300 mb-3 border-b border-zinc-700/50 pb-1 uppercase tracking-wider">
+            {/* Lokation sektion - med mindre spacing til divider ovenover */}
+            <div className="pt-1.5">
+                {/* Justeret overskriftstil */}
+                <h3 className="text-[13px] font-medium text-zinc-400 mb-2">
                     {FILTER_SECTIONS.LOCATION}
                 </h3>
 
@@ -243,14 +257,21 @@ export function RabbitSaleNavClient({
                 </div>
             </div>
 
-            {/* Søgeknap */}
-            <Button
-                color="primary"
-                fullWidth
-                onPress={search}
-            >
-                Søg
-            </Button>
+            {/* Divider før knappen - med justeret afstand */}
+            <div className="pt-1">
+                <Divider className="bg-zinc-200/5" />
+            </div>
+
+            {/* Søgeknap - med mindre padding ovenover */}
+            <div className="pt-2">
+                <Button
+                    color="primary"
+                    fullWidth
+                    onPress={search}
+                >
+                    Søg
+                </Button>
+            </div>
         </div>
     );
-}
+});
