@@ -25,6 +25,7 @@ export function useRabbitProfile(initialProfile: Rabbit_ProfileDTO) {
 
     // Handler for at åbne delete modal
     const handleDeleteClick = useCallback(() => {
+        console.log("Delete button clicked!");  // Tilføj denne log
         setIsDeleteModalOpen(true);
     }, []);
 

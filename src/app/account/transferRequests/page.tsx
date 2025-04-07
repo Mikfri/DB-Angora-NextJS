@@ -6,7 +6,7 @@ import { useAuthStore } from '@/store/authStore';  // Ændret fra useAuth til us
 import { GetReceivedTransferRequests, GetSentTransferRequests } from '@/api/endpoints/accountController';
 import { TransferRequest_ReceivedDTO, TransferRequest_SentDTO } from '@/api/types/AngoraDTOs';
 import { Tabs, Tab, Spinner, Button } from '@heroui/react';
-import MyNav from '@/components/nav/side/index/MyNavWrapper';
+import MyNav from '@/components/nav/side/index/MyNav';
 import { useNav } from '@/components/providers/Providers';
 import { RespondToTransferRequest, DeleteTransferRequest } from '@/api/endpoints/transferRequestsController';
 import { toast } from 'react-toastify';

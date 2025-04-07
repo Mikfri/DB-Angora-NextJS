@@ -2,27 +2,25 @@
 "use client";
 import { Rabbit_ProfileDTO, Rabbit_SaleDetailsDTO } from '@/api/types/AngoraDTOs';
 import { useRabbitProfile } from '@/hooks/rabbits/useRabbitProfile';
-import RabbitProfileNav from '@/components/nav/side/variants/rabbitProfileNav';
+// Fjern import af RabbitProfileNav, da vi ikke længere bruger det her
+// import RabbitProfileNav from '@/components/nav/side/index/RabbitProfileNav';
 import RabbitDetails from './rabbitDetails';
 import RabbitChildren from './rabbitChildren';
 import RabbitSaleSection from './rabbitSaleSection';
 import { Tabs, Tab } from "@heroui/react";
 import { useNav } from "@/components/providers/Providers";
-import { useCallback, useEffect, useMemo } from 'react'; // Fjern useState da vi ikke bruger det længere
-import MyNav from "@/components/nav/side/index/MyNavWrapper";
+import { useCallback, useEffect, useMemo } from 'react';
+import MyNav from "@/components/nav/side/index/MyNav";
 import DeleteRabbitModal from '@/components/modals/rabbit/deleteRabbitModal';
 import TransferOwnershipModal from '@/components/modals/rabbit/transferRabbitModal';
 
 export default function RabbitProfile({ rabbitProfile: initialRabbitProfile }: { rabbitProfile: Rabbit_ProfileDTO }) {
-    // Fjern rabbitProfile state - brug currentProfile fra hook i stedet
-    // const [rabbitProfile, setRabbitProfile] = useState<Rabbit_ProfileDTO>(initialRabbitProfile);
-
     // Hent hooks-funktioner fra useNav
-    const { setPrimaryNav, setSecondaryNav } = useNav();
+    const { setSecondaryNav } = useNav();
 
     // Hent hooks-funktioner fra custom hook
     const {
-        currentProfile, // Nu bruger vi denne i stedet for den lokale state
+        currentProfile,
         isEditing,
         isSaving,
         isDeleting,
@@ -32,68 +30,35 @@ export default function RabbitProfile({ rabbitProfile: initialRabbitProfile }: {
         setEditedData,
         setIsEditing,
         handleSave,
-        handleCancelEdit, // Vi sender denne videre til RabbitDetails
-        handleDeleteClick,
+        handleCancelEdit,
         handleDeleteConfirm,
         handleDeleteCancel,
-        handleTransferOwnershipClick,
         handleCloseTransferModal
     } = useRabbitProfile(initialRabbitProfile);
 
-    // Opdater handler til at bruge currentProfile
+    // Handler til salgsdetaljer
     const handleSaleDetailsChange = useCallback((saleDetails: Rabbit_SaleDetailsDTO | null) => {
-        // Vi skal implementere salgsdetaljer ændringer i useRabbitProfile hook
-        // Dette er en midlertidig løsning (eller fjern helt hvis ikke nødvendig)
         console.log("Sale details changed:", saleDetails);
     }, []);
-
-    // Memoized værdier - opdater til at bruge currentProfile i stedet for rabbitProfile
-
-    // 1. Key for rabbit nav component
-    const earCombKey = useMemo(() => `nav-${currentProfile.earCombId}`, [currentProfile.earCombId]);
-
-    // 2. Navigation data object
-    const navData = useMemo(() => ({
-        rabbitName: currentProfile.nickName || currentProfile.earCombId,
-        earCombId: currentProfile.earCombId,
-        originBreeder: currentProfile.originFullName,
-        owner: currentProfile.ownerFullName,
-        approvedRaceColor: currentProfile.approvedRaceColorCombination,
-        isJuvenile: currentProfile.isJuvenile,
-        profilePicture: currentProfile.profilePicture
-    }), [currentProfile]);
-
-    // 3. Display name for rabbit (for modals etc.)
-    const displayName = useMemo(() => navData.rabbitName, [navData.rabbitName]);
-
-    // 4. Memoized JSX for primary navigation
-    const primaryNavComponent = useMemo(() => (
-        <RabbitProfileNav
-            key={earCombKey}
-            {...navData}
-            onDeleteClick={handleDeleteClick}
-            onChangeOwner={handleTransferOwnershipClick}
-            isDeleting={isDeleting}
-        />
-    ), [earCombKey, navData, handleDeleteClick, handleTransferOwnershipClick, isDeleting]);
-
-    // 5. Memoized JSX for secondary navigation (never changes)
+    
+    // Vi behøver ikke længere at bygge og sætte primaryNav, da layout.tsx håndterer det
+    // Men vi beholder secondaryNav
     const secondaryNavComponent = useMemo(() => (
         <MyNav key="secondary-nav" />
     ), []);
 
-    // Effekt for at sætte navigation - bruger kun memoized værdier
+    // Opdateret useEffect uden primaryNav
     useEffect(() => {
-        // Sæt navigation med de memoized komponenter
-        setPrimaryNav(primaryNavComponent);
+        // setPrimaryNav(null); // Fjern primær navigation, da layout håndterer det
         setSecondaryNav(secondaryNavComponent);
-
-        // Cleanup function
+        
         return () => {
-            setPrimaryNav(null);
+            // setPrimaryNav(null);
             setSecondaryNav(null);
         };
-    }, [setPrimaryNav, setSecondaryNav, primaryNavComponent, secondaryNavComponent]);
+    }, [setSecondaryNav, secondaryNavComponent]); // Fjern primaryNav fra dependencies
+
+    const displayName = currentProfile.nickName || currentProfile.earCombId;
 
     return (
         <>
@@ -133,7 +98,9 @@ export default function RabbitProfile({ rabbitProfile: initialRabbitProfile }: {
                 </Tabs>
             </div>
 
-            {/* Modal for deletion confirmation */}
+            {/* Modaler for delete og transfer - disse håndteres nu af standalone RabbitProfileNav */}
+            {/* Men vi beholder dem her for sikkerhedens skyld, indtil vi er sikre på at alt virker */}
+            {/* Senere kan disse fjernes helt, da de vil være duplikater */}
             <DeleteRabbitModal
                 isOpen={isDeleteModalOpen}
                 onClose={handleDeleteCancel}
@@ -142,7 +109,6 @@ export default function RabbitProfile({ rabbitProfile: initialRabbitProfile }: {
                 isDeleting={isDeleting}
             />
 
-            {/* TransferOwnershipModal med sammenhængende props */}
             <TransferOwnershipModal
                 isOpen={showTransferModal}
                 onClose={handleCloseTransferModal}

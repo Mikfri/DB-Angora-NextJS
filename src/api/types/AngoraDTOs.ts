@@ -131,7 +131,11 @@ export interface Rabbit_PreviewDTO {    // Preview for avlerer
 }
 export type Rabbits_PreviewList = Rabbit_PreviewDTO[];
 
-
+/**
+ * Profil oplysningerne for en kanin, inclusive dens tilhørende:
+ * - Salgsoplysninger
+ * - Billeder
+ */
 export interface Rabbit_ProfileDTO {
     earCombId: string;
     nickName: string | null;
@@ -149,13 +153,14 @@ export interface Rabbit_ProfileDTO {
     father_EarCombId: string | null;
     profilePicture: string | null;
     saleDetails: Rabbit_SaleDetailsDTO | null;
+    photos: Photo_DTO[];
     motherId_Placeholder: string | null;
     mother_EarCombId: string | null;
     children: Rabbit_ChildPreviewDTO[];
 }
 
 export interface Rabbit_SaleDetailsDTO {
-    id : number;
+    id: number;
     dateListed: string;
     price: number;
     canBeShipped: boolean;
@@ -271,7 +276,7 @@ export interface TransferRequest_PreviewDTO {
     issuer_BreedRegNo: string;
     recipent_BreederRegNo: string;
     price: number | null;
-    saleConditions: string | null; 
+    saleConditions: string | null;
 }
 export type Transfer_RequestPreviewList = TransferRequest_PreviewDTO[];
 

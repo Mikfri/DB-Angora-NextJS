@@ -1,3 +1,4 @@
+// src/components/nav/side/client/RabbitOwnNavClient.tsx
 'use client';
 import { Input, Switch, Button, Divider } from "@heroui/react";
 import { useRouter } from 'next/navigation';
@@ -85,11 +86,11 @@ export function RabbitOwnNavClient({
     };
 
     return (
-        <div className="w-full p-2 space-y-3">
-            {/* Handlinger sektion - opdateret styling */}
+        <div className="w-full p-1 space-y-2"> {/* Reduceret yderligere padding og spacing */}
+            {/* Handlinger sektion - kompakt styling */}
             <div>
                 {/* Opdateret overskriftstil med mindre margin */}
-                <h3 className="text-[13px] font-medium text-zinc-400 mb-2">
+                <h3 className="text-[13px] font-medium text-zinc-400 mb-0.5">
                     {FILTER_SECTIONS.ACTIONS}
                 </h3>
 
@@ -97,6 +98,7 @@ export function RabbitOwnNavClient({
                     color="success"
                     variant="flat"
                     fullWidth
+                    size="sm"
                     startContent={<MdAdd />}
                     onPress={() => router.push('/account/myRabbits/create')}
                 >
@@ -104,66 +106,64 @@ export function RabbitOwnNavClient({
                 </Button>
             </div>
 
-            {/* Divider mellem sektioner med konsistent styling */}
-            <div className="pt-1">
-                <Divider className="bg-zinc-200/5" />
-            </div>
+            {/* Divider med minimal spacing */}
+            <Divider className="bg-zinc-200/5 my-0.5" />
 
-            {/* Grundfiltre sektion - med mindre spacing til divider ovenover */}
-            <div className="pt-1.5">
+            {/* Grundfiltre sektion - mere kompakt */}
+            <div>
                 {/* Opdateret overskriftstil */}
-                <h3 className="text-[13px] font-medium text-zinc-400 mb-2">
+                <h3 className="text-[13px] font-medium text-zinc-400 mb-0.5">
                     {FILTER_SECTIONS.BASIC}
                 </h3>
 
-                <div className="space-y-3">
-                    {/* Søgefelt */}
-                    <div className="flex items-center">
-                        <div className="w-1/3 flex items-center gap-2">
+                <div className="space-y-1.5"> {/* Reduceret spacing */}
+                    {/* Søgefelt - mere kompakt */}
+                    <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1.5 min-w-[70px]">
                             <MdFilterList className="text-lg text-default-500" />
                             <span className="text-xs font-medium">Søg</span>
                         </div>
-                        <div className="w-2/3">
+                        <div className="flex-1">
                             <Input
                                 size="sm"
                                 placeholder="Navn eller øremærke"
                                 value={filters.search}
                                 onChange={(e) => handleFilterChange({ search: e.target.value })}
                                 classNames={{
-                                    inputWrapper: "h-7 min-h-unit-7 cursor-text",
-                                    input: "text-sm cursor-text"
+                                    inputWrapper: "h-7 min-h-unit-7 px-2",
+                                    input: "text-xs"
                                 }}
                             />
                         </div>
                     </div>
 
-                    {/* Fødselsdag filter */}
-                    <div className="flex items-center">
-                        <div className="w-1/3 flex items-center gap-2">
+                    {/* Fødselsdag filter - mere kompakt */}
+                    <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1.5 min-w-[70px]">
                             <MdCalendarMonth className="text-lg text-default-500" />
-                            <span className="text-xs font-medium">Født efter</span>
+                            <span className="text-xs font-medium">Efter</span>
                         </div>
-                        <div className="w-2/3">
+                        <div className="flex-1">
                             <Input
                                 size="sm"
                                 type="date"
                                 value={filters.bornAfterDate || ''}
                                 onChange={(e) => handleFilterChange({ bornAfterDate: e.target.value || null })}
                                 classNames={{
-                                    inputWrapper: "h-7 min-h-unit-7",
-                                    input: "text-sm"
+                                    inputWrapper: "h-7 min-h-unit-7 px-2",
+                                    input: "text-xs"
                                 }}
                             />
                         </div>
                     </div>
 
-                    {/* Køn filter */}
-                    <div className="flex items-center">
-                        <div className="w-1/3 flex items-center gap-2">
+                    {/* Køn filter - mere kompakt */}
+                    <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1.5 min-w-[70px]">
                             <RiGenderlessLine className="text-lg text-default-500" />
                             <span className="text-xs font-medium">Køn</span>
                         </div>
-                        <div className="w-2/3">
+                        <div className="flex-1">
                             <EnumAutocomplete
                                 enumType="Gender"
                                 value={filters.gender}
@@ -173,13 +173,13 @@ export function RabbitOwnNavClient({
                         </div>
                     </div>
 
-                    {/* Race filter */}
-                    <div className="flex items-center">
-                        <div className="w-1/3 flex items-center gap-2">
+                    {/* Race filter - mere kompakt */}
+                    <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1.5 min-w-[70px]">
                             <LuRabbit className="text-lg text-default-500" />
                             <span className="text-xs font-medium">Race</span>
                         </div>
-                        <div className="w-2/3">
+                        <div className="flex-1">
                             <EnumAutocomplete
                                 enumType="Race"
                                 value={filters.race}
@@ -189,13 +189,13 @@ export function RabbitOwnNavClient({
                         </div>
                     </div>
 
-                    {/* Farve filter */}
-                    <div className="flex items-center">
-                        <div className="w-1/3 flex items-center gap-2">
+                    {/* Farve filter - mere kompakt */}
+                    <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1.5 min-w-[70px]">
                             <IoColorPaletteOutline className="text-lg text-default-500" />
                             <span className="text-xs font-medium">Farve</span>
                         </div>
-                        <div className="w-2/3">
+                        <div className="flex-1">
                             <EnumAutocomplete
                                 enumType="Color"
                                 value={filters.color}
@@ -207,42 +207,37 @@ export function RabbitOwnNavClient({
                 </div>
             </div>
 
-            {/* Divider mellem sektioner med konsistent styling */}
-            <div className="pt-1">
-                <Divider className="bg-zinc-200/5" />
-            </div>
+            {/* Divider med minimal spacing */}
+            <Divider className="bg-zinc-200/5 my-0.5" />
 
-            {/* Egenskaber sektion - med mindre spacing til divider ovenover */}
-            <div className="pt-1.5">
+            {/* Egenskaber sektion - mere kompakt */}
+            <div>
                 {/* Opdateret overskriftstil */}
-                <h3 className="text-[13px] font-medium text-zinc-400 mb-2">
+                <h3 className="text-[13px] font-medium text-zinc-400 mb-0.5">
                     {FILTER_SECTIONS.ATTRIBUTES}
                 </h3>
 
-                <div className="space-y-3">
-                    {/* Race/farve godkendelse */}
-                    <div className="flex items-center">
-                        <div className="w-1/3 flex items-center gap-2">
-                            <FaRegStar className="text-lg text-default-500" />
-                            <span className="text-xs font-medium">Godkendt</span>
-                        </div>
-                        <div className="w-2/3">
+                <div className="space-y-1.5"> {/* Reduceret spacing */}
+                    {/* Race/farve godkendelse - mere kompakt */}
+                    <div className="flex items-center gap-1">
+                        <FaRegStar className="text-lg text-default-500" />
+                        <div className="flex-1">
                             <EnumLocalAutocomplete
                                 enumType={RaceColorApproval}
                                 value={filters.raceColorApproval}
                                 onChange={(value) => handleFilterChange({ raceColorApproval: value })}
-                                label="Godkendelse"
+                                label="Race/farve"
                             />
                         </div>
                     </div>
 
-                    {/* Ungdyr switch */}
-                    <div className="flex items-center">
-                        <div className="w-1/3 flex items-center gap-2">
+                    {/* Ungdyr switch - mere kompakt */}
+                    <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1.5 min-w-[70px]">
                             <FaInfoCircle className="text-lg text-default-500" />
-                            <span className="text-xs font-medium">Aldersgruppe</span>
+                            <span className="text-xs font-medium">Alder</span>
                         </div>
-                        <div className="w-2/3 flex items-center">
+                        <div className="flex-1 flex items-center">
                             <Switch
                                 size="sm"
                                 isSelected={filters.showJuveniles}
@@ -256,26 +251,24 @@ export function RabbitOwnNavClient({
                 </div>
             </div>
 
-            {/* Divider mellem sektioner med konsistent styling */}
-            <div className="pt-1">
-                <Divider className="bg-zinc-200/5" />
-            </div>
+            {/* Divider med minimal spacing */}
+            <Divider className="bg-zinc-200/5 my-0.5" />
 
-            {/* Status sektion - med mindre spacing til divider ovenover */}
-            <div className="pt-1.5">
+            {/* Status sektion - mere kompakt */}
+            <div>
                 {/* Opdateret overskriftstil */}
-                <h3 className="text-[13px] font-medium text-zinc-400 mb-2">
+                <h3 className="text-[13px] font-medium text-zinc-400 mb-0.5">
                     {FILTER_SECTIONS.STATUS}
                 </h3>
 
-                <div className="space-y-3">
-                    {/* Til salg filter */}
-                    <div className="flex items-center">
-                        <div className="w-1/3 flex items-center gap-2">
+                <div className="space-y-1.5"> {/* Reduceret spacing */}
+                    {/* Til salg filter - mere kompakt */}
+                    <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1.5 min-w-[70px]">
                             <BiPurchaseTagAlt className="text-lg text-default-500" />
                             <span className="text-xs font-medium">Til salg</span>
                         </div>
-                        <div className="w-2/3 flex items-center">
+                        <div className="flex-1 flex items-center">
                             <Switch
                                 size="sm"
                                 isSelected={filters.forSale}
@@ -287,13 +280,13 @@ export function RabbitOwnNavClient({
                         </div>
                     </div>
 
-                    {/* Til avl filter */}
-                    <div className="flex items-center">
-                        <div className="w-1/3 flex items-center gap-2">
+                    {/* Til avl filter - mere kompakt */}
+                    <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1.5 min-w-[70px]">
                             <BiPurchaseTagAlt className="text-lg text-default-500" />
                             <span className="text-xs font-medium">Til avl</span>
                         </div>
-                        <div className="w-2/3 flex items-center">
+                        <div className="flex-1 flex items-center">
                             <Switch
                                 size="sm"
                                 isSelected={filters.isForBreeding}
@@ -305,19 +298,17 @@ export function RabbitOwnNavClient({
                         </div>
                     </div>
 
-
-                    {/* Afdøde filter - Opdateret til enten/eller */}
-                    <div className="flex items-center">
-                        <div className="w-1/3 flex items-center gap-2">
+                    {/* Afdøde filter - mere kompakt */}
+                    <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1.5 min-w-[70px]">
                             <TbStatusChange className="text-lg text-default-500" />
-                            <span className="text-xs font-medium">Status</span>
+                            <span className="text-xs font-medium">Vis</span>
                         </div>
-                        <div className="w-2/3 flex items-center">
+                        <div className="flex-1 flex items-center">
                             <Switch
                                 size="sm"
                                 isSelected={filters.showDeceased}
                                 onValueChange={(checked) => handleFilterChange({ showDeceased: checked })}
-                                className="ml-1"
                             >
                                 <span className="text-xs">Kun døde</span>
                             </Switch>

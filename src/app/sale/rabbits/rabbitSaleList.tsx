@@ -1,3 +1,4 @@
+// src/app/sale/rabbits/rabbitSaleList.tsx
 'use client'
 
 import { useCallback, useState, useEffect } from "react";
@@ -7,7 +8,7 @@ import { Rabbits_SaleDetailsPreviewList } from '@/api/types/AngoraDTOs';
 import { getRabbitsForSale, ForSaleParams } from "@/app/actions/rabbit/forsale";
 import { Skeleton } from "@heroui/react";
 
-// Cache med Map for bedre type sikkerhed og performance
+// Cache map for bedre performance
 const filterCache = new Map<string, Rabbits_SaleDetailsPreviewList>();
 
 interface Props {
@@ -20,27 +21,14 @@ export default function RabbitsForSale({
     const router = useRouter();
     const searchParams = useSearchParams();
 
-    // Performance optimization - initial load time tracking
-    useEffect(() => {
-        const renderTime = performance.now();
-        console.log(`RabbitsForSale component rendered in ${Math.round(renderTime)}ms`);
-        
-        // Report client render timing to analytics
-        return () => {
-            const unmountTime = performance.now();
-            console.log(`RabbitsForSale rendered for ${Math.round(unmountTime - renderTime)}ms`);
-        };
-    }, []);
-
     // State declarations
     const [rabbits, setRabbits] = useState<Rabbits_SaleDetailsPreviewList>(initialRabbits);
     const [isLoading, setIsLoading] = useState(false);
 
-    // Lyt efter URL-ændringer og opdater data - optimeret
+    // URL parameter håndtering
     useEffect(() => {
         if (searchParams.size === 0) return;
 
-        // Opdater fra URL skiftet til en memoized funktion
         const updateFromUrl = async () => {
             // Konverter søgeparametre til et objekt
             const urlFilters = Object.fromEntries(
@@ -53,23 +41,21 @@ export default function RabbitsForSale({
                 })
             );
             
-            // Generer cache nøgle
             const cacheKey = JSON.stringify(urlFilters);
             
-            // Tjek cache først - hurtigere path
+            // Tjek cache først
             if (filterCache.has(cacheKey)) {
                 setRabbits(filterCache.get(cacheKey)!);
                 return;
             }
             
-            // Hent nye data hvis det er nødvendigt
+            // Hent nye data hvis nødvendigt
             setIsLoading(true);
             
             try {
                 const result = await getRabbitsForSale(urlFilters as ForSaleParams);
                 
                 if (result.success) {
-                    // Gemmer i cache
                     filterCache.set(cacheKey, result.data);
                     setRabbits(result.data);
                 }
@@ -83,19 +69,19 @@ export default function RabbitsForSale({
         updateFromUrl();
     }, [searchParams]);
 
-    // Optimized card click handler with useCallback
+    // Klik-handler til kort
     const handleCardClick = useCallback((earCombId: string) => {
         router.push(`/sale/rabbits/profile/${earCombId}`);
     }, [router]);
 
-    // Returner baseret på tilstand
+    // Visninger baseret på tilstand
     if (isLoading) return renderSkeleton();
     if (rabbits.length === 0) return renderEmptyState();
 
-    // Optimized rendering - only process visible items
+    // Primær UI - bruger NØJAGTIGT samme grid layout som RabbitOwnList
     return (
         <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {rabbits.map((rabbit) => (
                     <RabbitForsaleCard
                         key={rabbit.earCombId}
@@ -108,22 +94,17 @@ export default function RabbitsForSale({
     );
 }
 
-// UI-rendering funktioner - extracted for clarity
+// UI-hjælpefunktioner med samme layout som RabbitOwnList
 const renderSkeleton = () => (
     <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {Array.from({ length: 6 }, (_, i) => (
-                <div key={i} className="w-[300px]">
-                    <div className="rounded-xl overflow-hidden">
-                        <Skeleton className="h-[240px] w-full" />
-                        <div className="bg-zinc-700/90 p-4 space-y-2">
-                            <Skeleton className="h-6 w-3/4 rounded-lg" />
-                            <Skeleton className="h-4 w-1/2 rounded-lg" />
-                            <div className="flex justify-between items-center pt-2">
-                                <Skeleton className="h-5 w-1/3 rounded-lg" />
-                                <Skeleton className="h-8 w-1/4 rounded-full" />
-                            </div>
-                        </div>
+                <div key={i} className="max-w-sm rounded-xl overflow-hidden">
+                    <Skeleton className="h-48 w-full" />
+                    <div className="bg-zinc-800 p-4 space-y-2">
+                        <Skeleton className="h-6 w-3/4 rounded-lg" />
+                        <Skeleton className="h-4 w-1/2 rounded-lg" />
+                        <Skeleton className="h-4 w-2/3 rounded-lg" />
                     </div>
                 </div>
             ))}

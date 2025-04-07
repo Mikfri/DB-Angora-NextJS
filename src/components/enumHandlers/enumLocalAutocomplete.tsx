@@ -21,7 +21,7 @@ export default function EnumLocalAutocomplete({ enumType, value, onChange, label
             size="sm"
             id={id || `local-enum-select`}
             label={label}
-            labelPlacement="outside"
+            labelPlacement="outside-left"
             defaultSelectedKey={value || undefined}
             onSelectionChange={(key) => onChange(key as string)}
             classNames={{

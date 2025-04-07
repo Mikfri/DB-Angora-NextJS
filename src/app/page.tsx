@@ -1,7 +1,7 @@
 // src/app/page.tsx
 import PageNavigationCard from '@/components/cards/pageNavigationCard';
 import SideNavLayout from '@/components/layouts/SideNavLayout';
-import MyNav from '@/components/nav/side/index/MyNavWrapper';
+import MyNav from '@/components/nav/side/index/MyNav';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {

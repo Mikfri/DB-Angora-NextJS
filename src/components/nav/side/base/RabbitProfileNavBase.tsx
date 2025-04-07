@@ -1,45 +1,28 @@
-import { RabbitProfileNavClient } from '../client/RabbitProfileNavClient';
+// Server Component (ingen 'use client' direktiv)
+import { ReactNode } from 'react';
+import NavBase from '../../base/NavBase';
+import { NavAction } from '@/types/navigation';
 
 interface RabbitProfileNavBaseProps {
-    rabbitName: string;
-    earCombId: string;
-    originBreeder: string | null;
-    owner: string | null;
-    approvedRaceColor: boolean | null;
-    isJuvenile: boolean | null;
-    profilePicture: string | null;
-    onDeleteClick: () => void;
-    onChangeOwner: () => void;
-    isDeleting: boolean;
+  children: ReactNode;
+  title: string;
+  footerActions?: NavAction[]; // Ændret type til NavAction[] fra vores shared types
 }
 
-// Server komponent wrapper
-export default async function RabbitProfileNavBase({
-    rabbitName,
-    earCombId,
-    originBreeder,
-    owner,
-    approvedRaceColor,
-    isJuvenile,
-    profilePicture,
-    onDeleteClick,
-    onChangeOwner,
-    isDeleting = false,
+/**
+ * Basis struktur for kaninprofilnavigation
+ * Følger samme mønster som RabbitOwnNavBase
+ */
+export default function RabbitProfileNavBase({
+  children,
+  title,
+  footerActions
 }: RabbitProfileNavBaseProps) {
-    // Her kan du tilføje server-side logik hvis nødvendigt
-    
-    return (
-        <RabbitProfileNavClient
-            rabbitName={rabbitName}
-            earCombId={earCombId}
-            originBreeder={originBreeder}
-            owner={owner}
-            approvedRaceColor={approvedRaceColor}
-            isJuvenile={isJuvenile}
-            profilePicture={profilePicture}
-            onDeleteClick={onDeleteClick}
-            onChangeOwner={onChangeOwner}
-            isDeleting={isDeleting}
-        />
-    );
+  return (
+    <NavBase title={title} footerActions={footerActions}>
+      <div className="w-full">
+        {children}
+      </div>
+    </NavBase>
+  );
 }

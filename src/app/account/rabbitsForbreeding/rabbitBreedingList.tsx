@@ -1,13 +1,9 @@
-// src/app/account/rabbitsForbreeding/rabbitsBreedingList.tsx
 'use client';
+
 import { useRouter } from 'next/navigation';
-import BreedingNav from '@/components/nav/side/variants/rabbitBreedingNav';
-import RabbitForbreedingCard from '@/components/cards/rabbitForbreedingCard';
-import { useBreedingRabbits } from '@/hooks/rabbits/useRabbitBreedingFilter';
+import { useCallback } from 'react';
 import { Rabbit_ForbreedingPreviewDTO } from '@/api/types/AngoraDTOs';
-import { useNav } from "@/components/providers/Providers";
-import { useEffect, useMemo } from 'react';
-import MyNav from "@/components/nav/side/index/MyNavWrapper";
+import RabbitForbreedingCard from '@/components/cards/rabbitForbreedingCard';
 
 type Props = {
     rabbits: Rabbit_ForbreedingPreviewDTO[];
@@ -15,42 +11,29 @@ type Props = {
 
 export default function RabbitBreedingList({ rabbits }: Props) {
     const router = useRouter();
-    const { setPrimaryNav, setSecondaryNav } = useNav();
-    const { filteredRabbits, filters, setFilters } = useBreedingRabbits(rabbits);
 
-    // Memoize both nav components
-    const primaryNavContent = useMemo(() => (
-        <BreedingNav
-            activeFilters={filters}
-            onFilterChange={(newFilters) => setFilters(prev => ({ ...prev, ...newFilters }))}
-        />
-    ), [filters, setFilters]);
-
-    const secondaryNavContent = useMemo(() => (
-        <MyNav />
-    ), []);
-
-    // Set up navigation
-    useEffect(() => {
-        setPrimaryNav(primaryNavContent);
-        setSecondaryNav(secondaryNavContent);
-
-        return () => {
-            setPrimaryNav(null);
-            setSecondaryNav(null);
-        };
-    }, [primaryNavContent, secondaryNavContent, setPrimaryNav, setSecondaryNav]);
+    // Card click handler
+    const handleCardClick = useCallback((earCombId: string) => {
+        router.push(`/account/rabbitsForbreeding/profile/${earCombId}`);
+    }, [router]);
 
     return (
         <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredRabbits.map((rabbit) => (
+                {rabbits.map((rabbit) => (
                     <RabbitForbreedingCard
                         key={rabbit.earCombId}
                         rabbit={rabbit}
-                        onClick={() => router.push(`/account/rabbitsForbreeding/profile/${rabbit.earCombId}`)}
+                        onClick={() => handleCardClick(rabbit.earCombId)}
                     />
                 ))}
+                
+                {rabbits.length === 0 && (
+                    <div className="col-span-3 py-10 text-center">
+                        <h3 className="text-xl text-zinc-300 mb-2">Ingen kaniner matcher dine filterkriterier</h3>
+                        <p className="text-zinc-400">Prøv at ændre dine filtre eller nulstil dem for at se flere resultater.</p>
+                    </div>
+                )}
             </div>
         </div>
     );

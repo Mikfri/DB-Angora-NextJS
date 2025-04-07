@@ -6,7 +6,7 @@ import { useUserProfile, type EditableUserProfile } from "@/hooks/users/useUserP
 import { useNav } from "@/components/providers/Providers";
 import { useEffect, useMemo } from 'react';
 import UserProfileNav from "@/components/nav/side/variants/userProfileNav";
-import MyNav from "@/components/nav/side/index/MyNavWrapper";
+import MyNav from "@/components/nav/side/index/MyNav";
 import UserDetails from "./userDetails";
 
 interface Props {

@@ -1,107 +1,192 @@
+// src/components/nav/side/client/RabbitProfileNavClient.tsx
 'use client';
 
-import { useState, memo } from 'react';
-import { FaTrash, FaExchangeAlt } from "react-icons/fa";
-import Image from 'next/image';
-import NavBase from '../../base/NavBase';
+import { ReactNode } from 'react';
+import { Divider } from '@heroui/react';
+import ProfileImage from '@/components/ui/ProfileImage';
+import { IoColorPaletteOutline } from "react-icons/io5";
+import { FaInfoCircle, FaUserCircle } from "react-icons/fa";
+import { FaIdCard } from 'react-icons/fa6';
 
 interface RabbitProfileNavClientProps {
-    rabbitName: string;
-    earCombId: string;
-    originBreeder: string | null;
-    owner: string | null;
-    approvedRaceColor: boolean | null;
-    isJuvenile: boolean | null;
-    profilePicture: string | null;
-    onDeleteClick: () => void;
-    onChangeOwner: () => void;
-    isDeleting: boolean;
+  // Props der præcist matcher Rabbit_ProfileDTO
+  earCombId: string;
+  nickName: string | null;
+  originFullName: string | null;
+  ownerFullName: string | null;
+  approvedRaceColorCombination: boolean | null;
+  isJuvenile: boolean | null;
+  profilePicture: string | null;
 }
 
-// Brug memo for at forhindre unødige renderinger
-export const RabbitProfileNavClient = memo(function RabbitProfileNavClient({
-    rabbitName,
-    earCombId,
-    originBreeder,
-    owner,
-    approvedRaceColor,
-    isJuvenile,
-    profilePicture,
-    onDeleteClick,
-    onChangeOwner,
-    isDeleting,
-}: RabbitProfileNavClientProps) {
-    const [imageError, setImageError] = useState(false);
-    const defaultImage = '/images/default-rabbit.jpg';
-    const displayedImage = (!imageError && profilePicture) ? profilePicture : defaultImage;
-    
-    // Opret footer actions
-    const footerActions = [
-        {
-            label: (
-                <>
-                    <FaTrash className="mr-2" />
-                    Slet kanin
-                </>
-            ),
-            onClick: onDeleteClick,
-            color: "danger" as const, // Type assertion for at undgå TS fejl
-            disabled: isDeleting
-        },
-        {
-            label: (
-                <>
-                    <FaExchangeAlt className="mr-2" />
-                    Skift ejer
-                </>
-            ),
-            onClick: onChangeOwner,
-            color: "primary" as const, // Type assertion for at undgå TS fejl
-            disabled: isDeleting
-        }
-    ];
+// Konstanter til sektioner - matcher samme stil som RabbitOwnNavClient
+const SECTIONS = {
+  INFO: 'Kanin information',
+  OWNER: 'Ejerforhold',
+  FEATURES: 'Egenskaber'
+} as const;
 
-    return (
-        <NavBase
-            title={`Profil: ${rabbitName}`}
-            footerActions={footerActions}
-        >
-            <div className="flex flex-col items-center space-y-4 p-2 text-white">
-                <div className="relative w-24 h-24">
-                    <Image
-                        src={displayedImage}
-                        alt={`${rabbitName} Profile Picture`}
-                        fill // Opdateret fra layout="fill"
-                        style={{ objectFit: "cover" }} // Opdateret fra objectFit="cover"
-                        className="rounded-full"
-                        onError={() => setImageError(true)}
-                    />
-                </div>
-                <table className="w-full text-left">
-                    <tbody>
-                        <tr>
-                            <th className="px-2 py-1 font-semibold">Øremærke ID:</th>
-                            <td className="px-2 py-1">{earCombId}</td>
-                        </tr>
-                        <tr>
-                            <th className="px-2 py-1 font-semibold">Opdrætter:</th>
-                            <td className="px-2 py-1">{originBreeder || 'Ikke fundet i systemet'}</td>
-                        </tr>
-                        <tr>
-                            <th className="px-2 py-1 font-semibold">Ejer:</th>
-                            <td className="px-2 py-1">{owner || 'Ikke fundet i systemet'}</td>
-                        </tr>
-                        <tr>
-                            <th className="px-2 py-1 font-semibold">Race/farve komb godkendt:</th>
-                            <td className="px-2 py-1">{approvedRaceColor ? 'Ja' : 'Nej'}</td>
-                        </tr>
-                        <tr>
-                            <th className="px-2 py-1 font-semibold">Ungdyr:</th>
-                            <td className="px-2 py-1">{isJuvenile ? 'Ja' : 'Nej'}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </NavBase>
-    );
-});
+// Standardtekster
+const DEFAULT_TEXTS = {
+  BREEDER_NOT_FOUND: 'Findes ikke i systemet',
+  OWNER_NOT_FOUND: 'Findes ikke i systemet',
+  UNKNOWN: 'Ukendt'
+} as const;
+
+/**
+ * Client-side komponent til kaninprofil navigation
+ * Harmoniseret med eksisterende navigation styling
+ */
+export function RabbitProfileNavClient({
+  earCombId,
+  nickName,
+  originFullName,
+  ownerFullName,
+  approvedRaceColorCombination,
+  isJuvenile,
+  profilePicture
+}: RabbitProfileNavClientProps) {
+  
+  // Beregn visningsnavn
+  const displayName = nickName || earCombId;
+  
+  // Formater værdier til visning med fallbacks til standardtekster
+  const breederText = originFullName || DEFAULT_TEXTS.BREEDER_NOT_FOUND;
+  const ownerText = ownerFullName || DEFAULT_TEXTS.OWNER_NOT_FOUND;
+  
+  const approvalText = approvedRaceColorCombination === null ? DEFAULT_TEXTS.UNKNOWN
+    : approvedRaceColorCombination ? 'Ja' : 'Nej';
+    
+  const statusText = isJuvenile === null ? DEFAULT_TEXTS.UNKNOWN
+    : isJuvenile ? 'Ungdyr' : 'Voksen';
+
+  return (
+    <div className="w-full p-1 space-y-2"> {/* Reduceret yderligere padding og spacing */}
+      {/* Optimeret profilbillede - fylder maksimal plads */}
+      <div className="flex justify-center">
+        <div className="w-full max-w-[300px] aspect-square">
+          <ProfileImage 
+            imageUrl={profilePicture} 
+            alt={displayName}
+            className="w-full h-full"
+            // Fjernet size="custom" for at undgå TypeScript-fejl
+            fallbackText={displayName.substring(0,2).toUpperCase()}
+          />
+        </div>
+      </div>
+
+      {/* Divider med minimal spacing */}
+      <Divider className="bg-zinc-200/5 my-0.5" />
+
+      {/* Kaninformation sektion - mere kompakt */}
+      <div>
+        <h3 className="text-[13px] font-medium text-zinc-400 mb-0.5">
+          {SECTIONS.INFO}
+        </h3>
+
+        <div className="space-y-1"> {/* Yderligere reduceret spacing */}
+          {/* Navn - kun hvis det findes */}
+          {nickName && (
+            <InfoRow 
+              icon={<FaIdCard className="text-lg text-default-500" />}
+              label="Navn" 
+              value={nickName} 
+            />
+          )}
+          
+          {/* Øremærke */}
+          <InfoRow 
+            icon={<FaIdCard className="text-lg text-default-500" />}
+            label="Øremærke" 
+            value={earCombId} 
+          />
+        </div>
+      </div>
+
+      {/* Divider med minimal spacing */}
+      <Divider className="bg-zinc-200/5 my-0.5" />
+
+      {/* Ejerforhold sektion - mere kompakt */}
+      <div>
+        <h3 className="text-[13px] font-medium text-zinc-400 mb-0.5">
+          {SECTIONS.OWNER}
+        </h3>
+
+        <div className="space-y-1"> {/* Yderligere reduceret spacing */}
+          {/* Opdrætter */}
+          <InfoRow 
+            icon={<FaUserCircle className="text-lg text-default-500" />}
+            label="Opdrætter" 
+            value={breederText}
+            isDefaultValue={!originFullName}
+          />
+
+          {/* Ejer */}
+          <InfoRow 
+            icon={<FaUserCircle className="text-lg text-default-500" />}
+            label="Ejer" 
+            value={ownerText}
+            isDefaultValue={!ownerFullName}
+          />
+        </div>
+      </div>
+
+      {/* Divider med minimal spacing */}
+      <Divider className="bg-zinc-200/5 my-0.5" />
+
+      {/* Egenskaber sektion - mere kompakt */}
+      <div>
+        <h3 className="text-[13px] font-medium text-zinc-400 mb-0.5">
+          {SECTIONS.FEATURES}
+        </h3>
+
+        <div className="space-y-1"> {/* Yderligere reduceret spacing */}
+          {/* Racegodkendelse */}
+          <InfoRow 
+            icon={<IoColorPaletteOutline className="text-lg text-default-500" />}
+            label="Racegodkendt" 
+            value={approvalText} 
+            isDefaultValue={approvedRaceColorCombination === null}
+          />
+
+          {/* Alder status */}
+          <InfoRow 
+            icon={<FaInfoCircle className="text-lg text-default-500" />}
+            label="Status" 
+            value={statusText} 
+            isDefaultValue={isJuvenile === null}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Optimeret hjælpekomponent med mere kompakt layout
+function InfoRow({ 
+  icon, 
+  label, 
+  value,
+  isDefaultValue = false
+}: { 
+  icon: ReactNode; 
+  label: string; 
+  value: string;
+  isDefaultValue?: boolean
+}) {
+  return (
+    <div className="py-0.5"> {/* Reduceret padding */}
+      {/* Label og værdi på samme linje med mere mellemrum */}
+      <div className="flex items-center">
+        <div className="flex items-center gap-1.5 min-w-[110px]">
+          {icon}
+          <span className="text-xs font-medium text-zinc-300">{label}</span>
+        </div>
+        
+        <div className={`text-sm ${isDefaultValue ? 'text-zinc-500 italic' : 'text-zinc-100'}`}>
+          {value}
+        </div>
+      </div>
+    </div>
+  );
+}

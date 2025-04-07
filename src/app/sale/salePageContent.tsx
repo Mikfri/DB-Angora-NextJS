@@ -2,7 +2,7 @@
 import { useNav } from "@/components/providers/Providers";
 import { useEffect, useMemo } from "react";
 import PageNavigationCard from '@/components/cards/pageNavigationCard';
-import MyNav from '@/components/nav/side/index/MyNavWrapper';
+import MyNav from '@/components/nav/side/index/MyNav';
 
 interface Props {
     showSecondaryNav?: boolean;

@@ -3,7 +3,7 @@ import { usePathname } from 'next/navigation';
 import { Suspense } from 'react';
 import SideNavLayout from '@/components/layouts/SideNavLayout';
 import RabbitSaleNav from '@/components/nav/side/index/RabbitSaleNav';
-import MyNav from '@/components/nav/side/index/MyNavWrapper';
+import MyNav from '@/components/nav/side/index/MyNav';
 
 // Loading component for sidebar
 function SideNavLoading() {
