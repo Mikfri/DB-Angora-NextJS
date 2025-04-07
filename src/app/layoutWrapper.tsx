@@ -11,7 +11,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
   // Stier, der skal have reduceret bredde (smallWidth)
   const smallWidthPaths = [
     '/sale/rabbits/profile', 
-    '/account/profile',
+    //'/account/profile',
     // Tilføj andre sider der skal have smallWidth her
   ];
   

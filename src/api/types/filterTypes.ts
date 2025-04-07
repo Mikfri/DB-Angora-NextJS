@@ -38,11 +38,11 @@ export interface OwnFilters {
  */
 export interface BreedingFilters {
     search?: string;
-    Gender?: string;
-    Race?: string;
-    Color?: string;
-    raceColorApproval?: string;
+    Gender?: string | undefined;
+    Race?: string | undefined;
+    Color?: string | undefined;
+    raceColorApproval?: string | undefined;
     bornAfterDate?: string | null;
-    minZipCode?: number;
-    maxZipCode?: number;
+    minZipCode?: number | undefined;
+    maxZipCode?: number | undefined;
 }

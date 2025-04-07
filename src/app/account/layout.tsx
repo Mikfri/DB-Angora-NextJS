@@ -1,3 +1,4 @@
+// src/app/account/layout.tsx
 'use client'
 import { usePathname } from 'next/navigation';
 import SideNavLayout from '@/components/layouts/SideNavLayout';
@@ -13,7 +14,6 @@ export default function AccountLayout({ children }: { children: React.ReactNode 
     '/account/profile',
     '/account/myRabbits',
     '/account/myRabbits/rabbitProfile',
-    // Fjern '/account/rabbitsForbreeding' herfra, så den kan bruge primaryNav
   ];
   
   // Håndtér underpaths og sidenav baseret på path patterns

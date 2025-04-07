@@ -229,6 +229,7 @@ export interface User_ProfileDTO {
     lastName: string,
     publicProfile: string | null,
     roadNameAndNo: string,
+    profilePicture: string | null,
     city: string,
     zipCode: number,
     email: string,

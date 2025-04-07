@@ -1,14 +1,16 @@
-import { useState, useMemo, useCallback } from 'react';
-import { Rabbit_ForbreedingPreviewDTO } from '@/api/types/AngoraDTOs';
-import { BreedingFilters } from '@/api/types/filterTypes';
+// src/hooks/rabbits/useRabbitBreedingFilter.tsx
 
-// Default filter values
-const DEFAULT_FILTERS: Required<BreedingFilters> = {
+import { Rabbit_ForbreedingPreviewDTO } from "@/api/types/AngoraDTOs";
+import { BreedingFilters } from "@/api/types/filterTypes";
+import { useCallback, useMemo, useState } from "react";
+
+// Default filter values med korrekte typer
+const DEFAULT_FILTERS: BreedingFilters = {
     search: '',
-    Gender: undefined,
-    Race: undefined,
-    Color: undefined,
-    raceColorApproval: undefined,
+    Gender: '',
+    Race: '',
+    Color: '',
+    raceColorApproval: '',
     bornAfterDate: null,
     minZipCode: undefined,
     maxZipCode: undefined,
@@ -38,17 +40,10 @@ export function useBreedingRabbits(initialRabbits: Rabbit_ForbreedingPreviewDTO[
             // Color filter
             if (filters.Color && rabbit.color !== filters.Color) return false;
 
-            // Postnummer-filtrering
-            if (filters.minZipCode && (!rabbit.zipCode || rabbit.zipCode < filters.minZipCode)) return false;
-            if (filters.maxZipCode && (!rabbit.zipCode || rabbit.zipCode > filters.maxZipCode)) return false;
+            // Postnummer range filter
+            if (filters.minZipCode && rabbit.zipCode && rabbit.zipCode < filters.minZipCode) return false;
+            if (filters.maxZipCode && rabbit.zipCode && rabbit.zipCode > filters.maxZipCode) return false;
 
-            // Race/farve godkendelse
-            if (filters.raceColorApproval) {
-                if (filters.raceColorApproval === 'Approved' && rabbit.approvedRaceColorCombination !== true) return false;
-                if (filters.raceColorApproval === 'NotApproved' && rabbit.approvedRaceColorCombination !== false) return false;
-            }
-
-            // Pass all filters
             return true;
         });
     }, [initialRabbits, filters]);
