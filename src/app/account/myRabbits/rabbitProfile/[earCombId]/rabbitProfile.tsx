@@ -2,8 +2,6 @@
 "use client";
 import { Rabbit_ProfileDTO, Rabbit_SaleDetailsDTO } from '@/api/types/AngoraDTOs';
 import { useRabbitProfile } from '@/hooks/rabbits/useRabbitProfile';
-// Fjern import af RabbitProfileNav, da vi ikke længere bruger det her
-// import RabbitProfileNav from '@/components/nav/side/index/RabbitProfileNav';
 import RabbitDetails from './rabbitDetails';
 import RabbitChildren from './rabbitChildren';
 import RabbitSaleSection from './rabbitSaleSection';

@@ -14,52 +14,14 @@
  * at tage højde for TypeScript komplikationerne.
  */
 
-import { useEffect, useState } from 'react';
-import { notFound, useParams } from "next/navigation";
+
+import { notFound } from "next/navigation";
 import { Spinner } from "@heroui/react";
 import RabbitProfile from "./rabbitProfile";
-import { Rabbit_ProfileDTO } from '@/api/types/AngoraDTOs';
-import { getRabbitProfile } from "@/app/actions/rabbit/profile";
+import { useRabbitProfile } from '@/contexts/RabbitProfileContext';
 
-// Vi trækker nu data på klientsiden
 export default function RabbitProfilePage() {
-  const params = useParams();
-  const earCombId = params.earCombId as string;
-  
-  const [isLoading, setIsLoading] = useState(true);
-  const [profile, setProfile] = useState<Rabbit_ProfileDTO | null>(null);
-  const [error, setError] = useState<{ status: number; message: string } | null>(null);
-  
-  useEffect(() => {
-    async function loadProfile() {
-      try {
-        setIsLoading(true);
-        
-        // Brug server action direkte i stedet for fetch API
-        const result = await getRabbitProfile(earCombId);
-        
-        if (!result.success) {
-          setError({ 
-            status: result.status, 
-            message: result.error 
-          });
-          return;
-        }
-        
-        setProfile(result.data);
-      } catch (err) {
-        console.error("Error loading rabbit profile:", err);
-        setError({ 
-          status: 500, 
-          message: "Der opstod en fejl ved indlæsning af kaninprofilen." 
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    
-    loadProfile();
-  }, [earCombId]);
+  const { profile, isLoading, error } = useRabbitProfile();
   
   // Viser loading spinner
   if (isLoading) {
