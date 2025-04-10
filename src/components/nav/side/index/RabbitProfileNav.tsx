@@ -1,15 +1,16 @@
 // src/components/nav/side/index/RabbitProfileNav.tsx
 'use client';
 
-import { useMemo, useState, useCallback } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { toast } from 'react-toastify';
 import RabbitProfileNavBase from '../base/RabbitProfileNavBase';
 import { RabbitProfileNavClient } from '../client/RabbitProfileNavClient';
 import { NavAction } from '@/types/navigation';
+import { deleteRabbit } from '@/app/actions/rabbit/delete';
 import DeleteRabbitModal from '@/components/modals/rabbit/deleteRabbitModal';
 import TransferOwnershipModal from '@/components/modals/rabbit/transferRabbitModal';
-import { deleteRabbit } from '@/app/actions/rabbit/delete';
+import { toast } from 'react-toastify';
+import { useRabbitProfile } from '@/contexts/RabbitProfileContext';
 
 interface RabbitProfileNavProps {
   // Basis info - navne matcher PRÆCIST Rabbit_ProfileDTO
@@ -33,17 +34,20 @@ interface RabbitProfileNavProps {
  */
 export default function RabbitProfileNav({
   earCombId, 
-  nickName,
-  originFullName,
-  ownerFullName,
-  approvedRaceColorCombination,
-  isJuvenile,
-  profilePicture,
+  nickName: initialNickName,
+  originFullName: initialOriginFullName,
+  ownerFullName: initialOwnerFullName,
+  approvedRaceColorCombination: initialApprovedRaceColorCombination,
+  isJuvenile: initialIsJuvenile,
+  profilePicture: initialProfilePicture,
   onDeleteClick: externalDeleteClick,
   onChangeOwner: externalChangeOwner,
   isDeleting: externalIsDeleting = false,
 }: RabbitProfileNavProps) {
   const router = useRouter();
+  
+  // Hent profildata fra context
+  const { profile } = useRabbitProfile();
   
   // Interne states hvis externe handlers ikke er givet
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -52,6 +56,14 @@ export default function RabbitProfileNav({
   
   // Effektiv isDeleting værdi
   const isDeleting = externalIsDeleting || internalIsDeleting;
+  
+  // Vis navn - prioriter profil data over initial values
+  const nickName = profile?.nickName ?? initialNickName;
+  const originFullName = profile?.originFullName ?? initialOriginFullName;
+  const ownerFullName = profile?.ownerFullName ?? initialOwnerFullName;
+  const approvedRaceColorCombination = profile?.approvedRaceColorCombination ?? initialApprovedRaceColorCombination;
+  const isJuvenile = profile?.isJuvenile ?? initialIsJuvenile;
+  const profilePicture = profile?.profilePicture ?? initialProfilePicture;
   
   // Vis navn - brug nickname hvis det findes, ellers øremærke
   const displayName = nickName || earCombId;
@@ -98,31 +110,16 @@ export default function RabbitProfileNav({
       const result = await deleteRabbit(earCombId);
       
       if (result.success) {
-        setIsDeleteModalOpen(false);
-        toast.success(
-          <div>
-            <div className="font-medium">Kanin slettet</div>
-            <div className="text-sm opacity-90">{displayName} er nu slettet fra databasen</div>
-          </div>
-        );
+        toast.success(`Kaninen "${displayName}" er slettet`);
         router.push('/account/myRabbits');
-        router.refresh();
       } else {
-        toast.error(
-          <div>
-            <div className="font-medium">Fejl under sletning</div>
-            <div className="text-sm opacity-90">{result.error}</div>
-          </div>
-        );
+        toast.error(`Fejl: ${result.error}`);
+        setIsDeleteModalOpen(false);
       }
     } catch (error) {
       console.error('Fejl under sletning af kanin:', error);
-      toast.error(
-        <div>
-          <div className="font-medium">Fejl under sletning</div>
-          <div className="text-sm opacity-90">Der opstod en uventet fejl under sletning af kaninen</div>
-        </div>
-      );
+      toast.error('Der opstod en fejl under sletning af kaninen');
+      setIsDeleteModalOpen(false);
     } finally {
       setInternalIsDeleting(false);
     }
@@ -131,9 +128,8 @@ export default function RabbitProfileNav({
   // Transfer modal handlere
   const handleCloseTransferModal = useCallback(() => {
     setShowTransferModal(false);
-    toast.success(`Ejerskifte for ${displayName} er gennemført`);
     router.refresh();
-  }, [displayName, router]);
+  }, [router]);
   
   // Definér footer actions med korrekte typer
   const footerActions = useMemo((): NavAction[] => [
@@ -154,7 +150,7 @@ export default function RabbitProfileNav({
   
   return (
     <>
-      <RabbitProfileNavBase title={`Profil: ${displayName}`} footerActions={footerActions}>
+      <RabbitProfileNavBase title={`Kanin: ${displayName}`} footerActions={footerActions}>
         <RabbitProfileNavClient
           earCombId={earCombId}
           nickName={nickName}
@@ -166,7 +162,6 @@ export default function RabbitProfileNav({
         />
       </RabbitProfileNavBase>
       
-      {/* Kun vis modaler hvis vi ikke bruger eksterne handlers */}
       {!externalDeleteClick && (
         <DeleteRabbitModal
           isOpen={isDeleteModalOpen}

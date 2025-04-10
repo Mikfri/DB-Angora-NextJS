@@ -5,7 +5,7 @@ import { Suspense } from 'react';
 import { useParams } from 'next/navigation';
 import SideNavLayout from '@/components/layouts/SideNavLayout';
 import { RabbitProfileProvider } from '@/contexts/RabbitProfileContext';
-import RabbitProfileSideNav from './RabbitProfileSideNav';
+import RabbitProfileNav from '@/components/nav/side/index/RabbitProfileNav';
 
 // Loading component for sidenav
 function SideNavLoading() {
@@ -36,7 +36,15 @@ export default function RabbitProfileLayout({
       <SideNavLayout
         sideNav={
           <Suspense fallback={<SideNavLoading />}>
-            <RabbitProfileSideNav />
+            <RabbitProfileNav
+              earCombId={earCombId}
+              nickName={null}
+              originFullName={null}
+              ownerFullName={null}
+              approvedRaceColorCombination={null}
+              isJuvenile={null}
+              profilePicture={null}
+            />
           </Suspense>
         }
       >

@@ -14,7 +14,6 @@
  * at tage højde for TypeScript komplikationerne.
  */
 
-
 import { notFound } from "next/navigation";
 import { Spinner } from "@heroui/react";
 import RabbitProfile from "./rabbitProfile";

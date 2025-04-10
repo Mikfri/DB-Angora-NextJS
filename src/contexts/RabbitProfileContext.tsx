@@ -1,7 +1,7 @@
 // src/contexts/RabbitProfileContext.tsx
 'use client';
 
-import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, ReactNode, useEffect, useCallback, useMemo } from 'react';
 import { Rabbit_ProfileDTO } from '@/api/types/AngoraDTOs';
 import { getRabbitProfile } from '@/app/actions/rabbit/profile';
 
@@ -58,14 +58,17 @@ export function RabbitProfileProvider({
     loadProfile();
   }, [loadProfile]);
 
+  // Memoize the context value
+  const contextValue = useMemo(() => ({
+    profile, 
+    setProfile,
+    isLoading, 
+    error,
+    refreshProfile: loadProfile
+  }), [profile, isLoading, error, loadProfile]);
+
   return (
-    <RabbitProfileContext.Provider value={{
-      profile, 
-      setProfile,
-      isLoading, 
-      error,
-      refreshProfile: loadProfile
-    }}>
+    <RabbitProfileContext.Provider value={contextValue}>
       {children}
     </RabbitProfileContext.Provider>
   );
