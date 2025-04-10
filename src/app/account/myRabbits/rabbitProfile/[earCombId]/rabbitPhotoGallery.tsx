@@ -1,8 +1,7 @@
 // src/app/account/myRabbits/rabbitProfile/[earCombId]/rabbitPhotoGallery.tsx
 'use client';
 
-import { CldImage } from 'next-cloudinary';
-import Image from 'next/image';
+import CloudinaryImage from '@/components/cloudinary/CloudinaryImage';
 import { Button, Spinner } from '@heroui/react';
 import { Photo_DTO } from '@/api/types/AngoraDTOs';
 
@@ -15,6 +14,7 @@ interface PhotoGalleryProps {
   isLoadingDeleteAction: number | null;
   onSetAsProfile: (photoId: number) => Promise<void>;
   onDelete: (photoId: number) => Promise<void>;
+  cloudName?: string; // Add cloudName prop
 }
 
 export default function PhotoGallery({
@@ -25,7 +25,8 @@ export default function PhotoGallery({
   isLoadingProfileAction,
   isLoadingDeleteAction,
   onSetAsProfile,
-  onDelete
+  onDelete,
+  cloudName // Accept cloudName
 }: PhotoGalleryProps) {
   if (isLoading && photos.length === 0) {
     return (
@@ -54,27 +55,15 @@ export default function PhotoGallery({
             } overflow-hidden`}
         >
           <div className="aspect-square relative">
-            {photo.cloudinaryPublicId ? (
-              <CldImage
-                src={photo.cloudinaryPublicId}
-                width={300}
-                height={300}
-                crop="fill"
-                gravity="auto"
-                alt={`Billede af ${entityTypeName} ${entityId}`}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <Image
-                src={photo.filePath}
-                alt={`Billede af ${entityTypeName} ${entityId}`}
-                className="w-full h-full object-cover"
-                width={300}
-                height={300}
-                style={{ objectFit: "cover" }}
-                unoptimized={true}
-              />
-            )}
+            <CloudinaryImage
+              publicId={photo.cloudinaryPublicId}
+              cloudName={cloudName}
+              width={300}
+              height={300}
+              alt={`Billede af ${entityTypeName} ${entityId}`}
+              className="w-full h-full object-cover"
+              fallbackSrc={photo.filePath}
+            />
           </div>
 
           <div className="p-3 flex flex-col gap-2">
