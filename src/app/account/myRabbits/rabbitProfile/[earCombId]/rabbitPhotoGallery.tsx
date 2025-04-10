@@ -1,4 +1,4 @@
-// src/app/account/myRabbits/rabbitProfile/[earCombId]/photoGallery.tsx
+// src/app/account/myRabbits/rabbitProfile/[earCombId]/rabbitPhotoGallery.tsx
 'use client';
 
 import { CldImage } from 'next-cloudinary';

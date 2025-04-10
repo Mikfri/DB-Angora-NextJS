@@ -1,217 +1,92 @@
 // src/app/account/myRabbits/rabbitProfile/[earCombId]/rabbitPhotoSection.tsx
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
+import { CloudinaryUploadConfigDTO, CloudinaryPhotoRegistryRequestDTO } from '@/api/types/AngoraDTOs';
 import { Button } from "@heroui/react";
-import { Photo_DTO, CloudinaryPhotoRegistryRequestDTO, CloudinaryUploadConfigDTO } from '@/api/types/AngoraDTOs';
-import { getRabbitPhotoUploadPermission } from '@/app/actions/rabbit/photoPermission';
-import { registerPhoto } from '@/app/actions/photo/registerPhoto';
-import { getPhotos } from '@/app/actions/photo/getPhotos';
-import { setAsProfilePhoto } from '@/app/actions/photo/setAsProfilePicture';
-import { deletePhoto } from '@/app/actions/photo/deletePhoto';
-import { toast } from 'react-toastify';
 import PhotoGallery from './rabbitPhotoGallery';
 import SimpleCloudinaryWidget from '@/components/cloudinary/SimpleCloudinaryWidget';
-
-// Cache typer med bedre TypeScript diskriminering
-type CacheTypes = {
-  photos: Photo_DTO[];
-  uploadConfig: {
-    success: boolean;
-    data?: CloudinaryUploadConfigDTO;
-    maxImageCount?: number;
-    error?: string;
-  };
-};
-
-interface CacheEntry<T> {
-  data: T;
-  timestamp: number;
-}
-
-// Forbedret cache håndtering med generics
-const API_CACHE = new Map<string, CacheEntry<unknown>>();
-const CACHE_LIFETIME = 30_000; // 30 sekunder cache (brug numeric separator)
+import { useRabbitProfile } from '@/contexts/RabbitProfileContext';
+import { getRabbitPhotoUploadPermission } from '@/app/actions/rabbit/photoPermission';
+import { registerPhoto } from '@/app/actions/photo/registerPhoto';
+import { setAsProfilePhoto } from '@/app/actions/photo/setAsProfilePicture';
+import { deletePhoto } from '@/app/actions/photo/deletePhoto';
 
 interface PhotoSectionProps {
   earCombId: string;
 }
 
 export default function PhotoSection({ earCombId }: PhotoSectionProps) {
-  const [isLoadingPhotos, setIsLoadingPhotos] = useState(true);
+  // Vi bruger context i stedet for at hente fotos igen
+  const { profile, refreshProfile } = useRabbitProfile();
+  const photos = profile?.photos || [];
+
+  // Upload widget states
+  const [isLoadingUploadConfig, setIsLoadingUploadConfig] = useState(false);
   const [isLoadingProfileAction, setIsLoadingProfileAction] = useState<number | null>(null);
   const [isLoadingDeleteAction, setIsLoadingDeleteAction] = useState<number | null>(null);
-  const [photos, setPhotos] = useState<Photo_DTO[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [uploadConfig, setUploadConfig] = useState<CloudinaryUploadConfigDTO | null>(null);
   const [maxImageCount, setMaxImageCount] = useState(0);
-  const [uploadComplete, setUploadComplete] = useState(false);
   const [showWidget, setShowWidget] = useState(false);
   const [widgetKey, setWidgetKey] = useState(`widget-${Date.now()}`);
 
-  // Generic cache helper med type safety
-  const getCachedData = <K extends keyof CacheTypes>(
-    cacheKey: string
-  ): { data: CacheTypes[K] | null, isValid: boolean } => {
-    const cachedEntry = API_CACHE.get(cacheKey) as CacheEntry<CacheTypes[K]> | undefined;
-    const now = Date.now();
-
-    if (cachedEntry && (now - cachedEntry.timestamp < CACHE_LIFETIME)) {
-      return { data: cachedEntry.data, isValid: true };
-    }
-
-    return { data: null, isValid: false };
-  };
-
-  // Generic cache setter med type safety
-  const setCachedData = <K extends keyof CacheTypes>(
-    cacheKey: string,
-    data: CacheTypes[K]
-  ): void => {
-    API_CACHE.set(cacheKey, {
-      data,
-      timestamp: Date.now()
-    } as CacheEntry<unknown>);
-  };
-
-  // Hent fotos for kaninen - med forbedret caching
-  const loadPhotos = useCallback(async () => {
-    try {
-      // Check cache først med vores typesikre helper
-      const cacheKey = `photos-${earCombId}`;
-      const { data: cachedPhotos, isValid } = getCachedData<'photos'>(cacheKey);
-
-      if (isValid && cachedPhotos) {
-        console.log("🔄 Returning cached photos");
-        setPhotos(cachedPhotos);
-        setIsLoadingPhotos(false);
-        return;
-      }
-
-      setIsLoadingPhotos(true);
-      setError(null);
-
-      const result = await getPhotos('Rabbit', earCombId);
-
-      if (!result.success) {
-        setError(result.error ?? "Ukendt fejl ved indlæsning af billeder");
-        return;
-      }
-
-      // Cache resultat med vores typesikre helper
-      setCachedData<'photos'>(cacheKey, result.photos);
-      setPhotos(result.photos);
-    } catch (err) {
-      console.error("Error loading photos:", err);
-      setError(err instanceof Error ? err.message : "Der opstod en fejl ved indlæsning af billeder");
-    } finally {
-      setIsLoadingPhotos(false);
-    }
-  }, [earCombId]);
-
-  // Hent uploadConfig - med forbedret caching
+  // Hent upload tilladelse
   const loadUploadPermission = useCallback(async () => {
     try {
-      // Check cache først med vores typesikre helper
-      const cacheKey = `upload-config-${earCombId}`;
-      const { data: cachedConfig, isValid } = getCachedData<'uploadConfig'>(cacheKey);
-
-      if (isValid && cachedConfig?.data) {
-        console.log("🔄 Returning cached upload config");
-        setUploadConfig(cachedConfig.data);
-        setMaxImageCount(cachedConfig.maxImageCount ?? 0);
-        return;
-      }
-
+      setIsLoadingUploadConfig(true);
       setError(null);
-
+      
       const result = await getRabbitPhotoUploadPermission(earCombId);
-
-      if (!result.success || !result.data) {
-        setError(result.error ?? "Kunne ikke hente upload konfiguration");
-        return;
+      
+      if (result.success && result.data) {
+        setUploadConfig(result.data);
+        setMaxImageCount(result.maxImageCount || 0);
+      } else {
+        setError(result.error || 'Kunne ikke få upload-tilladelse');
       }
-
-      // Cache resultat med vores typesikre helper
-      setCachedData<'uploadConfig'>(cacheKey, result);
-
-      setUploadConfig(result.data);
-      setMaxImageCount(result.maxImageCount ?? 0);
     } catch (err) {
-      console.error("Error getting upload permission:", err);
-      setError(err instanceof Error ? err.message : "Der opstod en fejl ved anmodning om upload konfiguration");
+      console.error('Error getting upload permission:', err);
+      setError('Der opstod en fejl ved anmodning om upload-tilladelse');
+    } finally {
+      setIsLoadingUploadConfig(false);
     }
   }, [earCombId]);
-
-  // Initial load
-  useEffect(() => {
-    loadPhotos();
-    loadUploadPermission();
-  }, [loadPhotos, loadUploadPermission]);
 
   // Håndter foto upload fra Cloudinary
   const handlePhotoUploaded = async (photoData: CloudinaryPhotoRegistryRequestDTO): Promise<void> => {
     try {
-      const result = await registerPhoto(photoData);
-
-      if (!result.success) {
-        toast.error(result.error ?? "Kunne ikke registrere billede");
-        return;
-      }
-
-      // Opdater lokalt state med spread + object spread
-      setPhotos(prev => [...prev, result.data]);
-
-      // Invalider cachen
-      API_CACHE.delete(`photos-${earCombId}`);
-
-      toast.success(result.message ?? "Billedet blev uploadet og registreret");
+      await registerPhoto(photoData);
+      await refreshProfile(); // Opdater profilen med den nye billedliste
     } catch (err) {
-      console.error("Error registering photo:", err);
-      toast.error(err instanceof Error ? err.message : "Der opstod en fejl ved registrering af billedet");
+      console.error('Error registering photo:', err);
+      setError('Der opstod en fejl ved registrering af billedet');
     }
   };
 
+  // Widget håndtering
   const handleWidgetClose = useCallback(() => {
     setShowWidget(false);
   }, []);
 
-  // Reset widgetKey og forcer nyt instance hver gang
-  const handleShowWidget = () => {
-    // Generate a truly unique key that forces full reload
+  const handleShowWidget = useCallback(async () => {
+    if (!uploadConfig) {
+      await loadUploadPermission();
+    }
+    
     setWidgetKey(`widget-${Date.now()}-${Math.random().toString(36).slice(2)}`);
     setShowWidget(true);
-    setUploadComplete(false);
-  };
+  }, [uploadConfig, loadUploadPermission]);
 
   // Sæt som profilbillede
   const handleSetAsProfile = async (photoId: number) => {
     try {
       setIsLoadingProfileAction(photoId);
-      setError(null);
-
-      const result = await setAsProfilePhoto(photoId);
-
-      if (!result.success) {
-        setError(result.error ?? "Ukendt fejl");
-        return;
-      }
-
-      // Opdater lokalt state med immutabel map + object spread
-      setPhotos(prev =>
-        prev.map(photo => ({
-          ...photo,
-          isProfilePicture: photo.id === photoId
-        }))
-      );
-
-      // Invalider cachen
-      API_CACHE.delete(`photos-${earCombId}`);
-
-      toast.success(result.message ?? "Profilbillede blev opdateret");
+      await setAsProfilePhoto(photoId);
+      await refreshProfile(); // Opdater profilen efter ændring
     } catch (err) {
-      console.error("Error setting profile photo:", err);
-      toast.error(err instanceof Error ? err.message : "Der opstod en fejl ved ændring af profilbillede");
+      console.error('Error setting profile photo:', err);
+      setError('Der opstod en fejl ved ændring af profilbillede');
     } finally {
       setIsLoadingProfileAction(null);
     }
@@ -221,137 +96,80 @@ export default function PhotoSection({ earCombId }: PhotoSectionProps) {
   const handleDeletePhoto = async (photoId: number) => {
     try {
       setIsLoadingDeleteAction(photoId);
-      setError(null);
-
-      const result = await deletePhoto(photoId);
-
-      if (!result.success) {
-        setError(result.error ?? "Kunne ikke slette billedet");
-        return;
-      }
-
-      // Opdater lokalt state med array filtering
-      setPhotos(prev => prev.filter(photo => photo.id !== photoId));
-
-      // Invalider cachen
-      API_CACHE.delete(`photos-${earCombId}`);
-
-      toast.success(result.message ?? "Billedet er slettet");
+      await deletePhoto(photoId);
+      await refreshProfile(); // Opdater profilen efter sletning
     } catch (err) {
-      console.error("Error deleting photo:", err);
-      toast.error(err instanceof Error ? err.message : "Der opstod en fejl ved sletning af billedet");
+      console.error('Error deleting photo:', err);
+      setError('Der opstod en fejl ved sletning af billedet');
     } finally {
       setIsLoadingDeleteAction(null);
     }
   };
 
-  // Genindlæs data
-  const handleReload = () => {
-    // Ryd cache
-    API_CACHE.delete(`photos-${earCombId}`);
-    API_CACHE.delete(`upload-config-${earCombId}`);
-
-    loadPhotos();
-    loadUploadPermission();
-  };
-
-  // Udled entity type fra uploadConfig med optional chaining og nullish coalescing
+  // Udled entity type (for UI-visning)
   const entityTypeName = uploadConfig?.entityType === 'Rabbit'
     ? 'kanin'
     : uploadConfig?.entityType?.toLowerCase() ?? 'kanin';
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-xl font-bold">Billeder</h2>
-
-        <Button
-          size="sm"
-          variant="ghost"
-          onPress={handleReload}
-          isLoading={isLoadingPhotos}
-        >
-          Genindlæs
-        </Button>
+    <div className="space-y-4">
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-lg font-semibold text-zinc-100">Billeder</h3>
+        
+        <div className="flex gap-2">
+          {photos.length > 0 && (
+            <Button
+              size="sm"
+              color="primary"
+              variant="light"
+              onPress={refreshProfile}
+              isDisabled={isLoadingProfileAction !== null || isLoadingDeleteAction !== null}
+            >
+              Opdater
+            </Button>
+          )}
+          
+          <Button
+            size="sm"
+            color="primary"
+            onPress={handleShowWidget}
+            isDisabled={isLoadingUploadConfig || (maxImageCount > 0 && photos.length >= maxImageCount)}
+            isLoading={isLoadingUploadConfig}
+          >
+            {isLoadingUploadConfig ? 'Indlæser...' : 'Upload billede'}
+          </Button>
+        </div>
       </div>
 
       {error && (
-        <div className="bg-red-500/20 text-red-500 p-4 rounded-lg flex justify-between items-center">
-          <p>{error}</p>
-          <Button
-            size="sm"
-            variant="ghost"
-            color="danger"
-            onPress={() => setError(null)}
-          >
-            Luk
-          </Button>
+        <div className="bg-red-500/20 border border-red-500/50 p-3 rounded-lg mb-4">
+          <p className="text-red-300 text-sm">{error}</p>
         </div>
       )}
 
-      {/* Upload widget sektion - nu direkte i siden */}
-      {uploadConfig && !isLoadingPhotos && (
-        <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-4">
-          {!showWidget ? (
-            <div className="flex flex-col gap-2">
-              <Button
-                color="primary"
-                onPress={handleShowWidget}
-                isDisabled={maxImageCount <= photos.length}
-                className="w-full"
-              >
-                Upload Billede
-              </Button>
-
-              <p className="text-xs text-zinc-400">
-                {maxImageCount - photos.length > 0
-                  ? `Du kan uploade ${maxImageCount - photos.length} billede${maxImageCount - photos.length !== 1 ? 'r' : ''} mere`
-                  : 'Du har nået grænsen for antal billeder'
-                }
-              </p>
-            </div>
-          ) : uploadComplete ? (
-            <div className="py-6 text-center">
-              <div className="mb-4 text-green-500 flex justify-center">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z"
-                    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </div>
-              <h3 className="font-semibold text-lg mb-2">Billedet blev uploadet!</h3>
-              <p className="text-zinc-400 mb-4">Dit billede er nu tilgængeligt i galleriet.</p>
-              <Button color="primary" onPress={() => setShowWidget(false)}>
-                Luk
-              </Button>
-            </div>
-          ) : (
-            <div className="min-h-[400px]" key={widgetKey}>
-              <SimpleCloudinaryWidget
-                uploadConfig={uploadConfig}
-                onPhotoUploaded={async (photoData) => {
-                  await handlePhotoUploaded(photoData);
-                  setUploadComplete(true);
-                }}
-                onClose={handleWidgetClose}
-                widgetKey={widgetKey}
-                forceReload={true}
-              />
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Billede galleri */}
+      {/* Viser billeder med det PhotoGallery component du allerede har */}
       <PhotoGallery
         photos={photos}
         entityTypeName={entityTypeName}
         entityId={earCombId}
-        isLoading={isLoadingPhotos}
+        isLoading={false} // Aldrig loading, da vi allerede har billederne
         isLoadingProfileAction={isLoadingProfileAction}
         isLoadingDeleteAction={isLoadingDeleteAction}
         onSetAsProfile={handleSetAsProfile}
         onDelete={handleDeletePhoto}
       />
+
+      {/* Cloudinary upload widget */}
+      {showWidget && uploadConfig && (
+        <SimpleCloudinaryWidget
+          uploadConfig={uploadConfig}
+          onPhotoUploaded={handlePhotoUploaded}
+          onComplete={refreshProfile}
+          onClose={handleWidgetClose}
+          widgetKey={widgetKey}
+          forceReload={true}
+        />
+      )}
     </div>
   );
 }
