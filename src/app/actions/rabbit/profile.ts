@@ -1,8 +1,8 @@
 // src/app/actions/rabbit/profile.ts
 'use server';
 
-import { GetRabbitProfile } from "@/api/endpoints/rabbitController";
 import { getAccessToken } from "@/app/actions/auth/session";
+import { GetRabbitProfile } from "@/api/endpoints/rabbitController";
 import { Rabbit_ProfileDTO } from "@/api/types/AngoraDTOs";
 
 type ProfileResult = 

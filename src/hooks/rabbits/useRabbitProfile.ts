@@ -1,4 +1,4 @@
-// src/lib/hooks/rabbits/useRabbitProfile.ts
+// src/hooks/rabbits/useRabbitProfile.ts
 
 import { useState, useCallback } from 'react';
 import { Rabbit_ProfileDTO } from '@/api/types/AngoraDTOs';
@@ -102,7 +102,8 @@ export function useRabbitProfile(initialProfile: Rabbit_ProfileDTO) {
     }, []);
 
     return {
-        currentProfile,      // Eksporter currentProfile
+        currentProfile,
+        setCurrentProfile, // Add this
         editedData,
         isEditing,
         isSaving,
@@ -112,7 +113,7 @@ export function useRabbitProfile(initialProfile: Rabbit_ProfileDTO) {
         setEditedData,
         setIsEditing,
         handleSave,
-        handleCancelEdit,    // Tilføj cancel funktion
+        handleCancelEdit,
         handleDeleteClick,
         handleDeleteConfirm,
         handleDeleteCancel,

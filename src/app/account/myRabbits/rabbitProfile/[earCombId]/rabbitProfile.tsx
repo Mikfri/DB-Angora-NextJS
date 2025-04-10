@@ -19,6 +19,7 @@ export default function RabbitProfile({ rabbitProfile: initialRabbitProfile }: {
     // Hent hooks-funktioner fra custom hook
     const {
         currentProfile,
+        setCurrentProfile, // Get the setter
         isEditing,
         isSaving,
         isDeleting,
@@ -37,7 +38,13 @@ export default function RabbitProfile({ rabbitProfile: initialRabbitProfile }: {
     // Handler til salgsdetaljer
     const handleSaleDetailsChange = useCallback((saleDetails: Rabbit_SaleDetailsDTO | null) => {
         console.log("Sale details changed:", saleDetails);
-    }, []);
+        
+        // Update the current profile with the new sale details
+        setCurrentProfile(prevProfile => ({
+            ...prevProfile,
+            saleDetails: saleDetails
+        }));
+    }, [setCurrentProfile]);
     
     // Vi behøver ikke længere at bygge og sætte primaryNav, da layout.tsx håndterer det
     // Men vi beholder secondaryNav
