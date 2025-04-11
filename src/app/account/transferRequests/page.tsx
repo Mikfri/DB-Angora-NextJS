@@ -2,119 +2,103 @@
 "use client";
 
 import React, { useEffect, useState, useCallback } from 'react';
-import { useAuthStore } from '@/store/authStore';  // Ændret fra useAuth til useAuthStore
-import { GetReceivedTransferRequests, GetSentTransferRequests } from '@/api/endpoints/accountController';
-import { TransferRequest_ReceivedDTO, TransferRequest_SentDTO } from '@/api/types/AngoraDTOs';
 import { Tabs, Tab, Spinner, Button } from '@heroui/react';
 import MyNav from '@/components/nav/side/index/MyNav';
 import { useNav } from '@/components/providers/Providers';
-import { RespondToTransferRequest, DeleteTransferRequest } from '@/api/endpoints/transferRequestsController';
 import { toast } from 'react-toastify';
+import { TransferRequest_ReceivedDTO, TransferRequest_SentDTO } from '@/api/types/AngoraDTOs';
+import { 
+  getTransferRequests,
+  respondToTransferRequest,
+  deleteTransferRequest
+} from '@/app/actions/transfers/transferRequestsActions';
 
 export default function TransferRequestsPage() {
-  // Brug useAuthStore i stedet for useAuth
-  const { isLoggedIn } = useAuthStore();
   const [receivedRequests, setReceivedRequests] = useState<TransferRequest_ReceivedDTO[]>([]);
   const [sentRequests, setSentRequests] = useState<TransferRequest_SentDTO[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const { setPrimaryNav, setSecondaryNav } = useNav();
+  const { setSecondaryNav } = useNav();
 
   // Navigation setup
   useEffect(() => {
     setSecondaryNav(<MyNav />);
     
     return () => {
-      setPrimaryNav(null);
       setSecondaryNav(null);
     };
-  }, [setPrimaryNav, setSecondaryNav]);
+  }, [setSecondaryNav]);
 
-  // Optimeret token-hentning ved hjælp af authStore's getAccessToken
-  const getToken = useCallback(async () => {
-    // Brug authStore direkte for at undgå redundante kald
-    try {
-      const tokenResponse = await fetch('/api/auth/token');
-      if (!tokenResponse.ok) throw new Error('Kunne ikke hente adgangstoken');
-      const { accessToken } = await tokenResponse.json();
-      return accessToken;
-    } catch (err) {
-      console.error('Token fejl:', err);
-      throw new Error('Kunne ikke hente adgangstoken');
-    }
-  }, []);
-
-  // Resten af koden forbliver uændret
+  // Indlæs overførselsanmodninger via server action
   const loadTransferRequests = useCallback(async () => {
-    if (!isLoggedIn) return;
-    
     setIsLoading(true);
     setError(null);
     
     try {
-      const accessToken = await getToken();
+      // Brug server action i stedet for direkte API-kald
+      const result = await getTransferRequests();
       
-      // Hent både modtagne og afsendte anmodninger samtidigt
-      const [receivedData, sentData] = await Promise.all([
-        GetReceivedTransferRequests(accessToken),
-        GetSentTransferRequests(accessToken)
-      ]);
-      
-      setReceivedRequests(receivedData);
-      setSentRequests(sentData);
+      if (result.success) {
+        setReceivedRequests(result.received);
+        setSentRequests(result.sent);
+      } else {
+        setError(result.error);
+      }
     } catch (err) {
       console.error('Fejl ved indlæsning af overførselsanmodninger:', err);
       setError(`Fejl ved indlæsning af overførselsanmodninger: ${err instanceof Error ? err.message : 'Ukendt fejl'}`);
     } finally {
       setIsLoading(false);
     }
-  }, [isLoggedIn, getToken]);
+  }, []);
 
-  // Resten af koden forbliver uændret...
-  
+  // Indlæs ved komponent-rendering
   useEffect(() => {
     loadTransferRequests();
   }, [loadTransferRequests]);
 
-  // Håndter svar på anmodning (accept/afvis)
+  // Håndter svar på anmodning (accept/afvis) med server action
   const handleRespond = useCallback(async (transferId: number, accept: boolean) => {
     setIsProcessing(transferId);
     try {
-      const accessToken = await getToken();
-      await RespondToTransferRequest(transferId, { accept }, accessToken);
+      // Brug server action i stedet for direkte API-kald
+      const result = await respondToTransferRequest(transferId, accept);
       
-      toast.success(accept 
-        ? 'Overførselsanmodning accepteret' 
-        : 'Overførselsanmodning afvist'
-      );
-      
-      // Genindlæs data
-      await loadTransferRequests();
+      if (result.success) {
+        toast.success(result.message);
+        // Genindlæs data
+        await loadTransferRequests();
+      } else {
+        toast.error(result.error);
+      }
     } catch (err) {
       toast.error(`Fejl: ${err instanceof Error ? err.message : 'Ukendt fejl'}`);
     } finally {
       setIsProcessing(null);
     }
-  }, [getToken, loadTransferRequests]);
+  }, [loadTransferRequests]);
 
-  // Håndter sletning/annullering af anmodning
+  // Håndter sletning/annullering af anmodning med server action
   const handleDelete = useCallback(async (transferId: number) => {
     setIsProcessing(transferId);
     try {
-      const accessToken = await getToken();
-      await DeleteTransferRequest(transferId, accessToken);
+      // Brug server action i stedet for direkte API-kald
+      const result = await deleteTransferRequest(transferId);
       
-      toast.success('Overførselsanmodning annulleret');
-      
-      // Opdater listen ved at fjerne den annullerede anmodning
-      setSentRequests(prev => prev.filter(req => req.id !== transferId));
+      if (result.success) {
+        toast.success(result.message);
+        // Opdater lokalt eller genindlæs alle data
+        setSentRequests(prev => prev.filter(req => req.id !== transferId));
+      } else {
+        toast.error(result.error);
+      }
     } catch (err) {
       toast.error(`Fejl: ${err instanceof Error ? err.message : 'Ukendt fejl'}`);
     } finally {
       setIsProcessing(null);
     }
-  }, [getToken]);
+  }, []);
 
   if (isLoading) {
     return (
@@ -183,7 +167,7 @@ export default function TransferRequestsPage() {
   );
 }
 
-// Hjælpekomponent til at vise en anmodning - memoiseret for at undgå unødvendige genrenderinger
+// RequestCard komponent forbliver uændret
 const RequestCard = React.memo(function RequestCard({ 
   request, 
   type,

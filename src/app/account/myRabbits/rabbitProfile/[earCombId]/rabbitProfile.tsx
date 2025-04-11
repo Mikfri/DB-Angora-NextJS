@@ -16,13 +16,14 @@ export default function RabbitProfile({ rabbitProfile: initialRabbitProfile }: {
     // Hent hooks-funktioner fra useNav
     const { setSecondaryNav } = useNav();
 
-    // Hent hooks-funktioner fra custom hook
+    // Hent hooks-funktioner fra custom hook - ADD handleTransferSubmit og isTransferring
     const {
         currentProfile,
-        setCurrentProfile, // Get the setter
+        setCurrentProfile,
         isEditing,
         isSaving,
         isDeleting,
+        isTransferring,
         showTransferModal,
         isDeleteModalOpen,
         editedData,
@@ -32,7 +33,8 @@ export default function RabbitProfile({ rabbitProfile: initialRabbitProfile }: {
         handleCancelEdit,
         handleDeleteConfirm,
         handleDeleteCancel,
-        handleCloseTransferModal
+        handleCloseTransferModal,
+        handleTransferSubmit // Make sure this is included!
     } = useRabbitProfile(initialRabbitProfile);
 
     // Handler til salgsdetaljer
@@ -54,14 +56,12 @@ export default function RabbitProfile({ rabbitProfile: initialRabbitProfile }: {
 
     // Opdateret useEffect uden primaryNav
     useEffect(() => {
-        // setPrimaryNav(null); // Fjern primær navigation, da layout håndterer det
         setSecondaryNav(secondaryNavComponent);
         
         return () => {
-            // setPrimaryNav(null);
             setSecondaryNav(null);
         };
-    }, [setSecondaryNav, secondaryNavComponent]); // Fjern primaryNav fra dependencies
+    }, [setSecondaryNav, secondaryNavComponent]);
 
     const displayName = currentProfile.nickName || currentProfile.earCombId;
 
@@ -103,9 +103,6 @@ export default function RabbitProfile({ rabbitProfile: initialRabbitProfile }: {
                 </Tabs>
             </div>
 
-            {/* Modaler for delete og transfer - disse håndteres nu af standalone RabbitProfileNav */}
-            {/* Men vi beholder dem her for sikkerhedens skyld, indtil vi er sikre på at alt virker */}
-            {/* Senere kan disse fjernes helt, da de vil være duplikater */}
             <DeleteRabbitModal
                 isOpen={isDeleteModalOpen}
                 onClose={handleDeleteCancel}
@@ -119,6 +116,8 @@ export default function RabbitProfile({ rabbitProfile: initialRabbitProfile }: {
                 onClose={handleCloseTransferModal}
                 rabbitName={displayName}
                 rabbitEarCombId={currentProfile.earCombId}
+                onSubmit={handleTransferSubmit}
+                isSubmitting={isTransferring}
             />
         </>
     );

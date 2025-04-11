@@ -3,22 +3,24 @@
 
 import React, { useState, useCallback } from 'react';
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Input, Textarea } from "@heroui/react";
-import { CreateTransferRequest } from '@/api/endpoints/transferRequestsController';
 import { TransferRequest_CreateDTO } from '@/api/types/AngoraDTOs';
-import { toast } from 'react-toastify';
 
 interface TransferOwnershipModalProps {
   isOpen: boolean;
   onClose: () => void;
   rabbitName: string;
   rabbitEarCombId: string;
+  onSubmit: (data: TransferRequest_CreateDTO) => Promise<boolean>;
+  isSubmitting?: boolean;
 }
 
 export default function TransferOwnershipModal({
   isOpen,
   onClose,
   rabbitName,
-  rabbitEarCombId
+  rabbitEarCombId,
+  onSubmit,
+  isSubmitting = false
 }: TransferOwnershipModalProps) {
   const [formData, setFormData] = useState<TransferRequest_CreateDTO>({
     rabbit_EarCombId: rabbitEarCombId,
@@ -26,8 +28,7 @@ export default function TransferOwnershipModal({
     price: 0,
     saleConditions: ''
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
+  
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -37,28 +38,29 @@ export default function TransferOwnershipModal({
   }, []);
 
   const handleSubmit = useCallback(async () => {
+    // Validér data
     if (!formData.recipent_BreederRegNo.trim()) {
-      toast.error('Modtagerens avlernummer er påkrævet');
-      return;
+      return; // Validering håndteres i server action
     }
-
-    setIsSubmitting(true);
-    try {
-      const tokenResponse = await fetch('/api/auth/token');
-      if (!tokenResponse.ok) throw new Error('Kunne ikke hente adgangstoken');
-      const { accessToken } = await tokenResponse.json();
-      
-      await CreateTransferRequest(formData, accessToken);
-      
-      toast.success('Ejerskabsoverdragelse anmodning sendt');
-      onClose();
-    } catch (error) {
-      console.error('Fejl ved oprettelse af ejerskabsoverdragelse:', error);
-      toast.error(`Der skete en fejl: ${error instanceof Error ? error.message : 'Ukendt fejl'}`);
-    } finally {
-      setIsSubmitting(false);
+    
+    // Sikrer at rabbitEarCombId altid er opdateret
+    const dataToSubmit = {
+      ...formData,
+      rabbit_EarCombId: rabbitEarCombId
+    };
+    
+    const success = await onSubmit(dataToSubmit);
+    
+    // Reset form if successful
+    if (success) {
+      setFormData({
+        rabbit_EarCombId: rabbitEarCombId,
+        recipent_BreederRegNo: '',
+        price: 0,
+        saleConditions: ''
+      });
     }
-  }, [formData, onClose]);
+  }, [formData, rabbitEarCombId, onSubmit]);
 
   return (
     <Modal 

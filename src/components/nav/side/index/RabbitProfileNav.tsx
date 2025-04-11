@@ -6,11 +6,13 @@ import { useRouter } from 'next/navigation';
 import RabbitProfileNavBase from '../base/RabbitProfileNavBase';
 import { RabbitProfileNavClient } from '../client/RabbitProfileNavClient';
 import { NavAction } from '@/types/navigation';
-import { deleteRabbit } from '@/app/actions/rabbit/delete';
+import { deleteRabbit } from '@/app/actions/rabbit/rabbitCrudActions';
 import DeleteRabbitModal from '@/components/modals/rabbit/deleteRabbitModal';
 import TransferOwnershipModal from '@/components/modals/rabbit/transferRabbitModal';
 import { toast } from 'react-toastify';
 import { useRabbitProfile } from '@/contexts/RabbitProfileContext';
+import { TransferRequest_CreateDTO } from '@/api/types/AngoraDTOs';
+import { createRabbitTransferRequest } from '@/app/actions/transfers/transferRequestsActions';
 
 interface RabbitProfileNavProps {
   // Basis info - navne matcher PRÆCIST Rabbit_ProfileDTO
@@ -53,6 +55,7 @@ export default function RabbitProfileNav({
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [showTransferModal, setShowTransferModal] = useState(false);
   const [internalIsDeleting, setInternalIsDeleting] = useState(false);
+  const [isTransferring, setIsTransferring] = useState(false);
   
   // Effektiv isDeleting værdi
   const isDeleting = externalIsDeleting || internalIsDeleting;
@@ -131,6 +134,32 @@ export default function RabbitProfileNav({
     router.refresh();
   }, [router]);
   
+  // Ny funktion til at håndtere ejerskabsoverdragelse
+  const handleTransferSubmit = useCallback(async (transferData: TransferRequest_CreateDTO) => {
+    try {
+      setIsTransferring(true);
+      
+      const result = await createRabbitTransferRequest(transferData);
+      
+      if (result.success) {
+        toast.success(result.message);
+        setShowTransferModal(false);
+        // Opdater router data
+        router.refresh();
+        return true;
+      } else {
+        toast.error(result.error);
+        return false;
+      }
+    } catch (error) {
+      console.error('Transfer request failed:', error);
+      toast.error('Der skete en fejl ved anmodning om ejerskifte');
+      return false;
+    } finally {
+      setIsTransferring(false);
+    }
+  }, [router]);
+  
   // Definér footer actions med korrekte typer
   const footerActions = useMemo((): NavAction[] => [
     {
@@ -178,6 +207,8 @@ export default function RabbitProfileNav({
           onClose={handleCloseTransferModal}
           rabbitName={displayName}
           rabbitEarCombId={earCombId}
+          onSubmit={handleTransferSubmit}
+          isSubmitting={isTransferring}
         />
       )}
     </>
