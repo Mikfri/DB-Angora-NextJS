@@ -213,6 +213,7 @@ export interface Rabbit_ChildPreviewDTO {
     color: string | null;
     gender: string | null;
     otherParentId: string | null;
+    profilePicture: string | null;
 }
 
 export interface LoginResponse {
