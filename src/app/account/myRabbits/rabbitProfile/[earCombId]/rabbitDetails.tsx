@@ -4,8 +4,8 @@
 import { useState, useEffect } from 'react';
 import { Button } from "@heroui/react";
 import { Rabbit_ProfileDTO, Rabbit_UpdateDTO } from "@/api/types/AngoraDTOs";
-import { renderCell, editableFieldLabels } from "./rabbitCellRenderer"; // Importér editableFieldLabels
 import PhotoSection from './rabbitPhotoSection';
+import { editableFieldLabels, renderCell } from './rabbitFormFields';
 
 interface RabbitDetailsProps {
   rabbitProfile: Rabbit_ProfileDTO;
@@ -35,7 +35,7 @@ export default function RabbitDetails({
     handleCancel(); // Kald parent handler
     setChangedFields(new Set()); // Clear tracked changes lokalt
   };
-  
+
   // Track changes
   useEffect(() => {
     if (!isEditing) return; // Only track changes while editing
@@ -86,7 +86,17 @@ export default function RabbitDetails({
                   </span>
                 )}
                 {!isEditing ? (
-                  <Button size="sm" onPress={() => setIsEditing(true)}>
+                  <Button
+                    size="sm"
+                    color="warning"
+                    variant="light"
+                    onPress={() => setIsEditing(true)}
+                    startContent={
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                      </svg>
+                    }
+                  >
                     Rediger
                   </Button>
                 ) : (
@@ -97,21 +107,31 @@ export default function RabbitDetails({
                       onPress={handleSave}
                       isDisabled={isSaving || !hasUnsavedChanges}
                       className='text-white'
+                      startContent={
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                        </svg>
+                      }
                     >
                       {isSaving ? 'Gemmer...' : 'Gem'}
                     </Button>
                     <Button
                       size="sm"
                       color="secondary"
+                      variant="ghost"
                       onPress={handleCancelWithReset}
                       isDisabled={isSaving}
+                      startContent={
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+                        </svg>
+                      }
                     >
                       Annuller
                     </Button>
                   </>
                 )}
-              </div>
-            </div>
+              </div>            </div>
 
             {/* Form Content */}
             <form onSubmit={handleSubmit} className="grid gap-4 p-4">

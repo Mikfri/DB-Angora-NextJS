@@ -78,9 +78,7 @@ export default function RabbitProfile({ rabbitProfile: initialRabbitProfile }: {
     // Tæl eventuelt antal børn for at vise i børn tab
     const childrenCount = currentProfile.children?.length || 0;
     
-    // Definer primær highlight farven for hele komponenten
-    // Brug en blå tone der matcher dit site tema
-    const highlightColor = "#4a7ddd"; // Match din site-title gradient blå
+    // Definer UI styling (brug prædefinerede Tailwind klasser)
     const countBgColor = "bg-blue-500/20";
     const countTextColor = "text-blue-400";
 
@@ -99,9 +97,9 @@ export default function RabbitProfile({ rabbitProfile: initialRabbitProfile }: {
                     color="primary"
                     classNames={{
                         tabList: "gap-6 w-full relative p-0 border-b border-zinc-700/50",
-                        cursor: `w-full bg-[${highlightColor}]`, // Match din site-title gradient
+                        cursor: "w-full bg-blue-500", // Fast Tailwind-klasse
                         tab: "max-w-fit px-0 h-12",
-                        tabContent: `group-data-[selected=true]:text-[${highlightColor}]`,
+                        tabContent: "group-data-[selected=true]:text-blue-500", // Fast Tailwind-klasse
                         panel: "pt-5"
                     }}
                 >

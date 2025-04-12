@@ -32,8 +32,7 @@ export function renderCell(
   rabbitProfile?: Rabbit_ProfileDTO,
   isChanged?: boolean
 ): ReactNode {
-  const inputClassName = `transition-colors duration-200 ${isChanged ? 'border-amber-400' : ''
-    }`;
+  const inputClassName = `transition-colors duration-200 ${isChanged ? 'border-amber-400' : ''}`;
   const textClassName = isChanged ? 'text-amber-400' : 'text-zinc-300';
 
   if (!isEditing) {
@@ -72,7 +71,22 @@ function renderViewMode(
 
   // Parent fields
   if (key === "fatherId_Placeholder" || key === "motherId_Placeholder") {
-    if (!rabbitProfile || !value) return null;
+    const parentType = key === "fatherId_Placeholder" ? "Far" : "Mor";
+    
+    // Håndter manglende værdi
+    if (!value) {
+      return (
+        <div className="flex items-center gap-2">
+          <PiRabbit
+            className="w-5 h-5 text-zinc-400 opacity-60"
+            title={`Ingen ${parentType.toLowerCase()} angivet`}
+          />
+          <span className="text-zinc-500 italic">Ikke angivet</span>
+        </div>
+      );
+    }
+
+    if (!rabbitProfile) return <span className={textClassName}>{String(value)}</span>;
 
     const actualId = key === "fatherId_Placeholder"
       ? rabbitProfile.father_EarCombId
@@ -84,15 +98,15 @@ function renderViewMode(
         {parentValid ? (
           <PiRabbitFill
             className="w-5 h-5 text-blue-500"
-            title="Forælder findes i systemet"
+            title={`${parentType} findes i systemet`}
           />
         ) : (
           <PiRabbit
             className="w-5 h-5 text-zinc-400"
-            title="Forælder findes ikke i systemet"
+            title={`${parentType} findes ikke i systemet`}
           />
         )}
-        <span className="text-zinc-300">
+        <span className={textClassName}>
           {String(value)}
         </span>
       </div>
