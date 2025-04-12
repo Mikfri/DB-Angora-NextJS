@@ -86,8 +86,8 @@
   
   /* Standardiserede container komponenter */
   .side-nav {
-    @apply bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 p-4 rounded-xl border border-zinc-700/50 shadow-lg;
-    @apply h-fit sticky top-20 w-full;
+    @apply p-4 rounded-xl;
+    @apply h-fit w-full;
   }
 
   .content-cell {
