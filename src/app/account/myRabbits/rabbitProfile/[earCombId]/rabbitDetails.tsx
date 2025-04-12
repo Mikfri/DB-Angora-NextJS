@@ -13,7 +13,7 @@ interface RabbitDetailsProps {
   isSaving: boolean;
   setIsEditing: (isEditing: boolean) => void;
   handleSave: () => void;
-  handleCancel: () => void; // Ny prop
+  handleCancel: () => void;
   editedData: Rabbit_ProfileDTO;
   setEditedData: (data: Rabbit_ProfileDTO) => void;
 }
@@ -24,7 +24,7 @@ export default function RabbitDetails({
   isSaving,
   setIsEditing,
   handleSave,
-  handleCancel, // Ny prop
+  handleCancel,
   editedData,
   setEditedData
 }: RabbitDetailsProps) {
@@ -35,6 +35,7 @@ export default function RabbitDetails({
     handleCancel(); // Kald parent handler
     setChangedFields(new Set()); // Clear tracked changes lokalt
   };
+  
   // Track changes
   useEffect(() => {
     if (!isEditing) return; // Only track changes while editing
@@ -70,74 +71,83 @@ export default function RabbitDetails({
 
   return (
     <div className="space-y-8">
-      <div className="space-y-4">
-        {/* Action Buttons and Change Indicator */}
-        <div className="flex justify-between items-center">
-          {hasUnsavedChanges && isEditing && (
-            <span className="text-amber-400 text-sm animate-pulse">
-              Der er ændringer som ikke er gemt
-            </span>
-          )}
-          <div className="flex justify-end flex-1">
-            {!isEditing ? (
-              <Button size="sm" onPress={() => setIsEditing(true)}>
-                Rediger
-              </Button>
-            ) : (
-              <div className="space-x-2">
-                <Button
-                  size="sm"
-                  color="success"
-                  onPress={handleSave}
-                  isDisabled={isSaving || !hasUnsavedChanges}
-                  className='text-white'
-                >
-                  {isSaving ? 'Gemmer...' : 'Gem'}
-                </Button>
-                <Button
-                  size="sm"
-                  color="secondary"
-                  onPress={handleCancelWithReset} // Brug ny handler
-                  isDisabled={isSaving}
-                >
-                  Annuller
-                </Button>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="grid gap-4 p-4 bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-lg border border-zinc-700/50">
-          {(Object.keys(editableFieldLabels) as Array<keyof Rabbit_UpdateDTO>).map((key) => (
-            <div key={key} className="grid grid-cols-1 sm:grid-cols-[200px,1fr] gap-2 items-center">
-              <label
-                htmlFor={`${key}-input`}
-                id={`${key}-label`}
-                className={`font-medium ${changedFields.has(key) ? 'text-amber-400' : 'text-zinc-300'}`}
-              >
-                {editableFieldLabels[key]}
-              </label>
-              <div className="w-full">
-                {renderCell(
-                  key,
-                  rabbitProfile[key],
-                  isEditing,
-                  editedData,
-                  setEditedData,
-                  rabbitProfile,
-                  changedFields.has(key)
+      {/* Hovedcontainer der holder info og foto side ved side */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Venstre side: Kanin information */}
+        <div className="lg:col-span-2">
+          <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-lg border border-zinc-700/50 overflow-hidden h-full">
+            {/* Form Header med knapper */}
+            <div className="flex justify-between items-center p-4 border-b border-zinc-700/50">
+              <h3 className="text-zinc-100 font-medium">Kanin Information</h3>
+              <div className="flex items-center gap-2">
+                {hasUnsavedChanges && isEditing && (
+                  <span className="text-amber-400 text-sm animate-pulse mr-4">
+                    Der er ændringer som ikke er gemt
+                  </span>
+                )}
+                {!isEditing ? (
+                  <Button size="sm" onPress={() => setIsEditing(true)}>
+                    Rediger
+                  </Button>
+                ) : (
+                  <>
+                    <Button
+                      size="sm"
+                      color="success"
+                      onPress={handleSave}
+                      isDisabled={isSaving || !hasUnsavedChanges}
+                      className='text-white'
+                    >
+                      {isSaving ? 'Gemmer...' : 'Gem'}
+                    </Button>
+                    <Button
+                      size="sm"
+                      color="secondary"
+                      onPress={handleCancelWithReset}
+                      isDisabled={isSaving}
+                    >
+                      Annuller
+                    </Button>
+                  </>
                 )}
               </div>
             </div>
-          ))}
-        </form>
-      </div>
 
-      {/* Fotosektionen - kun vist når ikke i redigeringstilstand */}
-      {!isEditing && (
-        <PhotoSection earCombId={rabbitProfile.earCombId} />
-      )}
+            {/* Form Content */}
+            <form onSubmit={handleSubmit} className="grid gap-4 p-4">
+              {(Object.keys(editableFieldLabels) as Array<keyof Rabbit_UpdateDTO>).map((key) => (
+                <div key={key} className="grid grid-cols-1 sm:grid-cols-[200px,1fr] gap-2 items-center">
+                  <label
+                    htmlFor={`${key}-input`}
+                    id={`${key}-label`}
+                    className={`font-medium ${changedFields.has(key) ? 'text-amber-400' : 'text-zinc-300'}`}
+                  >
+                    {editableFieldLabels[key]}
+                  </label>
+                  <div className="w-full">
+                    {renderCell(
+                      key,
+                      rabbitProfile[key],
+                      isEditing,
+                      editedData,
+                      setEditedData,
+                      rabbitProfile,
+                      changedFields.has(key)
+                    )}
+                  </div>
+                </div>
+              ))}
+            </form>
+          </div>
+        </div>
+
+        {/* Højre side: Foto sektion (kun vist når ikke i redigeringstilstand) */}
+        {!isEditing && (
+          <div className="lg:col-span-1">
+            <PhotoSection earCombId={rabbitProfile.earCombId} />
+          </div>
+        )}
+      </div>
     </div>
   );
 }

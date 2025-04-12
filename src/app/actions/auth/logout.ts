@@ -8,9 +8,11 @@ export async function logout(): Promise<{ success: boolean }> {
     const cookieStore = getCookieStore();
     
     await cookieStore.delete('accessToken');
+    await cookieStore.delete('tokenExpiry');
     await cookieStore.delete('userName');
     await cookieStore.delete('userRole');
     await cookieStore.delete('userProfileId');
+    await cookieStore.delete('userIdentity');
     
     return { success: true };
   } catch (error) {

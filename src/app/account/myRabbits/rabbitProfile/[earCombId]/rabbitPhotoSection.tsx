@@ -4,13 +4,14 @@
 import { useState, useCallback } from 'react';
 import { CloudinaryUploadConfigDTO, CloudinaryPhotoRegistryRequestDTO } from '@/api/types/AngoraDTOs';
 import { Button } from "@heroui/react";
-import PhotoGallery from './rabbitPhotoGallery';
 import SimpleCloudinaryWidget from '@/components/cloudinary/SimpleCloudinaryWidget';
 import { useRabbitProfile } from '@/contexts/RabbitProfileContext';
 import { getRabbitPhotoUploadPermission } from '@/app/actions/rabbit/photoPermission';
 import { registerPhoto } from '@/app/actions/photo/registerPhoto';
 import { setAsProfilePhoto } from '@/app/actions/photo/setAsProfilePicture';
 import { deletePhoto } from '@/app/actions/photo/deletePhoto';
+import { useAuthStore } from '@/store/authStore';
+import RabbitPhotoCarousel from './rabbitPhotoCarousel';
 
 interface PhotoSectionProps {
   earCombId: string;
@@ -20,6 +21,9 @@ export default function PhotoSection({ earCombId }: PhotoSectionProps) {
   // Vi bruger context i stedet for at hente fotos igen
   const { profile, refreshProfile } = useRabbitProfile();
   const photos = profile?.photos || [];
+  
+  // Hent userIdentity fra auth store
+  const userIdentity = useAuthStore(state => state.userIdentity);
 
   // Upload widget states
   const [isLoadingUploadConfig, setIsLoadingUploadConfig] = useState(false);
@@ -27,7 +31,8 @@ export default function PhotoSection({ earCombId }: PhotoSectionProps) {
   const [isLoadingDeleteAction, setIsLoadingDeleteAction] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [uploadConfig, setUploadConfig] = useState<CloudinaryUploadConfigDTO | null>(null);
-  const [maxImageCount, setMaxImageCount] = useState(0);
+  // Få billedcount direkte fra userIdentity claims
+  const maxImageCount = userIdentity?.claims?.rabbitImageCount || 0;
   const [showWidget, setShowWidget] = useState(false);
   const [widgetKey, setWidgetKey] = useState(`widget-${Date.now()}`);
 
@@ -41,7 +46,6 @@ export default function PhotoSection({ earCombId }: PhotoSectionProps) {
       
       if (result.success && result.data) {
         setUploadConfig(result.data);
-        setMaxImageCount(result.maxImageCount || 0);
       } else {
         setError(result.error || 'Kunne ikke få upload-tilladelse');
       }
@@ -111,53 +115,64 @@ export default function PhotoSection({ earCombId }: PhotoSectionProps) {
     ? 'kanin'
     : uploadConfig?.entityType?.toLowerCase() ?? 'kanin';
 
+  // Beregn om det maksimale antal billeder er nået
+  const isMaxImagesReached = maxImageCount > 0 && photos.length >= maxImageCount;
+
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-semibold text-zinc-100">Billeder</h3>
-        
-        <div className="flex gap-2">
-          {photos.length > 0 && (
-            <Button
-              size="sm"
-              color="primary"
-              variant="light"
-              onPress={refreshProfile}
-              isDisabled={isLoadingProfileAction !== null || isLoadingDeleteAction !== null}
-            >
-              Opdater
-            </Button>
-          )}
+    <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-lg border border-zinc-700/50 overflow-hidden h-full flex flex-col">
+      {/* Header med titel og upload-knap */}
+      <div className="flex justify-between items-center p-4 border-b border-zinc-700/50">
+        <div className="flex items-center gap-2">
+          <h3 className="text-zinc-100 font-medium">Billeder</h3>
           
-          <Button
-            size="sm"
-            color="primary"
-            onPress={handleShowWidget}
-            isDisabled={isLoadingUploadConfig || (maxImageCount > 0 && photos.length >= maxImageCount)}
-            isLoading={isLoadingUploadConfig}
-          >
-            {isLoadingUploadConfig ? 'Indlæser...' : 'Upload billede'}
-          </Button>
+          {/* Billedtæller - kun vist når maksimum er kendt */}
+          {maxImageCount > 0 && (
+            <span className={`text-xs px-2 py-0.5 rounded-full ${
+              isMaxImagesReached 
+                ? 'bg-amber-500/20 text-amber-400' 
+                : 'bg-blue-500/20 text-blue-400'
+            }`}>
+              {photos.length} / {maxImageCount}
+            </span>
+          )}
         </div>
+        
+        <Button
+          size="sm"
+          color="primary"
+          onPress={handleShowWidget}
+          isDisabled={isLoadingUploadConfig || isMaxImagesReached}
+          isLoading={isLoadingUploadConfig}
+        >
+          {isLoadingUploadConfig 
+            ? 'Indlæser...' 
+            : isMaxImagesReached 
+              ? 'Max nået' 
+              : 'Upload'
+          }
+        </Button>
       </div>
 
+      {/* Fejlmeddelelse hvis nødvendigt */}
       {error && (
-        <div className="bg-red-500/20 border border-red-500/50 p-3 rounded-lg mb-4">
+        <div className="bg-red-500/20 border border-red-500/50 p-3 m-3 rounded-lg">
           <p className="text-red-300 text-sm">{error}</p>
         </div>
       )}
 
-      {/* Viser billeder med det PhotoGallery component du allerede har */}
-      <PhotoGallery
-        photos={photos}
-        entityTypeName={entityTypeName}
-        entityId={earCombId}
-        isLoading={false} // Aldrig loading, da vi allerede har billederne
-        isLoadingProfileAction={isLoadingProfileAction}
-        isLoadingDeleteAction={isLoadingDeleteAction}
-        onSetAsProfile={handleSetAsProfile}
-        onDelete={handleDeletePhoto}
-      />
+      {/* Karusel komponent */}
+      <div className="flex-grow p-4">
+        <RabbitPhotoCarousel
+          photos={photos}
+          entityTypeName={entityTypeName}
+          entityId={earCombId}
+          isLoading={false}
+          isLoadingProfileAction={isLoadingProfileAction}
+          isLoadingDeleteAction={isLoadingDeleteAction}
+          onSetAsProfile={handleSetAsProfile}
+          onDelete={handleDeletePhoto}
+        />
+      </div>
 
       {/* Cloudinary upload widget */}
       {showWidget && uploadConfig && (

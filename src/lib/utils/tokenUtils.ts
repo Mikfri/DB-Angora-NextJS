@@ -59,6 +59,10 @@ export function getTokenClaim<T = unknown>(token: string, claim: string): T | nu
   }
 }
 
+/**
+ * Udtrækker brugeridentitet fra JWT token og returnerer UserIdentity objekt
+ * Returnerer null hvis token er ugyldigt eller mangler nødvendige claims
+ */
 export function extractUserIdentity(token: string): UserIdentity | null {
   try {
     const payload = JSON.parse(atob(token.split('.')[1]));
@@ -90,10 +94,17 @@ export function extractUserIdentity(token: string): UserIdentity | null {
       return null;
     }
     
+    // Tilføj claims til userIdentity
+    const rabbitImageCount = getTokenClaim<string>(token, 'Rabbit:ImageCount');
+    
     return {
       id: userId,
       username,
-      roles
+      roles,
+      claims: {
+        rabbitImageCount: rabbitImageCount ? parseInt(rabbitImageCount, 10) : 0
+        // Andre relevante claims kan tilføjes her
+      }
     };
   } catch (error) {
     console.error('Error extracting user identity from token:', error);

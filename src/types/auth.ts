@@ -20,7 +20,10 @@ export interface UserIdentity {
   id: string;
   username: string;
   roles: UserRole[];
-  // Eventuelle andre brugerspecifikke felter
+  claims?: {
+    rabbitImageCount?: number;
+    // Andre relevante claims kan tilføjes her
+  };
 }
 
 export const roleDisplayNames: Record<UserRole, string> = {

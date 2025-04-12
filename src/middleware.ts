@@ -19,6 +19,7 @@ export function middleware(request: NextRequest) {
     response.cookies.delete('userName');
     response.cookies.delete('userRole');
     response.cookies.delete('userProfileId');
+    response.cookies.delete('userIdentity');
     
     return response;
   }

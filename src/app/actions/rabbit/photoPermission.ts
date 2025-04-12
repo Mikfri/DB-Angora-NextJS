@@ -4,7 +4,6 @@
 import { getAccessToken } from '@/app/actions/auth/session';
 import { GetRabbitPhotoUploadPermission } from '@/api/endpoints/rabbitController';
 import { RegisterCloudinaryPhoto } from '@/api/endpoints/photoController';
-import { getTokenClaim } from '@/lib/utils/tokenUtils';
 import { 
   CloudinaryUploadConfigDTO, 
   CloudinaryPhotoRegistryRequestDTO, 
@@ -19,7 +18,6 @@ import {
 export async function getRabbitPhotoUploadPermission(earCombId: string): Promise<{
   success: boolean;
   data?: CloudinaryUploadConfigDTO;
-  maxImageCount?: number;
   error?: string;
 }> {
   try {
@@ -33,19 +31,12 @@ export async function getRabbitPhotoUploadPermission(earCombId: string): Promise
       };
     }
     
-    // Hent max image count fra token claims
-    const maxImageCount = parseInt(
-      getTokenClaim<string>(accessToken, "Rabbit:ImageCount") || "0", 
-      10
-    );
-    
     // Brug det nye endpoint til at hente upload konfiguration
     const uploadConfig = await GetRabbitPhotoUploadPermission(accessToken, earCombId);
     
     return {
       success: true,
-      data: uploadConfig,
-      maxImageCount
+      data: uploadConfig
     };
   } catch (error) {
     console.error("Error in getRabbitPhotoUploadPermission server action:", error);

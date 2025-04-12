@@ -1,4 +1,9 @@
 // src/store/authStore.ts
+/**
+ * Auth Store - TIL BRUG I CLIENT COMPONENTS
+ * Håndterer bruger-autentifikation, session-styring og token caching.
+ * For server components, brug getUserIdentity() fra session.ts.
+ */
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { login as loginAction } from '@/app/actions/auth/login';
