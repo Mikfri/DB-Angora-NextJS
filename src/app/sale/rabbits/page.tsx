@@ -1,3 +1,4 @@
+// src/app/sale/rabbits/page.tsx
 import { Metadata } from 'next';
 import { Suspense } from 'react';
 import RabbitsForSale from './rabbitSaleList';
@@ -34,10 +35,10 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
   };
 }
 
-// Separate LoadingFallback component
-function LoadingFallback() {
+// Centreret loading indikator - vises mens data hentes
+function CenteredLoading() {
   return (
-    <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-6 flex justify-center items-center">
+    <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-6 flex justify-center items-center min-h-[300px]">
       <div className="flex flex-col items-center gap-4">
         <Spinner size="lg" color="primary" />
         <p className="text-zinc-300">Indlæser kaniner til salg...</p>
@@ -51,7 +52,7 @@ type RabbitSearchParams = Record<string, string | undefined>;
 
 // RabbitLoader component to handle data fetching within Suspense
 async function RabbitLoader({ searchParams }: { searchParams: RabbitSearchParams }) {
-  // Brug Server Action
+  // Brug Server Action til at hente data
   const result = await getRabbitsForSale(searchParams as unknown as ForSaleParams);
   const rabbits = result.success ? result.data : [];
   
@@ -62,7 +63,7 @@ export default async function Page({ searchParams }: PageProps) {
   const sp = searchParams ? await searchParams : {};
   
   return (
-    <Suspense fallback={<LoadingFallback />}>
+    <Suspense fallback={<CenteredLoading />}>
       <RabbitLoader searchParams={sp as unknown as RabbitSearchParams} />
     </Suspense>
   );

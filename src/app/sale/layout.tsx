@@ -9,12 +9,17 @@ import MyNav from '@/components/nav/side/index/MyNav';
 // Loading component for sidebar
 function SideNavLoading() {
   return (
-    <div className="w-full h-full bg-zinc-800/50 animate-pulse">
-      <div className="p-4">
-        <div className="h-8 w-3/4 bg-zinc-700 rounded mb-4"></div>
-        <div className="space-y-2">
-          {[1,2,3,4,5].map(i => (
-            <div key={i} className="h-6 bg-zinc-700 rounded w-full"></div>
+    <div className="w-full h-full bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-lg border border-zinc-700/50 p-4">
+      <div className="animate-pulse">
+        <div className="h-7 w-2/3 bg-zinc-700/60 rounded mb-6"></div>
+
+        {/* Filter skeletons */}
+        <div className="space-y-4">
+          {[1, 2, 3, 4].map(i => (
+            <div key={i} className="space-y-2">
+              <div className="h-5 bg-zinc-700/60 rounded w-1/3"></div>
+              <div className="h-9 bg-zinc-700/40 rounded w-full"></div>
+            </div>
           ))}
         </div>
       </div>
@@ -22,25 +27,20 @@ function SideNavLoading() {
   );
 }
 
-// Definér konstanter for sidenavs og routes
-const NO_SIDENAV_PATHS = ['/sale/rabbits/profile'];
-
 export default function SaleLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname() || '';
-  
+
   // Tjek om vi skal vise sidenav
-  const shouldHaveSideNav = !NO_SIDENAV_PATHS.some(path => pathname.startsWith(path));
-  
+  const shouldHaveSideNav = !pathname.startsWith('/sale/rabbits/profile');
+
   if (!shouldHaveSideNav) {
     return (
-      <div className="container mx-auto px-4 lg:px-6 max-w-5xl">
-        <Suspense>
-          {children}
-        </Suspense>
+      <div className="container mx-auto px-4 lg:px-6 max-w-5xl py-6">
+        {children}
       </div>
     );
   }
-  
+
   // Vælg den korrekte sidenav baseret på path
   const sideNav = pathname.includes('/sale/rabbits') && !pathname.includes('/profile')
     ? (
@@ -49,12 +49,10 @@ export default function SaleLayout({ children }: { children: React.ReactNode }) 
       </Suspense>
     )
     : <MyNav />;
-  
+
   return (
     <SideNavLayout sideNav={sideNav}>
-      <Suspense>
-        {children}
-      </Suspense>
+      {children}
     </SideNavLayout>
   );
 }
