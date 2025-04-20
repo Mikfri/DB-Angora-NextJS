@@ -86,6 +86,23 @@ export interface Rabbit_ForsaleProfileDTO {
     saleDetails: Rabbit_SaleDetailsDTO;
 }
 
+export interface Rabbit_PedigreeDTO {
+    generation: number;
+    relation: string;
+    earCombId: string;
+    nickName: string | null;
+    dateOfBirth: string;
+    race: string;
+    color: string;
+    userOriginName: string | null;
+    userOwnerName: string | null;
+    profilePicture: string | null;
+    inbreedingCoefficient: number;
+    father: Rabbit_PedigreeDTO | null;
+    mother: Rabbit_PedigreeDTO | null;
+}
+
+
 export interface Rabbit_ForbreedingPreviewDTO {    // Preview for avlerer
     earCombId: string;
     nickName: string | null;
@@ -105,6 +122,7 @@ export interface Rabbit_ForbreedingPreviewDTO {    // Preview for avlerer
     father_EarCombId: string | null;
     motherId_Placeholder: string | null;
     mother_EarCombId: string | null;
+    inbreedingCoefficient: number;
     profilePicture: string;
 }
 export type Rabbits_ForbreedingPreviewList = Rabbit_ForbreedingPreviewDTO[];
@@ -127,6 +145,7 @@ export interface Rabbit_PreviewDTO {    // Preview for avlerer
     father_EarCombId: string | null;
     motherId_Placeholder: string | null;
     mother_EarCombId: string | null;
+    inbreedingCoefficient: number;
     profilePicture: string;
 }
 export type Rabbits_PreviewList = Rabbit_PreviewDTO[];
@@ -156,6 +175,7 @@ export interface Rabbit_ProfileDTO {
     photos: Photo_DTO[];
     motherId_Placeholder: string | null;
     mother_EarCombId: string | null;
+    inbreedingCoefficient: number;
     children: Rabbit_ChildPreviewDTO[];
 }
 
