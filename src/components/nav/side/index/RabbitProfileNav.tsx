@@ -23,6 +23,7 @@ interface RabbitProfileNavProps {
   approvedRaceColorCombination: boolean | null;
   isJuvenile: boolean | null;
   profilePicture: string | null;
+  inbreedingCoefficient: number | null; 
   
   // Handlinger (valgfri)
   onDeleteClick?: () => void;
@@ -42,6 +43,7 @@ export default function RabbitProfileNav({
   approvedRaceColorCombination: initialApprovedRaceColorCombination,
   isJuvenile: initialIsJuvenile,
   profilePicture: initialProfilePicture,
+  inbreedingCoefficient: initialInbreedingCoefficient,
   onDeleteClick: externalDeleteClick,
   onChangeOwner: externalChangeOwner,
   isDeleting: externalIsDeleting = false,
@@ -67,6 +69,7 @@ export default function RabbitProfileNav({
   const approvedRaceColorCombination = profile?.approvedRaceColorCombination ?? initialApprovedRaceColorCombination;
   const isJuvenile = profile?.isJuvenile ?? initialIsJuvenile;
   const profilePicture = profile?.profilePicture ?? initialProfilePicture;
+  const inbreedingCoefficient = profile?.inbreedingCoefficient ?? initialInbreedingCoefficient;
   
   // Vis navn - brug nickname hvis det findes, ellers øremærke
   const displayName = nickName || earCombId;
@@ -188,6 +191,7 @@ export default function RabbitProfileNav({
           approvedRaceColorCombination={approvedRaceColorCombination}
           isJuvenile={isJuvenile}
           profilePicture={profilePicture}
+          inbreedingCoefficient={inbreedingCoefficient}
         />
       </RabbitProfileNavBase>
       

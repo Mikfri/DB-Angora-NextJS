@@ -5,7 +5,7 @@ import { ReactNode } from 'react';
 import { Divider } from '@heroui/react';
 import ProfileImage from '@/components/ui/ProfileImage';
 import { IoColorPaletteOutline } from "react-icons/io5";
-import { FaInfoCircle, FaUserCircle } from "react-icons/fa";
+import { FaInfoCircle, FaPercent, FaUserCircle } from "react-icons/fa";
 import { FaIdCard } from 'react-icons/fa6';
 
 interface RabbitProfileNavClientProps {
@@ -17,6 +17,7 @@ interface RabbitProfileNavClientProps {
   approvedRaceColorCombination: boolean | null;
   isJuvenile: boolean | null;
   profilePicture: string | null;
+  inbreedingCoefficient: number | null;
 }
 
 // Konstanter til sektioner - matcher samme stil som RabbitOwnNavClient
@@ -30,7 +31,8 @@ const SECTIONS = {
 const DEFAULT_TEXTS = {
   BREEDER_NOT_FOUND: 'Findes ikke i systemet',
   OWNER_NOT_FOUND: 'Findes ikke i systemet',
-  UNKNOWN: 'Ukendt'
+  UNKNOWN: 'Ukendt',
+  INBREEDING_UNKNOWN: 'Ikke beregnet'
 } as const;
 
 /**
@@ -44,7 +46,8 @@ export function RabbitProfileNavClient({
   ownerFullName,
   approvedRaceColorCombination,
   isJuvenile,
-  profilePicture
+  profilePicture,
+  inbreedingCoefficient
 }: RabbitProfileNavClientProps) {
   
   // Beregn visningsnavn
@@ -53,6 +56,11 @@ export function RabbitProfileNavClient({
   // Formater værdier til visning med fallbacks til standardtekster
   const breederText = originFullName || DEFAULT_TEXTS.BREEDER_NOT_FOUND;
   const ownerText = ownerFullName || DEFAULT_TEXTS.OWNER_NOT_FOUND;
+  
+  // Formater indavlskoefficient som procent med to decimaler
+  const inbreedingText = inbreedingCoefficient !== null && inbreedingCoefficient !== undefined 
+    ? `${(inbreedingCoefficient * 100).toFixed(2)}%` 
+    : DEFAULT_TEXTS.INBREEDING_UNKNOWN;
   
   const approvalText = approvedRaceColorCombination === null ? DEFAULT_TEXTS.UNKNOWN
     : approvedRaceColorCombination ? 'Ja' : 'Nej';
@@ -85,20 +93,19 @@ export function RabbitProfileNavClient({
         </h3>
 
         <div className="space-y-1"> {/* Yderligere reduceret spacing */}
-          {/* Navn - kun hvis det findes */}
-          {nickName && (
-            <InfoRow 
-              icon={<FaIdCard className="text-lg text-default-500" />}
-              label="Navn" 
-              value={nickName} 
-            />
-          )}
-          
-          {/* Øremærke */}
+          {/* Øremærke vises først */}
           <InfoRow 
             icon={<FaIdCard className="text-lg text-default-500" />}
             label="Øremærke" 
             value={earCombId} 
+          />
+          
+          {/* Indavlskoefficient */}
+          <InfoRow 
+            icon={<FaPercent className="text-lg text-default-500" />}
+            label="Indavl" 
+            value={inbreedingText}
+            isDefaultValue={inbreedingCoefficient === undefined || inbreedingCoefficient === null}
           />
         </div>
       </div>

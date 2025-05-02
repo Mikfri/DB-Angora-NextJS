@@ -23,6 +23,12 @@ const formatNullableValue = (value: string | null): string => {
     return value || 'Ikke angivet';
 };
 
+// Helper til at formatere indavlskoefficienten som procent
+const formatInbreedingCoefficient = (coefficient: number | null | undefined): string => {
+    if (coefficient === null || coefficient === undefined) return 'Ikke beregnet';
+    return `${(coefficient * 100).toFixed(2)}%`;
+};
+
 export default function RabbitPreviewCard({ rabbit, onClick }: Props) {
     const [imageError, setImageError] = useState(false);
     const defaultImage = '/images/default-rabbit.jpg';
@@ -95,6 +101,9 @@ export default function RabbitPreviewCard({ rabbit, onClick }: Props) {
                         
                         <span className="text-zinc-400 text-sm">Til avl:</span>
                         <span className="text-sm">{formatBoolean(rabbit.isForBreeding)}</span>
+
+                        <span className="text-zinc-400 text-sm">Indavls koefficient:</span>
+                        <span className="text-sm">{formatInbreedingCoefficient(rabbit.inbreedingCoefficient)}</span>
                     </div>
                 </div>
             </CardBody>
