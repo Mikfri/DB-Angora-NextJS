@@ -44,6 +44,7 @@ export default function RabbitProfileLayout({
               approvedRaceColorCombination={null}
               isJuvenile={null}
               profilePicture={null}
+              inbreedingCoefficient={null}
             />
           </Suspense>
         }
