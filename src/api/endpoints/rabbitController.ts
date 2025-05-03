@@ -1,6 +1,6 @@
 // src/api/endpoints/rabbitController.ts
 import { getApiUrl } from "../config/apiConfig";
-import { Rabbit_CreateDTO, Rabbit_ProfileDTO, Rabbits_SaleDetailsPreviewList, Rabbit_ForsaleProfileDTO, Rabbits_ForbreedingPreviewList, Rabbit_UpdateDTO, Rabbit_PreviewDTO, Rabbit_CreateSaleDetailsDTO, Rabbit_SaleDetailsDTO, Rabbit_UpdateSaleDetailsDTO, CloudinaryUploadConfigDTO } from "../types/AngoraDTOs";
+import { Rabbit_CreateDTO, Rabbit_ProfileDTO, Rabbits_SaleDetailsPreviewList, Rabbit_ForsaleProfileDTO, Rabbits_ForbreedingPreviewList, Rabbit_UpdateDTO, Rabbit_PreviewDTO, Rabbit_CreateSaleDetailsDTO, Rabbit_SaleDetailsDTO, Rabbit_UpdateSaleDetailsDTO, CloudinaryUploadConfigDTO, Rabbit_PedigreeDTO } from "../types/AngoraDTOs";
 import { ForSaleFilters } from "../types/filterTypes";
 
 
@@ -155,6 +155,41 @@ export async function GetRabbitProfile(accessToken: string, earCombId: string): 
     //console.log('API Response:', rabbitProfile); // Debug log
     return rabbitProfile;
 }
+
+// PEDIGREE
+/**
+ * Henter stamtræet for en specifik kanin
+ * 
+ * @param accessToken - Brugerens JWT authentication token
+ * @param earCombId - Kaninens øremærke-id
+ * @returns Stamtræ for kaninen med indavlskoefficient og relationer
+ */
+export async function GetRabbitPedigree(
+    accessToken: string,
+    earCombId: string
+): Promise<Rabbit_PedigreeDTO> {
+    const response = await fetch(getApiUrl(`Rabbit/Pedigree/${earCombId}`), {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'accept': 'text/plain'
+        }
+    });
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        console.error('API Error:', {
+            status: response.status,
+            statusText: response.statusText,
+            body: errorText
+        });
+        throw new Error(`Failed to fetch rabbit pedigree: ${response.status} ${response.statusText}`);
+    }
+
+    return response.json();
+}
+
+
 
 //-------------------- UPDATE
 

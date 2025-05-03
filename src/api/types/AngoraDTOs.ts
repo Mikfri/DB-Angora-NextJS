@@ -87,21 +87,29 @@ export interface Rabbit_ForsaleProfileDTO {
 }
 
 export interface Rabbit_PedigreeDTO {
-    generation: number;
-    relation: string;
-    earCombId: string;
-    nickName: string | null;
-    dateOfBirth: string;
-    race: string;
-    color: string;
-    userOriginName: string | null;
-    userOwnerName: string | null;
-    profilePicture: string | null;
-    inbreedingCoefficient: number;
-    father: Rabbit_PedigreeDTO | null;
-    mother: Rabbit_PedigreeDTO | null;
+    Generation: number;
+    Relation: string;
+    EarCombId: string;
+    NickName: string | null;
+    DateOfBirth: string;
+    Race: string;
+    Color: string;
+    UserOriginName: string | null;
+    UserOwnerName: string | null;
+    ProfilePicture: string | null;
+    InbreedingCoefficient: number;
+    InbreedingDetails: Rabbit_InbreedingDetailDTO[];
+    Father: Rabbit_PedigreeDTO | null;
+    Mother: Rabbit_PedigreeDTO | null;
 }
 
+export interface Rabbit_InbreedingDetailDTO {
+    AncestorId: string;
+    FatherDepth: number;
+    MotherDepth: number;
+    AncestorInbreeding: number;
+    Contribution: number;
+}
 
 export interface Rabbit_ForbreedingPreviewDTO {    // Preview for avlerer
     earCombId: string;

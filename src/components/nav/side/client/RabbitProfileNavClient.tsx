@@ -78,7 +78,6 @@ export function RabbitProfileNavClient({
             alt={displayName}
             className="w-full h-full"
             // Fjernet size="custom" for at undgå TypeScript-fejl
-            fallbackText={displayName.substring(0,2).toUpperCase()}
           />
         </div>
       </div>

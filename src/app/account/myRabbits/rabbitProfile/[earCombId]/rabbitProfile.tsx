@@ -6,6 +6,7 @@ import { useRabbitProfile as useProfileContext } from '@/contexts/RabbitProfileC
 import RabbitDetails from './rabbitDetails';
 import RabbitChildren from './rabbitChildren';
 import RabbitSaleSection from './rabbitSaleSection';
+import RabbitPedigree from './rabbitPedigree';
 import { Tabs, Tab } from "@heroui/react";
 import { useNav } from "@/components/providers/Providers";
 import { useCallback, useEffect, useMemo } from 'react';
@@ -17,11 +18,12 @@ import TransferOwnershipModal from '@/components/modals/rabbit/transferRabbitMod
 import { RiInformationLine } from "react-icons/ri";  // Info/detaljer ikon
 import { PiArrowsSplitLight } from "react-icons/pi"; // Afkom ikon
 import { RiPriceTag3Line, RiPriceTag3Fill } from "react-icons/ri";  // Tilføj fyldt prisikon
+import { FaTreeCity } from "react-icons/fa6"; // eller et andet passende ikon for stamtavle
 
 export default function RabbitProfile({ rabbitProfile: initialRabbitProfile }: { rabbitProfile: Rabbit_ProfileDTO }) {
     // Hent hooks-funktioner fra useNav
     const { setSecondaryNav } = useNav();
-    
+
     // Hent refreshProfile fra context
     const { refreshProfile } = useProfileContext();
 
@@ -77,7 +79,7 @@ export default function RabbitProfile({ rabbitProfile: initialRabbitProfile }: {
 
     // Tæl eventuelt antal børn for at vise i børn tab
     const childrenCount = currentProfile.children?.length || 0;
-    
+
     // Definer UI styling (brug prædefinerede Tailwind klasser)
     const countBgColor = "bg-blue-500/20";
     const countTextColor = "text-blue-400";
@@ -91,9 +93,9 @@ export default function RabbitProfile({ rabbitProfile: initialRabbitProfile }: {
                     </h1>
                 </div>
 
-                <Tabs 
-                    aria-label="Kanin information" 
-                    variant="underlined" 
+                <Tabs
+                    aria-label="Kanin information"
+                    variant="underlined"
                     color="primary"
                     classNames={{
                         tabList: "gap-6 w-full relative p-0 border-b border-zinc-700/50",
@@ -103,8 +105,8 @@ export default function RabbitProfile({ rabbitProfile: initialRabbitProfile }: {
                         panel: "pt-5"
                     }}
                 >
-                    <Tab 
-                        key="details" 
+                    <Tab
+                        key="details"
                         title={
                             <div className="flex items-center space-x-2">
                                 <RiInformationLine className="text-xl" />
@@ -124,8 +126,8 @@ export default function RabbitProfile({ rabbitProfile: initialRabbitProfile }: {
                         />
                     </Tab>
 
-                    <Tab 
-                        key="children" 
+                    <Tab
+                        key="children"
                         title={
                             <div className="flex items-center space-x-2">
                                 <PiArrowsSplitLight className="text-xl" />
@@ -143,8 +145,20 @@ export default function RabbitProfile({ rabbitProfile: initialRabbitProfile }: {
                         </RabbitChildren>
                     </Tab>
 
-                    <Tab 
-                        key="sale" 
+                    <Tab
+                        key="pedigree"
+                        title={
+                            <div className="flex items-center space-x-2">
+                                <FaTreeCity className="text-xl" />
+                                <span>Stamtavle</span>
+                            </div>
+                        }
+                    >
+                        <RabbitPedigree earCombId={currentProfile.earCombId} />
+                    </Tab>
+
+                    <Tab
+                        key="sale"
                         title={
                             <div className="flex items-center space-x-2">
                                 {currentProfile.saleDetails ? (
