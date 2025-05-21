@@ -1,6 +1,6 @@
 // src/app/account/myRabbits/rabbitProfile/[earCombId]/rabbitProfile.tsx
 "use client";
-import { Rabbit_ProfileDTO, Rabbit_SaleDetailsDTO } from '@/api/types/AngoraDTOs';
+import { Rabbit_ProfileDTO, Rabbit_SaleDetailsDTO, SaleDetailsProfileDTO } from '@/api/types/AngoraDTOs';
 import { useRabbitProfile as useProfileHook } from '@/hooks/rabbits/useRabbitProfile';
 import { useRabbitProfile as useProfileContext } from '@/contexts/RabbitProfileContext';
 import RabbitDetails from './rabbitDetails';
@@ -55,12 +55,46 @@ export default function RabbitProfile({ rabbitProfile: initialRabbitProfile }: {
         await refreshProfile();
     }, [handleSave, refreshProfile]);
 
-    // Handler til salgsdetaljer
-    const handleSaleDetailsChange = useCallback((saleDetails: Rabbit_SaleDetailsDTO | null) => {
-        setCurrentProfile(prevProfile => ({
-            ...prevProfile,
-            saleDetails: saleDetails
-        }));
+    // Handler til salgsdetaljer - opdateret til at bruge saleDetailsProfile
+    const handleSaleDetailsChange = useCallback((saleDetails: Rabbit_SaleDetailsDTO | null, fullSaleDetailsProfile?: SaleDetailsProfileDTO | null) => {
+        setCurrentProfile(prevProfile => {
+            // Hvis vi har et fuldt saleDetailsProfile objekt, brug det direkte
+            if (fullSaleDetailsProfile) {
+                return {
+                    ...prevProfile,
+                    saleDetailsProfile: fullSaleDetailsProfile
+                } as Rabbit_ProfileDTO;
+            }
+
+            // Ellers, hvis vi kun har salgsdetaljer for kaninen
+            else if (saleDetails) {
+                // Type assertion for at sikre alle påkrævede felter eksisterer
+                const updatedSaleDetailsProfile: SaleDetailsProfileDTO = {
+                    id: prevProfile.saleDetailsProfile?.id || 0,
+                    dateListed: prevProfile.saleDetailsProfile?.dateListed || new Date().toISOString().split('T')[0],
+                    city: prevProfile.saleDetailsProfile?.city || '',
+                    zipCode: prevProfile.saleDetailsProfile?.zipCode || 0,
+                    viewCount: prevProfile.saleDetailsProfile?.viewCount || 0,
+                    imageUrl: prevProfile.saleDetailsProfile?.imageUrl || '',
+                    price: prevProfile.saleDetailsProfile?.price || 0,
+                    title: prevProfile.saleDetailsProfile?.title || `Kanin: ${prevProfile.nickName || prevProfile.earCombId}`,
+                    saleDescription: prevProfile.saleDetailsProfile?.saleDescription || '',
+                    rabbitSaleDetails: saleDetails,
+                    woolSaleDetails: null
+                };
+
+                return {
+                    ...prevProfile,
+                    saleDetailsProfile: updatedSaleDetailsProfile
+                } as Rabbit_ProfileDTO;
+            } else {
+                // Hvis vi fjerner salgsdetaljer, sæt saleDetailsProfile til null
+                return {
+                    ...prevProfile,
+                    saleDetailsProfile: null
+                } as Rabbit_ProfileDTO;
+            }
+        });
     }, [setCurrentProfile]);
 
     // Sekundær navigation
@@ -161,7 +195,7 @@ export default function RabbitProfile({ rabbitProfile: initialRabbitProfile }: {
                         key="sale"
                         title={
                             <div className="flex items-center space-x-2">
-                                {currentProfile.saleDetails ? (
+                                {currentProfile.saleDetailsProfile ? (
                                     <RiPriceTag3Fill className="text-xl text-blue-400" />
                                 ) : (
                                     <RiPriceTag3Line className="text-xl" />

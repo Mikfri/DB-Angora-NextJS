@@ -1,10 +1,9 @@
 // src/components/nav/top/TopNavClient.tsx
 'use client'
-import NextLink from 'next/link';
 import {
     Dropdown, DropdownTrigger, DropdownMenu,
     DropdownItem, Chip
-} from "@heroui/react"; // Fjernet Tooltip import
+} from "@heroui/react";
 import { PiUserCircleFill, PiUserCircleCheckFill } from "react-icons/pi";
 import { MdOutlineLogout } from 'react-icons/md';
 import { usePathname } from 'next/navigation';
@@ -42,6 +41,7 @@ export function TopNavClient() {
     return (
         <>
             {isLoggedIn ? (
+                /*NextLink ikke anbefalet til dropdown - href er bedrer i dette scenarie*/
                 <Dropdown placement="bottom-end">
                     <DropdownTrigger>
                         <div className="flex items-center gap-5 cursor-pointer">
@@ -70,15 +70,21 @@ export function TopNavClient() {
                     </DropdownTrigger>
 
                     <DropdownMenu aria-label="Profil handlinger" className="nav-dropdown text-zinc-600">
-                        <DropdownItem key="min-side" textValue="Min side">
-                            <NextLink href="/account" className="w-full block nav-text">
-                                Min side
-                            </NextLink>
+                        <DropdownItem 
+                            key="min-side" 
+                            textValue="Min side"
+                            href="/account"
+                            className="nav-text"
+                        >
+                            Min side
                         </DropdownItem>
-                        <DropdownItem key="profile" textValue="Bruger profil">
-                            <NextLink href="/account/profile" className="w-full block nav-text">
-                                Bruger profil
-                            </NextLink>
+                        <DropdownItem 
+                            key="profile" 
+                            textValue="Bruger profil"
+                            href="/account/profile" 
+                            className="nav-text"
+                        >
+                            Bruger profil
                         </DropdownItem>
                         <DropdownItem
                             key="logout"

@@ -3,7 +3,7 @@
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback, useMemo } from 'react';
 import { Rabbit_ProfileDTO } from '@/api/types/AngoraDTOs';
-import { getRabbitProfile } from '@/app/actions/rabbit/profile';
+import { getRabbitProfile } from '@/app/actions/rabbit/rabbitCrudActions';
 
 interface RabbitProfileContextType {
   profile: Rabbit_ProfileDTO | null;

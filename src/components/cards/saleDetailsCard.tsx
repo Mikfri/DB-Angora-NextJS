@@ -1,43 +1,40 @@
+// src/components/cards/saleDetailsCard.tsx
 'use client';
 
-import { Rabbit_SaleDetailsPreviewDTO } from '@/api/types/AngoraDTOs';
+import { SaleDetailsCardDTO } from '@/api/types/AngoraDTOs';
 import { Card, CardHeader, CardBody, Tooltip, Divider } from "@heroui/react";
 import { useState, memo } from 'react';
-import { FaMars, FaVenus, FaRegHeart, FaHeart, FaBirthdayCake } from "react-icons/fa";
+import { FaRegHeart, FaHeart } from "react-icons/fa";
 import { ImPriceTag } from 'react-icons/im';
 import { IoLocationOutline } from 'react-icons/io5';
 import { LuRabbit } from "react-icons/lu";
+import { GiWool } from "react-icons/gi";
+import { BsClock } from "react-icons/bs";
 import Image from 'next/image';
 
 interface Props {
-    rabbit: Rabbit_SaleDetailsPreviewDTO;
+    item: SaleDetailsCardDTO;
     onClick?: () => void;
     onFavoriteToggle?: (id: string, isFavorite: boolean) => void;
     initialFavorite?: boolean;
 }
 
-// Hjælpefunktioner til formatering af alder
-const formatAge = (months: number) => {
-    if (months >= 12) {
-        const years = Math.floor(months / 12);
-        const remainingMonths = months % 12;
-        return `${years} ${years === 1 ? 'år' : 'år'}${remainingMonths > 0 ? ` ${remainingMonths} mdr` : ''}`;
-    }
-    return `${months} mdr`;
-};
-
 // Memorized komponent for bedre ydeevne
-const RabbitForsaleCard = memo(function RabbitForsaleCard({ 
-    rabbit, 
+const SaleDetailsCard = memo(function SaleDetailsCard({ 
+    item, 
     onClick, 
     onFavoriteToggle,
     initialFavorite = false
 }: Props) {
     const [imageError, setImageError] = useState(false);
     const [isFavorite, setIsFavorite] = useState(initialFavorite);
+    
+    // Ændr dette til at bruge det eksisterende default billede
     const defaultImage = '/images/default-rabbit.jpg';
-    const profileImage = (!imageError && rabbit.profilePicture) || defaultImage;
+    const profileImage = (!imageError && item.imageUrl) || defaultImage;
 
+    // Resten af komponenten forbliver uændret...
+    
     // Handler til favorit knap med kritisk fix
     const handleFavoriteClick = (event: React.MouseEvent) => {
         // Disse linjer stopper event bubbling, forebygger navigation og tekst-selektion
@@ -56,7 +53,7 @@ const RabbitForsaleCard = memo(function RabbitForsaleCard({
         setIsFavorite(newState);
         
         if (onFavoriteToggle) {
-            onFavoriteToggle(rabbit.earCombId, newState);
+            onFavoriteToggle(item.entityId, newState);
         }
 
         // Returnér false for at forhindre videre event propagation
@@ -70,11 +67,26 @@ const RabbitForsaleCard = memo(function RabbitForsaleCard({
         }
     };
 
-    // Race chip med LuRabbit ikon
-    const raceChip = (
+    // Bestem ikon baseret på entityType
+    const getEntityIcon = () => {
+        // Default til rabbit hvis entityType mangler (migration kompatibilitet)
+        const entityType = item.entityType?.toLowerCase() || 'rabbit';
+        
+        switch (entityType) {
+            case 'rabbit':
+                return <LuRabbit size={14} />;
+            case 'wool':
+                return <GiWool size={14} />;
+            default:
+                return <LuRabbit size={14} />; // Default ikon hvis typen er ukendt
+        }
+    };
+
+    // Type chip med passende ikon
+    const typeChip = (
         <div className="inline-flex items-center gap-1 bg-black/40 backdrop-blur-sm text-white text-sm font-medium px-2 py-1 rounded-full shadow-sm">
-            <LuRabbit size={14} />
-            <span className="truncate max-w-[120px]">{rabbit.race || 'Ukendt race'}</span>
+            {getEntityIcon()}
+            <span className="truncate max-w-[120px]">{item.title || 'Ukendt'}</span>
         </div>
     );
 
@@ -82,9 +94,33 @@ const RabbitForsaleCard = memo(function RabbitForsaleCard({
     const priceChip = (
         <div className="inline-flex items-center gap-1 bg-emerald-600/90 text-white text-sm font-medium px-2 py-1 rounded-full shadow-sm">
             <ImPriceTag size={12} />
-            <span>{rabbit.price} kr.</span>
+            <span>{item.price} kr.</span>
         </div>
     );
+
+    // Beregn hvor længe siden annoncen blev oprettet
+    const calculateTimeSince = () => {
+        if (!item.dateListed) return 'Ukendt';
+        
+        const listedDate = new Date(item.dateListed);
+        const now = new Date();
+        const diffTime = Math.abs(now.getTime() - listedDate.getTime());
+        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+        
+        if (diffDays === 0) {
+            return 'I dag';
+        } else if (diffDays === 1) {
+            return 'I går';
+        } else if (diffDays < 7) {
+            return `${diffDays} dage siden`;
+        } else if (diffDays < 31) {
+            const weeks = Math.floor(diffDays / 7);
+            return `${weeks} ${weeks === 1 ? 'uge' : 'uger'} siden`;
+        } else {
+            const months = Math.floor(diffDays / 30);
+            return `${months} ${months === 1 ? 'måned' : 'måneder'} siden`;
+        }
+    };
 
     return (
         <Card
@@ -93,11 +129,11 @@ const RabbitForsaleCard = memo(function RabbitForsaleCard({
             className="max-w-sm hover:shadow-lg transition-shadow bg-zinc-800/80 backdrop-blur-md 
                      backdrop-saturate-150 border border-zinc-700/50 select-none"
         >
-            {/* Billede container med STØRRE HØJDE */}
+            {/* Billede container */}
             <div className="relative w-full h-64">
                 <Image
                     src={profileImage}
-                    alt={`${rabbit.race || 'Kanin'} profilbillede`}
+                    alt={`${item.title || 'Salgsobjekt'} billede`}
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     className="object-cover"
@@ -105,15 +141,12 @@ const RabbitForsaleCard = memo(function RabbitForsaleCard({
                     draggable={false}
                 />
                 
-                {/* Top gradient for favorit ikonen */}
-                {/* <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-black/40 to-transparent" /> */}
-                
-                {/* Bund gradient for race og pris */}
+                {/* Bund gradient for type og pris */}
                 <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-black/80 to-transparent" />
                 
-                {/* Race tag - nederst til venstre */}
+                {/* Type tag - nederst til venstre */}
                 <div className="absolute bottom-2 left-2 z-10 select-none">
-                    {raceChip}
+                    {typeChip}
                 </div>
                 
                 {/* Pris tag - nederst til højre */}
@@ -153,20 +186,11 @@ const RabbitForsaleCard = memo(function RabbitForsaleCard({
                 </div>
             </div>
             
-            {/* Header sektion med kun ID og køn */}
+            {/* Header sektion med ID */}
             <CardHeader className="flex gap-3 py-2.5">
                 <div className="flex flex-col w-full">
                     <div className="flex items-center justify-between">
-                        <p className="text-small text-zinc-300">{rabbit.earCombId}</p>
-                        <Tooltip content={rabbit.gender === 'Buck' ? 'Han' : 'Hun'}>
-                            <span>
-                                {rabbit.gender === 'Buck' ? (
-                                    <FaMars className="text-blue-400" size={16} />
-                                ) : (
-                                    <FaVenus className="text-pink-400" size={16} />
-                                )}
-                            </span>
-                        </Tooltip>
+                        <p className="text-small text-zinc-300">ID: {item.entityId}</p>
                     </div>
                 </div>
             </CardHeader>
@@ -175,21 +199,21 @@ const RabbitForsaleCard = memo(function RabbitForsaleCard({
             <CardBody className="text-zinc-300 py-0 pb-3 select-none">
                 <div className="space-y-2">
                     <div className="flex items-center">
-                        <FaBirthdayCake className="text-zinc-400 mr-2 shrink-0" size={14} />
+                        <BsClock className="text-zinc-400 mr-2 shrink-0" size={14} />
                         <div className="grid grid-cols-2 gap-x-2 w-full">
-                            <span className="text-zinc-400 text-sm">Alder:</span>
-                            <span className="text-sm">{formatAge(rabbit.ageInMonths)}</span>
+                            <span className="text-zinc-400 text-sm">Oprettet:</span>
+                            <span className="text-sm">{calculateTimeSince()}</span>
                         </div>
                     </div>
                     
-                    {/* Lysere divider mellem alder og lokation */}
+                    {/* Lysere divider mellem tid og lokation */}
                     <Divider className="my-1.5 bg-zinc-700/50" />
                     
                     <div className="flex items-center">
                         <IoLocationOutline className="text-zinc-400 mr-2 shrink-0" size={16} />
                         <div className="grid grid-cols-2 gap-x-2 w-full">
                             <span className="text-zinc-400 text-sm">Lokation:</span>
-                            <span className="text-sm truncate">{rabbit.zipCode} {rabbit.city}</span>
+                            <span className="text-sm truncate">{item.zipCode} {item.city}</span>
                         </div>
                     </div>
                 </div>
@@ -198,4 +222,4 @@ const RabbitForsaleCard = memo(function RabbitForsaleCard({
     );
 });
 
-export default RabbitForsaleCard;
+export default SaleDetailsCard;

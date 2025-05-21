@@ -1,6 +1,6 @@
 // src/api/endpoints/rabbitController.ts
 import { getApiUrl } from "../config/apiConfig";
-import { Rabbit_CreateDTO, Rabbit_ProfileDTO, Rabbits_SaleDetailsPreviewList, Rabbit_ForsaleProfileDTO, Rabbits_ForbreedingPreviewList, Rabbit_UpdateDTO, Rabbit_PreviewDTO, Rabbit_CreateSaleDetailsDTO, Rabbit_SaleDetailsDTO, Rabbit_UpdateSaleDetailsDTO, CloudinaryUploadConfigDTO, Rabbit_PedigreeDTO } from "../types/AngoraDTOs";
+import { Rabbit_CreateDTO, Rabbit_ProfileDTO, SaleDetailsCardList, Rabbit_ForsaleProfileDTO, Rabbits_ForbreedingPreviewList, Rabbit_UpdateDTO, Rabbit_PreviewDTO, Rabbit_CreateSaleDetailsDTO, Rabbit_SaleDetailsDTO, Rabbit_UpdateSaleDetailsDTO, CloudinaryUploadConfigDTO, Rabbit_PedigreeDTO } from "../types/AngoraDTOs";
 import { ForSaleFilters } from "../types/filterTypes";
 
 
@@ -93,7 +93,7 @@ export async function GetRabbitPhotoUploadPermission(
  * @param filters Valgfrie søgefiltre
  * @returns Liste over kaniner der matcher søgekriterierne
  */
-export async function GetRabbitsForSale(filters?: ForSaleFilters): Promise<Rabbits_SaleDetailsPreviewList> {
+export async function GetRabbitsForSale(filters?: ForSaleFilters): Promise<SaleDetailsCardList> {
     let url = getApiUrl('Rabbit/ForSale');
 
     if (filters) {
@@ -128,11 +128,19 @@ export async function GetRabbitsForSale(filters?: ForSaleFilters): Promise<Rabbi
 }
 
 export async function GetRabbitForsaleProfile(earCombId: string): Promise<Rabbit_ForsaleProfileDTO> {
-    const response = await fetch(getApiUrl(`Rabbit/ForsaleProfile/${earCombId}`));
+    const url = getApiUrl(`Rabbit/ForsaleProfile/${earCombId}`);
+    
+    const response = await fetch(url);
+    
     if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`API error when fetching rabbit profile: Status ${response.status}`, errorText);
         throw new Error(`API call failed: ${response.status}`);
     }
-    return response.json();
+    
+    const data = await response.json();
+
+    return data;
 }
 
 export async function GetRabbitsForBreeding(accessToken: string): Promise<Rabbits_ForbreedingPreviewList> {

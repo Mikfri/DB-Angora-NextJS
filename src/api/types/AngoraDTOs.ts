@@ -60,6 +60,9 @@ export interface Rabbit_CreateDTO {
     mother_EarCombId?: string | null;
 }
 
+/**
+ * Indeholder de properties som brugeren skal udfylde for at oprette en kanin.
+ */
 export interface Rabbit_CreateSaleDetailsDTO {
     rabbitId: string;
     price: number;
@@ -70,20 +73,43 @@ export interface Rabbit_CreateSaleDetailsDTO {
     saleDescription: string;
 }
 
+/**
+ * Indeholder default/standard oplysninger (SaleDetails.properties) for en entitet, der er til salg.
+ * Indeholder null-able entityDTO'er, hvor kun een af dem vil være udfyldt.
+ * (Rabbit_SaleDetailsDTO, Wool_SaleDetailsDTO etc...)
+*/
+export interface SaleDetailsProfileDTO {
+    id: number;
+    dateListed: string;
+    city: string;
+    zipCode: number;
+    viewCount: number;
+    imageUrl: string | null;
+    price: number;
+    title: string;
+    saleDescription: string;
+    rabbitSaleDetails: Rabbit_SaleDetailsDTO | null;
+    woolSaleDetails: Wool_SaleDetailsDTO | null;
+}
+
+/**
+ * Indeholder ALLE oplysninger en køber har brug for at at se for en salgs-kanin.
+ * Rabbit_ForsaleProfileDTO er rabbit.properties, hvor de andre DTO'er som er inkluderet er med standard- og entity specifikke oplysninger.
+ * Dvs saleDetails.property og rabbitSaleDetails.property.
+ * Benyttes på kaninens salgs-profilside og indeholder 'SaleDetailsProfileDTO' og 'Rabbit_SaleDetailsDTO'.
+ */
 export interface Rabbit_ForsaleProfileDTO {
-    earCombId: string;
     nickName: string;
     race: string;
     color: string;
     dateOfBirth: string;
     gender: string;
     isForBreeding: boolean;
-    profilePicture: string;
-    photos: Photo_DTO[];
     ownerFullName: string;
     ownerPhoneNumber: string;
     ownerEmail: string;
-    saleDetails: Rabbit_SaleDetailsDTO;
+    photos: Photo_DTO[];
+    saleDetailsProfile: SaleDetailsProfileDTO;
 }
 
 export interface Rabbit_PedigreeDTO {
@@ -178,41 +204,54 @@ export interface Rabbit_ProfileDTO {
     isForBreeding: boolean | null;
     fatherId_Placeholder: string | null;
     father_EarCombId: string | null;
-    profilePicture: string | null;
-    saleDetails: Rabbit_SaleDetailsDTO | null;
-    photos: Photo_DTO[];
     motherId_Placeholder: string | null;
     mother_EarCombId: string | null;
+    profilePicture: string | null;
+    saleDetailsProfile: SaleDetailsProfileDTO | null;
+    photos: Photo_DTO[];
     inbreedingCoefficient: number;
     children: Rabbit_ChildPreviewDTO[];
 }
 
+/**
+ * Specifikke salgsoplysninger for en kanin (RabbitSaleDetails.properties).
+ * Følger med SaleDetailProfilesDTO'en.
+ */
 export interface Rabbit_SaleDetailsDTO {
-    id: number;
-    dateListed: string;
-    price: number;
-    canBeShipped: boolean;
+    rabbitId: string;
     isLitterTrained: boolean;
     isNeutered: boolean;
     homeEnvironment: string;
-    saleDescription: string;
 }
 
-export interface Rabbit_SaleDetailsPreviewDTO {
-    earCombId: string;
-    //nickName: string;
-    //dateOfBirth: string;
-    profilePicture: string;
-    race: string;
-    gender: string;
-    ageInMonths: number;
+export interface Wool_SaleDetailsDTO {
+    woolId: string;
+    weightGram: number;
+    qualityGrade: string;
+}
+
+/**
+ * Indeholder standariserede salgs oplysninger.
+ * Benyttes til salgs-cards.
+ */
+export interface SaleDetailsCardDTO {
+    id: number;
     price: number;
-    //color: string;
+    dateListed: string;
+    title: string;
     city: string;
     zipCode: number;
+    //nickName: string;
+    //dateOfBirth: string;
+    imageUrl: string;
+    entityType: string;
+    entityId: string;
 }
-export type Rabbits_SaleDetailsPreviewList = Rabbit_SaleDetailsPreviewDTO[];
+export type SaleDetailsCardList = SaleDetailsCardDTO[];
 
+/**
+ * Indeholder de properties som man må redigere på en kanin.
+ */
 export interface Rabbit_UpdateDTO {
     nickName: string | null;
     race: string | null;

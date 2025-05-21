@@ -1,0 +1,37 @@
+# Server Cache Invalidering i Next.js
+
+## Hvad er dette?
+Dette er en guide til hvordan cache-invalidering fungerer i vores Next.js applikation, og hvorfor det er vigtigt for at sikre at brugerne ser opdateret information.
+
+## Hvordan fungerer cache invalidering?
+Next.js holder en cache af renderet indhold på serverside for at forbedre performance. Når data ændrer sig (f.eks. når en ny kanin sættes til salg), skal vi fortælle Next.js at visse sider skal genindlæses.
+
+Dette gøres med `revalidatePath()` funktionen fra Next.js, som vi bruger i vores server actions.
+
+## Eksempelscenarie
+Forestil dig dette scenarie:
+1. Ulla i Ålborg sætter sin kanin til salg
+2. `invalidateForsalePages()` bliver kaldt, som markerer cache for salgs-siderne som forældet
+3. Jens fra Tilst besøger `/sale/rabbits` siden
+4. Next.js opdager at siden er markeret som forældet og genindlæser friske data
+5. Jens ser Ullas nyligt opslåede kanin med det samme
+
+Dette sker fordi cache invalidering foregår på SERVER-niveau, ikke i browseren.
+
+## Hvornår skal cache invalideres?
+Cache skal invalideres når data ændrer sig. I vores applikation gør vi dette når:
+- En kanin sættes til salg
+- En salgsannonce opdateres
+- En salgsannonce fjernes
+
+## Hvorfor er det vigtigt?
+Uden cache invalidering ville brugerne muligvis ikke se opdateret information før efter et servergenstart eller når cache-timeren udløber (typisk 60 sekunder i vores setup).
+
+## Teknisk forskel mellem server og browser cache
+Dette er forskelligt fra browser-cache:
+- Server cache: Påvirker ALLE brugere
+- Browser cache: Påvirker KUN én specifik bruger i én specifik browser
+
+## Relaterede filer
+- `src/app/actions/cache/invalidateCache.ts` - Server action til cache invalidering
+- `src/hooks/useSaleDetailsHandler.ts` - Hook der bruger cache invalidering
