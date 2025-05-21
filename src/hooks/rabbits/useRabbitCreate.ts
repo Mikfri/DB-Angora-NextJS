@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
 import { Rabbit_CreateDTO } from '@/api/types/AngoraDTOs';
-import { createRabbit } from '@/app/actions/rabbit/create';
+import { createRabbit } from '@/app/actions/rabbit/rabbitCrudActions';
 
 export function useCreateRabbit() {
     const router = useRouter();
