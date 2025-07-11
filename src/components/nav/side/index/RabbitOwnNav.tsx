@@ -7,21 +7,23 @@ import { RabbitOwnNavClient } from '../client/RabbitOwnNavClient';
 interface RabbitOwnNavProps {
     activeFilters: OwnFilters;
     onFilterChange: (filters: Partial<OwnFilters>) => void;
+    setLifeStatusFilter?: (status: 'all' | 'alive' | 'deceased') => void;
 }
-
 /**
  * Integrated RabbitOwnNav component
  * Combines server-side base with client-side content
  */
 export default function RabbitOwnNav({
     activeFilters,
-    onFilterChange
+    onFilterChange,
+    setLifeStatusFilter
 }: RabbitOwnNavProps) {
     return (
         <RabbitOwnNavBase>
             <RabbitOwnNavClient 
                 activeFilters={activeFilters} 
                 onFilterChange={onFilterChange}
+                setLifeStatusFilter={setLifeStatusFilter}
             />
         </RabbitOwnNavBase>
     );

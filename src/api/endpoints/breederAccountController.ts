@@ -1,23 +1,12 @@
-// src/api/endpoints/accountController.ts
+// src/api/endpoints/breederAccountController.ts
 import { getApiUrl } from "../config/apiConfig";
 import {
-    User_ProfileDTO, Rabbit_PreviewDTO, PagedResultDTO,
+    Rabbit_PreviewDTO, PagedResultDTO,
     TransferRequest_ReceivedDTO, TransferRequest_ReceivedFilterDTO,
     TransferRequest_SentFilterDTO, TransferRequest_SentDTO
 } from "../types/AngoraDTOs";
 
-//-------------------- READ
-//-------- User
-export async function GetUserProfile(accessToken: string, userProfileId: string): Promise<User_ProfileDTO> {
-    const data = await fetch(getApiUrl(`Account/UserProfile/${userProfileId}`), {
-        headers: { Authorization: `Bearer ${accessToken}` },
-    });
-    const userProfile = await data.json();
-    return userProfile;
-}
-
-//-------- ICollections
-//---- Rabbits
+//-------------------- RABBITS --------------------
 /**
  * Henter alle brugerens kaniner med paginering
  * @param accessToken JWT token med brugerens auth information
@@ -31,18 +20,28 @@ export async function GetOwnRabbits(
   pageSize: number = 10
 ): Promise<PagedResultDTO<Rabbit_PreviewDTO>> {
   try {
-    const url = getApiUrl(`Account/MyRabbits?page=${page}&pageSize=${pageSize}`);
+    // Simpel query med kun page og pageSize
+    const url = getApiUrl(`BreederAccount/Rabbits_Owned?page=${page}&pageSize=${pageSize}`);
     
     const response = await fetch(url, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${accessToken}`,
+        'Accept': 'text/plain',
         'Content-Type': 'application/json'
       }
     });
 
     if (!response.ok) {
-      throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
+      // Standardiseret fejlhåndtering
+      let errorMessage = `${response.status} ${response.statusText}`;
+      try {
+        const errorBody = await response.text();
+        if (errorBody) errorMessage = errorBody;
+      } catch (e) {
+        console.error('Kunne ikke læse fejlbesked:', e);
+      }
+      throw new Error(`Fejl ved hentning af egne kaniner: ${errorMessage}`);
     }
 
     const data = await response.json();
@@ -62,7 +61,7 @@ export async function GetOwnRabbits(
   }
 }
 
-//---- TransferRequests
+//-------------------- TRANSFER REQUESTS --------------------
 /**
  * Hent overførselsanmodninger modtaget af den aktuelle bruger
  * @param accessToken Brugerens adgangstoken
@@ -85,22 +84,22 @@ export async function GetReceivedTransferRequests(
         if (filter.from_dateAccepted) queryParams.append('From_DateAccepted', filter.from_dateAccepted);
     }
 
-    const url = `${getApiUrl('Account/TransferRequests_Received')}${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+    const url = `${getApiUrl('BreederAccount/TransferRequests_Received')}${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
 
     const response = await fetch(url, {
+        method: 'GET',
         headers: {
-            Authorization: `Bearer ${accessToken}`,
-            'Accept': 'text/plain'
-        },
+            'Authorization': `Bearer ${accessToken}`,
+            'Accept': 'text/plain',
+            'Content-Type': 'application/json'
+        }
     });
 
     if (!response.ok) {
         let errorMessage = `${response.status} ${response.statusText}`;
         try {
             const errorResponse = await response.text();
-            if (errorResponse) {
-                errorMessage = errorResponse;
-            }
+            if (errorResponse) errorMessage = errorResponse;
         } catch (e) {
             console.error('Kunne ikke parse fejlbesked:', e);
         }
@@ -133,22 +132,22 @@ export async function GetSentTransferRequests(
         if (filter.from_dateAccepted) queryParams.append('From_DateAccepted', filter.from_dateAccepted);
     }
 
-    const url = `${getApiUrl('Account/TransferRequests_Issued')}${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+    const url = `${getApiUrl('BreederAccount/TransferRequests_Issued')}${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
 
     const response = await fetch(url, {
+        method: 'GET',
         headers: {
-            Authorization: `Bearer ${accessToken}`,
-            'Accept': 'text/plain'
-        },
+            'Authorization': `Bearer ${accessToken}`,
+            'Accept': 'text/plain',
+            'Content-Type': 'application/json'
+        }
     });
 
     if (!response.ok) {
         let errorMessage = `${response.status} ${response.statusText}`;
         try {
             const errorResponse = await response.text();
-            if (errorResponse) {
-                errorMessage = errorResponse;
-            }
+            if (errorResponse) errorMessage = errorResponse;
         } catch (e) {
             console.error('Kunne ikke parse fejlbesked:', e);
         }

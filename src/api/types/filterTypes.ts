@@ -24,9 +24,9 @@ export interface OwnFilters {
     gender?: string | null;
     race?: string | null;
     color?: string | null;
-    forSale?: boolean;
+    forSale?: boolean;  // true = kun til salg, false = alle
     isForBreeding?: boolean;
-    showDeceased?: boolean;
+    lifeStatus?: boolean | null;  // NULL = vis alle, true = kun døde, false = kun levende
     showJuveniles?: boolean; 
     raceColorApproval?: string | null;
     bornAfterDate?: string | null;

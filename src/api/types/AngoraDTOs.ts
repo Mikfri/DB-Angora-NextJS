@@ -1,4 +1,26 @@
 // src/api/types/DB-AngoraDTOs.ts
+
+/**
+ * Generisk DTO til paginerede resultater.
+ * @template T Typen af data i resultatet
+ */
+export interface PagedResultDTO<T> {
+  /** Array af data af typen T */
+  data: T[];
+  /** Totalt antal elementer på tværs af alle sider */
+  totalCount: number;
+  /** Nuværende side (1-baseret) */
+  page: number;
+  /** Antal elementer per side */
+  pageSize: number;
+  /** Totalt antal sider */
+  totalPages: number;
+  /** Om der findes en næste side */
+  hasNextPage: boolean;
+  /** Om der findes en tidligere side */
+  hasPreviousPage: boolean;
+}
+
 export interface Photo_DTO {
     id: number;
     filePath: string;
@@ -161,7 +183,7 @@ export interface Rabbit_ForbreedingPreviewDTO {    // Preview for avlerer
 }
 export type Rabbits_ForbreedingPreviewList = Rabbit_ForbreedingPreviewDTO[];
 
-export interface Rabbit_PreviewDTO {    // Preview for avlerer
+export interface Rabbit_PreviewDTO {
     earCombId: string;
     nickName: string | null;
     originFullName: string | null;
@@ -169,18 +191,18 @@ export interface Rabbit_PreviewDTO {    // Preview for avlerer
     race: string | null;
     color: string | null;
     approvedRaceColorCombination: boolean | null;
-    dateOfBirth: string | null;  // API: string($date) format, nullable
-    dateOfDeath: string | null;
+    dateOfBirth: string | null;  // DateOnly i C#, string i TS
+    dateOfDeath: string | null;  // DateOnly i C#, string i TS
     isJuvenile: boolean | null;
     gender: string | null;
     isForBreeding: boolean | null;
-    hasSaleDetails: boolean;
+    hasSaleDetails: boolean;  // Bemærk: ikke nullable i C#
     fatherId_Placeholder: string | null;
     father_EarCombId: string | null;
     motherId_Placeholder: string | null;
     mother_EarCombId: string | null;
-    inbreedingCoefficient: number;
-    profilePicture: string;
+    inbreedingCoefficient: number; // 0.0 - 1.0
+    profilePicture: string | null;  // Nullable i C#
 }
 export type Rabbits_PreviewList = Rabbit_PreviewDTO[];
 

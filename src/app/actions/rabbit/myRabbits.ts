@@ -2,47 +2,54 @@
 'use server';
 
 import { getAccessToken } from '@/app/actions/auth/session';
-import { GetOwnRabbits } from '@/api/endpoints/accountController';
-import { Rabbit_PreviewDTO } from '@/api/types/AngoraDTOs';
+// Skift import til breederAccountController
+import { GetOwnRabbits } from '@/api/endpoints/breederAccountController';
+import { PagedResultDTO, Rabbit_PreviewDTO } from '@/api/types/AngoraDTOs';
 
 /**
- * Server Action: Henter alle brugerens kaniner
+ * Server Action: Henter alle brugerens kaniner med paginering
  * Wrapper omkring GetOwnRabbits der håndterer token-hentning
- * @returns Object med success flag, data og evt. fejlbesked
+ * @param page Sidetal (starter fra 1)
+ * @param pageSize Antal elementer per side
+ * @returns Object med success flag, pagineret data og evt. fejlbesked
  */
-export async function getMyRabbits(): Promise<{
+export async function getMyRabbits(
+  page: number = 1, 
+  pageSize: number = 10
+): Promise<{
   success: boolean;
-  data: Rabbit_PreviewDTO[];
+  data?: PagedResultDTO<Rabbit_PreviewDTO>;
   error?: string;
 }> {
   try {
+    console.log(`Server Action: getMyRabbits called with page=${page}, pageSize=${pageSize}`);
     // Hent token direkte via server action
     const accessToken = await getAccessToken();
     
     if (!accessToken) {
       return {
         success: false,
-        data: [],
         error: "Du skal være logget ind for at se dine kaniner"
       };
     }
     
-    // Brug den eksisterende GetOwnRabbits funktion
-    const rabbits = await GetOwnRabbits(accessToken);
+    // Pass the page and pageSize parameters explicitly
+    const pagedResult = await GetOwnRabbits(accessToken, page, pageSize);
+    
+    console.log(`Server Action: getMyRabbits received page ${pagedResult.page} of ${pagedResult.totalPages}`);
+    
     return {
       success: true,
-      data: rabbits
+      data: pagedResult
     };
   } catch (error) {
     console.error("Error in getMyRabbits server action:", error);
     return {
       success: false,
-      data: [],
       error: "Der opstod en fejl ved indlæsning af dine kaniner"
     };
   }
 }
-
 
 // Nedenstående er Server filtrering.. Hvis DB-AngoraREST API'en understøtter det,
 // vil den kunne bruge denne metode..

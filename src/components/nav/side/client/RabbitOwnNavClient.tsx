@@ -1,6 +1,5 @@
-// src/components/nav/side/client/RabbitOwnNavClient.tsx
 'use client';
-import { Input, Switch, Button, Divider } from "@heroui/react";
+import { Input, Switch, Button, Divider, RadioGroup, Radio } from "@heroui/react"; // Tilføjet RadioGroup og Radio
 import { useRouter } from 'next/navigation';
 import { MdAdd, MdFilterList, MdCalendarMonth } from "react-icons/md";
 import { LuRabbit } from "react-icons/lu";
@@ -11,13 +10,13 @@ import { TbStatusChange } from "react-icons/tb";
 import { BiPurchaseTagAlt } from "react-icons/bi";
 import EnumAutocomplete from '@/components/enumHandlers/enumAutocomplete';
 import { OwnFilters } from '@/api/types/filterTypes';
-import EnumLocalAutocomplete, { RaceColorApproval } from "@/components/enumHandlers/enumLocalAutocomplete";
 import { useState, useEffect, useCallback } from 'react';
 import { useEnums, RabbitEnum } from '@/contexts/EnumContext';
 
 interface RabbitOwnNavClientProps {
     activeFilters: OwnFilters;
     onFilterChange: (filters: Partial<OwnFilters>) => void;
+    setLifeStatusFilter?: (status: 'all' | 'alive' | 'deceased') => void; // Tilføj denne
 }
 
 // De enum typer der bruges i denne komponent
@@ -31,15 +30,29 @@ const FILTER_SECTIONS = {
     STATUS: 'Status'
 } as const;
 
+// Definér konstanter til RadioGroup værdier
+const LIFE_STATUS = {
+    ALL: 'all',
+    ALIVE: 'alive',
+    DECEASED: 'deceased'
+} as const;
+
+const APPROVAL_STATUS = {
+    ALL: 'all',
+    APPROVED: 'approved',
+    NOT_APPROVED: 'notApproved'
+} as const;
+
 export function RabbitOwnNavClient({
     activeFilters = {},
-    onFilterChange
+    onFilterChange,
+    setLifeStatusFilter
 }: RabbitOwnNavClientProps) {
     const router = useRouter();
     const { getMultipleEnumValues } = useEnums();
     const [enumsLoaded, setEnumsLoaded] = useState(false);
 
-    // Load enums när komponenten mounter
+    // Load enums når komponenten mounter
     useEffect(() => {
         if (!enumsLoaded) {
             getMultipleEnumValues(REQUIRED_ENUMS)
@@ -51,25 +64,42 @@ export function RabbitOwnNavClient({
     // Typestærk handler til filteropdateringer
     const handleFilterChange = useCallback((updates: Partial<OwnFilters>) => {
         console.log("RabbitOwnNavClient - Sending filter update:", updates);
-
-        // Sikrer os at boolske værdier er faktisk booleans
-        const processedUpdates = { ...updates };
-
-        if ('forSale' in updates) {
-            processedUpdates.forSale = Boolean(updates.forSale);
-        }
-        if ('isForBreeding' in updates) {
-            processedUpdates.isForBreeding = Boolean(updates.isForBreeding);
-        }
-        if ('showDeceased' in updates) {
-            processedUpdates.showDeceased = Boolean(updates.showDeceased);
-        }
-        if ('showJuveniles' in updates) {
-            processedUpdates.showJuveniles = Boolean(updates.showJuveniles);
-        }
-
-        onFilterChange(processedUpdates);
+        onFilterChange(updates);
     }, [onFilterChange]);
+
+    // Hjælpefunktion til at konvertere showDeceased til lifeStatus string
+    const getCurrentLifeStatus = useCallback(() => {
+        if (activeFilters.lifeStatus === null) return LIFE_STATUS.ALL;
+        return activeFilters.lifeStatus === true ? LIFE_STATUS.DECEASED : LIFE_STATUS.ALIVE;
+    }, [activeFilters.lifeStatus]);
+
+    // Hjælpefunktion til at konvertere raceColorApproval til approvalStatus string
+    const getCurrentApprovalStatus = useCallback(() => {
+        if (activeFilters.raceColorApproval === null) return APPROVAL_STATUS.ALL;
+        return activeFilters.raceColorApproval === 'Approved' ? APPROVAL_STATUS.APPROVED : APPROVAL_STATUS.NOT_APPROVED;
+    }, [activeFilters.raceColorApproval]);
+
+    // Handler til lifeStatus radio
+    const handleLifeStatusChange = useCallback((value: string) => {
+        if (setLifeStatusFilter) {
+            setLifeStatusFilter(value as 'all' | 'alive' | 'deceased');
+        } else {
+            console.warn('setLifeStatusFilter ikke tilgængelig. Dette bør ikke ske!');
+        }
+    }, [setLifeStatusFilter]);
+
+    // Handler til approvalStatus radio
+    const handleApprovalStatusChange = useCallback((value: string) => {
+        let raceColorApproval: string | null = null;
+
+        if (value === APPROVAL_STATUS.APPROVED) {
+            raceColorApproval = 'Approved';
+        } else if (value === APPROVAL_STATUS.NOT_APPROVED) {
+            raceColorApproval = 'NotApproved';
+        }
+
+        handleFilterChange({ raceColorApproval });
+    }, [handleFilterChange]);
 
     // Sikre værdier fra activeFilters
     const filters = {
@@ -79,7 +109,7 @@ export function RabbitOwnNavClient({
         color: activeFilters?.color || null,
         forSale: Boolean(activeFilters?.forSale),
         isForBreeding: Boolean(activeFilters?.isForBreeding),
-        showDeceased: Boolean(activeFilters?.showDeceased),
+        lifeStatus: activeFilters?.lifeStatus, // Ikke kald Boolean her, vi vil beholde null
         showJuveniles: Boolean(activeFilters?.showJuveniles),
         raceColorApproval: activeFilters?.raceColorApproval || null,
         bornAfterDate: activeFilters?.bornAfterDate || null
@@ -218,17 +248,32 @@ export function RabbitOwnNavClient({
                 </h3>
 
                 <div className="space-y-1.5"> {/* Reduceret spacing */}
-                    {/* Race/farve godkendelse - mere kompakt */}
-                    <div className="flex items-center gap-1">
-                        <FaRegStar className="text-lg text-default-500" />
-                        <div className="flex-1">
-                            <EnumLocalAutocomplete
-                                enumType={RaceColorApproval}
-                                value={filters.raceColorApproval}
-                                onChange={(value) => handleFilterChange({ raceColorApproval: value })}
-                                label="Race/farve"
-                            />
+                    {/* Race/farve godkendelse - ændret til RadioGroup */}
+                    <div className="space-y-1">
+                        <div className="flex items-center gap-1.5">
+                            <FaRegStar className="text-lg text-default-500" />
+                            <span className="text-xs font-medium">Race/farve godkendelse</span>
                         </div>
+
+                        <RadioGroup
+                            orientation="horizontal"
+                            size="sm"
+                            value={getCurrentApprovalStatus()}
+                            onValueChange={handleApprovalStatusChange}
+                            classNames={{
+                                wrapper: "gap-1",
+                            }}
+                        >
+                            <Radio value={APPROVAL_STATUS.ALL}>
+                                <span className="text-xs">Alle</span>
+                            </Radio>
+                            <Radio value={APPROVAL_STATUS.APPROVED}>
+                                <span className="text-xs">Godkendte</span>
+                            </Radio>
+                            <Radio value={APPROVAL_STATUS.NOT_APPROVED}>
+                                <span className="text-xs">Ikke godkendte</span>
+                            </Radio>
+                        </RadioGroup>
                     </div>
 
                     {/* Ungdyr switch - mere kompakt */}
@@ -298,21 +343,32 @@ export function RabbitOwnNavClient({
                         </div>
                     </div>
 
-                    {/* Afdøde filter - mere kompakt */}
-                    <div className="flex items-center gap-1">
-                        <div className="flex items-center gap-1.5 min-w-[70px]">
+                    {/* Afdøde filter - ændret til RadioGroup */}
+                    <div className="space-y-1">
+                        <div className="flex items-center gap-1.5">
                             <TbStatusChange className="text-lg text-default-500" />
-                            <span className="text-xs font-medium">Vis</span>
+                            <span className="text-xs font-medium">Status</span>
                         </div>
-                        <div className="flex-1 flex items-center">
-                            <Switch
-                                size="sm"
-                                isSelected={filters.showDeceased}
-                                onValueChange={(checked) => handleFilterChange({ showDeceased: checked })}
-                            >
-                                <span className="text-xs">Kun døde</span>
-                            </Switch>
-                        </div>
+
+                        <RadioGroup
+                            orientation="horizontal"
+                            size="sm"
+                            value={getCurrentLifeStatus()}
+                            onValueChange={handleLifeStatusChange}
+                            classNames={{
+                                wrapper: "gap-1",
+                            }}
+                        >
+                            <Radio value={LIFE_STATUS.ALL}>
+                                <span className="text-xs">Alle</span>
+                            </Radio>
+                            <Radio value={LIFE_STATUS.ALIVE}>
+                                <span className="text-xs">Kun levende</span>
+                            </Radio>
+                            <Radio value={LIFE_STATUS.DECEASED}>
+                                <span className="text-xs">Kun afdøde</span>
+                            </Radio>
+                        </RadioGroup>
                     </div>
                 </div>
             </div>

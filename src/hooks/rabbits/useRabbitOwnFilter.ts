@@ -1,4 +1,5 @@
-import { useState, useCallback, useMemo, useEffect } from 'react';
+// src/hooks/rabbits/useRabbitOwnFilter.ts
+import { useState, useCallback, useMemo } from 'react';
 import { Rabbit_PreviewDTO } from '@/api/types/AngoraDTOs';
 import { OwnFilters } from '@/api/types/filterTypes';
 
@@ -10,34 +11,50 @@ const DEFAULT_FILTERS: Required<OwnFilters> = {
     color: null,
     forSale: false,
     isForBreeding: false,
-    showDeceased: false,  // false = kun levende, true = kun døde
+    lifeStatus: null,  // NULL = vis alle, true = kun døde, false = kun levende
     showJuveniles: false,
     raceColorApproval: null,
     bornAfterDate: null,
 };
 
-export function useOwnRabbits(initialRabbits: Rabbit_PreviewDTO[]) {
-    const [rabbits] = useState<Rabbit_PreviewDTO[]>(initialRabbits);
+export function useOwnRabbits(initialRabbits: Rabbit_PreviewDTO[], isPaginated: boolean = false) {
     const [filters, setFilters] = useState<Required<OwnFilters>>(DEFAULT_FILTERS);
+    
+    // Tjek om der er aktive filtre
+    const isAnyFilterActive = useMemo(() => {
+        return filters.search !== '' || 
+               filters.gender !== null ||
+               filters.race !== null ||
+               filters.color !== null ||
+               filters.forSale !== false ||
+               filters.isForBreeding !== false ||
+               filters.lifeStatus !== null || // Kun aktiv hvis ikke null
+               filters.showJuveniles !== false ||
+               filters.raceColorApproval !== null ||
+               filters.bornAfterDate !== null;
+    }, [filters]);
 
-    // Memoize filtered rabbits
+    // Filtrer kaniner baseret på det aktuelle filtersæt
     const filteredRabbits = useMemo(() => {
-        console.log('useOwnRabbits - Applying filters:', filters);
+        // Ved paginering og ingen aktive filtre - returner blot alle kaniner
+        if (isPaginated && !isAnyFilterActive) {
+            return initialRabbits;
+        }
         
-        return rabbits.filter(rabbit => {
-            // Check for deceased rabbits - ENTEN/ELLER logik
+        // Ellers anvend filtre
+        return initialRabbits.filter(rabbit => {
+            // Tjek for afdøde kaniner (kun hvis lifeStatus er sat til andet end null)
             const isDeceased = rabbit.dateOfDeath !== null;
             
-            // Hvis showDeceased er false: vis kun levende
-            // Hvis showDeceased er true: vis kun afdøde
-            if (filters.showDeceased !== isDeceased) {
+            // FORBEDRET LOGIK: Kun anvend dette filter hvis det ikke er null
+            if (filters.lifeStatus !== null && filters.lifeStatus !== isDeceased) {
                 return false;
             }
             
-            // Check for juvenile filter
+            // Tjek for ungdyr
             if (filters.showJuveniles && !rabbit.isJuvenile) return false;
 
-            // Basic search
+            // Søgning
             const searchLower = filters.search?.toLowerCase() || '';
             const matchesSearch = !searchLower || (
                 (rabbit.nickName?.toLowerCase()?.includes(searchLower) || false) ||
@@ -46,25 +63,25 @@ export function useOwnRabbits(initialRabbits: Rabbit_PreviewDTO[]) {
                 (rabbit.color?.toLowerCase()?.includes(searchLower) || false)
             );
             
-            // Specialty filters
+            // Race/farve godkendelse
             const matchesRaceColorApproval = !filters.raceColorApproval || 
                 (filters.raceColorApproval === 'Approved' && rabbit.approvedRaceColorCombination === true) ||
                 (filters.raceColorApproval === 'NotApproved' && rabbit.approvedRaceColorCombination === false);
             
-            // Date filter
+            // Dato filter
             const matchesBornAfter = !filters.bornAfterDate || 
                 (rabbit.dateOfBirth && new Date(rabbit.dateOfBirth) >= new Date(filters.bornAfterDate));
             
-            // Basic property filters
+            // Basis egenskaber
             const matchesGender = !filters.gender || rabbit.gender === filters.gender;
             const matchesRace = !filters.race || rabbit.race === filters.race;
             const matchesColor = !filters.color || rabbit.color === filters.color;
             
-            // Flag filters
+            // Flag filtre
             const matchesForSale = !filters.forSale || rabbit.hasSaleDetails === true;
             const matchesForBreeding = !filters.isForBreeding || rabbit.isForBreeding === true;
             
-            // All conditions must match
+            // Alle betingelser skal matche
             return matchesSearch &&
                 matchesGender &&
                 matchesRace &&
@@ -74,49 +91,63 @@ export function useOwnRabbits(initialRabbits: Rabbit_PreviewDTO[]) {
                 matchesRaceColorApproval &&
                 matchesBornAfter;
         });
-    }, [rabbits, filters]);
+    }, [initialRabbits, filters, isPaginated, isAnyFilterActive]);
 
-    // Resten af koden forbliver uændret
+    // Opdatér filtre
     const updateFilters = useCallback((newFilters: Partial<OwnFilters>) => {
-        console.log('useOwnRabbits - Updating filters with:', newFilters);
-        
-        setFilters(prev => {
-            // Create a deep copy
-            const updated = { ...prev };
+        setFilters(prev => ({
+            ...prev,
             
-            // Handle special conversion for boolean properties
-            if (newFilters.forSale !== undefined) updated.forSale = Boolean(newFilters.forSale);
-            if (newFilters.isForBreeding !== undefined) updated.isForBreeding = Boolean(newFilters.isForBreeding);
-            if (newFilters.showDeceased !== undefined) updated.showDeceased = Boolean(newFilters.showDeceased);
-            if (newFilters.showJuveniles !== undefined) updated.showJuveniles = Boolean(newFilters.showJuveniles);
+            // Særlig håndtering af lifeStatus
+            ...(newFilters.lifeStatus !== undefined ? { 
+                lifeStatus: newFilters.lifeStatus
+            } : {}),
             
-            // Handle string and other properties
-            if (newFilters.search !== undefined) updated.search = newFilters.search;
-            if (newFilters.gender !== undefined) updated.gender = newFilters.gender;
-            if (newFilters.race !== undefined) updated.race = newFilters.race;
-            if (newFilters.color !== undefined) updated.color = newFilters.color;
-            if (newFilters.raceColorApproval !== undefined) updated.raceColorApproval = newFilters.raceColorApproval;
-            if (newFilters.bornAfterDate !== undefined) updated.bornAfterDate = newFilters.bornAfterDate;
+            // Andre boolean properties
+            ...(newFilters.forSale !== undefined ? { forSale: Boolean(newFilters.forSale) } : {}),
+            ...(newFilters.isForBreeding !== undefined ? { isForBreeding: Boolean(newFilters.isForBreeding) } : {}),
+            ...(newFilters.showJuveniles !== undefined ? { showJuveniles: Boolean(newFilters.showJuveniles) } : {}),
             
-            return updated;
-        });
+            // Andre egenskaber
+            ...(newFilters.search !== undefined ? { search: newFilters.search } : {}),
+            ...(newFilters.gender !== undefined ? { gender: newFilters.gender } : {}),
+            ...(newFilters.race !== undefined ? { race: newFilters.race } : {}),
+            ...(newFilters.color !== undefined ? { color: newFilters.color } : {}),
+            ...(newFilters.raceColorApproval !== undefined ? { raceColorApproval: newFilters.raceColorApproval } : {}),
+            ...(newFilters.bornAfterDate !== undefined ? { bornAfterDate: newFilters.bornAfterDate } : {}),
+        }));
     }, []);
 
-    // Reset all filters
+    // Nulstil alle filtre
     const resetFilters = useCallback(() => {
-        console.log('useOwnRabbits - Resetting all filters');
         setFilters({ ...DEFAULT_FILTERS });
     }, []);
 
-    // Count filtered results for debugging
-    useEffect(() => {
-        console.log(`useOwnRabbits - Filter results: ${filteredRabbits.length} of ${rabbits.length} rabbits`);
-    }, [filteredRabbits.length, rabbits.length]);
+    // Eksporter en ekstra funktion til at nemt vise levende/døde kaniner
+    const setLifeStatusFilter = useCallback((status: 'all' | 'alive' | 'deceased') => {
+        const lifeStatus = status === 'all' 
+            ? null 
+            : status === 'deceased';
+            
+        updateFilters({ lifeStatus });
+    }, [updateFilters]);
+
+    // Eksporter mere detaljeret info om aktive filtre
+    const activeFilterInfo = useMemo(() => ({
+        hasAnyFilter: isAnyFilterActive,
+        hasLifeStatusFilter: filters.lifeStatus !== null,
+        currentLifeStatus: filters.lifeStatus === null 
+            ? 'all' 
+            : filters.lifeStatus ? 'deceased' : 'alive'
+    }), [isAnyFilterActive, filters.lifeStatus]);
 
     return {
         filteredRabbits,
         filters,
         setFilters: updateFilters,
-        resetFilters
+        resetFilters,
+        isAnyFilterActive,
+        setLifeStatusFilter,
+        activeFilterInfo
     };
 }
