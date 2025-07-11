@@ -1,5 +1,5 @@
 'use client';
-import { Input, Switch, Button, Divider, RadioGroup, Radio } from "@heroui/react"; // Tilføjet RadioGroup og Radio
+import { Input, Switch, Button, Divider, RadioGroup, Radio } from "@heroui/react";
 import { useRouter } from 'next/navigation';
 import { MdAdd, MdFilterList, MdCalendarMonth } from "react-icons/md";
 import { LuRabbit } from "react-icons/lu";
@@ -9,15 +9,9 @@ import { FaInfoCircle, FaRegStar } from "react-icons/fa";
 import { TbStatusChange } from "react-icons/tb";
 import { BiPurchaseTagAlt } from "react-icons/bi";
 import EnumAutocomplete from '@/components/enumHandlers/enumAutocomplete';
-import { OwnFilters } from '@/api/types/filterTypes';
 import { useState, useEffect, useCallback } from 'react';
 import { useEnums, RabbitEnum } from '@/contexts/EnumContext';
-
-interface RabbitOwnNavClientProps {
-    activeFilters: OwnFilters;
-    onFilterChange: (filters: Partial<OwnFilters>) => void;
-    setLifeStatusFilter?: (status: 'all' | 'alive' | 'deceased') => void; // Tilføj denne
-}
+import { useRabbitsOwnedStore } from '@/store/rabbitsOwnedStore';
 
 // De enum typer der bruges i denne komponent
 const REQUIRED_ENUMS: RabbitEnum[] = ['Race', 'Color', 'Gender'];
@@ -43,14 +37,18 @@ const APPROVAL_STATUS = {
     NOT_APPROVED: 'notApproved'
 } as const;
 
-export function RabbitOwnNavClient({
-    activeFilters = {},
-    onFilterChange,
-    setLifeStatusFilter
-}: RabbitOwnNavClientProps) {
+// Ingen props længere - alt hentes fra storen
+export function RabbitOwnNavClient() {
     const router = useRouter();
     const { getMultipleEnumValues } = useEnums();
     const [enumsLoaded, setEnumsLoaded] = useState(false);
+    
+    // Hent alt fra storen
+    const {
+        filters,
+        updateFilters,
+        setLifeStatusFilter
+    } = useRabbitsOwnedStore();
 
     // Load enums når komponenten mounter
     useEffect(() => {
@@ -61,32 +59,17 @@ export function RabbitOwnNavClient({
         }
     }, [getMultipleEnumValues, enumsLoaded]);
 
-    // Typestærk handler til filteropdateringer
-    const handleFilterChange = useCallback((updates: Partial<OwnFilters>) => {
-        console.log("RabbitOwnNavClient - Sending filter update:", updates);
-        onFilterChange(updates);
-    }, [onFilterChange]);
-
-    // Hjælpefunktion til at konvertere showDeceased til lifeStatus string
+    // Hjælpefunktion til at konvertere lifeStatus til string
     const getCurrentLifeStatus = useCallback(() => {
-        if (activeFilters.lifeStatus === null) return LIFE_STATUS.ALL;
-        return activeFilters.lifeStatus === true ? LIFE_STATUS.DECEASED : LIFE_STATUS.ALIVE;
-    }, [activeFilters.lifeStatus]);
+        if (filters.lifeStatus === null) return LIFE_STATUS.ALL;
+        return filters.lifeStatus === true ? LIFE_STATUS.DECEASED : LIFE_STATUS.ALIVE;
+    }, [filters.lifeStatus]);
 
     // Hjælpefunktion til at konvertere raceColorApproval til approvalStatus string
     const getCurrentApprovalStatus = useCallback(() => {
-        if (activeFilters.raceColorApproval === null) return APPROVAL_STATUS.ALL;
-        return activeFilters.raceColorApproval === 'Approved' ? APPROVAL_STATUS.APPROVED : APPROVAL_STATUS.NOT_APPROVED;
-    }, [activeFilters.raceColorApproval]);
-
-    // Handler til lifeStatus radio
-    const handleLifeStatusChange = useCallback((value: string) => {
-        if (setLifeStatusFilter) {
-            setLifeStatusFilter(value as 'all' | 'alive' | 'deceased');
-        } else {
-            console.warn('setLifeStatusFilter ikke tilgængelig. Dette bør ikke ske!');
-        }
-    }, [setLifeStatusFilter]);
+        if (filters.raceColorApproval === null) return APPROVAL_STATUS.ALL;
+        return filters.raceColorApproval === 'Approved' ? APPROVAL_STATUS.APPROVED : APPROVAL_STATUS.NOT_APPROVED;
+    }, [filters.raceColorApproval]);
 
     // Handler til approvalStatus radio
     const handleApprovalStatusChange = useCallback((value: string) => {
@@ -98,28 +81,13 @@ export function RabbitOwnNavClient({
             raceColorApproval = 'NotApproved';
         }
 
-        handleFilterChange({ raceColorApproval });
-    }, [handleFilterChange]);
-
-    // Sikre værdier fra activeFilters
-    const filters = {
-        search: activeFilters?.search || '',
-        gender: activeFilters?.gender || null,
-        race: activeFilters?.race || null,
-        color: activeFilters?.color || null,
-        forSale: Boolean(activeFilters?.forSale),
-        isForBreeding: Boolean(activeFilters?.isForBreeding),
-        lifeStatus: activeFilters?.lifeStatus, // Ikke kald Boolean her, vi vil beholde null
-        showJuveniles: Boolean(activeFilters?.showJuveniles),
-        raceColorApproval: activeFilters?.raceColorApproval || null,
-        bornAfterDate: activeFilters?.bornAfterDate || null
-    };
+        updateFilters({ raceColorApproval });
+    }, [updateFilters]);
 
     return (
-        <div className="w-full p-1 space-y-2"> {/* Reduceret yderligere padding og spacing */}
-            {/* Handlinger sektion - kompakt styling */}
+        <div className="w-full p-1 space-y-2">
+            {/* Handlinger sektion */}
             <div>
-                {/* Opdateret overskriftstil med mindre margin */}
                 <h3 className="text-[13px] font-medium text-zinc-400 mb-0.5">
                     {FILTER_SECTIONS.ACTIONS}
                 </h3>
@@ -136,18 +104,16 @@ export function RabbitOwnNavClient({
                 </Button>
             </div>
 
-            {/* Divider med minimal spacing */}
             <Divider className="bg-zinc-200/5 my-0.5" />
 
-            {/* Grundfiltre sektion - mere kompakt */}
+            {/* Grundfiltre sektion */}
             <div>
-                {/* Opdateret overskriftstil */}
                 <h3 className="text-[13px] font-medium text-zinc-400 mb-0.5">
                     {FILTER_SECTIONS.BASIC}
                 </h3>
 
-                <div className="space-y-1.5"> {/* Reduceret spacing */}
-                    {/* Søgefelt - mere kompakt */}
+                <div className="space-y-1.5">
+                    {/* Søgefelt */}
                     <div className="flex items-center gap-1">
                         <div className="flex items-center gap-1.5 min-w-[70px]">
                             <MdFilterList className="text-lg text-default-500" />
@@ -158,7 +124,7 @@ export function RabbitOwnNavClient({
                                 size="sm"
                                 placeholder="Navn eller øremærke"
                                 value={filters.search}
-                                onChange={(e) => handleFilterChange({ search: e.target.value })}
+                                onChange={(e) => updateFilters({ search: e.target.value })}
                                 classNames={{
                                     inputWrapper: "h-7 min-h-unit-7 px-2",
                                     input: "text-xs"
@@ -167,7 +133,7 @@ export function RabbitOwnNavClient({
                         </div>
                     </div>
 
-                    {/* Fødselsdag filter - mere kompakt */}
+                    {/* Fødselsdag filter */}
                     <div className="flex items-center gap-1">
                         <div className="flex items-center gap-1.5 min-w-[70px]">
                             <MdCalendarMonth className="text-lg text-default-500" />
@@ -178,7 +144,7 @@ export function RabbitOwnNavClient({
                                 size="sm"
                                 type="date"
                                 value={filters.bornAfterDate || ''}
-                                onChange={(e) => handleFilterChange({ bornAfterDate: e.target.value || null })}
+                                onChange={(e) => updateFilters({ bornAfterDate: e.target.value || null })}
                                 classNames={{
                                     inputWrapper: "h-7 min-h-unit-7 px-2",
                                     input: "text-xs"
@@ -187,7 +153,7 @@ export function RabbitOwnNavClient({
                         </div>
                     </div>
 
-                    {/* Køn filter - mere kompakt */}
+                    {/* Køn filter */}
                     <div className="flex items-center gap-1">
                         <div className="flex items-center gap-1.5 min-w-[70px]">
                             <RiGenderlessLine className="text-lg text-default-500" />
@@ -197,13 +163,13 @@ export function RabbitOwnNavClient({
                             <EnumAutocomplete
                                 enumType="Gender"
                                 value={filters.gender}
-                                onChange={(value) => handleFilterChange({ gender: value })}
+                                onChange={(value) => updateFilters({ gender: value })}
                                 label="Køn"
                             />
                         </div>
                     </div>
 
-                    {/* Race filter - mere kompakt */}
+                    {/* Race filter */}
                     <div className="flex items-center gap-1">
                         <div className="flex items-center gap-1.5 min-w-[70px]">
                             <LuRabbit className="text-lg text-default-500" />
@@ -213,13 +179,13 @@ export function RabbitOwnNavClient({
                             <EnumAutocomplete
                                 enumType="Race"
                                 value={filters.race}
-                                onChange={(value) => handleFilterChange({ race: value })}
+                                onChange={(value) => updateFilters({ race: value })}
                                 label="Race"
                             />
                         </div>
                     </div>
 
-                    {/* Farve filter - mere kompakt */}
+                    {/* Farve filter */}
                     <div className="flex items-center gap-1">
                         <div className="flex items-center gap-1.5 min-w-[70px]">
                             <IoColorPaletteOutline className="text-lg text-default-500" />
@@ -229,7 +195,7 @@ export function RabbitOwnNavClient({
                             <EnumAutocomplete
                                 enumType="Color"
                                 value={filters.color}
-                                onChange={(value) => handleFilterChange({ color: value })}
+                                onChange={(value) => updateFilters({ color: value })}
                                 label="Farve"
                             />
                         </div>
@@ -237,24 +203,22 @@ export function RabbitOwnNavClient({
                 </div>
             </div>
 
-            {/* Divider med minimal spacing */}
             <Divider className="bg-zinc-200/5 my-0.5" />
 
-            {/* Egenskaber sektion - mere kompakt */}
+            {/* Egenskaber sektion */}
             <div>
-                {/* Opdateret overskriftstil */}
                 <h3 className="text-[13px] font-medium text-zinc-400 mb-0.5">
                     {FILTER_SECTIONS.ATTRIBUTES}
                 </h3>
 
-                <div className="space-y-1.5"> {/* Reduceret spacing */}
-                    {/* Race/farve godkendelse - ændret til RadioGroup */}
+                <div className="space-y-1.5">
+                    {/* Race/farve godkendelse */}
                     <div className="space-y-1">
                         <div className="flex items-center gap-1.5">
                             <FaRegStar className="text-lg text-default-500" />
                             <span className="text-xs font-medium">Race/farve godkendelse</span>
                         </div>
-
+                        
                         <RadioGroup
                             orientation="horizontal"
                             size="sm"
@@ -276,7 +240,7 @@ export function RabbitOwnNavClient({
                         </RadioGroup>
                     </div>
 
-                    {/* Ungdyr switch - mere kompakt */}
+                    {/* Ungdyr switch */}
                     <div className="flex items-center gap-1">
                         <div className="flex items-center gap-1.5 min-w-[70px]">
                             <FaInfoCircle className="text-lg text-default-500" />
@@ -286,7 +250,7 @@ export function RabbitOwnNavClient({
                             <Switch
                                 size="sm"
                                 isSelected={filters.showJuveniles}
-                                onValueChange={(checked) => handleFilterChange({ showJuveniles: checked })}
+                                onValueChange={(checked) => updateFilters({ showJuveniles: checked })}
                                 aria-label="Vis kun ungdyr"
                             >
                                 <span className="text-xs">Kun ungdyr</span>
@@ -296,18 +260,16 @@ export function RabbitOwnNavClient({
                 </div>
             </div>
 
-            {/* Divider med minimal spacing */}
             <Divider className="bg-zinc-200/5 my-0.5" />
 
-            {/* Status sektion - mere kompakt */}
+            {/* Status sektion */}
             <div>
-                {/* Opdateret overskriftstil */}
                 <h3 className="text-[13px] font-medium text-zinc-400 mb-0.5">
                     {FILTER_SECTIONS.STATUS}
                 </h3>
 
-                <div className="space-y-1.5"> {/* Reduceret spacing */}
-                    {/* Til salg filter - mere kompakt */}
+                <div className="space-y-1.5">
+                    {/* Til salg filter */}
                     <div className="flex items-center gap-1">
                         <div className="flex items-center gap-1.5 min-w-[70px]">
                             <BiPurchaseTagAlt className="text-lg text-default-500" />
@@ -317,7 +279,7 @@ export function RabbitOwnNavClient({
                             <Switch
                                 size="sm"
                                 isSelected={filters.forSale}
-                                onValueChange={(checked) => handleFilterChange({ forSale: checked })}
+                                onValueChange={(checked) => updateFilters({ forSale: checked })}
                                 aria-label="Vis kun til salg"
                             >
                                 <span className="text-xs">Ja</span>
@@ -325,7 +287,7 @@ export function RabbitOwnNavClient({
                         </div>
                     </div>
 
-                    {/* Til avl filter - mere kompakt */}
+                    {/* Til avl filter */}
                     <div className="flex items-center gap-1">
                         <div className="flex items-center gap-1.5 min-w-[70px]">
                             <BiPurchaseTagAlt className="text-lg text-default-500" />
@@ -335,7 +297,7 @@ export function RabbitOwnNavClient({
                             <Switch
                                 size="sm"
                                 isSelected={filters.isForBreeding}
-                                onValueChange={(checked) => handleFilterChange({ isForBreeding: checked })}
+                                onValueChange={(checked) => updateFilters({ isForBreeding: checked })}
                                 aria-label="Vis kun til avl"
                             >
                                 <span className="text-xs">Ja</span>
@@ -343,18 +305,18 @@ export function RabbitOwnNavClient({
                         </div>
                     </div>
 
-                    {/* Afdøde filter - ændret til RadioGroup */}
+                    {/* Afdøde filter */}
                     <div className="space-y-1">
                         <div className="flex items-center gap-1.5">
                             <TbStatusChange className="text-lg text-default-500" />
                             <span className="text-xs font-medium">Status</span>
                         </div>
-
+                        
                         <RadioGroup
                             orientation="horizontal"
                             size="sm"
                             value={getCurrentLifeStatus()}
-                            onValueChange={handleLifeStatusChange}
+                            onValueChange={(value) => setLifeStatusFilter(value as 'all' | 'alive' | 'deceased')}
                             classNames={{
                                 wrapper: "gap-1",
                             }}
