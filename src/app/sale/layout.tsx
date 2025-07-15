@@ -45,7 +45,8 @@ export default function SaleLayout({ children }: { children: React.ReactNode }) 
   const sideNav = pathname.includes('/sale/rabbits') && !pathname.includes('/profile')
     ? (
       <Suspense fallback={<SideNavLoading />}>
-        <RabbitSaleNav activeFilters={{}} />
+        {/* Fjernet activeFilters prop da vi nu bruger Zustand */}
+        <RabbitSaleNav />
       </Suspense>
     )
     : <MyNav />;

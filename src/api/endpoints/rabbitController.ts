@@ -1,7 +1,13 @@
 // src/api/endpoints/rabbitController.ts
 import { getApiUrl } from "../config/apiConfig";
-import { Rabbit_CreateDTO, Rabbit_ProfileDTO, SaleDetailsCardList, Rabbit_ForsaleProfileDTO, Rabbits_ForbreedingPreviewList, Rabbit_UpdateDTO, Rabbit_PreviewDTO, Rabbit_CreateSaleDetailsDTO, Rabbit_SaleDetailsDTO, Rabbit_UpdateSaleDetailsDTO, CloudinaryUploadConfigDTO, Rabbit_PedigreeDTO } from "../types/AngoraDTOs";
-import { ForSaleFilters } from "../types/filterTypes";
+import {
+    Rabbit_CreateDTO, Rabbit_ProfileDTO, SaleDetailsCardList,
+    Rabbits_ForbreedingPreviewList, Rabbit_UpdateDTO, Rabbit_PreviewDTO,
+    Rabbit_CreateSaleDetailsDTO, Rabbit_UpdateSaleDetailsDTO,
+    CloudinaryUploadConfigDTO, Rabbit_PedigreeDTO,
+    SaleDetailsProfileDTO,
+} from "../types/AngoraDTOs";
+import { Rabbit_ForSaleFilterDTO } from "../types/filterTypes";
 
 
 //-------------------- CREATE
@@ -30,11 +36,19 @@ export async function CreateRabbit(rabbitData: Rabbit_CreateDTO, accessToken: st
     return response.json();
 }
 
+/**
+ * Opretter salgsdetaljer for en kanin
+ * @param earCombId Kaninens øremærke-id
+ * @param saleDetails Data for salgsopslaget
+ * @param accessToken Brugerens JWT token
+ * @returns De oprettede salgsdetaljer
+ */
 export async function CreateSaleDetails(
+    earCombId: string, // Tilføjet som separat parameter
     saleDetails: Rabbit_CreateSaleDetailsDTO,
     accessToken: string
-): Promise<Rabbit_SaleDetailsDTO> {
-    const response = await fetch(getApiUrl('Rabbit/CreateSaleDetails'), {
+): Promise<SaleDetailsProfileDTO> {
+    const response = await fetch(getApiUrl(`Rabbit/CreateSaleDetails/${earCombId}`), { // Tilføjet earCombId til URL
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${accessToken}`,
@@ -93,7 +107,7 @@ export async function GetRabbitPhotoUploadPermission(
  * @param filters Valgfrie søgefiltre
  * @returns Liste over kaniner der matcher søgekriterierne
  */
-export async function GetRabbitsForSale(filters?: ForSaleFilters): Promise<SaleDetailsCardList> {
+export async function GetRabbitsForSale(filters?: Rabbit_ForSaleFilterDTO): Promise<SaleDetailsCardList> {
     let url = getApiUrl('Rabbit/ForSale');
 
     if (filters) {
@@ -127,21 +141,6 @@ export async function GetRabbitsForSale(filters?: ForSaleFilters): Promise<SaleD
     return response.json();
 }
 
-export async function GetRabbitForsaleProfile(earCombId: string): Promise<Rabbit_ForsaleProfileDTO> {
-    const url = getApiUrl(`Rabbit/ForsaleProfile/${earCombId}`);
-    
-    const response = await fetch(url);
-    
-    if (!response.ok) {
-        const errorText = await response.text();
-        console.error(`API error when fetching rabbit profile: Status ${response.status}`, errorText);
-        throw new Error(`API call failed: ${response.status}`);
-    }
-    
-    const data = await response.json();
-
-    return data;
-}
 
 export async function GetRabbitsForBreeding(accessToken: string): Promise<Rabbits_ForbreedingPreviewList> {
     const data = await fetch(getApiUrl('Rabbit/Forbreeding'), {
@@ -201,7 +200,9 @@ export async function GetRabbitPedigree(
 
 //-------------------- UPDATE
 
-export async function EditRabbit(earCombId: string, rabbitData: Rabbit_UpdateDTO, accessToken: string): Promise<Rabbit_ProfileDTO> {
+export async function EditRabbit(earCombId: string,
+    rabbitData: Rabbit_UpdateDTO,
+    accessToken: string): Promise<Rabbit_ProfileDTO> {
     const formattedData = {
         ...rabbitData,
         dateOfBirth: rabbitData.dateOfBirth,
@@ -232,12 +233,19 @@ export async function EditRabbit(earCombId: string, rabbitData: Rabbit_UpdateDTO
     return response.json();
 }
 
+/**
+ * Opdaterer salgsdetaljer for en kanin
+ * @param earCombId Kaninens øremærke-id
+ * @param updateSaleDetailsDTO Opdaterede salgsoplysninger
+ * @param accessToken Brugerens JWT token
+ * @returns Boolean som indikerer om opdateringen var succesfuld
+ */
 export async function UpdateSaleDetails(
-    saleDetailsId: number,
+    earCombId: string,
     updateSaleDetailsDTO: Rabbit_UpdateSaleDetailsDTO,
     accessToken: string
-): Promise<Rabbit_SaleDetailsDTO> {
-    const response = await fetch(getApiUrl(`Rabbit/UpdateSaleDetails/${saleDetailsId}`), {
+): Promise<boolean> {
+    const response = await fetch(getApiUrl(`Rabbit/UpdateSaleDetails/${earCombId}`), {
         method: 'PUT',
         headers: {
             'Authorization': `Bearer ${accessToken}`,
@@ -248,17 +256,33 @@ export async function UpdateSaleDetails(
     });
 
     if (!response.ok) {
-        const errorText = await response.text();
+        // Hent fejlbesked fra API'en
+        const errorData = await response.json().catch(() => ({ message: `Fejl: ${response.status} ${response.statusText}` }));
+        const errorMessage = errorData.message || `Kunne ikke opdatere salgsdetaljer: ${response.status} ${response.statusText}`;
+
         console.error('API Error:', {
             status: response.status,
             statusText: response.statusText,
-            body: errorText,
+            errorData,
             sentData: updateSaleDetailsDTO
         });
-        throw new Error(`Failed to update sale details: ${response.status} ${response.statusText}`);
+
+        throw new Error(errorMessage);
     }
 
-    return response.json();
+    // Hvis response body er tom eller ikke valid JSON, returner true baseret på success status
+    if (response.headers.get('content-length') === '0') {
+        return true;
+    }
+
+    try {
+        // Prøv at parse response som JSON
+        const result = await response.json();
+        return result === true || Boolean(result); // Konverter til boolean
+    } catch (e) {
+        // Hvis parsing fejler, antages det at operationen lykkedes
+        return true;
+    }
 }
 
 //-------------------- DELETE
@@ -286,10 +310,10 @@ export async function DeleteRabbit(earCombId: string, accessToken: string): Prom
 }
 
 export async function DeleteSaleDetails(
-    saleDetailsId: number,
+    earCombId: string,
     accessToken: string
 ): Promise<{ message: string }> {
-    const response = await fetch(getApiUrl(`Rabbit/DeleteSaleDetails/${saleDetailsId}`), {
+    const response = await fetch(getApiUrl(`Rabbit/DeleteSaleDetails/${earCombId}`), {
         method: 'DELETE',
         headers: {
             'Authorization': `Bearer ${accessToken}`,

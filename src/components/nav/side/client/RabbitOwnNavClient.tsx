@@ -1,17 +1,18 @@
 'use client';
-import { Input, Switch, Button, Divider, RadioGroup, Radio } from "@heroui/react";
+import { Input, Switch, Button, Divider, RadioGroup, Radio, Tooltip } from "@heroui/react";
 import { useRouter } from 'next/navigation';
 import { MdAdd, MdFilterList, MdCalendarMonth } from "react-icons/md";
 import { LuRabbit } from "react-icons/lu";
 import { IoColorPaletteOutline } from "react-icons/io5";
 import { RiGenderlessLine } from "react-icons/ri";
-import { FaInfoCircle, FaRegStar } from "react-icons/fa";
-import { TbStatusChange } from "react-icons/tb";
+import { FaInfoCircle } from "react-icons/fa";
 import { BiPurchaseTagAlt } from "react-icons/bi";
 import EnumAutocomplete from '@/components/enumHandlers/enumAutocomplete';
 import { useState, useEffect, useCallback } from 'react';
 import { useEnums, RabbitEnum } from '@/contexts/EnumContext';
 import { useRabbitsOwnedStore } from '@/store/rabbitsOwnedStore';
+import { BsHouse, BsHouseGear, BsHouseHeart, BsHouseX } from "react-icons/bs";
+import { SiMicrogenetics } from "react-icons/si";
 
 // De enum typer der bruges i denne komponent
 const REQUIRED_ENUMS: RabbitEnum[] = ['Race', 'Color', 'Gender'];
@@ -19,17 +20,18 @@ const REQUIRED_ENUMS: RabbitEnum[] = ['Race', 'Color', 'Gender'];
 // Konstanter til sektioner
 const FILTER_SECTIONS = {
     ACTIONS: 'Handlinger',
+    LIFESTATUS: 'Primære filtre',
     BASIC: 'Grundfiltre',
     ATTRIBUTES: 'Egenskaber',
     STATUS: 'Status'
 } as const;
 
-// Definér konstanter til RadioGroup værdier
-const LIFE_STATUS = {
-    ALL: 'all',
-    ALIVE: 'alive',
-    DECEASED: 'deceased'
-} as const;
+// // Definér konstanter til RadioGroup værdier
+// const LIFE_STATUS = {
+//     ALL: 'all',
+//     ALIVE: 'alive',
+//     DECEASED: 'deceased'
+// } as const;
 
 const APPROVAL_STATUS = {
     ALL: 'all',
@@ -42,7 +44,7 @@ export function RabbitOwnNavClient() {
     const router = useRouter();
     const { getMultipleEnumValues } = useEnums();
     const [enumsLoaded, setEnumsLoaded] = useState(false);
-    
+
     // Hent alt fra storen
     const {
         filters,
@@ -60,10 +62,10 @@ export function RabbitOwnNavClient() {
     }, [getMultipleEnumValues, enumsLoaded]);
 
     // Hjælpefunktion til at konvertere lifeStatus til string
-    const getCurrentLifeStatus = useCallback(() => {
-        if (filters.lifeStatus === null) return LIFE_STATUS.ALL;
-        return filters.lifeStatus === true ? LIFE_STATUS.DECEASED : LIFE_STATUS.ALIVE;
-    }, [filters.lifeStatus]);
+    // const getCurrentLifeStatus = useCallback(() => {
+    //     if (filters.lifeStatus === null) return LIFE_STATUS.ALL;
+    //     return filters.lifeStatus === true ? LIFE_STATUS.DECEASED : LIFE_STATUS.ALIVE;
+    // }, [filters.lifeStatus]);
 
     // Hjælpefunktion til at konvertere raceColorApproval til approvalStatus string
     const getCurrentApprovalStatus = useCallback(() => {
@@ -94,7 +96,7 @@ export function RabbitOwnNavClient() {
 
                 <Button
                     color="success"
-                    variant="flat"
+                    variant="solid"
                     fullWidth
                     size="sm"
                     startContent={<MdAdd />}
@@ -102,6 +104,78 @@ export function RabbitOwnNavClient() {
                 >
                     Opret ny kanin
                 </Button>
+            </div>
+
+            <Divider className="bg-zinc-200/5 my-0.5" />
+
+            {/* NYTILFØJET: Livsstatus sektion med nye ikoner */}
+            <div>
+                <h3 className="text-[13px] font-medium text-zinc-400 mb-0.5">
+                    {FILTER_SECTIONS.LIFESTATUS}
+                </h3>
+
+                <div className="space-y-1.5 dark">
+                    <div className="flex items-center gap-1.5">
+                        <BsHouseGear className="text-lg text-default-500" />
+                        <span className="text-xs font-medium">Visning</span>
+                    </div>
+
+                    <div className="flex gap-2" >
+                        <Tooltip
+                            content="Vis alle kaniner"
+                            showArrow={true} 
+                            placement="bottom"  
+                            className="dark"                         
+                        >
+                            <Button
+                                size="sm"
+                                variant={filters.lifeStatus === null ? "solid" : "flat"}
+                                color={filters.lifeStatus === null ? "primary" : "default"}
+                                onPress={() => setLifeStatusFilter('all')}
+                                isIconOnly
+                                aria-label="Vis alle kaniner"
+                            >
+                                <BsHouse className="text-lg" />
+                            </Button>
+                        </Tooltip>
+
+                        <Tooltip
+                            content="Kun levende kaniner"
+                            showArrow={true}
+                            placement="bottom"
+                            className="dark"
+                        >
+                            <Button
+                                size="sm"
+                                variant={filters.lifeStatus === false ? "solid" : "flat"}
+                                color={filters.lifeStatus === false ? "success" : "default"}
+                                onPress={() => setLifeStatusFilter('alive')}
+                                isIconOnly
+                                aria-label="Kun levende kaniner"
+                            >
+                                <BsHouseHeart className="text-lg" />
+                            </Button>
+                        </Tooltip>
+
+                        <Tooltip
+                            content="Kun afdøde kaniner"
+                            showArrow={true}
+                            placement="bottom"
+                            className="dark"
+                        >
+                            <Button
+                                size="sm"
+                                variant={filters.lifeStatus === true ? "solid" : "flat"}
+                                color={filters.lifeStatus === true ? "danger" : "default"}
+                                onPress={() => setLifeStatusFilter('deceased')}
+                                isIconOnly
+                                aria-label="Kun afdøde kaniner"
+                            >
+                                <BsHouseX className="text-lg" />
+                            </Button>
+                        </Tooltip>
+                    </div>
+                </div>
             </div>
 
             <Divider className="bg-zinc-200/5 my-0.5" />
@@ -215,10 +289,10 @@ export function RabbitOwnNavClient() {
                     {/* Race/farve godkendelse */}
                     <div className="space-y-1">
                         <div className="flex items-center gap-1.5">
-                            <FaRegStar className="text-lg text-default-500" />
+                            <SiMicrogenetics className="text-lg text-default-500" />
                             <span className="text-xs font-medium">Race/farve godkendelse</span>
                         </div>
-                        
+
                         <RadioGroup
                             orientation="horizontal"
                             size="sm"
@@ -303,34 +377,6 @@ export function RabbitOwnNavClient() {
                                 <span className="text-xs">Ja</span>
                             </Switch>
                         </div>
-                    </div>
-
-                    {/* Afdøde filter */}
-                    <div className="space-y-1">
-                        <div className="flex items-center gap-1.5">
-                            <TbStatusChange className="text-lg text-default-500" />
-                            <span className="text-xs font-medium">Status</span>
-                        </div>
-                        
-                        <RadioGroup
-                            orientation="horizontal"
-                            size="sm"
-                            value={getCurrentLifeStatus()}
-                            onValueChange={(value) => setLifeStatusFilter(value as 'all' | 'alive' | 'deceased')}
-                            classNames={{
-                                wrapper: "gap-1",
-                            }}
-                        >
-                            <Radio value={LIFE_STATUS.ALL}>
-                                <span className="text-xs">Alle</span>
-                            </Radio>
-                            <Radio value={LIFE_STATUS.ALIVE}>
-                                <span className="text-xs">Kun levende</span>
-                            </Radio>
-                            <Radio value={LIFE_STATUS.DECEASED}>
-                                <span className="text-xs">Kun afdøde</span>
-                            </Radio>
-                        </RadioGroup>
                     </div>
                 </div>
             </div>

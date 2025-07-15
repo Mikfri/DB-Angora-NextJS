@@ -4,14 +4,17 @@
  * Filter interface for kaniner til salg
  * Alle felter er valgfrie da søgning kan udføres på hvilken som helst kombination
  */
-export interface ForSaleFilters {
-    RightEarId?: string | null;
-    BornAfter?: string | null;
-    MinZipCode?: number | null;
-    MaxZipCode?: number | null;
-    Race?: string | null;
-    Color?: string | null;
-    Gender?: string | null;
+export interface Rabbit_ForSaleFilterDTO {
+    rightEarId?: string | null;
+    bornAfter?: string | null;
+    minZipCode?: number | null;
+    maxZipCode?: number | null;
+    city?: string | null;
+    race?: string | null;
+    color?: string | null;
+    gender?: string | null;
+    page?: number;
+    pageSize?: number;
 }
 
 /**

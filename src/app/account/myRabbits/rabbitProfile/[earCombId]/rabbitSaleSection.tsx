@@ -1,7 +1,7 @@
 // src/app/account/myRabbits/rabbitProfile/[earCombId]/rabbitSaleSection.tsx
 "use client";
 
-import { Rabbit_ProfileDTO, Rabbit_SaleDetailsDTO, SaleDetailsProfileDTO } from '@/api/types/AngoraDTOs';
+import { Rabbit_ProfileDTO, RabbitSaleDetailsEmbeddedDTO } from '@/api/types/AngoraDTOs';
 import { Button, Card, CardBody, Spinner } from "@heroui/react";
 import { useAuthStore } from '@/store/authStore';
 import SaleDetailsForm from './saleDetailsForm';
@@ -10,14 +10,14 @@ import SaleDetailsView from './rabbitSaleDetailsView';
 
 interface RabbitSaleSectionProps {
   rabbitProfile: Rabbit_ProfileDTO;
-  onSaleDetailsChange: (saleDetails: Rabbit_SaleDetailsDTO | null, fullSaleDetailsProfile?: SaleDetailsProfileDTO | null) => void;
+  onSaleDetailsChange: (saleDetails: RabbitSaleDetailsEmbeddedDTO | null) => void;
 }
 
 export default function RabbitSaleSection({
   rabbitProfile,
   onSaleDetailsChange
 }: RabbitSaleSectionProps) {
-  // Få auth state fra useAuthStore
+  // Få auth state fra useAuthStore - vi bruger stadig dette for authentication check
   const { isLoggedIn, isLoading: authLoading } = useAuthStore();
   
   // Brug vores custom hook til at håndtere al logik
@@ -81,7 +81,7 @@ export default function RabbitSaleSection({
   if (localSaleDetails) {
     return (
       <SaleDetailsView 
-        saleDetails={localSaleDetails} 
+        saleDetails={localSaleDetails}
         onEdit={startEditing}
         onDelete={handleDelete}
         isDeleting={isDeleting}

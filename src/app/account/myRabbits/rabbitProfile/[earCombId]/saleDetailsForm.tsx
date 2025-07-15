@@ -32,6 +32,19 @@ export default function SaleDetailsForm({
     return (
         <form onSubmit={(e) => { e.preventDefault(); onSubmit(); }} className="space-y-6">
             <div className="space-y-4">
+                {/* Titel */}
+                <div className="space-y-1">
+                    <label htmlFor="title" className="text-sm text-zinc-300">Titel</label>
+                    <Input
+                        id="title"
+                        value={formData.title || ''}
+                        onChange={(e) => handleChange('title', e.target.value)}
+                        placeholder="Salgstitel..."
+                        required
+                        maxLength={200}
+                    />
+                </div>
+
                 {/* Pris */}
                 <div className="space-y-1">
                     <label htmlFor="price" className="text-sm text-zinc-300">Pris (DKK)</label>
@@ -59,13 +72,13 @@ export default function SaleDetailsForm({
                     />
                 </div>
 
-                {/* Beskrivelse */}
+                {/* Description */}
                 <div className="space-y-1">
-                    <label htmlFor="saleDescription" className="text-sm text-zinc-300">Beskrivelse</label>
+                    <label htmlFor="description" className="text-sm text-zinc-300">Beskrivelse</label>
                     <Textarea
-                        id="saleDescription"
-                        value={formData.saleDescription}
-                        onChange={(e) => handleChange('saleDescription', e.target.value)}
+                        id="description"
+                        value={formData.description || ''}
+                        onChange={(e) => handleChange('description', e.target.value)}
                         placeholder="Beskriv kaninen..."
                         minRows={4}
                     />

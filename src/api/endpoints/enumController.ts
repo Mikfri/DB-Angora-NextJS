@@ -1,12 +1,13 @@
 import { getApiUrl } from "../config/apiConfig";
 
-export type RabbitEnum = 'Race' | 'Color' | 'Gender' | 'RabbitHomeEnvironment';
+export type RabbitEnum = 'Race' | 'Color' | 'Gender' | 'RabbitHomeEnvironment' | 'EntityType';
 
 const ENUM_ENDPOINTS = {
     Race: 'Enum/Races',
     Color: 'Enum/Colors',
     Gender: 'Enum/Genders',
-    RabbitHomeEnvironment: 'Enum/RabbitHomeEnvironments'  // Tilføj den nye enum endpoint
+    RabbitHomeEnvironment: 'Enum/RabbitHomeEnvironments',
+    EntityType: 'Enum/EntityTypes'
 } as const;
 
 export async function GetEnumValues(enumType: RabbitEnum): Promise<string[]> {

@@ -1,10 +1,11 @@
 // src/app/account/myRabbits/rabbitProfile/[earCombId]/rabbitSaleDetailsView.tsx
-import { SaleDetailsProfileDTO } from '@/api/types/AngoraDTOs';
-import { Button, Card, CardBody } from "@heroui/react";
+import { RabbitSaleDetailsEmbeddedDTO } from '@/api/types/AngoraDTOs';
+import { Button, Card, CardBody, Chip } from "@heroui/react";
 import { formatCurrency, formatDate } from '@/lib/utils/formatters';
+import { FiEye, FiTag, FiTruck } from "react-icons/fi"; // Erstattet react-feather med react-icons/fi
 
 interface SaleDetailsViewProps {
-  saleDetails: SaleDetailsProfileDTO;
+  saleDetails: RabbitSaleDetailsEmbeddedDTO;
   onEdit: () => void;
   onDelete: () => void;
   isDeleting: boolean;
@@ -19,10 +20,50 @@ export default function SaleDetailsView({
   return (
     <Card className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 border border-zinc-700/50">
       <CardBody>
-        <div className="flex flex-col md:flex-row justify-between mb-4">
-          <h2 className="text-xl font-semibold">Salgsprofil</h2>
-          <div className="text-2xl font-bold text-amber-500">
+        <div className="flex flex-col md:flex-row justify-between items-start mb-4">
+          <div>
+            <h2 className="text-xl font-semibold mb-1">{saleDetails.title}</h2>
+            <div className="flex items-center space-x-2 text-sm text-zinc-400">
+              <span className="flex items-center">
+                <FiEye size={14} className="mr-1" />
+                {saleDetails.viewCount} visninger
+              </span>
+              <span className="flex items-center">
+                <FiTag size={14} className="mr-1" />
+                ID: {saleDetails.id}
+              </span>
+            </div>
+          </div>
+          <div className="text-2xl font-bold text-amber-500 mt-2 md:mt-0">
             {formatCurrency(saleDetails.price)}
+          </div>
+        </div>
+
+        {/* URL / Slug information */}
+        <div className="bg-zinc-900/50 p-3 rounded-lg mb-4">
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <div className="text-sm text-zinc-400">
+              <span className="font-medium mr-1">Offentlig URL:</span>
+              <a 
+                href={`/rabbits/sale/${saleDetails.slug}`} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-blue-400 hover:underline"
+              >
+                /rabbits/sale/{saleDetails.slug}
+              </a>
+            </div>
+            {saleDetails.canBeShipped && (
+              <Chip 
+                startContent={<FiTruck size={14} />}
+                variant="flat"
+                color="primary"
+                size="sm"
+                className="mt-2 md:mt-0"
+              >
+                Kan leveres
+              </Chip>
+            )}
           </div>
         </div>
 
@@ -33,22 +74,22 @@ export default function SaleDetailsView({
           </div>
           <div>
             <h3 className="text-zinc-400 text-sm">Bosted</h3>
-            <p>{saleDetails.rabbitSaleDetails?.homeEnvironment || 'Ikke angivet'}</p>
+            <p>{saleDetails.homeEnvironment || 'Ikke angivet'}</p>
           </div>
           <div>
             <h3 className="text-zinc-400 text-sm">Pottetrænet</h3>
-            <p>{saleDetails.rabbitSaleDetails?.isLitterTrained ? 'Ja' : 'Nej'}</p>
+            <p>{saleDetails.isLitterTrained ? 'Ja' : 'Nej'}</p>
           </div>
           <div>
             <h3 className="text-zinc-400 text-sm">Neutraliseret</h3>
-            <p>{saleDetails.rabbitSaleDetails?.isNeutered ? 'Ja' : 'Nej'}</p>
+            <p>{saleDetails.isNeutered ? 'Ja' : 'Nej'}</p>
           </div>
         </div>
 
         <div className="mb-6">
           <h3 className="text-zinc-400 text-sm mb-2">Beskrivelse</h3>
           <div className="bg-zinc-900/50 p-4 rounded-lg">
-            <p className="whitespace-pre-wrap">{saleDetails.saleDescription || 'Ingen beskrivelse'}</p>
+            <p className="whitespace-pre-wrap">{saleDetails.description || 'Ingen beskrivelse'}</p>
           </div>
         </div>
 

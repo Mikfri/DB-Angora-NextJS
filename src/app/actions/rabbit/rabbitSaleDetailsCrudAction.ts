@@ -5,7 +5,7 @@ import { getAccessToken } from '@/app/actions/auth/session';
 import {
     Rabbit_CreateSaleDetailsDTO, 
     Rabbit_UpdateSaleDetailsDTO, 
-    Rabbit_SaleDetailsDTO
+    RabbitSaleDetailsEmbeddedDTO
 } from '@/api/types/AngoraDTOs';
 import {
     CreateSaleDetails, 
@@ -16,7 +16,7 @@ import {
 // ====================== TYPES ======================
 
 export type SaleDetailsResult =
-    | { success: true; data: Rabbit_SaleDetailsDTO; message: string }
+    | { success: true; data: RabbitSaleDetailsEmbeddedDTO; message: string }
     | { success: false; error: string };
 
 export type DeleteSaleDetailsResult =
@@ -63,12 +63,12 @@ export async function createRabbitSaleDetails(
 
 /**
  * Server Action: Opdaterer salgsdetaljer for en kanin
- * @param saleDetailsId ID på salgsdetaljer der skal opdateres
+ * @param earCombId Kaninens øremærke-id
  * @param saleDetails Opdaterede salgsdetaljer
  * @returns Resultat med opdaterede salgsdetaljer eller fejlbesked
  */
 export async function updateRabbitSaleDetails(
-    saleDetailsId: number,
+    earCombId: string,  // Ændret fra saleDetailsId: number
     saleDetails: Rabbit_UpdateSaleDetailsDTO
 ): Promise<SaleDetailsResult> {
     try {
@@ -81,13 +81,22 @@ export async function updateRabbitSaleDetails(
             };
         }
         
-        const result = await UpdateSaleDetails(saleDetailsId, saleDetails, accessToken);
+        const success = await UpdateSaleDetails(earCombId, saleDetails, accessToken);
         
-        return {
-            success: true,
-            data: result,
-            message: 'Salgsdetaljer opdateret'
-        };
+        if (success) {
+            // Vi har ikke den opdaterede data tilbage, så vi konstruerer et resultat
+            return {
+                success: true,
+                // Dette er en simplificeret version - du skal opdatere profilen i stedet
+                data: {} as RabbitSaleDetailsEmbeddedDTO, 
+                message: 'Salgsdetaljer opdateret'
+            };
+        } else {
+            return {
+                success: false,
+                error: 'Kunne ikke opdatere salgsdetaljer'
+            };
+        }
     } catch (error) {
         console.error('Failed to update sale details:', error);
         return {
@@ -101,11 +110,11 @@ export async function updateRabbitSaleDetails(
 
 /**
  * Server Action: Sletter salgsdetaljer for en kanin
- * @param saleDetailsId ID på salgsdetaljer der skal slettes
+ * @param earCombId Kaninens øremærke-id
  * @returns Resultat med success flag og besked
  */
 export async function deleteRabbitSaleDetails(
-    saleDetailsId: number
+    earCombId: string  // Ændret fra saleDetailsId: number
 ): Promise<DeleteSaleDetailsResult> {
     try {
         const accessToken = await getAccessToken();
@@ -117,7 +126,7 @@ export async function deleteRabbitSaleDetails(
             };
         }
         
-        await DeleteSaleDetails(saleDetailsId, accessToken);
+        await DeleteSaleDetails(earCombId, accessToken);
         
         return {
             success: true,

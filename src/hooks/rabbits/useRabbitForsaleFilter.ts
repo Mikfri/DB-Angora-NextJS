@@ -1,43 +1,43 @@
 // src/lib/hooks/rabbits/useRabbitForsaleFilter.tsx
 import { useCallback, useState, useEffect } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { ForSaleFilters } from '@/api/types/filterTypes';
+import { Rabbit_ForSaleFilterDTO } from '@/api/types/filterTypes';
 
 type FilterValue = string | number | undefined | null;
 
 // Default filter værdier
-const DEFAULT_FILTERS: ForSaleFilters = {
-    Race: null,
-    Color: null,
-    Gender: null,
-    RightEarId: null,
-    BornAfter: null,
-    MinZipCode: null,
-    MaxZipCode: null
+const DEFAULT_FILTERS: Rabbit_ForSaleFilterDTO = {
+    race: null,
+    color: null,
+    gender: null,
+    rightEarId: null,
+    bornAfter: null,
+    minZipCode: null,
+    maxZipCode: null
 };
 
 // Pure function til URL parameter ekstraktion
-function extractFiltersFromUrl(searchParams: ReturnType<typeof useSearchParams>): Partial<ForSaleFilters> {
+function extractFiltersFromUrl(searchParams: ReturnType<typeof useSearchParams>): Partial<Rabbit_ForSaleFilterDTO> {
     if (!searchParams) return {};
 
     return {
-        Race: searchParams?.get('Race') ?? null,
-        Color: searchParams?.get('Color') ?? null,
-        Gender: searchParams?.get('Gender') ?? null,
-        RightEarId: searchParams?.get('RightEarId') ?? null,
-        BornAfter: searchParams?.get('BornAfter') ?? null,
-        MinZipCode: searchParams?.has('MinZipCode')
+        race: searchParams?.get('Race') ?? null,
+        color: searchParams?.get('Color') ?? null,
+        gender: searchParams?.get('Gender') ?? null,
+        rightEarId: searchParams?.get('RightEarId') ?? null,
+        bornAfter: searchParams?.get('BornAfter') ?? null,
+        minZipCode: searchParams?.has('MinZipCode')
             ? Number(searchParams.get('MinZipCode')) || null
             : null,
-        MaxZipCode: searchParams?.has('MaxZipCode')
+        maxZipCode: searchParams?.has('MaxZipCode')
             ? Number(searchParams.get('MaxZipCode')) || null
             : null
     };
 }
 
 interface UseRabbitSearchOptions {
-    initialFilters?: Partial<ForSaleFilters>;
-    onFilterChange?: (filters: ForSaleFilters) => void;
+    initialFilters?: Partial<Rabbit_ForSaleFilterDTO>;
+    onFilterChange?: (filters: Rabbit_ForSaleFilterDTO) => void;
 }
 
 /**
@@ -52,7 +52,7 @@ export function useRabbitSearch({
     const searchParams = useSearchParams();
 
     // Lokale filtre med default værdier og fra URL
-    const [filters, setFilters] = useState<ForSaleFilters>(() => ({
+    const [filters, setFilters] = useState<Rabbit_ForSaleFilterDTO>(() => ({
         ...DEFAULT_FILTERS,
         ...initialFilters,
         ...extractFiltersFromUrl(searchParams)
@@ -67,12 +67,12 @@ export function useRabbitSearch({
     }, [searchParams, pathname]);
 
     // Opdater enkelt filter
-    const updateFilter = useCallback((key: keyof ForSaleFilters, value: FilterValue) => {
+    const updateFilter = useCallback((key: keyof Rabbit_ForSaleFilterDTO, value: FilterValue) => {
         setFilters(prev => ({ ...prev, [key]: value }));
     }, []);
 
     // Nulstil enkelt filter
-    const clearFilter = useCallback((key: keyof ForSaleFilters) => {
+    const clearFilter = useCallback((key: keyof Rabbit_ForSaleFilterDTO) => {
         setFilters(prev => ({ ...prev, [key]: null }));
     }, []);
 

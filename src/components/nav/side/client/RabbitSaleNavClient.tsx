@@ -1,21 +1,15 @@
 // src/components/nav/side/client/RabbitSaleNavClient.tsx
 'use client';
 import { Input, Button, Divider } from "@heroui/react";
-import { ForSaleFilters } from "@/api/types/filterTypes";
 import { useState, useEffect, memo } from 'react';
 import { IoMdClose } from "react-icons/io";
-import { MdFilterList, MdCalendarMonth, MdOutlineLocationOn } from "react-icons/md";
+import { MdOutlineLocationOn } from "react-icons/md";
 import { LuRabbit } from "react-icons/lu";
 import { IoColorPaletteOutline } from "react-icons/io5";
 import { RiGenderlessLine } from "react-icons/ri";
 import EnumAutocomplete from '@/components/enumHandlers/enumAutocomplete';
 import { useEnums, RabbitEnum } from '@/contexts/EnumContext';
-import { useRabbitSearch } from "@/hooks/rabbits/useRabbitForsaleFilter";
-
-interface RabbitSaleNavClientProps {
-    activeFilters?: Partial<ForSaleFilters>;
-    onFilterChange?: (filters: ForSaleFilters) => void;
-}
+import { useRabbitFilters } from '@/store/saleRabbitsFilterStore';
 
 // De enum typer der bruges i denne komponent
 const REQUIRED_ENUMS: RabbitEnum[] = ['Race', 'Color', 'Gender'];
@@ -27,22 +21,25 @@ const FILTER_SECTIONS = {
 } as const;
 
 // Memoize component to prevent unnecessary re-renders
-export const RabbitSaleNavClient = memo(function RabbitSaleNavClient({
-    activeFilters = {},
-    onFilterChange
-}: RabbitSaleNavClientProps) {
+export const RabbitSaleNavClient = memo(function RabbitSaleNavClient() {
+    // Brug Zustand store i stedet for useRabbitSearch
     const {
         filters,
         updateFilter,
         clearFilter,
-        search
-    } = useRabbitSearch({
-        initialFilters: activeFilters,
-        onFilterChange
-    });
+        clearAllFilters,
+        applyFilters,
+        syncFiltersWithUrl
+    } = useRabbitFilters();
 
     const { getMultipleEnumValues } = useEnums();
     const [enumsLoaded, setEnumsLoaded] = useState(false);
+
+    // Synkroniser filtre med URL ved første render - kører kun én gang
+    useEffect(() => {
+        syncFiltersWithUrl();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     // Load enums when component mounts
     useEffect(() => {
@@ -60,28 +57,30 @@ export const RabbitSaleNavClient = memo(function RabbitSaleNavClient({
         loadEnums();
     }, [getMultipleEnumValues, enumsLoaded]);
 
+    // Har filtre?
+    const hasActiveFilters = Object.values(filters).some(value =>
+        value !== undefined && value !== null && value !== '');
+
     return (
-        <div className="w-full p-1 space-y-2"> {/* Reduceret yderligere padding og spacing */}
-            {/* Grundfiltre sektion - med mindre spacing */}
+        <div className="w-full p-1 space-y-2">
+            {/* Grundfiltre sektion */}
             <div>
-                {/* Justeret overskriftstil med mindre margin */}
-                <h3 className="text-[13px] font-medium text-zinc-400 mb-0.5">
+                <h3 className="text-[13px] font-medium text-zinc-400 mb-0.5 flex justify-between">
                     {FILTER_SECTIONS.BASIC}
+                    {hasActiveFilters && (
+                        <Button
+                            size="sm"
+                            variant="light"
+                            className="h-5 text-xs text-zinc-400 hover:text-zinc-200"
+                            onPress={clearAllFilters}
+                        >
+                            Nulstil alle
+                        </Button>
+                    )}
                 </h3>
 
-                <div className="space-y-1.5"> {/* Reduceret spacing mellem filtre */}
-                    {/* ID filter - Kompakt layout */}
-                    <FilterRow
-                        icon={<MdFilterList className="text-lg text-default-500" />}
-                        label="ID"
-                        value={filters.RightEarId ?? ''}
-                        onChange={(e) => updateFilter('RightEarId', e.target.value || null)}
-                        onClear={() => clearFilter('RightEarId')}
-                        showClear={!!filters.RightEarId}
-                        placeholder="ID"
-                    />
-
-                    {/* Race filter - Kompakt layout med EnumAutocomplete */}
+                <div className="space-y-1.5">
+                    {/* Race filter */}
                     <div className="flex items-center gap-1">
                         <div className="flex items-center gap-1.5 min-w-[70px]">
                             <LuRabbit className="text-lg text-default-500" />
@@ -90,14 +89,14 @@ export const RabbitSaleNavClient = memo(function RabbitSaleNavClient({
                         <div className="flex-1">
                             <EnumAutocomplete
                                 enumType="Race"
-                                value={filters.Race ?? null}
-                                onChange={(value) => updateFilter('Race', value || null)}
+                                value={filters.race ?? null}
+                                onChange={(value) => updateFilter('race', value || null)}
                                 label="Race"
                             />
                         </div>
                     </div>
 
-                    {/* Farve filter - Kompakt layout med EnumAutocomplete */}
+                    {/* Farve filter */}
                     <div className="flex items-center gap-1">
                         <div className="flex items-center gap-1.5 min-w-[70px]">
                             <IoColorPaletteOutline className="text-lg text-default-500" />
@@ -106,14 +105,14 @@ export const RabbitSaleNavClient = memo(function RabbitSaleNavClient({
                         <div className="flex-1">
                             <EnumAutocomplete
                                 enumType="Color"
-                                value={filters.Color ?? null}
-                                onChange={(value) => updateFilter('Color', value || null)}
+                                value={filters.color ?? null}
+                                onChange={(value) => updateFilter('color', value || null)}
                                 label="Farve"
                             />
                         </div>
                     </div>
 
-                    {/* Køn filter - Kompakt layout med EnumAutocomplete */}
+                    {/* Køn filter */}
                     <div className="flex items-center gap-1">
                         <div className="flex items-center gap-1.5 min-w-[70px]">
                             <RiGenderlessLine className="text-lg text-default-500" />
@@ -122,38 +121,28 @@ export const RabbitSaleNavClient = memo(function RabbitSaleNavClient({
                         <div className="flex-1">
                             <EnumAutocomplete
                                 enumType="Gender"
-                                value={filters.Gender ?? null}
-                                onChange={(value) => updateFilter('Gender', value || null)}
+                                value={filters.gender ?? null}
+                                onChange={(value) => updateFilter('gender', value || null)}
                                 label="Køn"
                             />
                         </div>
                     </div>
 
-                    {/* Alder filter - Kompakt layout */}
-                    <FilterRow
-                        icon={<MdCalendarMonth className="text-lg text-default-500" />}
-                        label="Efter"
-                        value={filters.BornAfter ?? ''}
-                        onChange={(e) => updateFilter('BornAfter', e.target.value || null)}
-                        onClear={() => clearFilter('BornAfter')}
-                        showClear={!!filters.BornAfter}
-                        type="date"
-                    />
+                    {/* Flere filtre kan tilføjes her */}
                 </div>
             </div>
 
             {/* Divider med minimal spacing */}
             <Divider className="bg-zinc-200/5 my-0.5" />
 
-            {/* Lokation sektion - mere kompakt */}
+            {/* Lokation sektion */}
             <div>
                 <h3 className="text-[13px] font-medium text-zinc-400 mb-0.5">
                     {FILTER_SECTIONS.LOCATION}
                 </h3>
 
-                {/* ZipCode felter - uden labels for mere plads til inputs */}
                 <div className="flex gap-2">
-                    {/* Min postnummer - uden label for mere plads */}
+                    {/* Min postnummer */}
                     <div className="flex-1">
                         <div className="flex items-center gap-1">
                             <div className="flex items-center">
@@ -164,21 +153,21 @@ export const RabbitSaleNavClient = memo(function RabbitSaleNavClient({
                                     size="sm"
                                     type="number"
                                     placeholder="Min postnr"
-                                    value={filters.MinZipCode?.toString() ?? ''}
-                                    onChange={(e) => updateFilter('MinZipCode',
+                                    value={filters.minZipCode?.toString() ?? ''}
+                                    onChange={(e) => updateFilter('minZipCode',
                                         e.target.value ? parseInt(e.target.value) : null)}
-                                    endContent={!!filters.MinZipCode && (
+                                    endContent={!!filters.minZipCode && (
                                         <Button
                                             isIconOnly
                                             size="sm"
                                             variant="light"
-                                            onPress={() => clearFilter('MinZipCode')}
+                                            onPress={() => clearFilter('minZipCode')}
                                         >
                                             <IoMdClose />
                                         </Button>
                                     )}
                                     classNames={{
-                                        inputWrapper: "h-7 min-h-unit-7 px-2", // Lidt højere for bedre synlighed
+                                        inputWrapper: "h-7 min-h-unit-7 px-2",
                                         input: "text-xs"
                                     }}
                                 />
@@ -186,32 +175,29 @@ export const RabbitSaleNavClient = memo(function RabbitSaleNavClient({
                         </div>
                     </div>
 
-                    {/* Max postnummer - uden label for mere plads */}
+                    {/* Max postnummer */}
                     <div className="flex-1">
                         <div className="flex items-center gap-1">
-                            {/* <div className="flex items-center">
-                                <MdOutlineLocationOn className="text-lg text-default-500" />
-                            </div> */}
                             <div className="flex-1">
                                 <Input
                                     size="sm"
                                     type="number"
                                     placeholder="Max postnr"
-                                    value={filters.MaxZipCode?.toString() ?? ''}
-                                    onChange={(e) => updateFilter('MaxZipCode',
+                                    value={filters.maxZipCode?.toString() ?? ''}
+                                    onChange={(e) => updateFilter('maxZipCode',
                                         e.target.value ? parseInt(e.target.value) : null)}
-                                    endContent={!!filters.MaxZipCode && (
+                                    endContent={!!filters.maxZipCode && (
                                         <Button
                                             isIconOnly
                                             size="sm"
                                             variant="light"
-                                            onPress={() => clearFilter('MaxZipCode')}
+                                            onPress={() => clearFilter('maxZipCode')}
                                         >
                                             <IoMdClose />
                                         </Button>
                                     )}
                                     classNames={{
-                                        inputWrapper: "h-7 min-h-unit-7 px-2", // Lidt højere for bedre synlighed
+                                        inputWrapper: "h-7 min-h-unit-7 px-2",
                                         input: "text-xs"
                                     }}
                                 />
@@ -224,13 +210,13 @@ export const RabbitSaleNavClient = memo(function RabbitSaleNavClient({
             {/* Divider med minimal spacing */}
             <Divider className="bg-zinc-200/5 my-0.5" />
 
-            {/* Søgeknap - med minimal padding */}
+            {/* Søgeknap */}
             <div className="pt-0.5">
                 <Button
                     color="primary"
                     fullWidth
-                    size="sm" // Reduceret størrelse
-                    onPress={search}
+                    size="sm"
+                    onPress={applyFilters}
                 >
                     Søg
                 </Button>
@@ -238,58 +224,3 @@ export const RabbitSaleNavClient = memo(function RabbitSaleNavClient({
         </div>
     );
 });
-
-// Ny hjælpekomponent for at standardisere filterrækker
-interface FilterRowProps {
-    icon: React.ReactNode;
-    label: string;
-    value: string;
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    onClear: () => void;
-    showClear: boolean;
-    placeholder?: string;
-    type?: string;
-}
-
-function FilterRow({
-    icon,
-    label,
-    value,
-    onChange,
-    onClear,
-    showClear,
-    placeholder,
-    type = "text"
-}: FilterRowProps) {
-    return (
-        <div className="flex items-center gap-1">
-            <div className="flex items-center gap-1.5 min-w-[70px]">
-                {icon}
-                <span className="text-xs font-medium">{label}</span>
-            </div>
-            <div className="flex-1">
-                <Input
-                    size="sm"
-                    type={type}
-                    placeholder={placeholder}
-                    value={value}
-                    onChange={onChange}
-                    endContent={showClear && (
-                        <Button
-                            isIconOnly
-                            size="sm"
-                            variant="light"
-                            onPress={onClear}
-                        >
-                            <IoMdClose />
-                        </Button>
-                    )}
-                    classNames={{
-                        inputWrapper: "h-6 min-h-unit-6 px-2", // Reduceret højde og padding
-                        input: "text-xs" // Mindre tekststørrelse
-                    }}
-                />
-            </div>
-        </div>
-    );
-}

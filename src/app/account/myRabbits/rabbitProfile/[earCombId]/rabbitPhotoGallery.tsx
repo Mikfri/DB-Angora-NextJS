@@ -3,10 +3,10 @@
 
 import CloudinaryImage from '@/components/cloudinary/CloudinaryImage';
 import { Button, Spinner } from '@heroui/react';
-import { Photo_DTO } from '@/api/types/AngoraDTOs';
+import { PhotoPrivateDTO } from '@/api/types/AngoraDTOs';
 
 interface PhotoGalleryProps {
-  photos: Photo_DTO[];
+  photos: PhotoPrivateDTO[];
   entityTypeName: string;
   entityId: string;
   isLoading: boolean;

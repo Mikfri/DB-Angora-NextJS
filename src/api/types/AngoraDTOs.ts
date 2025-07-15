@@ -5,23 +5,23 @@
  * @template T Typen af data i resultatet
  */
 export interface PagedResultDTO<T> {
-  /** Array af data af typen T */
-  data: T[];
-  /** Totalt antal elementer på tværs af alle sider */
-  totalCount: number;
-  /** Nuværende side (1-baseret) */
-  page: number;
-  /** Antal elementer per side */
-  pageSize: number;
-  /** Totalt antal sider */
-  totalPages: number;
-  /** Om der findes en næste side */
-  hasNextPage: boolean;
-  /** Om der findes en tidligere side */
-  hasPreviousPage: boolean;
+    /** Array af data af typen T */
+    data: T[];
+    /** Totalt antal elementer på tværs af alle sider */
+    totalCount: number;
+    /** Nuværende side (1-baseret) */
+    page: number;
+    /** Antal elementer per side */
+    pageSize: number;
+    /** Totalt antal sider */
+    totalPages: number;
+    /** Om der findes en næste side */
+    hasNextPage: boolean;
+    /** Om der findes en tidligere side */
+    hasPreviousPage: boolean;
 }
 
-export interface Photo_DTO {
+export interface PhotoPrivateDTO {
     id: number;
     filePath: string;
     fileName: string;
@@ -32,11 +32,20 @@ export interface Photo_DTO {
     isProfilePicture: boolean;
 }
 
+export interface PhotoPublicDTO {
+    id: number;
+    filePath: string;
+    fileName: string;
+    uploadDate: string;
+    isProfilePicture: boolean;
+}
+
 export interface CloudinaryPhotoRegistryRequestDTO {
     publicId: string;
     cloudinaryUrl: string;
     fileName: string;
-    entityId: string;
+    entityStringId: string;
+    entityId: number;
     entityType: string;
 }
 
@@ -78,21 +87,21 @@ export interface Rabbit_CreateDTO {
     dateOfDeath?: string | null;
     gender: string;
     isForBreeding: boolean;
-    father_EarCombId?: string | null;
-    mother_EarCombId?: string | null;
+    fatherId_Placeholder?: string | null;
+    motherId_Placeholder?: string | null;
 }
 
 /**
  * Indeholder de properties som brugeren skal udfylde for at oprette en kanin.
  */
 export interface Rabbit_CreateSaleDetailsDTO {
-    rabbitId: string;
+    title: string;
     price: number;
     canBeShipped: boolean;
     isLitterTrained: boolean;
     isNeutered: boolean;
     homeEnvironment: string;
-    saleDescription: string;
+    description: string;
 }
 
 /**
@@ -101,38 +110,47 @@ export interface Rabbit_CreateSaleDetailsDTO {
  * (Rabbit_SaleDetailsDTO, Wool_SaleDetailsDTO etc...)
 */
 export interface SaleDetailsProfileDTO {
+    // --- SaleDetails
     id: number;
+    //slug: string;
+    title: string;
+    price: number;
     dateListed: string;
+    canBeShipped: boolean;
+    viewCount: number;
+    description: string;
+    // --- SaleDetails.Entity.UserOwner
+    sellerName: string;
+    sellerContact: string;
     city: string;
     zipCode: number;
-    viewCount: number;
+    // --- Routing
+    entityType: string;  // "Rabbit" | "Wool" | ...
+    entityId: string;  // RabbitId, WoolId, etc.. Kan godt være en int.ToString() værdi
     imageUrl: string | null;
-    price: number;
-    title: string;
-    saleDescription: string;
-    rabbitSaleDetails: Rabbit_SaleDetailsDTO | null;
-    woolSaleDetails: Wool_SaleDetailsDTO | null;
+    // --- [EntityType]SaleDetails
+    /**
+     * Dynamiske egenskaber, konvereteret til 'string'.
+     * Boolean værdier er repræsenteret som "true"/"false".
+     * Rabbit-specifikke egenskaber:
+     *   - "Bakketrænet": "true"/"false"
+     *   - "Neutraliseret": "true"/"false"
+     *   - "Boligmiljø": String (enum værdi)
+     * Wool-specifikke egenskaber:
+     *   - ...
+     */
+    entityTypeSaleProperties: { [key: string]: string };
+
+    /**
+     * Dynamiske egenskaber, konvereteret til 'string'.
+     * (fx Race, Farve, Køn - for kaniner)
+     */
+    entityProperties: { [key: string]: string };
+    
+    // --- DTO'er
+    photos: PhotoPublicDTO[];
 }
 
-/**
- * Indeholder ALLE oplysninger en køber har brug for at at se for en salgs-kanin.
- * Rabbit_ForsaleProfileDTO er rabbit.properties, hvor de andre DTO'er som er inkluderet er med standard- og entity specifikke oplysninger.
- * Dvs saleDetails.property og rabbitSaleDetails.property.
- * Benyttes på kaninens salgs-profilside og indeholder 'SaleDetailsProfileDTO' og 'Rabbit_SaleDetailsDTO'.
- */
-export interface Rabbit_ForsaleProfileDTO {
-    nickName: string;
-    race: string;
-    color: string;
-    dateOfBirth: string;
-    gender: string;
-    isForBreeding: boolean;
-    ownerFullName: string;
-    ownerPhoneNumber: string;
-    ownerEmail: string;
-    photos: Photo_DTO[];
-    saleDetailsProfile: SaleDetailsProfileDTO;
-}
 
 export interface Rabbit_PedigreeDTO {
     Generation: number;
@@ -183,18 +201,22 @@ export interface Rabbit_ForbreedingPreviewDTO {    // Preview for avlerer
 }
 export type Rabbits_ForbreedingPreviewList = Rabbit_ForbreedingPreviewDTO[];
 
+/**
+ * Preview oplysningerne for ejede kaniner, som benyttes i lister.
+ * Indeholder kun properties som er relevante for at kunne filtrerer på.
+ */
 export interface Rabbit_PreviewDTO {
     earCombId: string;
     nickName: string | null;
     originFullName: string | null;
     ownerFullName: string | null;
-    race: string | null;
-    color: string | null;
-    approvedRaceColorCombination: boolean | null;
-    dateOfBirth: string | null;  // DateOnly i C#, string i TS
+    race: string;
+    color: string;
+    approvedRaceColorCombination: boolean;
+    dateOfBirth: string  // DateOnly i C#, string i TS
     dateOfDeath: string | null;  // DateOnly i C#, string i TS
-    isJuvenile: boolean | null;
-    gender: string | null;
+    isJuvenile: boolean;
+    gender: string;
     isForBreeding: boolean | null;
     hasSaleDetails: boolean;  // Bemærk: ikke nullable i C#
     fatherId_Placeholder: string | null;
@@ -210,46 +232,56 @@ export type Rabbits_PreviewList = Rabbit_PreviewDTO[];
  * Profil oplysningerne for en kanin, inclusive dens tilhørende:
  * - Salgsoplysninger
  * - Billeder
+ * - Evt unger, oversigt
  */
 export interface Rabbit_ProfileDTO {
     earCombId: string;
     nickName: string | null;
     originFullName: string | null;
     ownerFullName: string | null;
-    race: string | null;
-    color: string | null;
-    approvedRaceColorCombination: boolean | null;
-    dateOfBirth: string | null;  // API: string($date) format, nullable
+    race: string;
+    color: string;
+    approvedRaceColorCombination: boolean;
+    dateOfBirth: string;  // API: string($date) format, nullable
     dateOfDeath: string | null;
-    isJuvenile: boolean | null;
-    gender: string | null;
+    isJuvenile: boolean;
+    gender: string;
     isForBreeding: boolean | null;
     fatherId_Placeholder: string | null;
     father_EarCombId: string | null;
     motherId_Placeholder: string | null;
     mother_EarCombId: string | null;
+    inbreedingCoefficient: number;    
     profilePicture: string | null;
-    saleDetailsProfile: SaleDetailsProfileDTO | null;
-    photos: Photo_DTO[];
-    inbreedingCoefficient: number;
+    // --- DTO'er
+    saleDetailsEmbedded: RabbitSaleDetailsEmbeddedDTO | null;
+    photos: PhotoPrivateDTO[];
     children: Rabbit_ChildPreviewDTO[];
 }
 
-/**
- * Specifikke salgsoplysninger for en kanin (RabbitSaleDetails.properties).
- * Følger med SaleDetailProfilesDTO'en.
- */
-export interface Rabbit_SaleDetailsDTO {
-    rabbitId: string;
+export interface RabbitSaleDetailsEmbeddedDTO {
+    // --- SaleDetails
+    id: number;
+    slug: string;
+    title: string;
+    price: number;
+    dateListed: string;
+    canBeShipped: boolean;
+    viewCount: number;
+    description: string;
+    // --- RabbitSaleDetails
     isLitterTrained: boolean;
     isNeutered: boolean;
     homeEnvironment: string;
 }
 
-export interface Wool_SaleDetailsDTO {
-    woolId: string;
-    weightGram: number;
-    qualityGrade: string;
+
+export interface SaleDetails_FilterDTO {
+    minPrice?: number;
+    maxPrice?: number;
+    canBeShipped?: boolean;
+    page: number;
+    pageSize: number;
 }
 
 /**
@@ -257,17 +289,22 @@ export interface Wool_SaleDetailsDTO {
  * Benyttes til salgs-cards.
  */
 export interface SaleDetailsCardDTO {
+    // --- SaleDetails
     id: number;
+    slug: string;
+    title: string;
     price: number;
     dateListed: string;
-    title: string;
+    canBeShipped: boolean;
+    viewCount: number;
+    // --- SaleDetails.Entity (Rabbit, Wool, etc.)
+    imageUrl: string | null;
+    // --- SaleDetails.Entity.UserOwner.
     city: string;
     zipCode: number;
-    //nickName: string;
-    //dateOfBirth: string;
-    imageUrl: string;
-    entityType: string;
-    entityId: string;
+    // --- Type-indikator og ID til routing
+    entityType: string; // Type af entitet (Rabbit, Wool, etc.)
+    entityId: string; // string eller parsed int til entitetens ID
 }
 export type SaleDetailsCardList = SaleDetailsCardDTO[];
 
@@ -287,12 +324,15 @@ export interface Rabbit_UpdateDTO {
 }
 
 export interface Rabbit_UpdateSaleDetailsDTO {
+    // --- SaleDetails
+    title: string;
     price: number;
     canBeShipped: boolean;
+    description: string;
+    // --- RabbitSaleDetails
     isLitterTrained: boolean;
     isNeutered: boolean;
     homeEnvironment: string;
-    saleDescription: string;
 }
 
 export interface Rabbit_ChildPreviewDTO {

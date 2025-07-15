@@ -1,6 +1,6 @@
 // src/app/account/myRabbits/rabbitProfile/[earCombId]/rabbitProfile.tsx
 "use client";
-import { Rabbit_ProfileDTO, Rabbit_SaleDetailsDTO, SaleDetailsProfileDTO } from '@/api/types/AngoraDTOs';
+import { Rabbit_ProfileDTO, RabbitSaleDetailsEmbeddedDTO } from '@/api/types/AngoraDTOs';
 import { useRabbitProfile as useProfileHook } from '@/hooks/rabbits/useRabbitProfile';
 import { useRabbitProfile as useProfileContext } from '@/contexts/RabbitProfileContext';
 import RabbitDetails from './rabbitDetails';
@@ -15,10 +15,10 @@ import DeleteRabbitModal from '@/components/modals/rabbit/deleteRabbitModal';
 import TransferOwnershipModal from '@/components/modals/rabbit/transferRabbitModal';
 
 // Import ikoner for hver tab
-import { RiInformationLine } from "react-icons/ri";  // Info/detaljer ikon
-import { PiArrowsSplitLight } from "react-icons/pi"; // Afkom ikon
-import { RiPriceTag3Line, RiPriceTag3Fill } from "react-icons/ri";  // Tilføj fyldt prisikon
-import { FaTreeCity } from "react-icons/fa6"; // eller et andet passende ikon for stamtavle
+import { RiInformationLine } from "react-icons/ri";
+import { PiArrowsSplitLight } from "react-icons/pi";
+import { RiPriceTag3Line, RiPriceTag3Fill } from "react-icons/ri";
+import { FaTreeCity } from "react-icons/fa6";
 
 export default function RabbitProfile({ rabbitProfile: initialRabbitProfile }: { rabbitProfile: Rabbit_ProfileDTO }) {
     // Hent hooks-funktioner fra useNav
@@ -55,46 +55,12 @@ export default function RabbitProfile({ rabbitProfile: initialRabbitProfile }: {
         await refreshProfile();
     }, [handleSave, refreshProfile]);
 
-    // Handler til salgsdetaljer - opdateret til at bruge saleDetailsProfile
-    const handleSaleDetailsChange = useCallback((saleDetails: Rabbit_SaleDetailsDTO | null, fullSaleDetailsProfile?: SaleDetailsProfileDTO | null) => {
-        setCurrentProfile(prevProfile => {
-            // Hvis vi har et fuldt saleDetailsProfile objekt, brug det direkte
-            if (fullSaleDetailsProfile) {
-                return {
-                    ...prevProfile,
-                    saleDetailsProfile: fullSaleDetailsProfile
-                } as Rabbit_ProfileDTO;
-            }
-
-            // Ellers, hvis vi kun har salgsdetaljer for kaninen
-            else if (saleDetails) {
-                // Type assertion for at sikre alle påkrævede felter eksisterer
-                const updatedSaleDetailsProfile: SaleDetailsProfileDTO = {
-                    id: prevProfile.saleDetailsProfile?.id || 0,
-                    dateListed: prevProfile.saleDetailsProfile?.dateListed || new Date().toISOString().split('T')[0],
-                    city: prevProfile.saleDetailsProfile?.city || '',
-                    zipCode: prevProfile.saleDetailsProfile?.zipCode || 0,
-                    viewCount: prevProfile.saleDetailsProfile?.viewCount || 0,
-                    imageUrl: prevProfile.saleDetailsProfile?.imageUrl || '',
-                    price: prevProfile.saleDetailsProfile?.price || 0,
-                    title: prevProfile.saleDetailsProfile?.title || `Kanin: ${prevProfile.nickName || prevProfile.earCombId}`,
-                    saleDescription: prevProfile.saleDetailsProfile?.saleDescription || '',
-                    rabbitSaleDetails: saleDetails,
-                    woolSaleDetails: null
-                };
-
-                return {
-                    ...prevProfile,
-                    saleDetailsProfile: updatedSaleDetailsProfile
-                } as Rabbit_ProfileDTO;
-            } else {
-                // Hvis vi fjerner salgsdetaljer, sæt saleDetailsProfile til null
-                return {
-                    ...prevProfile,
-                    saleDetailsProfile: null
-                } as Rabbit_ProfileDTO;
-            }
-        });
+    // Handler til salgsdetaljer - opdateret til at bruge saleDetailsEmbedded
+    const handleSaleDetailsChange = useCallback((saleDetails: RabbitSaleDetailsEmbeddedDTO | null) => {
+        setCurrentProfile(prevProfile => ({
+            ...prevProfile,
+            saleDetailsEmbedded: saleDetails
+        }));
     }, [setCurrentProfile]);
 
     // Sekundær navigation
@@ -133,9 +99,9 @@ export default function RabbitProfile({ rabbitProfile: initialRabbitProfile }: {
                     color="primary"
                     classNames={{
                         tabList: "gap-6 w-full relative p-0 border-b border-zinc-700/50",
-                        cursor: "w-full bg-blue-500", // Fast Tailwind-klasse
+                        cursor: "w-full bg-blue-500",
                         tab: "max-w-fit px-0 h-12",
-                        tabContent: "group-data-[selected=true]:text-blue-500", // Fast Tailwind-klasse
+                        tabContent: "group-data-[selected=true]:text-blue-500",
                         panel: "pt-5"
                     }}
                 >
@@ -153,7 +119,7 @@ export default function RabbitProfile({ rabbitProfile: initialRabbitProfile }: {
                             isEditing={isEditing}
                             isSaving={isSaving}
                             setIsEditing={setIsEditing}
-                            handleSave={handleSaveWithRefresh} // Brug vores wrappede version
+                            handleSave={handleSaveWithRefresh}
                             handleCancel={handleCancelEdit}
                             editedData={editedData}
                             setEditedData={setEditedData}
@@ -195,7 +161,7 @@ export default function RabbitProfile({ rabbitProfile: initialRabbitProfile }: {
                         key="sale"
                         title={
                             <div className="flex items-center space-x-2">
-                                {currentProfile.saleDetailsProfile ? (
+                                {currentProfile.saleDetailsEmbedded ? (
                                     <RiPriceTag3Fill className="text-xl text-blue-400" />
                                 ) : (
                                     <RiPriceTag3Line className="text-xl" />
