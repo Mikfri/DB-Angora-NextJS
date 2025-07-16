@@ -201,39 +201,30 @@ export async function getSaleDetailsById(
  * @param slug Slug for salgsopslaget
  * @returns Detaljeret salgsprofil eller fejlbesked
  */
-export async function getSaleDetailsBySlug(
-  slug: string
-): Promise<SaleDetailsResult> {
+export interface SaleResult<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
+}
+
+/**
+ * Henter detaljer for et salgsopslag baseret på slug
+ * @param slug Salgsopslagets slug
+ * @returns Salgsprofilen
+ */
+export async function getSaleDetailsBySlug(slug: string): Promise<SaleResult<SaleDetailsProfileDTO>> {
   try {
-    if (!slug) {
-      return {
-        success: false,
-        error: 'Manglende slug parameter',
-        status: 400
-      };
-    }
-    
     const saleDetails = await GetSaleDetailsBySlug(slug);
-    
+
     return {
       success: true,
       data: saleDetails
     };
   } catch (error) {
-    console.error(`Failed to fetch sale details with slug ${slug}:`, error);
-    
-    if (error instanceof Error && error.message.includes('blev ikke fundet')) {
-      return {
-        success: false,
-        error: `Salgsopslag med slug '${slug}' blev ikke fundet.`,
-        status: 404
-      };
-    }
-    
+    console.error('Error getting sale details by slug:', error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Der skete en uventet fejl',
-      status: 500
+      error: error instanceof Error ? error.message : 'Der opstod en fejl ved hentning af salgsdetaljer'
     };
   }
 }

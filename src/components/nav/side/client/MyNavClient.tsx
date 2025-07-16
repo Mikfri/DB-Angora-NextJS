@@ -1,4 +1,4 @@
-// src/components/nav/side/variants/MyNavClient.tsx
+// src/components/nav/side/client/MyNavClient.tsx
 'use client'
 import { usePathname } from 'next/navigation';
 import { useMemo, useCallback } from 'react';
@@ -14,7 +14,9 @@ import {
     MODERATOR_ROLES,
     NAV_STYLES,
     createIconMap,
-    getDefaultSectionTitle
+    getDefaultSectionTitle,
+    ROUTES,  // Tilføj denne import
+    ROUTE_UTILS  // Tilføj denne import
 } from '@/constants/navigation';
 import { NavGroup } from '@/types/navigation';
 import { hasAnyRole } from '@/types/auth';
@@ -48,14 +50,18 @@ export function MyNavClient() {
         hasModeratorRoles: hasAnyRole(userIdentity, MODERATOR_ROLES)
     }), [userIdentity]);
 
-    // Current links logik med conditional chaining
+    // Opdateret current links logik med ROUTES konstanter
     const currentLinks = useMemo(() => {
         const links: NavGroup[] = [];
     
-        if (pathname === '/') {
+        // Brug ROUTES konstanter i stedet for hardcodede paths
+        if (pathname === ROUTES.HOME) {
             links.push(...homeNavigationLinks);
-        } else if (pathname?.startsWith('/sale')) {
+        } else if (ROUTE_UTILS.isSaleRoute(pathname || '')) {
             links.push(...saleNavigationLinks);
+        } else if (ROUTE_UTILS.isAccountRoute(pathname || '')) {
+            // Tilføj account-specifik navigation hvis nødvendigt
+            links.push(...navigationLinks);
         }
     
         // Brug af logical AND for bedre læsbarhed
@@ -98,7 +104,7 @@ export function MyNavClient() {
                     {group.links?.map((link) => {
                         // Template literal med konditionelle klasser
                         const classNames = `
-                            ${(link.href === '/account' || link.href === '/sale') 
+                            ${(link.href === ROUTES.ACCOUNT.BASE || link.href === ROUTES.SALE.BASE) 
                                 ? NAV_STYLES.mainLink 
                                 : NAV_STYLES.subLink}
                             ${pathname === link.href ? NAV_STYLES.active : ''}

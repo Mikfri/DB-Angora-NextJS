@@ -20,19 +20,17 @@ type PageProps = {
 };
 
 // Generér metadata baseret på searchParams
-export async function generateMetadata({ searchParams }: PageProps): Promise<Metadata> {
-  // Hent de faktiske values ud af søgeparametrene
-  const sp = searchParams || {};
+export async function generateMetadata({ searchParams = {} }: PageProps): Promise<Metadata> {
+  // Await searchParams
+  const params = await Promise.resolve(searchParams);
   
-  // Brug const i stedet for direkte adgang til at undgå flere kald til sp
-  const race = sp.Race;
-  const color = sp.Color;
-  const gender = sp.Gender;
-
+  // Destrukturer parametre fra den awaitede værdi
+  const { Race, Color, Gender } = params;
+  
   const filterDesc: string[] = [];
-  if (race) filterDesc.push(`Race: ${race}`);
-  if (color) filterDesc.push(`Farve: ${color}`);
-  if (gender) filterDesc.push(`Køn: ${gender}`);
+  if (Race) filterDesc.push(`Race: ${Race}`);
+  if (Color) filterDesc.push(`Farve: ${Color}`);
+  if (Gender) filterDesc.push(`Køn: ${Gender}`);
 
   const filterString = filterDesc.length > 0 ? ` - ${filterDesc.join(', ')}` : '';
 
@@ -55,15 +53,20 @@ function CenteredLoading() {
 }
 
 // ItemLoader component to handle data fetching within Suspense
-async function ItemLoader({ searchParams }: { searchParams: PageProps['searchParams'] }) {
-  // Cache searchParams values to avoid repeated access
-  const pageParam = searchParams?.Page;
-  const pageSizeParam = searchParams?.PageSize;
-  const raceParam = searchParams?.Race;
-  const colorParam = searchParams?.Color;
-  const genderParam = searchParams?.Gender;
-  const minZipParam = searchParams?.MinZipCode;
-  const maxZipParam = searchParams?.MaxZipCode;
+async function ItemLoader({ searchParams = {} }: { searchParams: PageProps['searchParams'] }) {
+  // Await searchParams
+  const params = await Promise.resolve(searchParams);
+  
+  // Destrukturer parametre fra den awaitede værdi
+  const { 
+    Page: pageParam, 
+    PageSize: pageSizeParam,
+    Race: raceParam,
+    Color: colorParam,
+    Gender: genderParam,
+    MinZipCode: minZipParam,
+    MaxZipCode: maxZipParam
+  } = params;
   
   // Opret standard søge-/filtreringsparametre med Rabbit_ForSaleFilterDTO
   const filter: Rabbit_ForSaleFilterDTO = {
@@ -113,7 +116,7 @@ async function ItemLoader({ searchParams }: { searchParams: PageProps['searchPar
   );
 }
 
-export default async function Page({ searchParams }: PageProps) {
+export default async function Page({ searchParams = {} }: PageProps) {
   return (
     <Suspense fallback={<CenteredLoading />}>
       <ItemLoader searchParams={searchParams} />

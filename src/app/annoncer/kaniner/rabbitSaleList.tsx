@@ -1,10 +1,11 @@
-// src/app/sale/rabbits/rabbitSaleList.tsx
+// src/app/annoncer/kaniner/rabbitSaleList.tsx
 'use client'
 import { useCallback } from "react";
 import { useRouter, useSearchParams } from 'next/navigation';
 import SaleDetailsCard from '@/components/cards/saleDetailsCard';
 import { SaleDetailsCardDTO } from '@/api/types/AngoraDTOs';
 import { Button, Pagination } from "@heroui/react";
+import { ROUTES } from '@/constants/navigation';
 
 // Interface for pagineringsinfo
 interface PagingInfo {
@@ -28,35 +29,52 @@ export default function SaleList({
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Klik-handler til kort
-  const handleCardClick = useCallback((entityType: string, entityId: string) => {
-    // Redirect baseret på entity type
-    switch(entityType.toLowerCase()) {
-      case 'rabbit':
-        router.push(`/sale/rabbits/profile/${entityId}`);
-        break;
-      case 'wool':
-        router.push(`/sale/wool/profile/${entityId}`);
-        break;
-      default:
-        router.push(`/sale/${entityType.toLowerCase()}/profile/${entityId}`);
-        break;
+  // Opdateret klik-handler til kort - bruger korrekte ROUTES konstanter
+  const handleCardClick = useCallback((item: SaleDetailsCardDTO) => {
+    // Brug slug hvis tilgængelig (foretrukken metode)
+    if (item.slug) {
+      switch (item.entityType.toLowerCase()) {
+        case 'rabbit':
+          router.push(ROUTES.PROFILES.RABBIT(item.slug));
+          break;
+        case 'wool':
+          router.push(ROUTES.PROFILES.WOOL(item.slug));
+          break;
+        default:
+          // Fallback for ukendte typer
+          router.push(`${ROUTES.SALE.BASE}/${item.entityType.toLowerCase()}/${item.slug}`);
+          break;
+      }
+    } else {
+      // Fallback til traditionelle profile routes med entityId
+      switch (item.entityType.toLowerCase()) {
+        case 'rabbit':
+          router.push(ROUTES.PROFILES.RABBIT_PROFILE(item.entityId));
+          break;
+        case 'wool':
+          router.push(ROUTES.PROFILES.WOOL_PROFILE(item.entityId));
+          break;
+        default:
+          // Ultimate fallback for ukendte typer
+          router.push(`${ROUTES.SALE.BASE}/${item.entityType.toLowerCase()}/profile/${item.entityId}`);
+          break;
+      }
     }
   }, [router]);
 
-  // Håndterer skift af side
+  // Håndterer skift af side - bruger ROUTES konstant
   const handlePageChange = useCallback((page: number) => {
     // Opret en ny URLSearchParams instans baseret på de nuværende parametre
     const params = new URLSearchParams(searchParams.toString());
-    
+
     // Opdater page parameter
     params.set('Page', page.toString());
-    
-    // Naviger til den nye URL med opdaterede søgeparametre
-    router.push(`/sale/rabbits?${params.toString()}`);
+
+    // Naviger til den nye URL med opdaterede søgeparametre - bruger ROUTES konstant
+    router.push(`${ROUTES.SALE.RABBITS}?${params.toString()}`);
   }, [router, searchParams]);
 
-  // Vis tom tilstand
+  // Vis tom tilstand - bruger ROUTES konstant
   if (items.length === 0) {
     return (
       <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-6 text-center py-16">
@@ -66,9 +84,9 @@ export default function SaleList({
         <p className="text-zinc-400 mb-6">
           Prøv at ændre dine filtre for at se flere resultater
         </p>
-        <Button 
+        <Button
           color="primary"
-          onPress={() => router.push('/sale/rabbits')}
+          onPress={() => router.push(ROUTES.SALE.RABBITS)}
         >
           Vis alle kaniner
         </Button>
@@ -85,12 +103,12 @@ export default function SaleList({
             <SaleDetailsCard
               key={`${item.entityType}-${item.entityId}`}
               item={item}
-              onClick={() => handleCardClick(item.entityType, item.entityId)}
+              onClick={() => handleCardClick(item)}
             />
           ))}
         </div>
       </div>
-      
+
       {/* Vis paginering hvis der er flere sider */}
       {paging && paging.totalPages > 1 && (
         <div className="flex justify-center py-4">

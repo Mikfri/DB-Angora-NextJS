@@ -1,10 +1,11 @@
-// src/app/sale/layout.tsx
+// src/app/annoncer/layout.tsx
 'use client'
 import { usePathname } from 'next/navigation';
 import { Suspense } from 'react';
 import SideNavLayout from '@/components/layouts/SideNavLayout';
 import RabbitSaleNav from '@/components/nav/side/index/RabbitSaleNav';
 import MyNav from '@/components/nav/side/index/MyNav';
+import { ROUTES } from '@/constants/navigation';
 
 // Loading component for sidebar
 function SideNavLoading() {
@@ -30,8 +31,8 @@ function SideNavLoading() {
 export default function SaleLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname() || '';
 
-  // Tjek om vi skal vise sidenav
-  const shouldHaveSideNav = !pathname.startsWith('/sale/rabbits/profile');
+  // Tjek om vi skal vise sidenav - brug ROUTES konstanter og opdateret path
+  const shouldHaveSideNav = !pathname.startsWith(`${ROUTES.SALE.RABBITS}/profile`);
 
   if (!shouldHaveSideNav) {
     return (
@@ -41,8 +42,8 @@ export default function SaleLayout({ children }: { children: React.ReactNode }) 
     );
   }
 
-  // Vælg den korrekte sidenav baseret på path
-  const sideNav = pathname.includes('/sale/rabbits') && !pathname.includes('/profile')
+  // Vælg den korrekte sidenav baseret på path - brug opdaterede ROUTES konstanter
+  const sideNav = pathname.includes(ROUTES.SALE.RABBITS) && !pathname.includes('/profile')
     ? (
       <Suspense fallback={<SideNavLoading />}>
         {/* Fjernet activeFilters prop da vi nu bruger Zustand */}

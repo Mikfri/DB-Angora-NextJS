@@ -120,13 +120,16 @@ export function useSaleDetailsHandler({
             } else {
                 // Create new sale details
                 const createDetails = {
-                    ...formData as Rabbit_CreateSaleDetailsDTO,
-                    rabbitId: rabbitProfile.earCombId
+                    ...formData as Rabbit_CreateSaleDetailsDTO
                 } as Rabbit_CreateSaleDetailsDTO;
 
                 console.log('Creating sale details:', createDetails);
 
-                const result = await createRabbitSaleDetails(createDetails);
+                // Send earCombId som første parameter
+                const result = await createRabbitSaleDetails(
+                    rabbitProfile.earCombId, 
+                    createDetails
+                );
 
                 if (result.success) {
                     console.log('Create successful, refreshing profile');
@@ -194,7 +197,6 @@ export function useSaleDetailsHandler({
     // Start creating mode
     const startCreating = () => {
         setFormData({
-            rabbitId: rabbitProfile.earCombId,
             title: `${rabbitProfile.nickName || rabbitProfile.earCombId} til salg`, // Default titlen
             price: 0,
             canBeShipped: false,
@@ -233,7 +235,6 @@ function createInitialFormData(rabbitProfile: Rabbit_ProfileDTO): Rabbit_CreateS
     return rabbitProfile.saleDetailsEmbedded ?
         createFormDataFromEmbedded(rabbitProfile.saleDetailsEmbedded) :
         {
-            rabbitId: rabbitProfile.earCombId,
             title: `${rabbitProfile.nickName || rabbitProfile.earCombId} til salg`,
             price: 0,
             canBeShipped: false,

@@ -40,7 +40,7 @@ export async function GetLatestSaleItems(
  */
 export async function GetAllSaleItemsFiltered(
     filter: SaleDetails_FilterDTO
-    ): Promise<PagedResultDTO<SaleDetailsCardDTO>> {
+): Promise<PagedResultDTO<SaleDetailsCardDTO>> {
     // Konverter filter objekt til query params
     const queryParams = new URLSearchParams();
 
@@ -81,7 +81,7 @@ export async function GetAllSaleItemsFiltered(
  */
 export async function GetRabbitSaleItemsFiltered(
     filter?: Rabbit_ForSaleFilterDTO
-    ): Promise<PagedResultDTO<SaleDetailsCardDTO>> {
+): Promise<PagedResultDTO<SaleDetailsCardDTO>> {
     // Konverter filter objekt til query params
     const queryParams = new URLSearchParams();
 
@@ -161,14 +161,14 @@ export async function GetSaleDetailsById(
 }
 
 /**
- * Henter detaljeret information om et specifikt salgsopslag baseret på dets slug
- * @param slug Slug for salgsdetaljen
- * @returns Detaljeret salgsprofil
+ * Henter salgsprofil baseret på slug
+ * @param slug Salgsopslagets slug
+ * @returns Komplet salgsprofil
  */
-export async function GetSaleDetailsBySlug(
-    slug: string
-): Promise<SaleDetailsProfileDTO> {
-    const response = await fetch(getApiUrl(`Sale/${slug}`), {
+export async function GetSaleDetailsBySlug(slug: string): Promise<SaleDetailsProfileDTO> {
+    const url = getApiUrl(`Sale/${slug}`);
+
+    const response = await fetch(url, {
         method: 'GET',
         headers: {
             'accept': 'text/plain'
@@ -176,18 +176,7 @@ export async function GetSaleDetailsBySlug(
     });
 
     if (!response.ok) {
-        const errorText = await response.text();
-        console.error('API Error:', {
-            status: response.status,
-            statusText: response.statusText,
-            body: errorText
-        });
-
-        if (response.status === 404) {
-            throw new Error(`Salgsopslag med slug '${slug}' blev ikke fundet.`);
-        }
-
-        throw new Error(`Kunne ikke hente salgsdetaljer: ${response.status} ${response.statusText}`);
+        throw new Error(`Failed to fetch sale details: ${response.status} ${response.statusText}`);
     }
 
     return await response.json();

@@ -1,6 +1,6 @@
 // src/app/layoutWrapper.tsx
 'use client'
-import TopNav from "@/components/nav/top/TopNavServer";
+import TopNav from "@/components/nav/top/TopNav"; // Ny unified komponent
 import Footer from "@/components/footer/footer";
 import PageHeader from "@/components/nav/headerBreadcrumb/Breadcrumbs";
 import { usePathname } from "next/navigation";

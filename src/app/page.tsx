@@ -1,8 +1,6 @@
-// src/app/page.tsx
-import PageNavigationCard from '@/components/cards/pageNavigationCard';
-import SideNavLayout from '@/components/layouts/SideNavLayout';
-import MyNav from '@/components/nav/side/index/MyNav';
+// src/app/page.tsx (Server Component med metadata)
 import { Metadata } from 'next';
+import HomeContent from './HomeContent';
 
 export const metadata: Metadata = {
   title: 'Forside | DenBlå-Angora',
@@ -17,39 +15,22 @@ export const metadata: Metadata = {
       height: 700,
       alt: 'DenBlå-Angora Logo'
     }]
+  },
+  // Tilføj structured data for bedre SEO
+  other: {
+    'application/ld+json': JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      name: 'DenBlå-Angora',
+      description: 'Det nemme kaninregister for angora kaniner',
+      url: 'https://db-angora.dk',
+      sameAs: [
+        // Tilføj sociale medier links hvis relevant
+      ]
+    })
   }
 };
 
-
 export default function Home() {
-  return (
-    <SideNavLayout sideNav={<MyNav />}>
-      <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-6">
-        <div className="flex flex-col gap-12">
-          {/* Welcome Section */}
-          <section id="welcome" className="flex flex-col justify-center items-center gap-6 text-zinc-100">
-            <h1 className="site-title">
-              Velkommen til DenBlå-Angora
-            </h1>
-            <p className="max-w-3xl text-center">
-              Dette er en tidlig alpha version af et kanin-register, hvor det er muligt at oprette slette og redigere kaniner af forskellige racer. Vi udruller løbende opdateringer ud så hold øje med siden.
-            </p>
-          </section>
-
-          {/* News Section */}
-          <section id="news" className="flex flex-col justify-center items-center gap-6 text-zinc-100">
-            <h2 className="text-2xl font-bold text-primary">Nyheder</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl w-full">
-              <PageNavigationCard
-                href="/sale/rabbits"
-                imageSrc="/images/sideNavigationCard_SaleRabbits.jpg"
-                title="Ny funktion: Kaniner til salg"
-                description="Find kaniner til salg, ud fra vores smarte filtrerings muligheder..."
-              />
-            </div>
-          </section>
-        </div>
-      </div>
-    </SideNavLayout>
-  );
+  return <HomeContent />;
 }

@@ -2,141 +2,194 @@
 'use server';
 
 import { getAccessToken } from '@/app/actions/auth/session';
-import {
-    Rabbit_CreateSaleDetailsDTO, 
-    Rabbit_UpdateSaleDetailsDTO, 
-    RabbitSaleDetailsEmbeddedDTO
+import { 
+  Rabbit_CreateSaleDetailsDTO, 
+  Rabbit_UpdateSaleDetailsDTO,
+  SaleDetailsProfileDTO
 } from '@/api/types/AngoraDTOs';
-import {
-    CreateSaleDetails, 
-    UpdateSaleDetails, 
-    DeleteSaleDetails
+import { 
+  CreateSaleDetails, 
+  UpdateSaleDetails, 
+  DeleteSaleDetails 
 } from '@/api/endpoints/rabbitController';
 
-// ====================== TYPES ======================
+// =============== TYPES ===============
 
-export type SaleDetailsResult =
-    | { success: true; data: RabbitSaleDetailsEmbeddedDTO; message: string }
-    | { success: false; error: string };
+export type CreateSaleDetailsResult = 
+  | { success: true; data: SaleDetailsProfileDTO }
+  | { success: false; error: string };
 
-export type DeleteSaleDetailsResult =
-    | { success: true; message: string }
-    | { success: false; error: string };
+export type UpdateSaleDetailsResult = 
+  | { success: true; message: string }
+  | { success: false; error: string };
 
-// ====================== CREATE ======================
+export type DeleteSaleDetailsResult = 
+  | { success: true; message: string }
+  | { success: false; error: string };
+
+// =============== CREATE ===============
 
 /**
- * Server Action: Opretter salgsdetaljer for en kanin
- * @param saleDetails Data for at oprette salgsdetaljer
- * @returns Resultat med salgsdetaljer eller fejlbesked
+ * Server Action: Opretter et salgsopslag for en kanin
+ * @param earCombId Kaninens øremærke-id
+ * @param saleDetailsData Data for det nye salgsopslag
+ * @returns Resultat af oprettelsen med det nye salgsopslag ved succes
  */
 export async function createRabbitSaleDetails(
-    saleDetails: Rabbit_CreateSaleDetailsDTO
-): Promise<SaleDetailsResult> {
-    try {
-        const accessToken = await getAccessToken();
-        
-        if (!accessToken) {
-            return {
-                success: false,
-                error: 'Du er ikke logget ind'
-            };
-        }
-        
-        const result = await CreateSaleDetails(saleDetails, accessToken);
-        
-        return {
-            success: true,
-            data: result,
-            message: 'Kaninen er nu sat til salg'
-        };
-    } catch (error) {
-        console.error('Failed to create sale details:', error);
-        return {
-            success: false,
-            error: error instanceof Error ? error.message : 'Der skete en uventet fejl'
-        };
+  earCombId: string,
+  saleDetailsData: Rabbit_CreateSaleDetailsDTO
+): Promise<CreateSaleDetailsResult> {
+  try {
+    const accessToken = await getAccessToken();
+    
+    if (!accessToken) {
+      return {
+        success: false,
+        error: 'Du er ikke logget ind'
+      };
     }
+    
+    // Validér data på server-siden
+    if (!saleDetailsData.title || saleDetailsData.title.trim() === '') {
+      return {
+        success: false, 
+        error: 'Titel er påkrævet'
+      };
+    }
+    
+    if (saleDetailsData.price <= 0) {
+      return {
+        success: false, 
+        error: 'Prisen skal være større end 0'
+      };
+    }
+    
+    if (!saleDetailsData.description || saleDetailsData.description.trim() === '') {
+      return {
+        success: false, 
+        error: 'Beskrivelse er påkrævet'
+      };
+    }
+    
+    // Kald API endpoint
+    const saleDetails = await CreateSaleDetails(
+      earCombId,
+      saleDetailsData, 
+      accessToken
+    );
+    
+    // Returner et success objekt med det nye salgsopslag
+    return {
+      success: true,
+      data: saleDetails
+    };
+  } catch (error) {
+    console.error('Failed to create sale details:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Der skete en uventet fejl'
+    };
+  }
 }
 
-// ====================== UPDATE ======================
+// =============== UPDATE ===============
 
 /**
- * Server Action: Opdaterer salgsdetaljer for en kanin
+ * Server Action: Opdaterer et eksisterende salgsopslag for en kanin
  * @param earCombId Kaninens øremærke-id
- * @param saleDetails Opdaterede salgsdetaljer
- * @returns Resultat med opdaterede salgsdetaljer eller fejlbesked
+ * @param updatedData De opdaterede salgsdata
+ * @returns Resultat af opdateringen
  */
 export async function updateRabbitSaleDetails(
-    earCombId: string,  // Ændret fra saleDetailsId: number
-    saleDetails: Rabbit_UpdateSaleDetailsDTO
-): Promise<SaleDetailsResult> {
-    try {
-        const accessToken = await getAccessToken();
-        
-        if (!accessToken) {
-            return {
-                success: false,
-                error: 'Du er ikke logget ind'
-            };
-        }
-        
-        const success = await UpdateSaleDetails(earCombId, saleDetails, accessToken);
-        
-        if (success) {
-            // Vi har ikke den opdaterede data tilbage, så vi konstruerer et resultat
-            return {
-                success: true,
-                // Dette er en simplificeret version - du skal opdatere profilen i stedet
-                data: {} as RabbitSaleDetailsEmbeddedDTO, 
-                message: 'Salgsdetaljer opdateret'
-            };
-        } else {
-            return {
-                success: false,
-                error: 'Kunne ikke opdatere salgsdetaljer'
-            };
-        }
-    } catch (error) {
-        console.error('Failed to update sale details:', error);
-        return {
-            success: false,
-            error: error instanceof Error ? error.message : 'Der skete en uventet fejl'
-        };
+  earCombId: string,
+  updatedData: Rabbit_UpdateSaleDetailsDTO
+): Promise<UpdateSaleDetailsResult> {
+  try {
+    const accessToken = await getAccessToken();
+    
+    if (!accessToken) {
+      return {
+        success: false,
+        error: 'Du er ikke logget ind'
+      };
     }
+    
+    // Validér data på server-siden
+    if (!updatedData.title || updatedData.title.trim() === '') {
+      return {
+        success: false, 
+        error: 'Titel er påkrævet'
+      };
+    }
+    
+    if (updatedData.price <= 0) {
+      return {
+        success: false, 
+        error: 'Prisen skal være større end 0'
+      };
+    }
+    
+    // Kald API endpoint
+    const success = await UpdateSaleDetails(
+      earCombId, 
+      updatedData, 
+      accessToken
+    );
+    
+    if (!success) {
+      return {
+        success: false,
+        error: 'Kunne ikke opdatere salgsopslaget'
+      };
+    }
+    
+    // Returner et success objekt
+    return {
+      success: true,
+      message: 'Salgsopslaget blev opdateret'
+    };
+  } catch (error) {
+    console.error('Failed to update sale details:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Der skete en uventet fejl'
+    };
+  }
 }
 
-// ====================== DELETE ======================
+// =============== DELETE ===============
 
 /**
- * Server Action: Sletter salgsdetaljer for en kanin
+ * Server Action: Sletter et salgsopslag for en kanin
  * @param earCombId Kaninens øremærke-id
- * @returns Resultat med success flag og besked
+ * @returns Resultat af sletningen
  */
 export async function deleteRabbitSaleDetails(
-    earCombId: string  // Ændret fra saleDetailsId: number
+  earCombId: string
 ): Promise<DeleteSaleDetailsResult> {
-    try {
-        const accessToken = await getAccessToken();
-        
-        if (!accessToken) {
-            return {
-                success: false,
-                error: 'Du er ikke logget ind'
-            };
-        }
-        
-        await DeleteSaleDetails(earCombId, accessToken);
-        
-        return {
-            success: true,
-            message: 'Kaninen er ikke længere til salg'
-        };
-    } catch (error) {
-        console.error('Failed to delete sale details:', error);
-        return {
-            success: false,
-            error: error instanceof Error ? error.message : 'Der skete en uventet fejl'
-        };
+  try {
+    const accessToken = await getAccessToken();
+    
+    if (!accessToken) {
+      return {
+        success: false,
+        error: 'Du er ikke logget ind'
+      };
     }
+    
+    // Kald API endpoint
+    await DeleteSaleDetails(earCombId, accessToken);
+    
+    // Returner et success objekt
+    return {
+      success: true,
+      message: 'Salgsopslaget blev slettet'
+    };
+  } catch (error) {
+    console.error('Failed to delete sale details:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Der skete en uventet fejl'
+    };
+  }
 }
