@@ -1,18 +1,20 @@
-// src/app/sale/[slug]/page.tsx
+// src/app/annoncer/kaniner/[slug]/page.tsx
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getSaleDetailsBySlug } from '@/app/actions/sale/saleActions';
-import SaleProfile from './saleProfile';
+import RabbitSaleProfile from './rabbitSaleProfile';
+import { ROUTES } from '@/constants/navigation';
+import RabbitSaleProfileNav from '@/components/nav/side/index/RabbitSaleProfileNav';
+import MyNav from '@/components/nav/side/index/MyNav';
 
 type PageProps = {
   params: { slug: string };
 }
 
 /**
- * Genererer metadata for salgsprofilen baseret på slug
+ * Genererer metadata for kanin salgsprofilen baseret på slug
  */
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  // Await params før vi tilgår dets properties
   const resolvedParams = await Promise.resolve(params);
   const { slug } = resolvedParams;
   
@@ -21,85 +23,77 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     
     if (!result.success || !result.data) {
       return {
-        title: 'Ikke fundet',
-        description: 'Salgsopslaget kunne ikke findes'
+        title: 'Kanin ikke fundet | DenBlå-Angora',
+        description: 'Kaninen kunne ikke findes'
       };
     }
     
     const profile = result.data;
     
-    // Bestem det bedste billede at vise med prioriteret rækkefølge
+    // Bestem det bedste billede at vise
     const profileImage = profile.imageUrl || null;
-            
-    // Base URL for billeder
     const baseUrl = process.env.NODE_ENV === 'production' 
       ? 'https://db-angora.dk' 
       : 'http://localhost:3000';
-            
-    // Default billede hvis intet andet findes
     const defaultImage = `${baseUrl}/images/DB-Angora.png`;
-        
-    // Opret billede URL
-    const imageUrl = profileImage 
-      ? profileImage  // Bemærk: imageUrl fra API er allerede en fuld URL
-      : defaultImage;
+    const imageUrl = profileImage || defaultImage;
 
-    // Skab en beskrivelse baseret på entitetstype
-    let description = '';
+    // Opret SEO-venlig beskrivelse for kaniner
+    const race = profile.entityProperties?.Race || 'Kanin';
+    const color = profile.entityProperties?.Farve ? ` (${profile.entityProperties.Farve})` : '';
+    const price = profile.price ? `${profile.price} kr` : '';
+    const location = profile.city ? ` i ${profile.city}` : '';
     
-    if (profile.entityType) {
-      switch (profile.entityType.toLowerCase()) {
-        case 'rabbit':
-          description = `${profile.entityProperties?.Race || 'Kanin'} til salg for ${profile.price} kr. ${profile.description?.substring(0, 100) || ''}`;
-          break;
-        case 'wool':
-          description = `Angora uld til salg for ${profile.price} kr. ${profile.description?.substring(0, 100) || ''}`;
-          break;
-        default:
-          description = `${profile.title || 'Vare'} til salg for ${profile.price} kr.`;
-      }
-    } else {
-      description = `${profile.title || 'Vare'} til salg for ${profile.price} kr.`;
-    }
+    const description = `${race}${color} til salg for ${price}${location}. ${profile.description?.substring(0, 100) || 'Se flere detaljer på siden.'}`;
+
+    // Brug ROUTES konstant for canonical URL
+    const canonicalUrl = `${baseUrl}${ROUTES.PROFILES.RABBIT(slug)}`;
 
     return {
-      title: profile.title || 'Til Salg',
+      title: `${profile.title || race} | DenBlå-Angora`,
       description,
+      keywords: `${race}, angora kanin, kanin til salg, ${profile.entityProperties?.Farve || ''}, ${profile.city || ''}, dansk angora klub`,
       openGraph: {
-        title: profile.title || 'Til Salg',
+        title: profile.title || `${race} til salg`,
         description,
         images: [{
           url: imageUrl,
-          width: 700,
-          height: 700,
-          alt: profile.title || 'Salgsopslag'
+          width: 1200,
+          height: 630,
+          alt: profile.title || `${race} til salg`
         }],
-        url: `${baseUrl}/sale/${slug}`
+        url: canonicalUrl,
+        type: 'website',
+        siteName: 'DenBlå-Angora'
       },
       twitter: {
         card: 'summary_large_image',
+        title: profile.title || `${race} til salg`,
+        description,
         images: [{
           url: imageUrl,
-          width: 700,
-          height: 700,
-          alt: profile.title || 'Salgsopslag'
+          width: 1200,
+          height: 630,
+          alt: profile.title || `${race} til salg`
         }]
+      },
+      alternates: {
+        canonical: canonicalUrl
       }
     };
   } catch (error) {
     console.error('Error generating metadata:', error);
     return {
-      title: 'Ikke fundet',
-      description: 'Salgsopslaget kunne ikke findes'
+      title: 'Kanin ikke fundet | DenBlå-Angora',
+      description: 'Kaninen kunne ikke findes'
     };
   }
 }
 
 /**
- * Side komponent der viser en salgsprofil baseret på slug
+ * Side komponent der viser en kanin salgsprofil med bredere sideNavs
  */
-export default async function Page({ params }: PageProps) {
-  // Await params før vi tilgår dets properties
+export default async function RabbitPage({ params }: PageProps) {
   const resolvedParams = await Promise.resolve(params);
   const { slug } = resolvedParams;
   
@@ -110,9 +104,44 @@ export default async function Page({ params }: PageProps) {
       return notFound();
     }
     
-    return <SaleProfile profile={result.data} />;
+    const profile = result.data;
+    
+    return (
+      <div className="grid grid-cols-1 lg:grid-cols-8 gap-6 mb-6">
+        {/* Venstre sidenav - 2/8 (25%) */}
+        <aside className="lg:col-span-2">
+          <div className="sticky top-24">
+            <div className="bg-zinc-800/90 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 overflow-hidden shadow-lg">
+              <div className="max-h-[calc(100vh-120px)] overflow-y-auto pt-0.5 pr-1.5 pb-2">
+                <div className="pr-2 pl-0.5 py-1.5">
+                  <MyNav />
+                </div>
+              </div>
+            </div>
+          </div>
+        </aside>
+        
+        {/* Hovedindhold - 4/8 (50%) */}
+        <main className="lg:col-span-4">
+          <RabbitSaleProfile profile={profile} />
+        </main>
+        
+        {/* Højre sidenav - 2/8 (25%) */}
+        <aside className="lg:col-span-2">
+          <div className="sticky top-24">
+            <div className="bg-zinc-800/90 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 overflow-hidden shadow-lg">
+              <div className="max-h-[calc(100vh-120px)] overflow-y-auto pt-0.5 pr-1.5 pb-2">
+                <div className="pr-2 pl-0.5 py-1.5">
+                  <RabbitSaleProfileNav profile={profile} />
+                </div>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    );
   } catch (error) {
-    console.error('Error fetching sale profile:', error);
+    console.error('Error fetching rabbit profile:', error);
     return notFound();
   }
 }

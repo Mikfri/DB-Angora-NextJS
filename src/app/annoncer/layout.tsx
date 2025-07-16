@@ -31,22 +31,20 @@ function SideNavLoading() {
 export default function SaleLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname() || '';
 
-  // Tjek om vi skal vise sidenav - brug ROUTES konstanter og opdateret path
-  const shouldHaveSideNav = !pathname.startsWith(`${ROUTES.SALE.RABBITS}/profile`);
+  // For kanin slug sider håndteres sideNav direkte i page.tsx
+  const isRabbitSaleProfile = pathname.includes('/annoncer/kaniner/') && 
+                              !pathname.endsWith('/kaniner') &&
+                              !pathname.includes('/profile/');
 
-  if (!shouldHaveSideNav) {
-    return (
-      <div className="container mx-auto px-4 lg:px-6 max-w-5xl py-6">
-        {children}
-      </div>
-    );
+  // Hvis vi er på en rabbit sale profile, pass through til page.tsx
+  if (isRabbitSaleProfile) {
+    return <>{children}</>;
   }
 
-  // Vælg den korrekte sidenav baseret på path - brug opdaterede ROUTES konstanter
-  const sideNav = pathname.includes(ROUTES.SALE.RABBITS) && !pathname.includes('/profile')
+  // For alle andre sider, brug den normale sidenav logik
+  const sideNav = pathname.includes(ROUTES.SALE.RABBITS)
     ? (
       <Suspense fallback={<SideNavLoading />}>
-        {/* Fjernet activeFilters prop da vi nu bruger Zustand */}
         <RabbitSaleNav />
       </Suspense>
     )
