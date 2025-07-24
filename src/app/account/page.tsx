@@ -1,6 +1,6 @@
 // src/app/account/page.tsx
 import PageNavigationCard from '@/components/cards/pageNavigationCard';
-
+import { ROUTES } from '@/constants/navigation';
 
 export default async function AccountPage() {
        
@@ -12,29 +12,28 @@ export default async function AccountPage() {
                 </h1>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl w-full">
                     <PageNavigationCard
-                        href="/account/myRabbits"
+                        href={ROUTES.ACCOUNT.MY_RABBITS}
                         imageSrc="/images/sideNavigationCard_MyRabbits.jpg"
                         title="Mine kaniner"
                         description="Administrer dine kaniner. Opret nye, rediger eksisterende eller slet kaniner fra dit register"
                     />
                     <PageNavigationCard
-                        href="/account/rabbitsForbreeding"
+                        href={ROUTES.ACCOUNT.RABBITS_FOR_BREEDING}
                         imageSrc="/images/sideNavigationCard_RabbitsForbreeding.jpg"
                         title="Find avlskaniner"
                         description="Find kaniner tilgængelig for avl blandt sitets andre avlere. Kontakt avleren og hør nærmere (Delvist klar, kan ikke tilgå profil)"
                     />
                     <PageNavigationCard
-                        href="/account/profile"
+                        href={ROUTES.ACCOUNT.PROFILE}
                         imageSrc="/images/sideNavigationCard_UserProfile.jpg"
                         title="Min profil"
-                        description="Se og rediger din profil information. Email, password og andre indstillinger (Delvist klar, ikke muligt at redigere)"
+                        description="Se og rediger dine konto oplysninger eller avler konto information"
                     />
                     <PageNavigationCard
                         href="/account/transferRequests"
                         imageSrc="/images/sideNavigationCard_OwnershipExchanges.jpg"
                         title="Ejerskifts transaktioner"
                         description="Se indkommende og udgående ejeskabsoverdragelser af kaniner"
-                    // Fjernet isDisabled og onDisabledClick for at gøre kortet aktivt
                     />
                 </div>
             </div>

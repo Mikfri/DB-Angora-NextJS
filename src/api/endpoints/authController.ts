@@ -1,8 +1,8 @@
 // src/api/endpoints/authController.ts
 import { getApiUrl } from "../config/apiConfig";
-import { LoginResponse } from "../types/AngoraDTOs";
+import { LoginResponseDTO } from "../types/AngoraDTOs";
 
-export async function Login(userName: string, password: string): Promise<LoginResponse> {
+export async function Login(userName: string, password: string): Promise<LoginResponseDTO> {
     const response = await fetch(getApiUrl('Auth/Login'), {
         method: "POST",
         headers: { "Content-Type": "application/json" },

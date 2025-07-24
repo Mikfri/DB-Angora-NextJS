@@ -22,7 +22,7 @@
 import { create } from 'zustand';
 import { Rabbit_PreviewDTO } from '@/api/types/AngoraDTOs';
 import { OwnFilters } from '@/api/types/filterTypes';
-import { getMyRabbits } from '@/app/actions/rabbit/myRabbits';
+import { getMyRabbits } from '@/app/actions/breederAccount/breederAccountActions';
 
 // Default filter values - flyttet fra useRabbitOwnFilter.ts
 const DEFAULT_FILTERS: Required<OwnFilters> = {

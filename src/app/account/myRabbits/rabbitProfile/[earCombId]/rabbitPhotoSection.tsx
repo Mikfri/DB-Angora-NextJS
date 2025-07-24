@@ -7,9 +7,6 @@ import { Button } from "@heroui/react";
 import SimpleCloudinaryWidget from '@/components/cloudinary/SimpleCloudinaryWidget';
 import { useRabbitProfile } from '@/contexts/RabbitProfileContext';
 import { getRabbitPhotoUploadPermission } from '@/app/actions/rabbit/photoPermission';
-import { registerPhoto } from '@/app/actions/photo/registerPhoto';
-import { setAsProfilePhoto } from '@/app/actions/photo/setAsProfilePicture';
-import { deletePhoto } from '@/app/actions/photo/deletePhoto';
 import { useAuthStore } from '@/store/authStore';
 import RabbitPhotoCarousel from './rabbitPhotoCarousel';
 

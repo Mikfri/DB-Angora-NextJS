@@ -1,160 +1,64 @@
 // src/api/endpoints/accountController.ts
 import { getApiUrl } from "../config/apiConfig";
 import {
-    User_ProfileDTO, Rabbit_PreviewDTO, PagedResultDTO,
-    TransferRequest_ReceivedDTO, TransferRequest_ReceivedFilterDTO,
-    TransferRequest_SentFilterDTO, TransferRequest_SentDTO
+    User_ProfileDTO,
+    User_UpdateProfileDTO
 } from "../types/AngoraDTOs";
 
 //-------------------- READ
 //-------- User
-export async function GetUserProfile(accessToken: string, userProfileId: string): Promise<User_ProfileDTO> {
-    const data = await fetch(getApiUrl(`Account/UserProfile/${userProfileId}`), {
-        headers: { Authorization: `Bearer ${accessToken}` },
+/**
+ * Henter en brugers profil baseret på userProfileId
+ * @param accessToken JWT token med brugerens auth information
+ * @param userProfileId ID på den bruger hvis profil skal hentes
+ * @returns User_ProfileDTO fra API'en
+ */
+export async function GetUserProfile(
+    accessToken: string,
+    userProfileId: string
+): Promise<User_ProfileDTO> {
+    const response = await fetch(getApiUrl(`Account/UserProfile/${userProfileId}`), {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+        },
     });
-    const userProfile = await data.json();
+
+    if (!response.ok) {
+        throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
+    }
+
+    const userProfile = await response.json();
     return userProfile;
 }
 
-//-------- ICollections
-//---- Rabbits
+//-------------------- UPDATE
 /**
- * Henter alle brugerens kaniner med paginering
+ * Opdaterer en brugers profilinformation via PUT /Account/Update/{userProfileId}
  * @param accessToken JWT token med brugerens auth information
- * @param page Sidetal (starter fra 1)
- * @param pageSize Antal elementer per side
- * @returns Pagineret liste af kaniner
+ * @param userProfileId ID på brugeren der skal opdateres
+ * @param updateProfileDTO De nye profildata
+ * @returns Den opdaterede brugerprofil
  */
-export async function GetOwnRabbits(
-  accessToken: string,
-  page: number = 1,
-  pageSize: number = 10
-): Promise<PagedResultDTO<Rabbit_PreviewDTO>> {
-  try {
-    const url = getApiUrl(`Account/MyRabbits?page=${page}&pageSize=${pageSize}`);
-    
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': 'application/json'
-      }
-    });
-
-    if (!response.ok) {
-      throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    return data as PagedResultDTO<Rabbit_PreviewDTO>;
-  } catch (error) {
-    console.error('Error fetching own rabbits:', error);
-    // Returner en tom pagineret liste i tilfælde af fejl
-    return {
-      data: [],
-      totalCount: 0,
-      page: page,
-      pageSize: pageSize,
-      totalPages: 0,
-      hasNextPage: false,
-      hasPreviousPage: false
-    };
-  }
-}
-
-//---- TransferRequests
-/**
- * Hent overførselsanmodninger modtaget af den aktuelle bruger
- * @param accessToken Brugerens adgangstoken
- * @param filter Filtreringsparametre for anmodningerne
- * @returns Liste af modtagne overførselsanmodninger
- */
-export async function GetReceivedTransferRequests(
+export async function UpdateUserProfile(
     accessToken: string,
-    filter?: TransferRequest_ReceivedFilterDTO
-): Promise<TransferRequest_ReceivedDTO[]> {
-    // Opbyg query string fra filter objektet
-    const queryParams = new URLSearchParams();
-    if (filter) {
-        // Håndter hvert muligt filter-felt
-        if (filter.status) queryParams.append('Status', filter.status);
-        if (filter.rabbit_EarCombId) queryParams.append('Rabbit_EarCombId', filter.rabbit_EarCombId);
-        if (filter.rabbit_NickName) queryParams.append('Rabbit_NickName', filter.rabbit_NickName);
-        if (filter.issuer_BreederRegNo) queryParams.append('Issuer_BreederRegNo', filter.issuer_BreederRegNo);
-        if (filter.issuer_FirstName) queryParams.append('Issuer_FirstName', filter.issuer_FirstName);
-        if (filter.from_dateAccepted) queryParams.append('From_DateAccepted', filter.from_dateAccepted);
-    }
-
-    const url = `${getApiUrl('Account/TransferRequests_Received')}${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
-
-    const response = await fetch(url, {
+    userProfileId: string,
+    updateProfileDTO: User_UpdateProfileDTO
+): Promise<User_ProfileDTO> {
+    const response = await fetch(getApiUrl(`Account/Update/${userProfileId}`), {
+        method: 'PUT',
         headers: {
-            Authorization: `Bearer ${accessToken}`,
-            'Accept': 'text/plain'
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
         },
+        body: JSON.stringify(updateProfileDTO)
     });
 
     if (!response.ok) {
-        let errorMessage = `${response.status} ${response.statusText}`;
-        try {
-            const errorResponse = await response.text();
-            if (errorResponse) {
-                errorMessage = errorResponse;
-            }
-        } catch (e) {
-            console.error('Kunne ikke parse fejlbesked:', e);
-        }
-
-        throw new Error(`Fejl ved hentning af modtagne overførselsanmodninger: ${errorMessage}`);
+        throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
     }
 
-    return response.json();
-}
-
-/**
- * Hent overførselsanmodninger udstedt af den aktuelle bruger
- * @param accessToken Brugerens adgangstoken
- * @param filter Filtreringsparametre for anmodningerne
- * @returns Liste af sendte overførselsanmodninger
- */
-export async function GetSentTransferRequests(
-    accessToken: string,
-    filter?: TransferRequest_SentFilterDTO
-): Promise<TransferRequest_SentDTO[]> {
-    // Opbyg query string fra filter objektet
-    const queryParams = new URLSearchParams();
-    if (filter) {
-        // Håndter hvert muligt filter-felt
-        if (filter.status) queryParams.append('Status', filter.status);
-        if (filter.rabbit_EarCombId) queryParams.append('Rabbit_EarCombId', filter.rabbit_EarCombId);
-        if (filter.rabbit_NickName) queryParams.append('Rabbit_NickName', filter.rabbit_NickName);
-        if (filter.recipent_BreederRegNo) queryParams.append('Recipent_BreederRegNo', filter.recipent_BreederRegNo);
-        if (filter.recipent_FirstName) queryParams.append('Recipent_FirstName', filter.recipent_FirstName);
-        if (filter.from_dateAccepted) queryParams.append('From_DateAccepted', filter.from_dateAccepted);
-    }
-
-    const url = `${getApiUrl('Account/TransferRequests_Issued')}${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
-
-    const response = await fetch(url, {
-        headers: {
-            Authorization: `Bearer ${accessToken}`,
-            'Accept': 'text/plain'
-        },
-    });
-
-    if (!response.ok) {
-        let errorMessage = `${response.status} ${response.statusText}`;
-        try {
-            const errorResponse = await response.text();
-            if (errorResponse) {
-                errorMessage = errorResponse;
-            }
-        } catch (e) {
-            console.error('Kunne ikke parse fejlbesked:', e);
-        }
-
-        throw new Error(`Fejl ved hentning af udstedte overførselsanmodninger: ${errorMessage}`);
-    }
-
-    return response.json();
+    const updatedProfile = await response.json();
+    return updatedProfile;
 }

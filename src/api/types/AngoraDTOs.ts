@@ -45,7 +45,7 @@ export interface CloudinaryPhotoRegistryRequestDTO {
     cloudinaryUrl: string;
     fileName: string;
     entityStringId: string;
-    entityId: number;
+    entityIntId: number;
     entityType: string;
 }
 
@@ -57,11 +57,13 @@ export interface CloudinaryUploadSignatureDTO {
     folder: string;
     uploadPreset: string;
     source: string;
-    entityId: string;
+    entityStringId: string;
+    entityIntId: number;
     entityType: string;
     context: string;
     tags: string;
 }
+
 
 export interface CloudinaryUploadConfigDTO {
     apiKey: string;
@@ -146,7 +148,7 @@ export interface SaleDetailsProfileDTO {
      * (fx Race, Farve, Køn - for kaniner)
      */
     entityProperties: { [key: string]: string };
-    
+
     // --- DTO'er
     photos: PhotoPublicDTO[];
 }
@@ -251,7 +253,7 @@ export interface Rabbit_ProfileDTO {
     father_EarCombId: string | null;
     motherId_Placeholder: string | null;
     mother_EarCombId: string | null;
-    inbreedingCoefficient: number;    
+    inbreedingCoefficient: number;
     profilePicture: string | null;
     // --- DTO'er
     saleDetailsEmbedded: RabbitSaleDetailsEmbeddedDTO | null;
@@ -345,26 +347,75 @@ export interface Rabbit_ChildPreviewDTO {
     profilePicture: string | null;
 }
 
-export interface LoginResponse {
+export interface LoginResponseDTO {
     userName: string;
     accessToken: string;
     expiryDate: Date;
     refreshToken: string;
+    userIP: string;
     errors: string[];
 }
 
+/**
+ * Indeholder oplysningerne på en registreret bruger.
+ * Inkluderer også brugerens BreederAccount, hvis det er en opdrætter.
+ */
 export interface User_ProfileDTO {
-    breederRegNo: string | null,
-    firstName: string,
-    lastName: string,
-    publicProfile: string | null,
-    roadNameAndNo: string,
-    profilePicture: string | null,
-    city: string,
-    zipCode: number,
-    email: string,
-    phone: string
+    userId: string;
+    firstName: string;
+    lastName: string;
+    roadNameAndNo: string;
+    city: string;
+    zipCode: number;
+    email: string;
+    phone: string;
+    profilePicture?: string | null;
+    // --- DTO'er
+    breederAccount?: BreederAccount_PrivateProfileDTO
+    photos?: PhotoPrivateDTO[];
 }
+
+/**
+ * Indeholder de properties som en bruger kan redigere på sin profil.
+ * Bemærk: Email er ikke inkluderet, da den ikke kan redigeres - for nu.
+ */
+export interface User_UpdateProfileDTO {
+    firstName: string;
+    lastName: string;
+    roadNameAndNo: string;
+    zipCode: number;
+    city: string;
+    phone: string;
+    //email: string;
+}
+
+/**
+ * Indeholder de private oplysninger for en opdrætter.
+ * Disse oplysninger er kun tilgængelige for ejeren af kontoen og evt. administrator.
+ */
+export interface BreederAccount_PrivateProfileDTO {
+    breederRegNo: string;
+    memberNo?: string | null;
+    breederBrandName: string;
+    breederBrandDescription: string;
+    breederBrandLogoUrl?: string | null;
+    isFindable: boolean;
+    rabbitsOwnedCount: number;
+    rabbitsLinkedCount: number;
+    woolsOwnedCount: number;
+    // --- DTO'er
+    photos?: PhotoPrivateDTO[];
+}
+
+/**
+ * Inderholder de properties som en opdrætter er istand til at redigere.
+ */
+export interface BreederAccount_UpdateDTO {
+    breederBrandName: string;
+    breederBrandDescription: string;
+    isFindable: boolean;
+}
+
 
 //---------- TRANSFER REQUESTS SECTION
 export interface TransferRequest_ContractDTO {

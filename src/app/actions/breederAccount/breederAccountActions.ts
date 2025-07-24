@@ -1,10 +1,9 @@
-// src/app/actions/rabbit/myRabbits.ts
+// src/app/actions/breederAccount/breederAccountActions.ts
 'use server';
 
 import { getAccessToken } from '@/app/actions/auth/session';
-// Skift import til breederAccountController
-import { GetOwnRabbits } from '@/api/endpoints/breederAccountController';
-import { PagedResultDTO, Rabbit_PreviewDTO } from '@/api/types/AngoraDTOs';
+import { GetOwnRabbits, UpdateBreederAccount } from '@/api/endpoints/breederAccountController';
+import { BreederAccount_PrivateProfileDTO, BreederAccount_UpdateDTO, PagedResultDTO, Rabbit_PreviewDTO } from '@/api/types/AngoraDTOs';
 
 /**
  * Server Action: Henter alle brugerens kaniner med paginering
@@ -47,6 +46,56 @@ export async function getMyRabbits(
     return {
       success: false,
       error: "Der opstod en fejl ved indlæsning af dine kaniner"
+    };
+  }
+}
+
+/**
+ * Server Action: Opdaterer en opdrætterkonto (BreederAccount)
+ * @param breederAccountId ID på opdrætterkontoen der skal opdateres
+ * @param updateDTO De nye profildata
+ * @returns Den opdaterede opdrætterprofil eller fejl
+ */
+export async function updateBreederAccount(
+  breederAccountId: string,
+  updateDTO: BreederAccount_UpdateDTO
+): Promise<{
+  success: boolean;
+  data?: BreederAccount_PrivateProfileDTO;
+  error?: string;
+}> {
+  try {
+    if (!breederAccountId || !updateDTO) {
+      return {
+        success: false,
+        error: 'Opdrætterkonto ID og opdateringsdata er påkrævet'
+      };
+    }
+
+    const accessToken = await getAccessToken();
+    if (!accessToken) {
+      return {
+        success: false,
+        error: 'Ingen adgang - log venligst ind igen'
+      };
+    }
+
+    const updatedProfile = await UpdateBreederAccount(accessToken, breederAccountId, updateDTO);
+
+    return {
+      success: true,
+      data: updatedProfile
+    };
+  } catch (error) {
+    // Brug type guard for Error
+    let message = 'Der opstod en fejl ved opdatering af opdrætterkonto';
+    if (error instanceof Error) {
+      message = error.message;
+    }
+    console.error('Error updating breeder account:', error);
+    return {
+      success: false,
+      error: message
     };
   }
 }

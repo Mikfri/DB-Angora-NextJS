@@ -32,7 +32,7 @@ declare global {
   interface Window {
     cloudinary?: {
       createUploadWidget: (
-        options: Record<string, unknown>, 
+        options: Record<string, unknown>,
         callback: (error: CloudinaryError | null, result?: CloudinaryResult) => void
       ) => CloudinaryWidget;
       _widgets?: unknown[];
@@ -41,32 +41,32 @@ declare global {
 }
 
 interface SimpleCloudinaryWidgetProps {
-    uploadConfig: CloudinaryUploadConfigDTO;
-    onPhotoUploaded: (photoData: CloudinaryPhotoRegistryRequestDTO) => Promise<void>;
-    onComplete?: () => void;
-    onClose?: () => void;
-    widgetKey?: string;
-    forceReload?: boolean;
-  }
+  uploadConfig: CloudinaryUploadConfigDTO;
+  onPhotoUploaded: (photoData: CloudinaryPhotoRegistryRequestDTO) => Promise<void>;
+  onComplete?: () => void;
+  onClose?: () => void;
+  widgetKey?: string;
+  forceReload?: boolean;
+}
 
-  export default function SimpleCloudinaryWidget({
-    uploadConfig,
-    onPhotoUploaded,
-    onComplete,
-    onClose,
-    widgetKey = 'default',
-    forceReload = false
-  }: SimpleCloudinaryWidgetProps) {
+export default function SimpleCloudinaryWidget({
+  uploadConfig,
+  onPhotoUploaded,
+  onComplete,
+  onClose,
+  widgetKey = 'default',
+  forceReload = false
+}: SimpleCloudinaryWidgetProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [scriptLoaded, setScriptLoaded] = useState(false);
   const widgetRef = useRef<CloudinaryWidget | null>(null);
   const instanceId = useRef(`instance-${Date.now()}-${Math.random().toString(36).slice(2)}`);
-  
+
   // Move cleanupWidget to useCallback to avoid dependency issues
   const cleanupWidget = useCallback(() => {
     setScriptLoaded(false);
-    
+
     if (widgetRef.current) {
       try {
         widgetRef.current.close();
@@ -77,11 +77,11 @@ interface SimpleCloudinaryWidgetProps {
         console.warn("Error destroying widget:", e);
       }
     }
-    
+
     // Remove DOM elements
     document.querySelectorAll('.cloudinary-widget, .cloudinary-overlay').forEach(el => el.remove());
     document.querySelectorAll('iframe[id^="cloudinary-"]').forEach(el => el.remove());
-    
+
     // Reset Cloudinary internal state if possible
     if (window.cloudinary && window.cloudinary._widgets) {
       try {
@@ -91,19 +91,19 @@ interface SimpleCloudinaryWidgetProps {
       }
     }
   }, []);
-  
+
   // Forcibly reload the script by removing and re-adding it
   const reloadScript = useCallback(() => {
     console.log("🔄 Forcibly reloading Cloudinary script");
-    
+
     // First, clean up everything
     cleanupWidget();
-    
+
     // Remove all script tags related to Cloudinary
     document.querySelectorAll('script[src*="cloudinary"]').forEach(script => {
       script.remove();
     });
-    
+
     // Reset window.cloudinary
     if (window.cloudinary) {
       try {
@@ -113,7 +113,7 @@ interface SimpleCloudinaryWidgetProps {
         console.warn("Error resetting cloudinary object:", e);
       }
     }
-    
+
     // Create new script element
     const script = document.createElement('script');
     script.src = "https://upload-widget.cloudinary.com/global/all.js";
@@ -127,36 +127,36 @@ interface SimpleCloudinaryWidgetProps {
       console.error("❌ Error loading Cloudinary script:", err);
       setError("Kunne ikke indlæse Cloudinary - prøv at genindlæse siden");
     };
-    
+
     // Append to document body
     document.body.appendChild(script);
   }, [cleanupWidget]); // Add cleanupWidget as dependency
-  
+
   // Force reload when the key changes
   useEffect(() => {
     if (forceReload) {
       console.log("Force reload triggered with key:", widgetKey);
       cleanupWidget();
-      
+
       // Lav en lille forsinkelse for at sikre alt er renset op
       setTimeout(() => {
         reloadScript();
       }, 50);
-      
+
       instanceId.current = `instance-${Date.now()}-${Math.random().toString(36).slice(2)}`;
     }
-    
+
     return () => {
       cleanupWidget();
     };
   }, [widgetKey, forceReload, cleanupWidget, reloadScript]); // Add missing dependencies
-  
+
   // Initialize when script is loaded
   useEffect(() => {
     if (!scriptLoaded || !uploadConfig) return;
-    
+
     console.log("Initializing Cloudinary widget with config:", uploadConfig);
-    
+
     try {
       // Process context
       const contextObj: Record<string, string> = {};
@@ -166,13 +166,13 @@ interface SimpleCloudinaryWidgetProps {
           if (key && value) contextObj[key] = value;
         });
       }
-      
+
       // Process tags
       const tagsArray = uploadConfig.tags?.split(',') || [];
-      
+
       // Unique widget ID - bruge instanceId for at sikre det er helt unikt
       const uniqueId = `widget-${widgetKey}-${instanceId.current}`;
-      
+
       // Widget callback
       const callback = (error: CloudinaryError | null, result?: CloudinaryResult) => {
         if (error) {
@@ -181,27 +181,28 @@ interface SimpleCloudinaryWidgetProps {
           setIsLoading(false);
           return;
         }
-        
+
         if (!result) return;
-        
+
         console.log("Cloudinary event:", result.event);
-        
+
         if (result.event === 'success' && result.info) {
           try {
             console.log("Upload success:", result.info);
             setIsLoading(true);
-            
+
             const { public_id, secure_url, original_filename } = result.info;
-            
+
             // Create DTO for registration
             const photoData: CloudinaryPhotoRegistryRequestDTO = {
               publicId: public_id,
               cloudinaryUrl: secure_url,
               fileName: original_filename,
-              entityId: uploadConfig.entityId,
+              entityStringId: uploadConfig.entityStringId,
+              entityIntId: uploadConfig.entityIntId,
               entityType: uploadConfig.entityType
             };
-            
+
             // Call the callback
             onPhotoUploaded(photoData)
               .then(() => {
@@ -209,8 +210,8 @@ interface SimpleCloudinaryWidgetProps {
               })
               .catch(err => {
                 console.error("Error registering photo:", err);
-                setError(err instanceof Error 
-                  ? err.message 
+                setError(err instanceof Error
+                  ? err.message
                   : 'Billedet blev uploadet, men ikke registreret i systemet');
               })
               .finally(() => {
@@ -224,7 +225,7 @@ interface SimpleCloudinaryWidgetProps {
         } else if (result.event === 'close') {
           console.log("Upload widget closed");
           setIsLoading(false);
-          
+
           // Tilføj en ny prop til komponenten for at håndtere lukning
           if (onClose) {
             onClose();
@@ -237,7 +238,7 @@ interface SimpleCloudinaryWidgetProps {
           setIsLoading(false);
         }
       };
-      
+
       // Create options
       const options = {
         cloudName: uploadConfig.cloudName,
@@ -267,8 +268,8 @@ interface SimpleCloudinaryWidgetProps {
             menuIcons: "#CCCCCC",
             textDark: "#FFFFFF",
             textLight: "#FFFFFF",
-            link: "#0078FF", 
-            action: "#0078FF", 
+            link: "#0078FF",
+            action: "#0078FF",
             inactiveTabIcon: "#999999",
             error: "#FF0000",
             inProgress: "#0078FF",
@@ -306,7 +307,7 @@ interface SimpleCloudinaryWidgetProps {
           }
         }
       };
-      
+
       // Kort timeout for at sikre alt er klar
       setTimeout(() => {
         // Create the widget
@@ -314,7 +315,7 @@ interface SimpleCloudinaryWidgetProps {
           try {
             console.log("Creating widget instance with ID:", uniqueId);
             widgetRef.current = window.cloudinary.createUploadWidget(options, callback);
-            
+
             // Automatically open the widget
             setTimeout(() => {
               if (widgetRef.current) {
@@ -338,28 +339,28 @@ interface SimpleCloudinaryWidgetProps {
       console.error("Error setting up widget:", err);
       setError(err instanceof Error ? err.message : 'Kunne ikke initialisere upload widget');
     }
-    
+
     // Cleanup on unmount
     return cleanupWidget;
-  }, [scriptLoaded, uploadConfig, onPhotoUploaded, onComplete, widgetKey, cleanupWidget, onClose]);   
+  }, [scriptLoaded, uploadConfig, onPhotoUploaded, onComplete, widgetKey, cleanupWidget, onClose]);
   return (
-    <div 
+    <div
       className="upload-widget-container"
       key={instanceId.current}
       data-widget-key={widgetKey}
     >
       {/* Manual script loading - instead of using Next.js Script component */}
-      
+
       {isLoading && (
         <div className="py-8 flex justify-center">
           <Spinner size="lg" color="white" />
         </div>
       )}
-      
+
       {error && (
         <div className="mt-2 text-center">
           <p className="text-red-500">{error}</p>
-          <button 
+          <button
             onClick={reloadScript}
             className="mt-2 px-3 py-1 text-sm font-medium text-blue-500 hover:text-blue-400"
           >
@@ -367,7 +368,7 @@ interface SimpleCloudinaryWidgetProps {
           </button>
         </div>
       )}
-      
+
       {!scriptLoaded && !isLoading && (
         <div className="py-8 flex justify-center flex-col items-center">
           <Spinner size="md" color="white" className="mb-2" />

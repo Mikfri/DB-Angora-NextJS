@@ -1,4 +1,4 @@
-// src/app/sale/rabbits/page.tsx
+// src/app/annoncer/kaniner/page.tsx
 import { Metadata } from 'next';
 import { Suspense } from 'react';
 import { Spinner } from "@heroui/react";
@@ -6,23 +6,26 @@ import SaleList from './rabbitSaleList';
 import { getRabbitSaleItems } from '@/app/actions/sale/saleActions';
 import { Rabbit_ForSaleFilterDTO } from '@/api/types/filterTypes';
 
+// Opdateret type definition for Next.js 15
+type SearchParamsType = {
+  Race?: string;
+  Color?: string;
+  Gender?: string;
+  MinZipCode?: string;
+  MaxZipCode?: string;
+  Page?: string;
+  PageSize?: string;
+};
+
 type PageProps = {
-  params: object;
-  searchParams?: {
-    Race?: string;
-    Color?: string;
-    Gender?: string;
-    MinZipCode?: string;
-    MaxZipCode?: string;
-    Page?: string;
-    PageSize?: string;
-  };
+  params: Promise<object>;
+  searchParams?: Promise<SearchParamsType>;
 };
 
 // Generér metadata baseret på searchParams
-export async function generateMetadata({ searchParams = {} }: PageProps): Promise<Metadata> {
-  // Await searchParams
-  const params = await Promise.resolve(searchParams);
+export async function generateMetadata({ searchParams }: PageProps): Promise<Metadata> {
+  // Await searchParams og type-cast korrekt
+  const params = (await (searchParams || Promise.resolve({}))) as SearchParamsType;
   
   // Destrukturer parametre fra den awaitede værdi
   const { Race, Color, Gender } = params;
@@ -53,9 +56,9 @@ function CenteredLoading() {
 }
 
 // ItemLoader component to handle data fetching within Suspense
-async function ItemLoader({ searchParams = {} }: { searchParams: PageProps['searchParams'] }) {
-  // Await searchParams
-  const params = await Promise.resolve(searchParams);
+async function ItemLoader({ searchParams }: { searchParams: PageProps['searchParams'] }) {
+  // Await searchParams og type-cast korrekt
+  const params = (await (searchParams || Promise.resolve({}))) as SearchParamsType;
   
   // Destrukturer parametre fra den awaitede værdi
   const { 
@@ -116,7 +119,7 @@ async function ItemLoader({ searchParams = {} }: { searchParams: PageProps['sear
   );
 }
 
-export default async function Page({ searchParams = {} }: PageProps) {
+export default async function Page({ searchParams }: PageProps) {
   return (
     <Suspense fallback={<CenteredLoading />}>
       <ItemLoader searchParams={searchParams} />

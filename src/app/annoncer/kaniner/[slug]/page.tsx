@@ -7,16 +7,17 @@ import { ROUTES } from '@/constants/navigation';
 import RabbitSaleProfileNav from '@/components/nav/side/index/RabbitSaleProfileNav';
 import MyNav from '@/components/nav/side/index/MyNav';
 
+// Opdateret type definition for Next.js 15
 type PageProps = {
-  params: { slug: string };
+  params: Promise<{ slug: string }>; // ← Promise wrapper
 }
 
 /**
  * Genererer metadata for kanin salgsprofilen baseret på slug
  */
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const resolvedParams = await Promise.resolve(params);
-  const { slug } = resolvedParams;
+  // Await params i Next.js 15
+  const { slug } = await params;
   
   try {
     const result = await getSaleDetailsBySlug(slug);
@@ -94,8 +95,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
  * Side komponent der viser en kanin salgsprofil med bredere sideNavs
  */
 export default async function RabbitPage({ params }: PageProps) {
-  const resolvedParams = await Promise.resolve(params);
-  const { slug } = resolvedParams;
+  // Await params i Next.js 15
+  const { slug } = await params;
   
   try {
     const result = await getSaleDetailsBySlug(slug);

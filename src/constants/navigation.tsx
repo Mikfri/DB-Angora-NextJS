@@ -18,6 +18,7 @@ export const ROUTES = {
     PROFILE: '/account/profile',
     MY_RABBITS: '/account/myRabbits',
     RABBITS_FOR_BREEDING: '/account/rabbitsForbreeding',
+    TRANSFER_REQUESTS: '/account/transferRequests', // ← Tilføjet
   },
   
   // Sale routes - opdateret til at matche din faktiske mappestruktur
@@ -31,6 +32,7 @@ export const ROUTES = {
   PROFILES: {
     RABBIT: (slug: string) => `/annoncer/kaniner/${slug}`,
     WOOL: (slug: string) => `/annoncer/uld/${slug}`,
+    USER_PROFILE: (userProfileId: string) => `/account/profile/${userProfileId}`, // ← Ny user profile route
     // Fallback til traditionelle profile URLs
     RABBIT_PROFILE: (id: string) => `/annoncer/kaniner/profile/${id}`,
     WOOL_PROFILE: (id: string) => `/annoncer/wool/profile/${id}`,
