@@ -1,18 +1,21 @@
 'use client';
-import { Input, Switch, Button, Divider, RadioGroup, Radio, Tooltip } from "@heroui/react";
+import { Input, Switch, Button, Divider, RadioGroup, Radio, Tooltip, Chip } from "@heroui/react";
 import { useRouter } from 'next/navigation';
-import { MdAdd, MdFilterList, MdCalendarMonth } from "react-icons/md";
-import { LuRabbit } from "react-icons/lu";
-import { IoColorPaletteOutline } from "react-icons/io5";
-import { RiGenderlessLine } from "react-icons/ri";
-import { FaInfoCircle } from "react-icons/fa";
-import { BiPurchaseTagAlt } from "react-icons/bi";
 import EnumAutocomplete from '@/components/enumHandlers/enumAutocomplete';
 import { useState, useEffect, useCallback } from 'react';
 import { useEnums, RabbitEnum } from '@/contexts/EnumContext';
+import { useTransferRequests } from "@/hooks/transferRequests/useTransferRequest";
 import { useRabbitsOwnedStore } from '@/store/rabbitsOwnedStore';
+// Importer de nødvendige ikoner
+import { MdCalendarMonth } from "react-icons/md";
+import { LuRabbit } from "react-icons/lu";
+import { IoColorPaletteOutline } from "react-icons/io5";
+import { RiAddCircleLine, RiExchangeLine, RiGenderlessLine } from "react-icons/ri";
+import { FaInfoCircle } from "react-icons/fa";
+import { BiPurchaseTagAlt } from "react-icons/bi";
 import { BsHouse, BsHouseGear, BsHouseHeart, BsHouseX } from "react-icons/bs";
 import { SiMicrogenetics } from "react-icons/si";
+import { TbFilterSearch } from "react-icons/tb";
 
 // De enum typer der bruges i denne komponent
 const REQUIRED_ENUMS: RabbitEnum[] = ['Race', 'Color', 'Gender'];
@@ -21,7 +24,7 @@ const REQUIRED_ENUMS: RabbitEnum[] = ['Race', 'Color', 'Gender'];
 const FILTER_SECTIONS = {
     ACTIONS: 'Handlinger',
     LIFESTATUS: 'Primære filtre',
-    BASIC: 'Grundfiltre',
+    BASIC: 'Sekundære filtre',
     ATTRIBUTES: 'Egenskaber',
     STATUS: 'Status'
 } as const;
@@ -44,6 +47,18 @@ export function RabbitOwnNavClient() {
     const router = useRouter();
     const { getMultipleEnumValues } = useEnums();
     const [enumsLoaded, setEnumsLoaded] = useState(false);
+
+    // Hent både received og load fra hooket!
+    const { received, load } = useTransferRequests();
+    const pendingCount = received.filter(r => r.status === "Pending").length;
+
+    // Kald load() når komponenten mountes, så received bliver fyldt!
+    useEffect(() => {
+        load();
+    }, [load]);
+
+    console.log("received", received, "pendingCount", pendingCount);
+
 
     // Hent alt fra storen
     const {
@@ -95,24 +110,68 @@ export function RabbitOwnNavClient() {
                 </h3>
 
                 <Button
-                    color="success"
-                    variant="solid"
+                    color="primary"
+                    variant="ghost"
                     fullWidth
                     size="sm"
-                    startContent={<MdAdd />}
+                    className="justify-start"
+                    startContent={<RiAddCircleLine className="text-lg" />}
                     onPress={() => router.push('/account/myRabbits/create')}
                 >
                     Opret ny kanin
+                </Button>
+
+                <Button
+                    color="primary"
+                    variant="ghost"
+                    fullWidth
+                    size="sm"
+                    className="mt-2 justify-start relative"
+                    startContent={<RiExchangeLine className="text-lg" />}
+                    onPress={() => router.push('/account/myRabbits/transferRequests')}
+                >
+                    Overførsels anmodninger
+                    {pendingCount > 0 && (
+                        <Chip
+                            color="primary"
+                            size="sm"
+                            className="ml-auto mr-2 "
+                            variant="flat"
+                            radius="full"
+                        >
+                            {pendingCount}
+                        </Chip>
+                    )}
                 </Button>
             </div>
 
             <Divider className="bg-zinc-200/5 my-0.5" />
 
-            {/* NYTILFØJET: Livsstatus sektion med nye ikoner */}
+            {/* Livsstatus sektion*/}
             <div>
                 <h3 className="text-[13px] font-medium text-zinc-400 mb-0.5">
                     {FILTER_SECTIONS.LIFESTATUS}
                 </h3>
+
+                {/* Søgefelt */}
+                <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1.5 min-w-[70px]">
+                        <TbFilterSearch className="text-lg text-default-500" />
+                        <span className="text-xs font-medium">Søg</span>
+                    </div>
+                    <div className="flex-1">
+                        <Input
+                            size="sm"
+                            placeholder="Navn eller øremærke"
+                            value={filters.search}
+                            onChange={(e) => updateFilters({ search: e.target.value })}
+                            classNames={{
+                                inputWrapper: "h-7 min-h-unit-7 px-2",
+                                input: "text-xs"
+                            }}
+                        />
+                    </div>
+                </div>
 
                 <div className="space-y-1.5 dark">
                     <div className="flex items-center gap-1.5">
@@ -123,9 +182,9 @@ export function RabbitOwnNavClient() {
                     <div className="flex gap-2" >
                         <Tooltip
                             content="Vis alle kaniner"
-                            showArrow={true} 
-                            placement="bottom"  
-                            className="dark"                         
+                            showArrow={true}
+                            placement="bottom"
+                            className="dark"
                         >
                             <Button
                                 size="sm"
@@ -187,26 +246,6 @@ export function RabbitOwnNavClient() {
                 </h3>
 
                 <div className="space-y-1.5">
-                    {/* Søgefelt */}
-                    <div className="flex items-center gap-1">
-                        <div className="flex items-center gap-1.5 min-w-[70px]">
-                            <MdFilterList className="text-lg text-default-500" />
-                            <span className="text-xs font-medium">Søg</span>
-                        </div>
-                        <div className="flex-1">
-                            <Input
-                                size="sm"
-                                placeholder="Navn eller øremærke"
-                                value={filters.search}
-                                onChange={(e) => updateFilters({ search: e.target.value })}
-                                classNames={{
-                                    inputWrapper: "h-7 min-h-unit-7 px-2",
-                                    input: "text-xs"
-                                }}
-                            />
-                        </div>
-                    </div>
-
                     {/* Fødselsdag filter */}
                     <div className="flex items-center gap-1">
                         <div className="flex items-center gap-1.5 min-w-[70px]">

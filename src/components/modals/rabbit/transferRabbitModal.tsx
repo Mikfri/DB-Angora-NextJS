@@ -63,11 +63,12 @@ export default function TransferOwnershipModal({
   }, [formData, rabbitEarCombId, onSubmit]);
 
   return (
-    <Modal 
+    <Modal className="dark"
       isOpen={isOpen} 
       onClose={onClose}
       hideCloseButton={isSubmitting}
       isDismissable={!isSubmitting}
+      backdrop="blur"
     >
       <ModalContent>
         <ModalHeader>Anmod om ejerskabsoverdragelse</ModalHeader>

@@ -1,11 +1,11 @@
 // src/api/endpoints/breederAccountController.ts
 import { getApiUrl } from "../config/apiConfig";
 import {
-  Rabbit_PreviewDTO, PagedResultDTO,
-  TransferRequest_ReceivedDTO, TransferRequest_ReceivedFilterDTO,
-  TransferRequest_SentFilterDTO, TransferRequest_SentDTO,
+  Rabbit_PreviewDTO, PagedResultDTO,  
   BreederAccount_PrivateProfileDTO,
-  BreederAccount_UpdateDTO
+  BreederAccount_UpdateDTO,
+  TransferRequestPreviewDTO,
+  TransferRequestPreviewFilterDTO
 } from "../types/AngoraDTOs";
 
 //-------------------- RABBITS --------------------
@@ -65,35 +65,35 @@ export async function GetOwnRabbits(
 
 //-------------------- TRANSFER REQUESTS --------------------
 /**
- * Hent overførselsanmodninger modtaget af den aktuelle bruger
+ * Hent overførselsanmodninger modtaget af den aktuelle bruger (med filtrering)
  * @param accessToken Brugerens adgangstoken
  * @param filter Filtreringsparametre for anmodningerne
  * @returns Liste af modtagne overførselsanmodninger
  */
 export async function GetReceivedTransferRequests(
   accessToken: string,
-  filter?: TransferRequest_ReceivedFilterDTO
-): Promise<TransferRequest_ReceivedDTO[]> {
+  filter?: TransferRequestPreviewFilterDTO
+): Promise<TransferRequestPreviewDTO[]> {
   // Opbyg query string fra filter objektet
   const queryParams = new URLSearchParams();
   if (filter) {
-    // Håndter hvert muligt filter-felt
-    if (filter.status) queryParams.append('Status', filter.status);
-    if (filter.rabbit_EarCombId) queryParams.append('Rabbit_EarCombId', filter.rabbit_EarCombId);
-    if (filter.rabbit_NickName) queryParams.append('Rabbit_NickName', filter.rabbit_NickName);
-    if (filter.issuer_BreederRegNo) queryParams.append('Issuer_BreederRegNo', filter.issuer_BreederRegNo);
-    if (filter.issuer_FirstName) queryParams.append('Issuer_FirstName', filter.issuer_FirstName);
-    if (filter.from_dateAccepted) queryParams.append('From_DateAccepted', filter.from_dateAccepted);
+    if (filter.status !== undefined && filter.status !== null) queryParams.append('status', filter.status);
+    if (filter.rabbit_EarCombId !== undefined && filter.rabbit_EarCombId !== null) queryParams.append('rabbit_EarCombId', filter.rabbit_EarCombId);
+    if (filter.rabbit_NickName !== undefined && filter.rabbit_NickName !== null) queryParams.append('rabbit_NickName', filter.rabbit_NickName);
+    if (filter.issuer_BreederRegNo !== undefined && filter.issuer_BreederRegNo !== null) queryParams.append('issuer_BreederRegNo', filter.issuer_BreederRegNo);
+    if (filter.issuer_FirstName !== undefined && filter.issuer_FirstName !== null) queryParams.append('issuer_FirstName', filter.issuer_FirstName);
+    //if (filter.recipent_BreederRegNo !== undefined && filter.recipent_BreederRegNo !== null) queryParams.append('recipent_BreederRegNo', filter.recipent_BreederRegNo);
+    //if (filter.recipent_FirstName !== undefined && filter.recipent_FirstName !== null) queryParams.append('recipent_FirstName', filter.recipent_FirstName);
+    if (filter.from_dateAccepted !== undefined && filter.from_dateAccepted !== null) queryParams.append('from_dateAccepted', filter.from_dateAccepted);
   }
 
-  const url = `${getApiUrl('BreederAccount/TransferRequests_Received')}${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+  const url = `${getApiUrl('BreederAccount/TransferRequestsReceived')}${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
 
   const response = await fetch(url, {
     method: 'GET',
     headers: {
       'Authorization': `Bearer ${accessToken}`,
-      'Accept': 'text/plain',
-      'Content-Type': 'application/json'
+      'Accept': 'application/json'
     }
   });
 
@@ -103,9 +103,8 @@ export async function GetReceivedTransferRequests(
       const errorResponse = await response.text();
       if (errorResponse) errorMessage = errorResponse;
     } catch (e) {
-      console.error('Kunne ikke parse fejlbesked:', e);
+      // ignore
     }
-
     throw new Error(`Fejl ved hentning af modtagne overførselsanmodninger: ${errorMessage}`);
   }
 
@@ -113,35 +112,35 @@ export async function GetReceivedTransferRequests(
 }
 
 /**
- * Hent overførselsanmodninger udstedt af den aktuelle bruger
+ * Hent overførselsanmodninger udstedt (sendt) af den aktuelle bruger (med filtrering)
  * @param accessToken Brugerens adgangstoken
  * @param filter Filtreringsparametre for anmodningerne
  * @returns Liste af sendte overførselsanmodninger
  */
 export async function GetSentTransferRequests(
   accessToken: string,
-  filter?: TransferRequest_SentFilterDTO
-): Promise<TransferRequest_SentDTO[]> {
+  filter?: TransferRequestPreviewFilterDTO
+): Promise<TransferRequestPreviewDTO[]> {
   // Opbyg query string fra filter objektet
   const queryParams = new URLSearchParams();
   if (filter) {
-    // Håndter hvert muligt filter-felt
-    if (filter.status) queryParams.append('Status', filter.status);
-    if (filter.rabbit_EarCombId) queryParams.append('Rabbit_EarCombId', filter.rabbit_EarCombId);
-    if (filter.rabbit_NickName) queryParams.append('Rabbit_NickName', filter.rabbit_NickName);
-    if (filter.recipent_BreederRegNo) queryParams.append('Recipent_BreederRegNo', filter.recipent_BreederRegNo);
-    if (filter.recipent_FirstName) queryParams.append('Recipent_FirstName', filter.recipent_FirstName);
-    if (filter.from_dateAccepted) queryParams.append('From_DateAccepted', filter.from_dateAccepted);
+    if (filter.status !== undefined && filter.status !== null) queryParams.append('status', filter.status);
+    if (filter.rabbit_EarCombId !== undefined && filter.rabbit_EarCombId !== null) queryParams.append('rabbit_EarCombId', filter.rabbit_EarCombId);
+    if (filter.rabbit_NickName !== undefined && filter.rabbit_NickName !== null) queryParams.append('rabbit_NickName', filter.rabbit_NickName);
+    //if (filter.issuer_BreederRegNo !== undefined && filter.issuer_BreederRegNo !== null) queryParams.append('issuer_BreederRegNo', filter.issuer_BreederRegNo);
+    //if (filter.issuer_FirstName !== undefined && filter.issuer_FirstName !== null) queryParams.append('issuer_FirstName', filter.issuer_FirstName);
+    if (filter.recipent_BreederRegNo !== undefined && filter.recipent_BreederRegNo !== null) queryParams.append('recipent_BreederRegNo', filter.recipent_BreederRegNo);
+    if (filter.recipent_FirstName !== undefined && filter.recipent_FirstName !== null) queryParams.append('recipent_FirstName', filter.recipent_FirstName);
+    if (filter.from_dateAccepted !== undefined && filter.from_dateAccepted !== null) queryParams.append('from_dateAccepted', filter.from_dateAccepted);
   }
 
-  const url = `${getApiUrl('BreederAccount/TransferRequests_Issued')}${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+  const url = `${getApiUrl('BreederAccount/TransferRequestsIssued')}${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
 
   const response = await fetch(url, {
     method: 'GET',
     headers: {
       'Authorization': `Bearer ${accessToken}`,
-      'Accept': 'text/plain',
-      'Content-Type': 'application/json'
+      'Accept': 'application/json'
     }
   });
 
@@ -151,14 +150,15 @@ export async function GetSentTransferRequests(
       const errorResponse = await response.text();
       if (errorResponse) errorMessage = errorResponse;
     } catch (e) {
-      console.error('Kunne ikke parse fejlbesked:', e);
+      // ignore
     }
-
     throw new Error(`Fejl ved hentning af udstedte overførselsanmodninger: ${errorMessage}`);
   }
 
   return response.json();
 }
+
+
 //-------------------- PUT --------------------
 /**
  * Opdaterer en opdrætterkonto (BreederAccount) via PUT /BreederAccount/Update/{breederAccountId}

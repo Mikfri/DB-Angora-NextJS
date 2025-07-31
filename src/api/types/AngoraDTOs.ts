@@ -1,5 +1,14 @@
 // src/api/types/DB-AngoraDTOs.ts
 
+export interface IdentityResult {
+    succeeded: boolean;
+    errors: IdentityError[];
+}
+export interface IdentityError {
+  code: string | null;
+  description: string | null;
+}
+
 /**
  * Generisk DTO til paginerede resultater.
  * @template T Typen af data i resultatet
@@ -38,6 +47,12 @@ export interface PhotoPublicDTO {
     fileName: string;
     uploadDate: string;
     isProfilePicture: boolean;
+}
+
+export interface PhotoDeleteDTO {
+    photoId: number;
+    entityIntId: number;
+    entityStringId: string;
 }
 
 export interface CloudinaryPhotoRegistryRequestDTO {
@@ -104,6 +119,15 @@ export interface Rabbit_CreateSaleDetailsDTO {
     isNeutered: boolean;
     homeEnvironment: string;
     description: string;
+}
+
+export interface Rabbit_ParentValidationResultDTO {
+    isValid: boolean;
+    earCombId: string;
+    nickName: string;
+    message: string;
+    race: string;
+    color: string;
 }
 
 /**
@@ -239,8 +263,9 @@ export type Rabbits_PreviewList = Rabbit_PreviewDTO[];
 export interface Rabbit_ProfileDTO {
     earCombId: string;
     nickName: string | null;
-    originFullName: string | null;
+    //ownerId: string;  // Vi har denne prop fra backenden.. Men den behøves ikke i frontend.
     ownerFullName: string | null;
+    originFullName: string | null;
     race: string;
     color: string;
     approvedRaceColorCombination: boolean;
@@ -439,6 +464,7 @@ export interface TransferRequest_ContractDTO {
     //--- Rabbit
     rabbit_EarCombId: string;
     rabbit_NickName: string | null;
+    //--- Sale
     price: number | null;
     saleConditions: string | null;
 }
@@ -450,60 +476,42 @@ export interface TransferRequest_CreateDTO {
     saleConditions: string | null;
 }
 
-export interface TransferRequest_PreviewDTO {
+export interface TransferRequestPreviewDTO {
+    //--- Generelle properties
     id: number;
     status: string;
     dateAccepted: string;
-    rabbit_EarCombId: string;
-    issuer_BreedRegNo: string;
-    recipent_BreederRegNo: string;
-    price: number | null;
-    saleConditions: string | null;
-}
-export type Transfer_RequestPreviewList = TransferRequest_PreviewDTO[];
-
-export interface TransferRequest_ReceivedDTO {
-    id: number;
-    status: string;
-    dateAccepted: string;
+    //--- Kanin properties
     rabbit_EarCombId: string;
     rabbit_NickName: string | null;
+    //--- Udsteder properties
     issuer_BreederRegNo: string;
     issuer_FirstName: string;
+    //--- Modtager properties
+    recipent_BreederRegNo: string;
+    recipent_FirstName: string | null;
+    //--- Salgs properties
     price: number | null;
     saleConditions: string | null;
 }
+export type TransferRequestPreviewList = TransferRequestPreviewDTO[];
 
-export interface TransferRequest_ReceivedFilterDTO {
-    status: string | null;
-    rabbit_EarCombId: string | null;
-    rabbit_NickName: string | null;
-    issuer_BreederRegNo: string | null;
-    issuer_FirstName: string | null;
-    from_dateAccepted: string | null;
+
+export interface TransferRequestPreviewFilterDTO {
+    status?: string | null;  // "Pending", "Accepted", "Rejected"
+    from_dateAccepted?: string | null;
+    //--- Kanin properties
+    rabbit_EarCombId?: string | null;
+    rabbit_NickName?: string | null;
+    //--- Udsteder properties
+    issuer_BreederRegNo?: string;
+    issuer_FirstName?: string | null;
+    //--- Modtager properties
+    recipent_BreederRegNo?: string | null;
+    recipent_FirstName?: string | null;
 }
 
 export interface TransferRequest_ResponseDTO {
     accept: boolean;
 }
 
-export interface TransferRequest_SentDTO {
-    id: number;
-    status: string;
-    dateAccepted: string | null;
-    rabbit_EarCombId: string;
-    rabbit_NickName: string | null;
-    recipent_BreederRegNo: string | null;
-    recipent_FirstName: string | null;
-    price: number | null;
-    saleConditions: string | null;
-}
-
-export interface TransferRequest_SentFilterDTO {
-    status: string | null;
-    rabbit_EarCombId: string | null;
-    rabbit_NickName: string | null;
-    recipent_BreederRegNo: string | null;
-    recipent_FirstName: string | null;
-    from_dateAccepted: string | null;
-}

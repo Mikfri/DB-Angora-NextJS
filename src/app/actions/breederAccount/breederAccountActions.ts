@@ -2,8 +2,9 @@
 'use server';
 
 import { getAccessToken } from '@/app/actions/auth/session';
-import { GetOwnRabbits, UpdateBreederAccount } from '@/api/endpoints/breederAccountController';
-import { BreederAccount_PrivateProfileDTO, BreederAccount_UpdateDTO, PagedResultDTO, Rabbit_PreviewDTO } from '@/api/types/AngoraDTOs';
+import { GetOwnRabbits, GetReceivedTransferRequests, GetSentTransferRequests, UpdateBreederAccount } from '@/api/endpoints/breederAccountController';
+import { BreederAccount_PrivateProfileDTO, BreederAccount_UpdateDTO, PagedResultDTO, Rabbit_PreviewDTO, TransferRequestPreviewDTO, TransferRequestPreviewFilterDTO } from '@/api/types/AngoraDTOs';
+
 
 /**
  * Server Action: Henter alle brugerens kaniner med paginering
@@ -46,6 +47,66 @@ export async function getMyRabbits(
     return {
       success: false,
       error: "Der opstod en fejl ved indlæsning af dine kaniner"
+    };
+  }
+}
+
+/**
+ * Server Action: Henter modtagne overførselsanmodninger for brugeren (med filtrering)
+ * @param filter Filtreringsparametre (valgfri)
+ * @returns Liste af modtagne anmodninger eller fejl
+ */
+export async function getReceivedTransferRequests(
+  filter?: TransferRequestPreviewFilterDTO
+): Promise<{
+  success: boolean;
+  data?: TransferRequestPreviewDTO[];
+  error?: string;
+}> {
+  try {
+    const accessToken = await getAccessToken();
+    if (!accessToken) {
+      return {
+        success: false,
+        error: "Du skal være logget ind for at se modtagne overførselsanmodninger"
+      };
+    }
+    const data = await GetReceivedTransferRequests(accessToken, filter);
+    return { success: true, data };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Der skete en uventet fejl"
+    };
+  }
+}
+
+/**
+ * Server Action: Henter udstedte (sendte) overførselsanmodninger for brugeren (med filtrering)
+ * @param filter Filtreringsparametre (valgfri)
+ * @returns Liste af sendte anmodninger eller fejl
+ */
+export async function getSentTransferRequests(
+  filter?: TransferRequestPreviewFilterDTO
+): Promise<{
+  success: boolean;
+  data?: TransferRequestPreviewDTO[];
+  error?: string;
+}> {
+  try {
+    const accessToken = await getAccessToken();
+    if (!accessToken) {
+      return {
+        success: false,
+        error: "Du skal være logget ind for at se sendte overførselsanmodninger"
+      };
+    }
+    const data = await GetSentTransferRequests(accessToken, filter);
+    return { success: true, data };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Der skete en uventet fejl"
     };
   }
 }

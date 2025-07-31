@@ -2,7 +2,7 @@
 /**
  * Rabbit Store - Zustand state management for rabbit-relateret client-side state
  * 
- * Ansvarsområder:
+ * Ansvarsområder: (WIP - Benyttes pt ikke)
  * - Gemme brugerens egne kaniner lokalt for hurtigere adgang
  * - Håndtere favorit-kaniner
  * - Gemme midlertidig kanin-state (f.eks. under oprettelse)

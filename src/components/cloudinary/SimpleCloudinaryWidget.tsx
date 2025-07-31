@@ -198,8 +198,8 @@ export default function SimpleCloudinaryWidget({
               publicId: public_id,
               cloudinaryUrl: secure_url,
               fileName: original_filename,
-              entityStringId: uploadConfig.entityStringId,
-              entityIntId: uploadConfig.entityIntId,
+              entityStringId: uploadConfig.entityId, // <-- brug entityId
+              entityIntId: 0, // <-- hvis du ikke har et int-id, brug 0 eller parse hvis muligt
               entityType: uploadConfig.entityType
             };
 

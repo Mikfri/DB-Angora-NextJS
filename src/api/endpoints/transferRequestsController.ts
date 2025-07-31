@@ -1,8 +1,8 @@
-import { TransferRequest_CreateDTO, TransferRequest_ContractDTO, TransferRequest_ResponseDTO, TransferRequest_PreviewDTO } from '@/api/types/AngoraDTOs';
+import { TransferRequest_CreateDTO, TransferRequest_ContractDTO, TransferRequest_ResponseDTO, TransferRequestPreviewDTO } from '@/api/types/AngoraDTOs';
 import { getApiUrl } from '../config/apiConfig';
 
 
-//-------------------- CREATE
+//-------------------- POST
 /**
  * Opret en ny overførselsanmodning for en kanin
  * @param createTransferDTO Detaljer om overførslen
@@ -18,28 +18,30 @@ export async function CreateTransferRequest(
         headers: {
             'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json',
-            'Accept': 'text/plain'
+            'Accept': 'application/json'
         },
         body: JSON.stringify(createTransferDTO)
     });
 
-    if (!response.ok) {
-        // Forsøg at hente detaljeret fejlbesked fra API'en
-        let errorMessage = `${response.status} ${response.statusText}`;
-        try {
-            const errorResponse = await response.text();
-            if (errorResponse) {
-                errorMessage = errorResponse;
-            }
-        } catch (e) {
-            // Hvis vi ikke kan parse fejlbeskeden, bruger vi den generiske
-            console.error('Kunne ikke parse fejlbesked:', e);
-        }
-
-        throw new Error(`Fejl: ${errorMessage}`);
+    if (response.status === 201) {
+        return response.json();
     }
 
-    return response.json();
+    // Håndter forskellige fejlstatusser og forsøg at parse fejlbesked fra API
+    let errorMessage = `Fejl: ${response.status} ${response.statusText}`;
+    try {
+        const errorText = await response.text();
+        if (errorText) {
+            try {
+                const parsed = JSON.parse(errorText);
+                errorMessage = parsed.message || errorText;
+            } catch {
+                errorMessage = errorText;
+            }
+        }
+    } catch { /* ignore */ }
+
+    throw new Error(errorMessage);
 }
 
 /**
@@ -47,7 +49,7 @@ export async function CreateTransferRequest(
  * @param transferId ID for overførselsanmodningen
  * @param responseDTO Respons med accept eller afvisning
  * @param accessToken Brugerens adgangstoken
- * @returns Den opdaterede overførselskontrakt ved accept, eller en tom respons ved afvisning
+ * @returns Den opdaterede overførselskontrakt ved accept, eller null hvis afvist
  */
 export async function RespondToTransferRequest(
     transferId: number,
@@ -59,40 +61,39 @@ export async function RespondToTransferRequest(
         headers: {
             'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json',
-            'Accept': 'text/plain'
+            'Accept': 'application/json'
         },
         body: JSON.stringify(responseDTO)
     });
 
     if (!response.ok) {
-        // Forsøg at hente detaljeret fejlbesked fra API'en
+        // Prøv at parse fejlbesked fra API
         let errorMessage = `${response.status} ${response.statusText}`;
         try {
-            const errorResponse = await response.text();
-            if (errorResponse) {
-                errorMessage = errorResponse;
+            const errorText = await response.text();
+            if (errorText) {
+                try {
+                    const parsed = JSON.parse(errorText);
+                    errorMessage = parsed.message || errorText;
+                } catch {
+                    errorMessage = errorText;
+                }
             }
-        } catch (e) {
-            // Hvis vi ikke kan parse fejlbeskeden, bruger vi den generiske
-            console.error('Kunne ikke parse fejlbesked:', e);
-        }
-
-        throw new Error(`Fejl: ${errorMessage}`);
+        } catch { /* ignore */ }
+        throw new Error(errorMessage);
     }
 
-    // Tjek om svaret er en tom OK (ved afvisning)
-    const contentType = response.headers.get('content-type');
-    if (contentType && contentType.includes('application/json')) {
-        return response.json();
-    } else {
-        // Returnerer null for afvisninger, da API'en returnerer OK uden body
-        return null;
-    }
+    // Hvis afvist, returner null (API returnerer { message: "..."} eller lign.)
+    const data = await response.json();
+    if (data && data.message) return null;
+
+    // Ellers returner kontrakten
+    return data as TransferRequest_ContractDTO;
 }
 
 //-------------------- READ
 /**
- * Hent en specifik overførselskontrakt
+ * Hent kontrakt-detaljer for en specifik overførselsanmodning
  * @param transferId ID for overførselsanmodningen
  * @param accessToken Brugerens adgangstoken
  * @returns Overførselskontrakten
@@ -105,24 +106,24 @@ export async function GetTransferContract(
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${accessToken}`,
-            'Accept': 'text/plain'
+            'Accept': 'application/json'
         }
     });
 
     if (!response.ok) {
-        // Forsøg at hente detaljeret fejlbesked fra API'en
         let errorMessage = `${response.status} ${response.statusText}`;
         try {
-            const errorResponse = await response.text();
-            if (errorResponse) {
-                errorMessage = errorResponse;
+            const errorText = await response.text();
+            if (errorText) {
+                try {
+                    const parsed = JSON.parse(errorText);
+                    errorMessage = parsed.message || errorText;
+                } catch {
+                    errorMessage = errorText;
+                }
             }
-        } catch (e) {
-            // Hvis vi ikke kan parse fejlbeskeden, bruger vi den generiske
-            console.error('Kunne ikke parse fejlbesked:', e);
-        }
-
-        throw new Error(`Fejl: ${errorMessage}`);
+        } catch { /* ignore */ }
+        throw new Error(errorMessage);
     }
 
     return response.json();
@@ -137,29 +138,29 @@ export async function GetTransferContract(
 export async function DeleteTransferRequest(
     transferRequestId: number,
     accessToken: string
-): Promise<TransferRequest_PreviewDTO> {
+): Promise<TransferRequestPreviewDTO> {
     const response = await fetch(getApiUrl(`TransferRequest/Delete/${transferRequestId}`), {
         method: 'DELETE',
         headers: {
             'Authorization': `Bearer ${accessToken}`,
-            'Accept': 'text/plain'
+            'Accept': 'application/json'
         }
     });
 
     if (!response.ok) {
-        // Forsøg at hente detaljeret fejlbesked fra API'en
         let errorMessage = `${response.status} ${response.statusText}`;
         try {
-            const errorResponse = await response.text();
-            if (errorResponse) {
-                errorMessage = errorResponse;
+            const errorText = await response.text();
+            if (errorText) {
+                try {
+                    const parsed = JSON.parse(errorText);
+                    errorMessage = parsed.message || errorText;
+                } catch {
+                    errorMessage = errorText;
+                }
             }
-        } catch (e) {
-            // Hvis vi ikke kan parse fejlbeskeden, bruger vi den generiske
-            console.error('Kunne ikke parse fejlbesked:', e);
-        }
-
-        throw new Error(`Fejl: ${errorMessage}`);
+        } catch { /* ignore */ }
+        throw new Error(errorMessage);
     }
 
     return response.json();

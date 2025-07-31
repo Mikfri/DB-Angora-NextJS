@@ -12,7 +12,7 @@ interface Props {
 
 export default function DeleteRabbitModal({ isOpen, onClose, onConfirm, rabbitName, isDeleting }: Props) {
     return (
-        <Modal
+        <Modal className="dark"
             isOpen={isOpen}
             onClose={onClose}
             backdrop="blur"

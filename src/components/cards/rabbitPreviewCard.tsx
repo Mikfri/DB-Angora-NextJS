@@ -6,6 +6,7 @@ import { Card, CardHeader, CardBody, Chip, Divider } from "@heroui/react";
 import Image from 'next/image';
 import { useState, ReactNode } from 'react';
 import { formatDate } from '@/lib/utils/formatters';
+// Importer nødvendige ikoner
 import { GiTombstone } from "react-icons/gi";
 import { LuRabbit } from "react-icons/lu";
 import { BsCalendarDate, BsGenderAmbiguous } from "react-icons/bs";

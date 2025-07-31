@@ -2,14 +2,16 @@
 'use client';
 import { Input, Button, Divider } from "@heroui/react";
 import { useState, useEffect, memo } from 'react';
+import EnumAutocomplete from '@/components/enumHandlers/enumAutocomplete';
+import { useEnums, RabbitEnum } from '@/contexts/EnumContext';
+import { useRabbitFilters } from '@/store/saleRabbitsFilterStore';
+// Importer nødvendige ikoner
 import { IoMdClose } from "react-icons/io";
 import { MdOutlineLocationOn } from "react-icons/md";
 import { LuRabbit } from "react-icons/lu";
 import { IoColorPaletteOutline } from "react-icons/io5";
 import { RiGenderlessLine } from "react-icons/ri";
-import EnumAutocomplete from '@/components/enumHandlers/enumAutocomplete';
-import { useEnums, RabbitEnum } from '@/contexts/EnumContext';
-import { useRabbitFilters } from '@/store/saleRabbitsFilterStore';
+
 
 // De enum typer der bruges i denne komponent
 const REQUIRED_ENUMS: RabbitEnum[] = ['Race', 'Color', 'Gender'];

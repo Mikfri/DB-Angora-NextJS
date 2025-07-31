@@ -100,17 +100,21 @@ const checkActiveFilters = (filters: Required<OwnFilters>): boolean => {
 // Hjælpefunktion: Filtrer kaniner baseret på filtre
 const filterRabbits = (rabbits: Rabbit_PreviewDTO[], filters: Required<OwnFilters>): Rabbit_PreviewDTO[] => {
     return rabbits.filter(rabbit => {
-        // Tjek for afdøde kaniner (kun hvis lifeStatus ikke er null)
+        // Hvis der søges, ignorer lifeStatus-filteret
+        const searchLower = filters.search?.toLowerCase() || '';
         const isDeceased = rabbit.dateOfDeath !== null;
-        if (filters.lifeStatus !== null && filters.lifeStatus !== isDeceased) {
-            return false;
+        if (!searchLower) {
+            // Kun filtrer på lifeStatus hvis der IKKE søges
+            if (filters.lifeStatus !== null && filters.lifeStatus !== isDeceased) {
+                return false;
+            }
         }
 
         // Tjek for ungdyr
         if (filters.showJuveniles && !rabbit.isJuvenile) return false;
 
         // Søgning
-        const searchLower = filters.search?.toLowerCase() || '';
+        //const searchLower = filters.search?.toLowerCase() || '';
         const matchesSearch = !searchLower || (
             (rabbit.nickName?.toLowerCase()?.includes(searchLower) || false) ||
             (rabbit.earCombId?.toLowerCase()?.includes(searchLower) || false) ||

@@ -1,7 +1,7 @@
 // src/hooks/users/useUserProfile.ts
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { User_ProfileDTO, User_UpdateProfileDTO } from "@/api/types/AngoraDTOs";
-import { updateUserProfile } from "@/app/actions/account/accountActions";
+import { updateUserProfile, changePassword } from "@/app/actions/account/accountActions";
 
 type UserProfileUpdate = Partial<User_UpdateProfileDTO>;
 
@@ -13,6 +13,11 @@ export function useUserProfile(
   const [isSaving, setIsSaving] = useState(false);
   const [editedData, setEditedData] = useState<UserProfileUpdate>({});
   const [error, setError] = useState<string | null>(null);
+
+  // State til passwordskift
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [changePasswordError, setChangePasswordError] = useState<string | null>(null);
+  const [changePasswordSuccess, setChangePasswordSuccess] = useState(false);
 
   const handleSave = async (): Promise<void> => {
     setIsSaving(true);
@@ -35,12 +40,32 @@ export function useUserProfile(
       setIsEditing(false);
       setEditedData({});
       setIsSaving(false);
-      setUserProfile(result.data); // ← OPDATER PROFILEN I UI!
+      setUserProfile(result.data);
     } catch (err) {
       setError("Der opstod en fejl ved opdatering.");
       setIsSaving(false);
     }
   };
+
+  // Password change handler
+  const handleChangePassword = useCallback(
+    async (currentPassword: string, newPassword: string) => {
+      setIsChangingPassword(true);
+      setChangePasswordError(null);
+      setChangePasswordSuccess(false);
+      try {
+        const res = await changePassword(currentPassword, newPassword);
+        if (res.success) {
+          setChangePasswordSuccess(true);
+        } else {
+          setChangePasswordError(res.error || "Ukendt fejl");
+        }
+      } finally {
+        setIsChangingPassword(false);
+      }
+    },
+    []
+  );
 
   return {
     isEditing,
@@ -50,5 +75,10 @@ export function useUserProfile(
     setEditedData,
     handleSave,
     error,
+    // Password change state & handler
+    handleChangePassword,
+    isChangingPassword,
+    changePasswordError,
+    changePasswordSuccess,
   };
 }

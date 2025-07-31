@@ -31,7 +31,6 @@ export default function SaleList({
 
   // Opdateret klik-handler til kort - bruger korrekte ROUTES konstanter
   const handleCardClick = useCallback((item: SaleDetailsCardDTO) => {
-    // Brug slug hvis tilgængelig (foretrukken metode)
     if (item.slug) {
       switch (item.entityType.toLowerCase()) {
         case 'rabbit':
@@ -41,12 +40,10 @@ export default function SaleList({
           router.push(ROUTES.PROFILES.WOOL(item.slug));
           break;
         default:
-          // Fallback for ukendte typer
           router.push(`${ROUTES.SALE.BASE}/${item.entityType.toLowerCase()}/${item.slug}`);
           break;
       }
     } else {
-      // Fallback til traditionelle profile routes med entityId
       switch (item.entityType.toLowerCase()) {
         case 'rabbit':
           router.push(ROUTES.PROFILES.RABBIT_PROFILE(item.entityId));
@@ -55,7 +52,6 @@ export default function SaleList({
           router.push(ROUTES.PROFILES.WOOL_PROFILE(item.entityId));
           break;
         default:
-          // Ultimate fallback for ukendte typer
           router.push(`${ROUTES.SALE.BASE}/${item.entityType.toLowerCase()}/profile/${item.entityId}`);
           break;
       }
@@ -64,17 +60,12 @@ export default function SaleList({
 
   // Håndterer skift af side - bruger ROUTES konstant
   const handlePageChange = useCallback((page: number) => {
-    // Opret en ny URLSearchParams instans baseret på de nuværende parametre
     const params = new URLSearchParams(searchParams.toString());
-
-    // Opdater page parameter
     params.set('Page', page.toString());
-
-    // Naviger til den nye URL med opdaterede søgeparametre - bruger ROUTES konstant
     router.push(`${ROUTES.SALE.RABBITS}?${params.toString()}`);
   }, [router, searchParams]);
 
-  // Vis tom tilstand - bruger ROUTES konstant
+  // Vis tom tilstand
   if (items.length === 0) {
     return (
       <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-6 text-center py-16">
@@ -98,6 +89,13 @@ export default function SaleList({
   return (
     <div className="space-y-6">
       <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-6">
+        {/* Sideinfo og antal */}
+        {paging && (
+          <div className="text-xs text-zinc-500 mb-4">
+            Side {paging.currentPage} • Viser {items.length} ud af {paging.totalCount} kaniner
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {items.map((item) => (
             <SaleDetailsCard

@@ -31,6 +31,11 @@ export default function UserProfile({ userProfile: initialProfile }: Props) {
     setEditedData,
     handleSave,
     error,
+    // Password change props
+    handleChangePassword,
+    isChangingPassword,
+    changePasswordError,
+    changePasswordSuccess,
   } = useUserProfile(userProfile, setUserProfile);
 
   const displayName = `${userProfile.firstName} ${userProfile.lastName}`;
@@ -69,6 +74,11 @@ export default function UserProfile({ userProfile: initialProfile }: Props) {
             setEditedData={setEditedData}
             setIsEditing={setIsEditing}
             handleSave={handleSave}
+            // Password props
+            handleChangePassword={handleChangePassword}
+            isChangingPassword={isChangingPassword}
+            changePasswordError={changePasswordError}
+            changePasswordSuccess={changePasswordSuccess}
           />
         </Tab>
         <Tab key="breeder" title={<span>Avlerkonto</span>}>
@@ -88,6 +98,9 @@ export default function UserProfile({ userProfile: initialProfile }: Props) {
             <div className="text-zinc-400">Ingen avlerkonto tilknyttet.</div>
           )}
         </Tab>
+        {/* <Tab key="favoristes" title={<span>Favoritter</span>}>
+          <div className="text-zinc-400">Denne funktion er under udvikling.</div>
+        </Tab> */}
       </Tabs>
     </div>
   );

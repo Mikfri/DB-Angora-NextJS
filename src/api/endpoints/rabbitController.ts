@@ -6,6 +6,10 @@ import {
     Rabbit_CreateSaleDetailsDTO, Rabbit_UpdateSaleDetailsDTO,
     CloudinaryUploadConfigDTO, Rabbit_PedigreeDTO,
     SaleDetailsProfileDTO,
+    PhotoPrivateDTO,
+    PhotoDeleteDTO,
+    CloudinaryPhotoRegistryRequestDTO,
+    Rabbit_ParentValidationResultDTO,
 } from "../types/AngoraDTOs";
 import { Rabbit_ForSaleFilterDTO } from "../types/filterTypes";
 
@@ -24,13 +28,21 @@ export async function CreateRabbit(rabbitData: Rabbit_CreateDTO, accessToken: st
 
     if (!response.ok) {
         const errorText = await response.text();
+        let apiMessage = '';
+        try {
+            const parsed = JSON.parse(errorText);
+            apiMessage = parsed.message || errorText;
+        } catch {
+            apiMessage = errorText;
+        }
         console.error('API Error:', {
             status: response.status,
             statusText: response.statusText,
             body: errorText,
             sentData: rabbitData
         });
-        throw new Error(`Failed to create rabbit: ${response.status} ${response.statusText}`);
+        // Send API-beskeden videre!
+        throw new Error(apiMessage || `Failed to create rabbit: ${response.status} ${response.statusText}`);
     }
 
     return response.json();
@@ -72,34 +84,92 @@ export async function CreateSaleDetails(
     return response.json();
 }
 
+/**
+ * Registrerer et billede fra Cloudinary specifikt for en kanin.
+ * @param accessToken JWT token for bruger
+ * @param earCombId Kaninens øremærke-id
+ * @param requestDTO Billede-detaljer fra Cloudinary
+ * @returns Det nye oprettede PhotoPrivateDTO
+ */
+export async function RegisterRabbitPhoto(
+  accessToken: string,
+  earCombId: string,
+  requestDTO: CloudinaryPhotoRegistryRequestDTO
+): Promise<PhotoPrivateDTO> {
+  const response = await fetch(getApiUrl(`Rabbit/${earCombId}/register-photo`), {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    },
+    body: JSON.stringify(requestDTO)
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText || `Fejl: ${response.status} ${response.statusText}`);
+  }
+
+  return response.json();
+}
+
 //-------------------- READ
 
 /**
- * Anmoder om tilladelse til at uploade et foto til Cloudinary for en specifik kanin
- * 
- * @param accessToken - Brugerens JWT authentication token
- * @param earCombId - Kaninens øremærke-id
- * @returns Oplysninger til brug ved upload til Cloudinary
+ * Henter Cloudinary upload-konfiguration for en specifik kanin, hvis brugeren har rettigheder.
+ * @param accessToken JWT token for bruger
+ * @param earCombId Kaninens øremærke-id
+ * @returns CloudinaryUploadConfigDTO
  */
 export async function GetRabbitPhotoUploadPermission(
     accessToken: string,
     earCombId: string
 ): Promise<CloudinaryUploadConfigDTO> {
-    //const response = await fetch(getApiUrl(`Rabbit/photo-upload-permission/${earCombId}`), {
-    const response = await fetch(getApiUrl(`Rabbit/photo-upload-config/${earCombId}`), {
-
+    const response = await fetch(getApiUrl(`Rabbit/${earCombId}/photo-upload-permission`), {
         method: 'GET',
         headers: {
-            'Authorization': `Bearer ${accessToken}`
+            'Authorization': `Bearer ${accessToken}`,
+            'Accept': 'application/json'
         }
     });
 
     if (!response.ok) {
+        // Fejlbeskeder fra API'en stoles på og sendes videre
         const errorText = await response.text();
-        throw new Error(`Failed to get photo upload permission: ${response.status} - ${errorText}`);
+        throw new Error(errorText || `Fejl: ${response.status} ${response.statusText}`);
     }
 
     return response.json();
+}
+
+/**
+ * Validerer om en kanin eksisterer og har det forventede køn (forældrevalidering).
+ * @param accessToken JWT token for bruger
+ * @param parentId Øremærke på den potentielle forældrekanin
+ * @param expectedGender Forventet køn ('Buck' for far, 'Doe' for mor)
+ * @returns Valideringsresultat med evt. kanindetaljer
+ */
+export async function ValidateParentReference(
+  accessToken: string,
+  parentId: string,
+  expectedGender: string // Typisk 'Buck' eller 'Doe'
+): Promise<Rabbit_ParentValidationResultDTO> {
+  const url = getApiUrl(`Rabbit/Validate-parent?parentId=${encodeURIComponent(parentId)}&expectedGender=${encodeURIComponent(expectedGender)}`);
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+      'Accept': 'application/json'
+    }
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText || `Fejl: ${response.status} ${response.statusText}`);
+  }
+
+  return response.json();
 }
 
 /**
@@ -198,7 +268,7 @@ export async function GetRabbitPedigree(
 
 
 
-//-------------------- UPDATE
+//-------------------- PUT
 
 export async function EditRabbit(earCombId: string,
     rabbitData: Rabbit_UpdateDTO,
@@ -285,28 +355,59 @@ export async function UpdateSaleDetails(
     }
 }
 
-//-------------------- DELETE
-export async function DeleteRabbit(earCombId: string, accessToken: string): Promise<Rabbit_PreviewDTO> {
-    const response = await fetch(getApiUrl(`Rabbit/Delete/${earCombId}`), {
-        method: 'DELETE',
+/**
+ * Opdaterer hvilket billede der skal være profilbilledet for en kanin.
+ * @param accessToken JWT token for bruger
+ * @param earCombId Kaninens øremærke-id
+ * @param photoId ID på billedet der skal sættes som profilbillede
+ * @returns Det opdaterede foto (PhotoPrivateDTO)
+ */
+export async function SetRabbitProfilePhoto(
+    accessToken: string,
+    earCombId: string,
+    photoId: number
+): Promise<PhotoPrivateDTO> {
+    const response = await fetch(getApiUrl(`Rabbit/${earCombId}/profile-photo/${photoId}`), {
+        method: 'PUT',
         headers: {
             'Authorization': `Bearer ${accessToken}`,
-            'Content-Type': 'application/json',
-            'accept': 'text/plain'
+            'Accept': 'application/json'
         }
     });
 
     if (!response.ok) {
         const errorText = await response.text();
-        console.error('API Error:', {
-            status: response.status,
-            statusText: response.statusText,
-            body: errorText
-        });
-        throw new Error(`Failed to delete rabbit: ${response.status} ${response.statusText}`);
+        throw new Error(errorText || `Fejl: ${response.status} ${response.statusText}`);
     }
 
     return response.json();
+}
+
+//-------------------- DELETE
+/**
+ * Sletter en kanin, inkl. rettighedstjek og oprydning af relationer.
+ * @param earCombId Kaninens øremærke-id
+ * @param accessToken JWT token for bruger
+ * @returns Rabbit_PreviewDTO for den slettede kanin
+ */
+export async function DeleteRabbit(
+  earCombId: string,
+  accessToken: string
+): Promise<Rabbit_PreviewDTO> {
+  const response = await fetch(getApiUrl(`Rabbit/Delete/${earCombId}`), {
+    method: 'DELETE',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+      'Accept': 'application/json'
+    }
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText || `Fejl: ${response.status} ${response.statusText}`);
+  }
+
+  return response.json();
 }
 
 export async function DeleteSaleDetails(
@@ -338,4 +439,33 @@ export async function DeleteSaleDetails(
     }
 
     return response.json();
+}
+
+/**
+ * Sletter et billede fra en kanin, inkl. validering og autorisationskontrol.
+ * @param accessToken JWT token for bruger
+ * @param deletionDTO DTO med info om kanin og billede
+ * @returns True hvis sletningen lykkedes
+ */
+export async function DeleteRabbitPhoto(
+  accessToken: string,
+  deletionDTO: PhotoDeleteDTO
+): Promise<boolean> {
+  const response = await fetch(getApiUrl('Rabbit/DeletePhoto'), {
+    method: 'DELETE',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    },
+    body: JSON.stringify(deletionDTO)
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText || `Fejl: ${response.status} ${response.statusText}`);
+  }
+
+  // API returnerer bool i body
+  return response.json();
 }

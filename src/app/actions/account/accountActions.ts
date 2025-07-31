@@ -2,8 +2,57 @@
 'use server';
 
 import { getAccessToken, getUserIdentity } from '@/app/actions/auth/session'; // ← Brug session utilities
-import { GetUserProfile, UpdateUserProfile } from '@/api/endpoints/accountController';
+import { ChangePassword, GetUserProfile, UpdateUserProfile } from '@/api/endpoints/accountController';
 import { User_ProfileDTO, User_UpdateProfileDTO } from '@/api/types/AngoraDTOs';
+
+// =============== POST ===============
+export async function changePassword(currentPassword: string, newPassword: string): Promise<{
+  success: boolean;
+  result?: import('@/api/types/AngoraDTOs').IdentityResult;
+  error?: string;
+}> {
+  try {
+    if (!currentPassword || !newPassword) {
+      return {
+        success: false,
+        error: 'Både nuværende og nyt password skal angives'
+      };
+    }
+
+    const accessToken = await getAccessToken();
+    if (!accessToken) {
+      return {
+        success: false,
+        error: 'Ingen adgang - log venligst ind igen'
+      };
+    }
+
+    const result = await ChangePassword(accessToken, currentPassword, newPassword);
+
+    if (!result.succeeded) {
+      return {
+        success: false,
+        result,
+        error: result.errors?.map(e => e.description).filter(Boolean).join(', ') || 'Ukendt fejl'
+      };
+    }
+
+    return {
+      success: true,
+      result
+    };
+  } catch (error) {
+    let message = 'Der opstod en fejl ved skift af adgangskode';
+    if (error instanceof Error) {
+      message = error.message;
+    }
+    return {
+      success: false,
+      error: message
+    };
+  }
+}
+
 
 /**
  * Server Action: Henter bruger profil baseret på userProfileId

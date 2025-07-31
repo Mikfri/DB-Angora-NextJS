@@ -3,9 +3,9 @@ import { BreederAccount_PrivateProfileDTO } from "@/api/types/AngoraDTOs";
 import { Input, Switch } from "@heroui/react";
 
 export const editableBreederFieldLabels: Record<keyof Partial<Pick<BreederAccount_PrivateProfileDTO, "breederBrandName" | "breederBrandDescription" | "isFindable">>, string> = {
-  breederBrandName: "Navn",
+  breederBrandName: "Brandnavn",
   breederBrandDescription: "Beskrivelse",
-  isFindable: "Findbar"
+  isFindable: "Offentlig"
 };
 
 export function renderBreederCell(
