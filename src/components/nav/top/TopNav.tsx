@@ -8,13 +8,12 @@ import { PiUserCircleFill, PiUserCircleCheckFill } from "react-icons/pi";
 import { MdOutlineLogout } from 'react-icons/md';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { topNavigationLinks } from '@/constants/navigation';
 import { filterLink } from '@/utils/navigation';
 import LoginModal from '@/components/modals/login/loginModal';
 import { roleDisplayNames } from '@/types/auth';
-import { useState } from 'react';
 
 export default function TopNav() {
     const [isLoginOpen, setIsLoginOpen] = useState(false);
@@ -45,13 +44,15 @@ export default function TopNav() {
     const hasMultipleRoles = roles.length > 1;
 
     // Hent hovednavigationslinks fra vores centraliserede navigation
-    const mainNavLinks = topNavigationLinks[0].links
-        .filter(link => !link.disabled) // Filtrer deaktiverede links væk
-        .filter(link => filterLink(link, isLoggedIn, userIdentity)) // Filtrer links baseret på brugerens rettigheder
+    const mainNavLinks = [
+        ...topNavigationLinks[0].links
+    ]
+        .filter(link => !link.disabled)
+        .filter(link => filterLink(link, isLoggedIn, userIdentity))
         .map(link => ({
             href: link.href,
             label: link.label,
-            key: link.href.replace(/\//g, '-').slice(1) || 'home' // Generer en unik nøgle baseret på URL'en
+            key: link.href.replace(/\//g, '-').slice(1) || 'home'
         }));
 
     return (
@@ -60,7 +61,7 @@ export default function TopNav() {
                 <div className="w-full h-full px-4 mx-auto flex items-center justify-between">
                     {/* Branding */}
                     <div className="flex items-center">
-                        <Link href="/" className="flex items-center gap-2">
+                        {/* <Link href="/" className="flex items-center gap-2">
                             <Image
                                 src="/images/DB-Angora.png"
                                 alt="DenBlå-Angora Logo"
@@ -70,6 +71,25 @@ export default function TopNav() {
                                 priority
                             />
                             <p className="font-bold text-zinc-100">DenBlå-Angora</p>
+                        </Link> */}
+                        <Link href="/" className="flex items-center gap-2 dark">
+                            <Image
+                                src="/images/DB-Angora.png"
+                                alt="DenBlå-Angora Logo"
+                                width={40}
+                                height={40}
+                                className="rounded-sm"
+                                priority
+                            />
+                            <p className="font-bold text-zinc-100">DenBlå-Angora</p>
+                            <Chip
+                                color="danger"
+                                variant="shadow"
+                                size="sm"
+                                className="ml-2 font-bold tracking-wide"
+                            >
+                                v0.22 ALPHA 
+                            </Chip>
                         </Link>
                         
                         {/* Nav Links */}

@@ -1,15 +1,32 @@
 // src/app/account/profile/page.tsx
-import { redirect } from 'next/navigation';
-import { getUserIdentity } from '@/app/actions/auth/session';
+'use client';
 
-export default async function ProfileRedirectPage() {
-  // Brug getUserIdentity i stedet for direkte cookie access
-  const userIdentity = await getUserIdentity();
-  
-  if (!userIdentity?.id) {
-    redirect('/auth/login'); // Eller hvor login siden er
-  }
-  
-  // Redirect til egen profil
-  redirect(`/account/profile/${userIdentity.id}`);
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuthStore } from '@/store/authStore';
+
+export default function ProfileRedirectPage() {
+  const router = useRouter();
+  const { userIdentity, isLoggedIn, checkAuth } = useAuthStore();
+
+  useEffect(() => {
+    const redirect = async () => {
+      await checkAuth();
+      
+      if (!isLoggedIn || !userIdentity?.id) {
+        router.push('/auth/login');
+        return;
+      }
+      
+      router.push(`/account/profile/${userIdentity.id}`);
+    };
+
+    redirect();
+  }, [isLoggedIn, userIdentity, router, checkAuth]);
+
+  return (
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="text-zinc-400">Omdirigerer...</div>
+    </div>
+  );
 }

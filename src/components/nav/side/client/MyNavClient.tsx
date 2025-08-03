@@ -4,8 +4,8 @@ import { usePathname } from 'next/navigation';
 import { useMemo, useCallback } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { Listbox, ListboxItem, ListboxSection } from "@heroui/react";
-import { 
-    breederNavigationLinks, 
+import {
+    breederNavigationLinks,
     moderatorNavigationLinks,
     navigationLinks,
     homeNavigationLinks,
@@ -30,9 +30,9 @@ export function MyNavClient() {
     const { isLoggedIn, userIdentity } = useAuthStore();
 
     // Brug icon factory funktion fra navigation.ts
-    const ICON_MAP = useMemo(() => 
+    const ICON_MAP = useMemo(() =>
         new Map(Object.entries(createIconMap(NAV_STYLES.icon)))
-    , []);
+        , []);
 
     // Forenklet getIconForLink funktion med ICON_MAP
     const getIconForLink = useCallback((href: string) => {
@@ -53,33 +53,33 @@ export function MyNavClient() {
     // Opdateret current links logik med ROUTES konstanter
     const currentLinks = useMemo(() => {
         const links: NavGroup[] = [];
-    
-        // Brug ROUTES konstanter i stedet for hardcodede paths
+
         if (pathname === ROUTES.HOME) {
             links.push(...homeNavigationLinks);
         } else if (ROUTE_UTILS.isSaleRoute(pathname || '')) {
             links.push(...saleNavigationLinks);
         } else if (ROUTE_UTILS.isAccountRoute(pathname || '')) {
-            // Tilføj account-specifik navigation hvis nødvendigt
             links.push(...navigationLinks);
         }
-    
-        // Brug af logical AND for bedre læsbarhed
-        isLoggedIn && links.push(...navigationLinks);
-        isLoggedIn && hasBreederRoles && links.push(...breederNavigationLinks);
-        isLoggedIn && hasModeratorRoles && links.push(...moderatorNavigationLinks);
-    
+
+        // Tilføj kun ekstra sektioner hvis ikke allerede tilføjet
+        if (!ROUTE_UTILS.isAccountRoute(pathname || '') && isLoggedIn) {
+            links.push(...navigationLinks);
+        }
+        if (isLoggedIn && hasBreederRoles) links.push(...breederNavigationLinks);
+        if (isLoggedIn && hasModeratorRoles) links.push(...moderatorNavigationLinks);
+
         return links;
     }, [pathname, isLoggedIn, hasBreederRoles, hasModeratorRoles]);
 
     // Mere koncist med flatMap og arrow functions
-    const disabledKeys = useMemo(() => 
-        currentLinks.flatMap(group => 
+    const disabledKeys = useMemo(() =>
+        currentLinks.flatMap(group =>
             group.links
-              .filter(link => link.disabled)
-              .map(link => link.href)
+                .filter(link => link.disabled)
+                .map(link => link.href)
         )
-    , [currentLinks]);
+        , [currentLinks]);
 
     // Early return for edge case
     if (!currentLinks.length) return null;
@@ -104,12 +104,12 @@ export function MyNavClient() {
                     {group.links?.map((link) => {
                         // Template literal med konditionelle klasser
                         const classNames = `
-                            ${(link.href === ROUTES.ACCOUNT.BASE || link.href === ROUTES.SALE.BASE) 
-                                ? NAV_STYLES.mainLink 
+                            ${(link.href === ROUTES.ACCOUNT.BASE || link.href === ROUTES.SALE.BASE)
+                                ? NAV_STYLES.mainLink
                                 : NAV_STYLES.subLink}
                             ${pathname === link.href ? NAV_STYLES.active : ''}
                         `;
-                        
+
                         return (
                             <ListboxItem
                                 key={link.href}

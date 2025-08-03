@@ -48,7 +48,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const description = `${race}${color} til salg for ${price}${location}. ${profile.description?.substring(0, 100) || 'Se flere detaljer på siden.'}`;
 
     // Brug ROUTES konstant for canonical URL
-    const canonicalUrl = `${baseUrl}${ROUTES.PROFILES.RABBIT(slug)}`;
+    const canonicalUrl = `${baseUrl}${ROUTES.SALE.RABBIT(slug)}`;
 
     return {
       title: `${profile.title || race} | DenBlå-Angora`,

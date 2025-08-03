@@ -30,18 +30,18 @@ export const roleDisplayNames: Record<UserRole, string> = {
   // Administrative roller
   'Admin': 'Administrator',
   'Moderator': 'Moderator',
-  'RabbitModerator': 'Kanin-Moderator',
-  'UserModerator': 'Bruger-Moderator',
-  'ModeratorBreeder': 'Opdrætter-Moderator',
+  'RabbitModerator': 'Kanin-moderator',
+  'UserModerator': 'Bruger-moderator',
+  'ModeratorBreeder': 'Opdrætter-moderator',
   
   // Indholdsskaber-roller
   'Editor': 'Redaktør',
-  'BlogPoster': 'Blog Skribent',
+  'BlogPoster': 'Blog-skribent',
   
   // Brugerroller
-  'BreederPremium': 'Premium Opdrætter',
-  'BreederBasic': 'Basis Opdrætter',
-  'UserBasicFree': 'Basis Bruger',
+  'BreederPremium': 'Premium-opdrætter',
+  'BreederBasic': 'Basis-opdrætter',
+  'UserBasicFree': 'Basis-bruger',
 };
 
 // Gruppér roller efter type for nem brug i autorisationscheck

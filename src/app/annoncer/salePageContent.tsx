@@ -45,7 +45,7 @@ export default function SalePageContent({ showSecondaryNav = false }: Props) {
                         description="Find kaniner til salg, ud fra vores smarte filtrerings muligheder. Filtrer bl.a. efter race, farve, alder, køn og postnummer"
                     />
                     <PageNavigationCard
-                        href={ROUTES.SALE.WOOL}
+                        href={ROUTES.SALE.WOOLS}
                         imageSrc="/images/sideNavigationCard_SaleWool.jpg"
                         title="Uld"
                         description="Køb hjemmeproduceret uld. 1'ste, 2'den og 3'de sortering, kartet eller u-kartet, farvet eller ikke farvet. Rent eller som blandingsprodukt. Heraf 'Satin-angora'- eller 'Angora' uld, direkte fra sitets registrerede avlere. Gå på opdagelse iblandt avlernes sortementer, det bedste Danmark har at byde på! (Under udvikling)"

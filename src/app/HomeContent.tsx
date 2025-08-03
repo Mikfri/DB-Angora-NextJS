@@ -34,7 +34,7 @@ export default function HomeContent() {
               />
 
               <PageNavigationCard
-                href={ROUTES.SALE.WOOL}
+                href={ROUTES.SALE.WOOLS}
                 imageSrc="/images/sideNavigationCard_SaleWool.jpg"
                 title="Kommende: Uld til salg"
                 description="Snart kan du også købe og sælge angora uld direkte på platformen..."

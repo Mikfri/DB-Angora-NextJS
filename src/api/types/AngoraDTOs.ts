@@ -515,3 +515,48 @@ export interface TransferRequest_ResponseDTO {
     accept: boolean;
 }
 
+//---------- BLOG SECTION
+export interface Blog_CardDTO {
+    id: number;
+    slug: string;
+    blogVisibility: string; // "Public", "PaidContent"...
+    title: string;
+    subTitle: string | null;
+    contentSummary: string;
+    authorId: string;
+    authorName: string;
+    publishDate: string | null;
+    featuredImageUrl: string | null;
+    viewCount: number;
+}
+
+
+export interface Blog_CardFilterDTO {
+    authorFullName?: string | null;
+    searchTerm?: string | null;
+    tagFilter?: string | null;
+    blogSortOption?: string | null;  // "Newest", ...
+    page: number;
+    pageSize: number;
+}
+
+export interface Blog_DTO {
+    id: number;
+    slug: string;
+    title: string;
+    subTitle: string | null;
+    content: string;
+    visibilityLevel: string;  // "Public", "Private"
+    tags: string | null;  // Comma-separated tags
+    authorId: string;
+    authorName: string;
+    createdAt: string | null;
+    updatedAt: string | null;
+    publishDate: string | null;
+    isPublished: boolean;
+    featuredImageUrl: string | null;
+    metaDescription: string | null;
+    viewCount: number;
+    //--- DTO'er
+    photos: PhotoPrivateDTO[];
+}

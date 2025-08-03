@@ -34,10 +34,10 @@ export default function SaleList({
     if (item.slug) {
       switch (item.entityType.toLowerCase()) {
         case 'rabbit':
-          router.push(ROUTES.PROFILES.RABBIT(item.slug));
+          router.push(ROUTES.SALE.RABBIT(item.slug));
           break;
         case 'wool':
-          router.push(ROUTES.PROFILES.WOOL(item.slug));
+          router.push(ROUTES.SALE.WOOL(item.slug));
           break;
         default:
           router.push(`${ROUTES.SALE.BASE}/${item.entityType.toLowerCase()}/${item.slug}`);
@@ -46,10 +46,10 @@ export default function SaleList({
     } else {
       switch (item.entityType.toLowerCase()) {
         case 'rabbit':
-          router.push(ROUTES.PROFILES.RABBIT_PROFILE(item.entityId));
+          router.push(ROUTES.SALE.RABBIT_PROFILE(item.entityId));
           break;
         case 'wool':
-          router.push(ROUTES.PROFILES.WOOL_PROFILE(item.entityId));
+          router.push(ROUTES.SALE.WOOL_PROFILE(item.entityId));
           break;
         default:
           router.push(`${ROUTES.SALE.BASE}/${item.entityType.toLowerCase()}/profile/${item.entityId}`);
