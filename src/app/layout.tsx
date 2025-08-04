@@ -67,22 +67,57 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
-              "@type": "Organization",
+              "@type": "SoftwareApplication", // Ændret fra Organization til SoftwareApplication
               "name": "DenBlå-Angora",
-              "alternateName": ["Den Blå Angora", "DenBlå Angora"],
+              "alternateName": ["Den Blå Angora", "DenBlå Angora, DB-Angora"],
               "description": "Et dansk kaninregister med fokus på avl og køb/salg af angorakaniner. Heraf uld, garn og skind.",
               "url": "https://db-angora.dk",
               "logo": "https://db-angora.dk/images/DB-Angora.png",
               "image": "https://db-angora.dk/images/DB-Angora.png",
-              "foundingDate": "2024", // Ret til dit rigtige grundlæggelses år
-              "address": {
-                "@type": "PostalAddress",
-                "addressCountry": "DK"
+              "applicationCategory": "BusinessApplication",
+              "operatingSystem": "Web Browser",
+              "offers": {
+                "@type": "Offer",
+                "price": "0", // Gratis for nu, kan ændres senere
+                "priceCurrency": "DKK"
+              },
+              "creator": {
+                "@type": "Person",
+                "name": "Mikkel Friborg", // Dit navn
+                "address": {
+                  "@type": "PostalAddress",
+                  "streetAddress": "Fynsvej 14",
+                  "addressLocality": "Kirke Såby",
+                  "postalCode": "4060",
+                  "addressCountry": "DK"
+                }
+              },
+              "audience": {
+                "@type": "Audience",
+                "name": "Strikke-entusiaster, kaninavlere og medlemmer af Dansk Angora Klub"
               },
               "potentialAction": {
                 "@type": "SearchAction",
                 "target": "https://db-angora.dk/annoncer/kaniner?search={search_term_string}",
                 "query-input": "required name=search_term_string"
+              }
+            })
+          }}
+        />
+        
+        {/* Organisation schema for Dansk Angora Klub partnership */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization", 
+              "name": "Dansk Angora Klub",
+              "description": "Dansk forening for angorakanin avlere",
+              "url": "https://db-angora.dk", // Da de bruger dit system
+              "memberOf": {
+                "@type": "SoftwareApplication",
+                "name": "DenBlå-Angora"
               }
             })
           }}
@@ -97,10 +132,10 @@ export default function RootLayout({
               "@type": "WebSite",
               "name": "DenBlå-Angora",
               "url": "https://db-angora.dk",
-              "description": "Det nemme kaninregister for avl og salg af angorakaniner",
+              "description": "Det nemme kaninregister for avl og salg af håndlavede kanin relaterede produkter",
               "publisher": {
-                "@type": "Organization",
-                "name": "DenBlå-Angora"
+                "@type": "Person", // Ændret fra Organization til Person
+                "name": "Mikkel Friborg"
               },
               "potentialAction": {
                 "@type": "SearchAction",
