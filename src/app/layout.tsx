@@ -12,6 +12,7 @@ export const metadata: Metadata = {
   },
   description: "Det nemme kaninregister. Sælg garn, uld, skind og andet, relateret til din kanin produktion. Find andre avleres parringsparate kaniner. Registrer bl.a. klip, vægt og andre informationer på dine kaniner",
   metadataBase: new URL('https://db-angora.dk'),
+  keywords: 'kaninregister, angorakaniner, dansk angora klub, kaniner til salg, angora uld, angora garn, kaninskind, kaninproduktion, kaninavl',
   icons: {
     icon: [
       { url: '/favicon.ico', sizes: 'any' },
@@ -41,6 +42,14 @@ export const metadata: Metadata = {
       height: 700,
       alt: 'DenBlå-Angora Logo'
     }]
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+    },
   }
 };
 
@@ -51,6 +60,57 @@ export default function RootLayout({
 }) {
   return (
     <html lang="da" className="h-full">
+      <head>
+        {/* Tilføj struktureret data for hele organisationen */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              "name": "DenBlå-Angora",
+              "alternateName": ["Den Blå Angora", "DenBlå Angora"],
+              "description": "Et dansk kaninregister med fokus på avl og køb/salg af angorakaniner. Heraf uld, garn og skind.",
+              "url": "https://db-angora.dk",
+              "logo": "https://db-angora.dk/images/DB-Angora.png",
+              "image": "https://db-angora.dk/images/DB-Angora.png",
+              "foundingDate": "2024", // Ret til dit rigtige grundlæggelses år
+              "address": {
+                "@type": "PostalAddress",
+                "addressCountry": "DK"
+              },
+              "potentialAction": {
+                "@type": "SearchAction",
+                "target": "https://db-angora.dk/annoncer/kaniner?search={search_term_string}",
+                "query-input": "required name=search_term_string"
+              }
+            })
+          }}
+        />
+        
+        {/* WebSite schema for bedre site-links */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              "name": "DenBlå-Angora",
+              "url": "https://db-angora.dk",
+              "description": "Det nemme kaninregister for avl og salg af angorakaniner",
+              "publisher": {
+                "@type": "Organization",
+                "name": "DenBlå-Angora"
+              },
+              "potentialAction": {
+                "@type": "SearchAction",
+                "target": "https://db-angora.dk/annoncer/kaniner?search={search_term_string}",
+                "query-input": "required name=search_term_string"
+              }
+            })
+          }}
+        />
+      </head>
       <body className="min-h-full flex flex-col bg-zinc-900">
         <Providers>
           <AuthGuard>
