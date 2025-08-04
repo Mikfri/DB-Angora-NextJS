@@ -68,8 +68,8 @@ export default function RootLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "SoftwareApplication",
-              "name": "DenBlå-Angora",
-              "alternateName": ["Den Blå Angora", "DenBlå Angora", "DB-Angora"],
+              "name": "Den Blå Angora",
+              "alternateName": ["DenBlå-Angora", "DB-Angora"],
               "description": "Et dansk kaninregister med fokus på avl og køb/salg af angorakaniner. Heraf uld, garn og skind.",
               "url": "https://db-angora.dk/",
               "logo": "https://db-angora.dk/images/DB-Angora.png",
