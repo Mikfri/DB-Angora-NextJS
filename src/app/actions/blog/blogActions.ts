@@ -1,4 +1,6 @@
 // src/app/actions/blog/blogActions.ts
+
+'use server';
 import { getAccessToken } from '@/app/actions/auth/session';
 import { getBlogs, getBlogBySlug } from '@/api/endpoints/blogControllser';
 import type { Blog_CardFilterDTO, PagedResultDTO, Blog_CardDTO, Blog_DTO } from '@/api/types/AngoraDTOs';

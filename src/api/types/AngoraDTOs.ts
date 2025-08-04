@@ -131,9 +131,11 @@ export interface Rabbit_ParentValidationResultDTO {
 }
 
 /**
- * Indeholder default/standard oplysninger (SaleDetails.properties) for en entitet, der er til salg.
- * Indeholder null-able entityDTO'er, hvor kun een af dem vil være udfyldt.
- * (Rabbit_SaleDetailsDTO, Wool_SaleDetailsDTO etc...)
+ * Indeholder alle nødvendige oplysninger for en entitet, der er til salg.
+ * DTO'en benytter en dynamisk tilgang ved brug af en Dictionay for:
+ * EntityTypeSaleProperties og EntityProperties.
+ * Dette gør altså at den samme DTO kan vise entitets specifikke properties.
+ * 
 */
 export interface SaleDetailsProfileDTO {
     // --- SaleDetails

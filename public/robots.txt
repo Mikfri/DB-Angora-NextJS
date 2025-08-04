@@ -3,6 +3,7 @@ User-agent: *
 Allow: /
 Disallow: /account/*
 Disallow: /api/*
+Disallow: /admin/*
 
 # Host
 Host: https://db-angora.dk

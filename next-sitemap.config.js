@@ -2,20 +2,15 @@
 module.exports = {
     siteUrl: 'https://db-angora.dk',
     generateRobotsTxt: true,
-    exclude: ['/account', '/account/*', '/api/*'],
+    exclude: ['/account', '/account/*', '/api/*', '/admin/*'],
     changefreq: 'daily',
     priority: 0.7,
-    robotsTxtOptions: {
-        policies: [
-            { userAgent: '*', allow: '/' }
-        ]
-    },
     robotsTxtOptions: {
         policies: [
             {
                 userAgent: '*',
                 allow: '/',
-                disallow: ['/account/*', '/api/*']
+                disallow: ['/account/*', '/api/*', '/admin/*']
             }
         ],
     },
@@ -25,13 +20,20 @@ module.exports = {
             changefreq: config.changefreq,
             priority: 
                 path === '/' ? 1.0 :
-                path.startsWith('/sale/rabbits/profile/') ? 0.6 :
-                path.startsWith('/sale/') ? 0.8 :
-                0.7,
+                path.startsWith('/annoncer/kaniner/') && path.split('/').length > 3 ? 0.6 : // Dynamiske kanin-sider
+                path.startsWith('/blogs/') && path.split('/').length > 2 ? 0.6 : // Dynamiske blog-sider
+                path.startsWith('/annoncer') ? 0.8 :
+                path.startsWith('/blogs') ? 0.7 :
+                0.6,
             lastmod: new Date().toISOString()
         }
     },
     additionalPaths: async () => {
+        // Import JavaScript wrapper-funktioner
+        const { getRabbitSaleItemsForSitemap, getBlogsForSitemap } = await import('./src/utils/sitemap-helpers.js');
+
+        console.log('🔍 Starting additionalPaths generation...');
+
         const basePaths = [
             { 
                 loc: '/',
@@ -40,51 +42,70 @@ module.exports = {
                 lastmod: new Date().toISOString()
             },
             { 
-                loc: '/sale',  // Tilføjet parent sale side
+                loc: '/annoncer',
                 changefreq: 'daily',
-                priority: 0.9,  // Højere prioritet da det er en hovedkategori
+                priority: 0.9,
                 lastmod: new Date().toISOString()
             },
             { 
-                loc: '/sale/rabbits',
+                loc: '/annoncer/kaniner',
                 changefreq: 'daily',
                 priority: 0.8,
                 lastmod: new Date().toISOString()
             },
             { 
-                loc: '/sale/wool',
+                loc: '/blogs',
                 changefreq: 'daily',
-                priority: 0.8,
+                priority: 0.7,
                 lastmod: new Date().toISOString()
             }
         ];
 
-        try {
-            const response = await fetch('https://api.db-angora.dk/Rabbit/ForSale', {
-                method: 'GET',
-                headers: {
-                    'accept': 'text/plain'
-                }
-            });
-        
-            if (!response.ok) {
-                throw new Error(`Failed to fetch rabbits: ${response.status}`);
-            }
-        
-            const rabbits = await response.json();
-            
-            const rabbitPaths = rabbits.map(rabbit => ({
-                loc: `/sale/rabbits/profile/${rabbit.earCombId}`,
-                changefreq: 'daily',
-                priority: 0.6,
-                lastmod: new Date().toISOString()
-            }));
-        
-            return [...basePaths, ...rabbitPaths];
+        const dynamicPaths = [];
 
+        // Hent kanin-sider via wrapper
+        try {
+            console.log('🐰 Fetching rabbit sales via sitemap helpers...');
+            const rabbits = await getRabbitSaleItemsForSitemap();
+            
+            if (rabbits.length > 0) {
+                const rabbitPaths = rabbits.map(rabbit => ({
+                    loc: `/annoncer/kaniner/${rabbit.slug}`,
+                    changefreq: 'weekly',
+                    priority: 0.6,
+                    lastmod: rabbit.lastModified
+                }));
+                dynamicPaths.push(...rabbitPaths);
+                console.log('🐰 Added', rabbitPaths.length, 'rabbit paths');
+            } else {
+                console.warn('🐰 No rabbit data returned');
+            }
         } catch (error) {
-            console.warn('Failed to fetch rabbit profiles:', error);
-            return basePaths;
+            console.error('❌ Failed to fetch rabbit sales:', error);
         }
+
+        // Hent blog-sider via wrapper
+        try {
+            console.log('📝 Fetching blogs via sitemap helpers...');
+            const blogs = await getBlogsForSitemap();
+            
+            if (blogs.length > 0) {
+                const blogPaths = blogs.map(blog => ({
+                    loc: `/blogs/${blog.slug}`,
+                    changefreq: 'weekly',
+                    priority: 0.6,
+                    lastmod: blog.lastModified
+                }));
+                dynamicPaths.push(...blogPaths);
+                console.log('📝 Added', blogPaths.length, 'blog paths');
+            } else {
+                console.warn('📝 No blog data returned');
+            }
+        } catch (error) {
+            console.error('❌ Failed to fetch blogs:', error);
+        }
+
+        console.log('✅ Total paths:', basePaths.length + dynamicPaths.length);
+        return [...basePaths, ...dynamicPaths];
     }
 }
