@@ -16,19 +16,6 @@ export const metadata: Metadata = {
       alt: 'DenBlå-Angora Logo'
     }]
   },
-  // Tilføj structured data for bedre SEO
-  other: {
-    'application/ld+json': JSON.stringify({
-      '@context': 'https://schema.org',
-      '@type': 'WebSite',
-      name: 'DenBlå-Angora',
-      description: 'Det nemme kaninregister for angora kaniner',
-      url: 'https://db-angora.dk',
-      sameAs: [
-        // Tilføj sociale medier links hvis relevant
-      ]
-    })
-  }
 };
 
 export default function Home() {
