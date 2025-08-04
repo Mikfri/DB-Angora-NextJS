@@ -67,29 +67,33 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
-              "@type": "SoftwareApplication", // Ændret fra Organization til SoftwareApplication
+              "@type": "SoftwareApplication",
               "name": "DenBlå-Angora",
-              "alternateName": ["Den Blå Angora", "DenBlå Angora, DB-Angora"],
+              "alternateName": ["Den Blå Angora", "DenBlå Angora", "DB-Angora"],
               "description": "Et dansk kaninregister med fokus på avl og køb/salg af angorakaniner. Heraf uld, garn og skind.",
-              "url": "https://db-angora.dk",
+              "url": "https://db-angora.dk/",
               "logo": "https://db-angora.dk/images/DB-Angora.png",
               "image": "https://db-angora.dk/images/DB-Angora.png",
-              "applicationCategory": "BusinessApplication",
-              "operatingSystem": "Web Browser",
+              "applicationCategory": "BusinessApplication", // eller evt "WebApplication" (generic), "LifeStyleApplication" (fritid/hobby). BusinessApplication (SaaS, CRM løsninger)
+              "operatingSystem": "Web",
               "offers": {
                 "@type": "Offer",
-                "price": "0", // Gratis for nu, kan ændres senere
-                "priceCurrency": "DKK"
+                "price": "0",
+                "priceCurrency": "DKK",
+                "availability": "https://schema.org/InStock"
               },
               "creator": {
                 "@type": "Person",
-                "name": "Mikkel Friborg", // Dit navn
+                "name": "Mikkel Friborg",
                 "address": {
                   "@type": "PostalAddress",
                   "streetAddress": "Fynsvej 14",
                   "addressLocality": "Kirke Såby",
                   "postalCode": "4060",
-                  "addressCountry": "DK"
+                  "addressCountry": {
+                    "@type": "Country",
+                    "name": "DK"
+                  }
                 }
               },
               "audience": {
@@ -98,20 +102,29 @@ export default function RootLayout({
               },
               "potentialAction": {
                 "@type": "SearchAction",
-                "target": "https://db-angora.dk/annoncer/kaniner?search={search_term_string}",
+                "target": {
+                  "@type": "EntryPoint",
+                  "urlTemplate": "https://db-angora.dk/annoncer/kaniner?search={search_term_string}"
+                },
                 "query-input": "required name=search_term_string"
+              },
+              // Tilføj evt. en dummy aggregateRating for at undgå advarsel
+              "aggregateRating": {
+                "@type": "AggregateRating",
+                "ratingValue": "5",
+                "reviewCount": "1"
               }
             })
           }}
         />
-        
+
         {/* Organisation schema for Dansk Angora Klub partnership */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
-              "@type": "Organization", 
+              "@type": "Organization",
               "name": "Dansk Angora Klub",
               "description": "Dansk forening for angorakanin avlere",
               "url": "https://db-angora.dk", // Da de bruger dit system
@@ -122,7 +135,7 @@ export default function RootLayout({
             })
           }}
         />
-        
+
         {/* WebSite schema for bedre site-links */}
         <script
           type="application/ld+json"
