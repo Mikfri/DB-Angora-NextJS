@@ -127,10 +127,12 @@ export default function RootLayout({
               "@type": "Organization",
               "name": "Dansk Angora Klub",
               "description": "Dansk forening for angorakanin avlere",
-              "url": "https://db-angora.dk", // Da de bruger dit system
-              "memberOf": {
-                "@type": "SoftwareApplication",
-                "name": "Den Blå Angora"
+              "url": "https://db-angora.dk",
+              // Fjern memberOf eller ret det:
+              "owns": {
+                "@type": "WebSite",
+                "name": "DenBlå-Angora Platform",
+                "url": "https://db-angora.dk"
               }
             })
           }}
@@ -143,7 +145,7 @@ export default function RootLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "WebSite",
-              "name": "DenBlå-Angora",
+              "name": "Den Blå Angora",
               "url": "https://db-angora.dk",
               "description": "Det nemme kaninregister for avl og salg af håndlavede kanin relaterede produkter",
               "publisher": {
