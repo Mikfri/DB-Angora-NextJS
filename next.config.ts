@@ -17,6 +17,12 @@ const nextConfig: NextConfig = {
                 port: '',
                 pathname: '/db-angora/**',
             },
+            {
+                protocol: 'https',
+                hostname: 'angoralunden.dk',
+                port: '',
+                pathname: '/**',
+            },
         ],
     }
 };

@@ -56,29 +56,37 @@ export async function CreateRabbit(rabbitData: Rabbit_CreateDTO, accessToken: st
  * @returns De oprettede salgsdetaljer
  */
 export async function CreateSaleDetails(
-    earCombId: string, // Tilføjet som separat parameter
+    earCombId: string,
     saleDetails: Rabbit_CreateSaleDetailsDTO,
     accessToken: string
 ): Promise<SaleDetailsProfileDTO> {
-    const response = await fetch(getApiUrl(`Rabbit/CreateSaleDetails/${earCombId}`), { // Tilføjet earCombId til URL
+    const response = await fetch(getApiUrl(`Rabbit/CreateSaleDetails/${earCombId}`), {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json',
-            'Accept': 'text/plain'
+            'Accept': 'application/json' // <-- Skift fra 'text/plain' til 'application/json'
         },
         body: JSON.stringify(saleDetails)
     });
 
     if (!response.ok) {
         const errorText = await response.text();
+        let apiMessage = '';
+        try {
+            const parsed = JSON.parse(errorText);
+            apiMessage = parsed.message || errorText;
+        } catch {
+            apiMessage = errorText;
+        }
         console.error('API Error:', {
             status: response.status,
             statusText: response.statusText,
             body: errorText,
             sentData: saleDetails
         });
-        throw new Error(`Failed to create sale details: ${response.status} ${response.statusText}`);
+        // Send API-beskeden videre!
+        throw new Error(apiMessage || `Failed to create sale details: ${response.status} ${response.statusText}`);
     }
 
     return response.json();
