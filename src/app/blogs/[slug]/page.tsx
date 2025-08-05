@@ -4,7 +4,7 @@ import { fetchBlogBySlugAction } from '@/app/actions/blog/blogActions';
 import BlogPost from './blogPost';
 
 export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params; // Await params i Next.js 15+
+  const { slug } = await params;
   const blog = await fetchBlogBySlugAction(slug);
 
   if (!blog) {
@@ -16,5 +16,41 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
     );
   }
 
-  return <BlogPost blog={blog} />;
+  // Article schema for Google
+  const articleSchema = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": blog.title,
+    "alternativeHeadline": blog.subTitle || undefined,
+    "image": blog.featuredImageUrl || undefined,
+    "author": {
+      "@type": "Person",
+      "name": blog.authorName
+    },
+    /* Organization type fordi vi (DB-Angora) i denne kontekst fungerer som en publisher af en artikel.
+     Derudover forventer Google også der ved "@type": "Article" enten er:
+     'Person' eller 'Organization' som Publisher*/
+    "datePublished": blog.publishDate,
+    "publisher": {
+      "@type": "Organization", 
+      "name": "DenBlå-Angora",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://db-angora.dk/images/DB-Angora.png"
+      }
+    },
+    "description": blog.subTitle || blog.title,
+    "articleBody": blog.content?.replace(/<[^>]+>/g, '').slice(0, 200), // Kort uddrag uden HTML
+    "keywords": blog.tags || undefined
+  };
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+      />
+      <BlogPost blog={blog} />
+    </>
+  );
 }
