@@ -1,9 +1,12 @@
 // src/api/endpoints/accountController.ts
 import { getApiUrl } from "../config/apiConfig";
 import {
-    IdentityResult,
-    User_ProfileDTO,
-    User_UpdateProfileDTO
+  CloudinaryPhotoRegistryRequestDTO,
+  CloudinaryUploadConfigDTO,
+  IdentityResult,
+  PhotoPrivateDTO,
+  User_ProfileDTO,
+  User_UpdateProfileDTO,
 } from "../types/AngoraDTOs";
 
 //-------------------- POST
@@ -60,32 +63,89 @@ export async function ChangePassword(
     throw new Error("Uventet svar fra serveren ved skift af adgangskode.");
   }
 }
+
+/**
+ * Registrerer et billede fra Cloudinary for en bruger, inkl. rettigheds- og kvotetjek.
+ * @param accessToken JWT token med brugerens auth information
+ * @param userProfileId ID på brugeren billedet tilhører
+ * @param requestDTO Billede-detaljer fra Cloudinary
+ * @returns Det nye oprettede PhotoPrivateDTO fra API'en
+ */
+export async function RegisterUserProfilePhoto(
+  accessToken: string,
+  userProfileId: string,
+  requestDTO: CloudinaryPhotoRegistryRequestDTO
+): Promise<PhotoPrivateDTO> {
+  const response = await fetch(getApiUrl(`Account/UserProfile/register-photo/${userProfileId}`), {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${accessToken}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(requestDTO)
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`Network response was not ok: ${response.status} ${response.statusText} - ${text}`);
+  }
+
+  return await response.json();
+}
+
 //-------------------- READ
+
+/**
+ * Henter upload-konfiguration til Cloudinary for et brugerprofilbillede, inkl. rettigheds- og kvotetjek.
+ * @param accessToken JWT token med brugerens auth information
+ * @param userProfileId ID på brugeren der skal have uploadet billede
+ * @returns CloudinaryUploadConfigDTO fra API'en
+ */
+export async function GetUserProfilePhotoUploadPermission(
+  accessToken: string,
+  userProfileId: string
+): Promise<CloudinaryUploadConfigDTO> {
+  const response = await fetch(getApiUrl(`Account/UserProfile/photo-upload-permission/${userProfileId}`), {
+    method: "GET",
+    headers: {
+      "Authorization": `Bearer ${accessToken}`,
+      "Content-Type": "application/json"
+    }
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`Network response was not ok: ${response.status} ${response.statusText} - ${text}`);
+  }
+
+  return await response.json();
+}
+
 //-------- User
 /**
- * Henter en brugers profil baseret på userProfileId
+ * Henter en brugers profil baseret på userProfileId inklusive tilhørende billed og breederAccount - hvis nogen
  * @param accessToken JWT token med brugerens auth information
  * @param userProfileId ID på den bruger hvis profil skal hentes
  * @returns User_ProfileDTO fra API'en
  */
 export async function GetUserProfile(
-    accessToken: string,
-    userProfileId: string
+  accessToken: string,
+  userProfileId: string
 ): Promise<User_ProfileDTO> {
-    const response = await fetch(getApiUrl(`Account/UserProfile/${userProfileId}`), {
-        method: 'GET',
-        headers: {
-            'Authorization': `Bearer ${accessToken}`,
-            'Content-Type': 'application/json'
-        },
-    });
+  const response = await fetch(getApiUrl(`Account/UserProfile/${userProfileId}`), {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+      'Content-Type': 'application/json'
+    },
+  });
 
-    if (!response.ok) {
-        throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
-    }
+  if (!response.ok) {
+    throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
+  }
 
-    const userProfile = await response.json();
-    return userProfile;
+  const userProfile = await response.json();
+  return userProfile;
 }
 
 //-------------------- UPDATE
@@ -97,23 +157,51 @@ export async function GetUserProfile(
  * @returns Den opdaterede brugerprofil
  */
 export async function UpdateUserProfile(
-    accessToken: string,
-    userProfileId: string,
-    updateProfileDTO: User_UpdateProfileDTO
+  accessToken: string,
+  userProfileId: string,
+  updateProfileDTO: User_UpdateProfileDTO
 ): Promise<User_ProfileDTO> {
-    const response = await fetch(getApiUrl(`Account/Update/${userProfileId}`), {
-        method: 'PUT',
-        headers: {
-            'Authorization': `Bearer ${accessToken}`,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(updateProfileDTO)
-    });
+  const response = await fetch(getApiUrl(`Account/Update/${userProfileId}`), {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(updateProfileDTO)
+  });
 
-    if (!response.ok) {
-        throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
+  if (!response.ok) {
+    throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
+  }
+
+  const updatedProfile = await response.json();
+  return updatedProfile;
+}
+
+/**
+ * Opdaterer brugerens profilbillede.
+ * @param accessToken JWT token med brugerens auth information
+ * @param userProfileId ID på brugeren hvis profilbillede skal ændres
+ * @param photoId ID på det billede der skal sættes som profilbillede
+ * @returns Det opdaterede PhotoPrivateDTO fra API'en
+ */
+export async function UpdateUserProfilePhoto(
+  accessToken: string,
+  userProfileId: string,
+  photoId: number
+): Promise<PhotoPrivateDTO> {
+  const response = await fetch(getApiUrl(`Account/UserProfile/${userProfileId}/profile-photo/${photoId}`), {
+    method: "PUT",
+    headers: {
+      "Authorization": `Bearer ${accessToken}`,
+      "Content-Type": "application/json"
     }
+  });
 
-    const updatedProfile = await response.json();
-    return updatedProfile;
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`Network response was not ok: ${response.status} ${response.statusText} - ${text}`);
+  }
+
+  return await response.json();
 }

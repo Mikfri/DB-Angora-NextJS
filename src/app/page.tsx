@@ -13,7 +13,7 @@ export const metadata: Metadata = {
       url: '/images/DB-Angora.png',
       width: 700,
       height: 700,
-      alt: 'DenBlå-Angora Logo'
+      alt: 'Den Blå Angora Logo'
     }]
   },
 };

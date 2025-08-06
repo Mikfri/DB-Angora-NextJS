@@ -55,6 +55,7 @@ export interface PhotoDeleteDTO {
     entityStringId: string;
 }
 
+
 export interface CloudinaryPhotoRegistryRequestDTO {
     publicId: string;
     cloudinaryUrl: string;

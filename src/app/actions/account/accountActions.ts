@@ -2,8 +2,8 @@
 'use server';
 
 import { getAccessToken, getUserIdentity } from '@/app/actions/auth/session'; // ← Brug session utilities
-import { ChangePassword, GetUserProfile, UpdateUserProfile } from '@/api/endpoints/accountController';
-import { User_ProfileDTO, User_UpdateProfileDTO } from '@/api/types/AngoraDTOs';
+import { ChangePassword, GetUserProfile, GetUserProfilePhotoUploadPermission, RegisterUserProfilePhoto, UpdateUserProfile, UpdateUserProfilePhoto } from '@/api/endpoints/accountController';
+import { CloudinaryPhotoRegistryRequestDTO, CloudinaryUploadConfigDTO, PhotoPrivateDTO, User_ProfileDTO, User_UpdateProfileDTO } from '@/api/types/AngoraDTOs';
 
 // =============== POST ===============
 export async function changePassword(currentPassword: string, newPassword: string): Promise<{
@@ -53,6 +53,90 @@ export async function changePassword(currentPassword: string, newPassword: strin
   }
 }
 
+/**
+ * Server Action: Registrerer et billede fra Cloudinary for en brugerprofil
+ * @param userProfileId ID på brugeren billedet tilhører
+ * @param requestDTO Billede-detaljer fra Cloudinary
+ */
+export async function registerUserProfilePhoto(
+  userProfileId: string,
+  requestDTO: CloudinaryPhotoRegistryRequestDTO
+): Promise<{
+  success: boolean;
+  data?: PhotoPrivateDTO;
+  error?: string;
+}> {
+  try {
+    if (!userProfileId || !requestDTO) {
+      return {
+        success: false,
+        error: 'Bruger ID og billeddata er påkrævet'
+      };
+    }
+
+    const accessToken = await getAccessToken();
+    if (!accessToken) {
+      return {
+        success: false,
+        error: 'Ingen adgang - log venligst ind igen'
+      };
+    }
+
+    const photo = await RegisterUserProfilePhoto(accessToken, userProfileId, requestDTO);
+
+    return {
+      success: true,
+      data: photo
+    };
+  } catch (error) {
+    console.error('Error registering user profile photo:', error);
+    return {
+      success: false,
+      error: 'Der opstod en fejl ved registrering af profilbillede'
+    };
+  }
+}
+
+// =============== GET ===============
+/**
+ * Server Action: Henter Cloudinary upload-konfiguration for brugerprofilbillede
+ * @param userProfileId ID på brugeren der skal have uploadet billede
+ */
+export async function getUserProfilePhotoUploadPermission(userProfileId: string): Promise<{
+  success: boolean;
+  data?: CloudinaryUploadConfigDTO;
+  error?: string;
+}> {
+  try {
+    if (!userProfileId || userProfileId.trim() === '') {
+      return {
+        success: false,
+        error: 'User profile ID er påkrævet'
+      };
+    }
+
+    const accessToken = await getAccessToken();
+    if (!accessToken) {
+      return {
+        success: false,
+        error: 'Ingen adgang - log venligst ind igen'
+      };
+    }
+
+    const config = await GetUserProfilePhotoUploadPermission(accessToken, userProfileId);
+
+    return {
+      success: true,
+      data: config
+    };
+  } catch (error) {
+    console.error('Error fetching Cloudinary upload config:', error);
+    return {
+      success: false,
+      error: 'Der opstod en fejl ved hentning af upload-konfiguration'
+    };
+  }
+}
 
 /**
  * Server Action: Henter bruger profil baseret på userProfileId
@@ -143,6 +227,7 @@ export async function getCurrentUserProfile(): Promise<{
   }
 }
 
+// =============== PUT ===============
 /**
  * Server Action: Opdaterer brugerprofil
  * @param userProfileId ID på brugeren der skal opdateres
@@ -186,3 +271,49 @@ export async function updateUserProfile(
     };
   }
 }
+
+/**
+ * Server Action: Opdaterer brugerens profilbillede
+ * @param userProfileId ID på brugeren hvis profilbillede skal ændres
+ * @param photoId ID på det billede der skal sættes som profilbillede
+ */
+export async function updateUserProfilePhoto(
+  userProfileId: string,
+  photoId: number
+): Promise<{
+  success: boolean;
+  data?: PhotoPrivateDTO;
+  error?: string;
+}> {
+  try {
+    if (!userProfileId || !photoId || photoId <= 0) {
+      return {
+        success: false,
+        error: 'Bruger ID og gyldigt billede ID er påkrævet'
+      };
+    }
+
+    const accessToken = await getAccessToken();
+    if (!accessToken) {
+      return {
+        success: false,
+        error: 'Ingen adgang - log venligst ind igen'
+      };
+    }
+
+    const updatedPhoto = await UpdateUserProfilePhoto(accessToken, userProfileId, photoId);
+
+    return {
+      success: true,
+      data: updatedPhoto
+    };
+  } catch (error) {
+    console.error('Error updating user profile photo:', error);
+    return {
+      success: false,
+      error: 'Der opstod en fejl ved opdatering af profilbillede'
+    };
+  }
+}
+
+// =============== DELETE ===============
