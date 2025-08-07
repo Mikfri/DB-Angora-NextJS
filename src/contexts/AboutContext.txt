@@ -1,0 +1,34 @@
+/*
+ * Om Context i React/NextJS
+ * -------------------------
+ * 1) Hvornår giver det mening at lave en Context opsætning?
+ *    - Når du har data eller state, der skal deles mellem mange komponenter på tværs af flere niveauer i komponenttræet (fx brugerdata, tema, sprog, eller en aktuel "kaninprofil").
+ *    - Når du vil undgå "prop-drilling" (at sende props manuelt gennem mange komponenter, der ikke selv bruger dem).
+ *    - Når du har brug for at kunne opdatere og læse fælles state fra forskellige steder i UI’et (fx loading-status, fejl, eller globale indstillinger).
+ *
+ * 2) Hvilke typer problemer løser Context?
+ *    - Centraliserer delt state ét sted, så alle relevante komponenter kan tilgå og opdatere det uden at props skal sendes hele vejen ned.
+ *    - Gør det let at synkronisere data og handlinger på tværs af UI’et (fx at opdatere en profil og straks vise ændringen flere steder).
+ *    - Giver mulighed for at udstille både data og funktioner (fx refresh-metoder) til hele subtree’et.
+ *
+ * 3) Context vs. Zustand (styrker og svagheder)
+ *    Styrker ved Context:
+ *      - Simpelt API, indbygget i React – ingen ekstra afhængigheder.
+ *      - God til “scoped” state, fx kun for en bestemt side eller feature.
+ *      - Let at kombinere med hooks og TypeScript.
+ *    Svagheder ved Context:
+ *      - Kan give unødvendige re-renders hvis store eller ofte ændrede objekter deles.
+ *      - Ikke egnet til meget store eller komplekse globale states (her er Zustand, Redux mv. bedre).
+ *      - Ingen indbygget persistens, middleware eller selector-muligheder.
+ *    Styrker ved Zustand:
+ *      - Meget effektiv til global state, også ved hyppige opdateringer.
+ *      - Mindre boilerplate, selectors og middleware er indbygget.
+ *      - Let at dele state på tværs af hele appen uden re-render problemer.
+ *    Svagheder ved Zustand:
+ *      - Ekstra afhængighed (ikke indbygget i React).
+ *      - Kan være “overkill” til små, lokale state-behov.
+ *
+ * Konklusion:
+ *  - Brug Context til delt state i et afgrænset område af appen (fx en side eller feature).
+ *  - Brug Zustand (eller lignende) til større, global state management på tværs af hele appen.
+ */

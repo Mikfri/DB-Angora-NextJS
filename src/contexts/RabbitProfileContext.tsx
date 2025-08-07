@@ -1,4 +1,17 @@
 // src/contexts/RabbitProfileContext.tsx
+
+/**
+ * RabbitProfileContext
+ * --------------------
+ * Formål:
+ *  - Centraliserer state og datahåndtering for en enkelt kaninprofil (Rabbit_ProfileDTO) under /account/myRabbits/rabbitProfile/[earCombId]/...
+ *  - Gør det muligt for alle child-komponenter (fx rabbitProfile.tsx, rabbitPhotoSection.tsx, saleDetailsForm.tsx) at tilgå, opdatere og genindlæse kaninprofilen uden prop-drilling.
+ *  - Håndterer loading, fejl og refresh af profil-data via context.
+ *
+ * Hvor bruges den:
+ *  - Wraps layout og/eller side-komponenter i /account/myRabbits/rabbitProfile/[earCombId]/ med <RabbitProfileProvider earCombId={...}>.
+ *  - Brug hooken useRabbitProfile() i child-komponenter for at tilgå profil, loading, fejl og refreshProfile-metode.
+ */
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback, useMemo } from 'react';

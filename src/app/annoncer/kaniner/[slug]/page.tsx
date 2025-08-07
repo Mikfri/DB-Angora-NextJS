@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
     if (!result.success || !result.data) {
       return {
-        title: 'Kanin ikke fundet | DenBlå-Angora',
+        title: 'Kanin ikke fundet',
         description: 'Kaninen kunne ikke findes'
       };
     }
@@ -51,7 +51,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const canonicalUrl = `${baseUrl}${ROUTES.SALE.RABBIT(slug)}`;
 
     return {
-      title: `${profile.title || race} | DenBlå-Angora`,
+      title: `${profile.title || race}`,
       description,
       keywords: `${race}, angora kanin, kanin til salg, ${profile.entityProperties?.Farve || ''}, ${profile.city || ''}, dansk angora klub`,
       openGraph: {
@@ -65,7 +65,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         }],
         url: canonicalUrl,
         type: 'website',
-        siteName: 'DenBlå-Angora'
+        siteName: 'Den Blå Angora'
       },
       twitter: {
         card: 'summary_large_image',
@@ -85,7 +85,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   } catch (error) {
     console.error('Error generating metadata:', error);
     return {
-      title: 'Kanin ikke fundet | DenBlå-Angora',
+      title: 'Kanin ikke fundet',
       description: 'Kaninen kunne ikke findes'
     };
   }

@@ -80,7 +80,11 @@ export interface CloudinaryUploadSignatureDTO {
     tags: string;
 }
 
-
+/**
+ * En DTO som indeholder de nødvendige oplysninger for at uploade et billede til Cloudinary.
+ * Sendt fra DB-AngoraREST API'en til brug af et pt: UN-SIGNED-upload setup på Cloudinary.
+ * https://console.cloudinary.com/settings/[...]/upload/presets
+ */
 export interface CloudinaryUploadConfigDTO {
     apiKey: string;
     cloudName: string;
