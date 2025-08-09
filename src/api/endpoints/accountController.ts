@@ -4,6 +4,7 @@ import {
   CloudinaryPhotoRegistryRequestDTO,
   CloudinaryUploadConfigDTO,
   IdentityResult,
+  PhotoDeleteDTO,
   PhotoPrivateDTO,
   User_ProfileDTO,
   User_UpdateProfileDTO,
@@ -148,7 +149,7 @@ export async function GetUserProfile(
   return userProfile;
 }
 
-//-------------------- UPDATE
+//-------------------- PUT
 /**
  * Opdaterer en brugers profilinformation via PUT /Account/Update/{userProfileId}
  * @param accessToken JWT token med brugerens auth information
@@ -203,5 +204,34 @@ export async function UpdateUserProfilePhoto(
     throw new Error(`Network response was not ok: ${response.status} ${response.statusText} - ${text}`);
   }
 
+  return await response.json();
+}
+
+//-------------------- DELETE
+/**
+ * Sletter et specifikt billede for en bruger via DELETE /Account/UserProfile/photo
+ * @param accessToken JWT token med brugerens auth information
+ * @param deletionDTO DTO med info om bruger og billede (EntityStringId og PhotoId)
+ * @returns true hvis sletningen lykkedes
+ */
+export async function DeleteUserProfilePhoto(
+  accessToken: string,
+  deletionDTO: PhotoDeleteDTO
+): Promise<boolean> {
+  const response = await fetch(getApiUrl("Account/UserProfile/photo"), {
+    method: "DELETE",
+    headers: {
+      "Authorization": `Bearer ${accessToken}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(deletionDTO)
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`Network response was not ok: ${response.status} ${response.statusText} - ${text}`);
+  }
+
+  // API returnerer true/false som JSON
   return await response.json();
 }

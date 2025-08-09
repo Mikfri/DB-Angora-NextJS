@@ -12,9 +12,10 @@ import { Button } from "@heroui/react";
 import SimpleCloudinaryWidget from '@/components/cloudinary/SimpleCloudinaryWidget';
 import UserPhotoGallery from './userPhotoGallery';
 import {
-  getUserProfilePhotoUploadPermission,
-  registerUserProfilePhoto,
-  updateUserProfilePhoto
+    getUserProfilePhotoUploadPermission,
+    registerUserProfilePhoto,
+    updateUserProfilePhoto,
+    deleteUserProfilePhoto,
 } from '@/app/actions/account/accountActions';
 
 interface Props {
@@ -69,12 +70,21 @@ export default function UserPhotoSection({ userProfileId, photos, refreshProfile
     setIsLoadingProfileAction(null);
   };
 
-  // Slet foto (kan implementeres senere hvis du har endpoint)
-  const handleDeletePhoto = async (photoId: number) => {
-    setIsLoadingDeleteAction(photoId);
-    // TODO: Tilføj delete endpoint hvis nødvendigt
-    setIsLoadingDeleteAction(null);
-  };
+const handleDeletePhoto = async (photoId: number) => {
+  setIsLoadingDeleteAction(photoId);
+  setError(null);
+  try {
+    const result = await deleteUserProfilePhoto({
+      entityStringId: userProfileId,
+      photoId
+    });
+    if (!result.success) setError(result.error || 'Der opstod en fejl ved sletning af billede');
+    await refreshProfile();
+  } catch (err) {
+    setError('Uventet fejl ved sletning af billede');
+  }
+  setIsLoadingDeleteAction(null);
+};
 
   return (
     <div className="bg-zinc-800/80 rounded-lg border border-zinc-700/50 overflow-hidden h-full flex flex-col">

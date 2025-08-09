@@ -2,8 +2,8 @@
 'use server';
 
 import { getAccessToken, getUserIdentity } from '@/app/actions/auth/session'; // ← Brug session utilities
-import { ChangePassword, GetUserProfile, GetUserProfilePhotoUploadPermission, RegisterUserProfilePhoto, UpdateUserProfile, UpdateUserProfilePhoto } from '@/api/endpoints/accountController';
-import { CloudinaryPhotoRegistryRequestDTO, CloudinaryUploadConfigDTO, PhotoPrivateDTO, User_ProfileDTO, User_UpdateProfileDTO } from '@/api/types/AngoraDTOs';
+import { ChangePassword, DeleteUserProfilePhoto, GetUserProfile, GetUserProfilePhotoUploadPermission, RegisterUserProfilePhoto, UpdateUserProfile, UpdateUserProfilePhoto } from '@/api/endpoints/accountController';
+import { CloudinaryPhotoRegistryRequestDTO, CloudinaryUploadConfigDTO, PhotoDeleteDTO, PhotoPrivateDTO, User_ProfileDTO, User_UpdateProfileDTO } from '@/api/types/AngoraDTOs';
 
 // =============== POST ===============
 export async function changePassword(currentPassword: string, newPassword: string): Promise<{
@@ -317,3 +317,44 @@ export async function updateUserProfilePhoto(
 }
 
 // =============== DELETE ===============
+/**
+ * Server Action: Sletter et specifikt billede for en bruger
+ * @param deletionDTO DTO med info om bruger og billede (EntityStringId og PhotoId)
+ */
+export async function deleteUserProfilePhoto(
+  deletionDTO: PhotoDeleteDTO
+): Promise<{
+  success: boolean;
+  data?: boolean;
+  error?: string;
+}> {
+  try {
+    if (!deletionDTO?.entityStringId || !deletionDTO?.photoId || deletionDTO.photoId <= 0) {
+      return {
+        success: false,
+        error: 'Bruger ID og gyldigt billede ID er påkrævet'
+      };
+    }
+
+    const accessToken = await getAccessToken();
+    if (!accessToken) {
+      return {
+        success: false,
+        error: 'Ingen adgang - log venligst ind igen'
+      };
+    }
+
+    const result = await DeleteUserProfilePhoto(accessToken, deletionDTO);
+
+    return {
+      success: true,
+      data: result
+    };
+  } catch (error) {
+    console.error('Error deleting user profile photo:', error);
+    return {
+      success: false,
+      error: 'Der opstod en fejl ved sletning af profilbillede'
+    };
+  }
+}

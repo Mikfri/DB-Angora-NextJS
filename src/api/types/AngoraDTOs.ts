@@ -50,9 +50,9 @@ export interface PhotoPublicDTO {
 }
 
 export interface PhotoDeleteDTO {
-    photoId: number;
-    entityIntId: number;
-    entityStringId: string;
+  photoId: number;
+  entityStringId?: string | null;
+  entityIntId?: number | null;
 }
 
 
