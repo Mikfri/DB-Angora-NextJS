@@ -13,7 +13,6 @@ import { useCallback, useEffect, useMemo } from 'react';
 import MyNav from "@/components/nav/side/index/MyNav";
 import DeleteRabbitModal from '@/components/modals/rabbit/deleteRabbitModal';
 import TransferOwnershipModal from '@/components/modals/rabbit/transferRabbitModal';
-
 // Import ikoner for hver tab
 import { RiInformationLine } from "react-icons/ri";
 import { PiArrowsSplitLight } from "react-icons/pi";

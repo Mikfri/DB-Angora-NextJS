@@ -1,13 +1,14 @@
 // src/app/account/profile/[userProfileId]/userProfile.tsx
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Tabs, Tab } from "@heroui/react";
 import UserDetails from './userDetails';
 import { User_ProfileDTO } from "@/api/types/AngoraDTOs";
 import { useUserProfile } from '@/hooks/users/useUserProfile';
 import BreederAccountDetails from './breederDetails';
 import { useUserAccountProfileStore } from '@/store/userAccountProfileStore';
+import UserPhotoSection from './userPhotoSection';
 
 interface Props {
   userProfile: User_ProfileDTO;
@@ -39,6 +40,17 @@ export default function UserProfile({ userProfile: initialProfile }: Props) {
   } = useUserProfile(userProfile, setUserProfile);
 
   const displayName = `${userProfile.firstName} ${userProfile.lastName}`;
+
+  // Funktion til at genindlæse brugerprofilen (fx efter upload/sletning af billede)
+  const refreshProfile = useCallback(async () => {
+    // Hvis du har en server action til at hente profilen, brug den her:
+    // Eksempel:
+    // const updated = await fetchUserProfile(userProfile.userId);
+    // if (updated) setUserProfile(updated);
+
+    // Midlertidig fallback: reload siden (kan erstattes med ovenstående)
+    window.location.reload();
+  }, [userProfile.userId]);
 
   return (
     <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-6 shadow-lg">
@@ -80,6 +92,14 @@ export default function UserProfile({ userProfile: initialProfile }: Props) {
             changePasswordError={changePasswordError}
             changePasswordSuccess={changePasswordSuccess}
           />
+          {/* Foto sektion under profiloplysninger */}
+          <div className="mt-8">
+            <UserPhotoSection
+              userProfileId={userProfile.userId}
+              photos={userProfile.photos || []}
+              refreshProfile={refreshProfile}
+            />
+          </div>
         </Tab>
         <Tab key="breeder" title={<span>Avlerkonto</span>}>
           {userProfile.breederAccount ? (
