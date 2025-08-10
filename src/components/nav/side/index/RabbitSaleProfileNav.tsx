@@ -28,7 +28,7 @@ export default function RabbitSaleProfileNav({ profile }: RabbitSaleProfileNavPr
         dateListed={profile.dateListed}
         viewCount={profile.viewCount}
         canBeShipped={profile.canBeShipped}
-        imageUrl={profile.imageUrl}
+        imageUrl={profile.sellerImageUrl ?? null} // Sikrer kun string|null
         title={profile.title}
       />
     </RabbitSaleProfileNavBase>

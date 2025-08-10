@@ -157,6 +157,7 @@ export interface SaleDetailsProfileDTO {
     sellerContact: string;
     city: string;
     zipCode: number;
+    sellerImageUrl?: string | null;
     // --- Routing
     entityType: string;  // "Rabbit" | "Wool" | ...
     entityId: string;  // RabbitId, WoolId, etc.. Kan godt være en int.ToString() værdi
