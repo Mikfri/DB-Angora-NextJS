@@ -5,9 +5,9 @@ import BlogPost from './blogPost';
 
 export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const blog = await fetchBlogBySlugAction(slug);
+  const result = await fetchBlogBySlugAction(slug);
 
-  if (!blog) {
+  if (!result.success) {
     return (
       <div className="max-w-2xl mx-auto py-16 text-center text-zinc-400">
         <h2 className="text-2xl font-bold mb-2">Blogindlæg ikke fundet</h2>
@@ -15,6 +15,8 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
       </div>
     );
   }
+
+  const blog = result.data;
 
   // Article schema for Google
   const articleSchema = {

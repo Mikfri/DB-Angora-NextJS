@@ -17,13 +17,13 @@ type SearchParamsType = {
   PageSize?: string;
 };
 
-type PageProps = {
+type KaninerPageProps = {
   params: Promise<object>;
   searchParams?: Promise<SearchParamsType>;
 };
 
 // Generér metadata baseret på searchParams
-export async function generateMetadata({ searchParams }: PageProps): Promise<Metadata> {
+export async function generateMetadata({ searchParams }: KaninerPageProps): Promise<Metadata> {
   // Await searchParams og type-cast korrekt
   const params = (await (searchParams || Promise.resolve({}))) as SearchParamsType;
   
@@ -56,7 +56,7 @@ function CenteredLoading() {
 }
 
 // ItemLoader component to handle data fetching within Suspense
-async function ItemLoader({ searchParams }: { searchParams: PageProps['searchParams'] }) {
+async function ItemLoader({ searchParams }: { searchParams: KaninerPageProps['searchParams'] }) {
   // Await searchParams og type-cast korrekt
   const params = (await (searchParams || Promise.resolve({}))) as SearchParamsType;
   
@@ -119,7 +119,7 @@ async function ItemLoader({ searchParams }: { searchParams: PageProps['searchPar
   );
 }
 
-export default async function Page({ searchParams }: PageProps) {
+export default async function Page({ searchParams }: KaninerPageProps) {
   return (
     <Suspense fallback={<CenteredLoading />}>
       <ItemLoader searchParams={searchParams} />

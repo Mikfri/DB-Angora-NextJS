@@ -19,17 +19,15 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-interface Props {
-  searchParams: { [key: string]: string | string[] | undefined };
-}
 
-export default async function Page({ searchParams }: Props) {
-  // Konverter searchParams til Blog_CardFilterDTO
+export default async function Page({ searchParams }: { searchParams?: Promise<Record<string, string | string[]>> }) {
+  const resolvedSearchParams = await searchParams;
+  
   const filter: Blog_CardFilterDTO = {
-    authorFullName: typeof searchParams.AuthorFullName === 'string' ? searchParams.AuthorFullName : null,
-    searchTerm: typeof searchParams.SearchTerm === 'string' ? searchParams.SearchTerm : null,
-    tagFilter: typeof searchParams.TagFilter === 'string' ? searchParams.TagFilter : null,
-    blogSortOption: null, // Ikke brugt for nu
+    authorFullName: typeof resolvedSearchParams?.AuthorFullName === 'string' ? resolvedSearchParams.AuthorFullName : null,
+    searchTerm: typeof resolvedSearchParams?.SearchTerm === 'string' ? resolvedSearchParams.SearchTerm : null,
+    tagFilter: typeof resolvedSearchParams?.TagFilter === 'string' ? resolvedSearchParams.TagFilter : null,
+    blogSortOption: null,
     page: 1,
     pageSize: 12
   };
