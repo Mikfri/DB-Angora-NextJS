@@ -1,6 +1,7 @@
 // src/components/cards/saleDetailsCard.tsx
 'use client';
 
+import Image from 'next/image';
 import { SaleDetailsCardDTO } from '@/api/types/AngoraDTOs';
 import { Card, CardHeader, CardBody, Tooltip, Divider } from "@heroui/react";
 import { useState, memo } from 'react';
@@ -10,7 +11,6 @@ import { IoLocationOutline } from 'react-icons/io5';
 import { LuRabbit } from "react-icons/lu";
 import { GiWool } from "react-icons/gi";
 import { BsClock } from "react-icons/bs";
-import Image from 'next/image';
 
 interface Props {
     item: SaleDetailsCardDTO;
@@ -20,27 +20,27 @@ interface Props {
 }
 
 // Memorized komponent for bedre ydeevne
-const SaleDetailsCard = memo(function SaleDetailsCard({ 
-    item, 
-    onClick, 
+const SaleDetailsCard = memo(function SaleDetailsCard({
+    item,
+    onClick,
     onFavoriteToggle,
     initialFavorite = false
 }: Props) {
     const [imageError, setImageError] = useState(false);
     const [isFavorite, setIsFavorite] = useState(initialFavorite);
-    
+
     // Ændr dette til at bruge det eksisterende default billede
     const defaultImage = '/images/default-rabbit.jpg';
     const profileImage = (!imageError && item.imageUrl) || defaultImage;
 
     // Resten af komponenten forbliver uændret...
-    
+
     // Handler til favorit knap med kritisk fix
     const handleFavoriteClick = (event: React.MouseEvent) => {
         // Disse linjer stopper event bubbling, forebygger navigation og tekst-selektion
         event.stopPropagation();
         event.preventDefault();
-        
+
         // Forhindrer tekst-selektion
         if (window.getSelection) {
             const selection = window.getSelection();
@@ -48,10 +48,10 @@ const SaleDetailsCard = memo(function SaleDetailsCard({
                 selection.removeAllRanges();
             }
         }
-        
+
         const newState = !isFavorite;
         setIsFavorite(newState);
-        
+
         if (onFavoriteToggle) {
             onFavoriteToggle(item.entityId, newState);
         }
@@ -71,7 +71,7 @@ const SaleDetailsCard = memo(function SaleDetailsCard({
     const getEntityIcon = () => {
         // Default til rabbit hvis entityType mangler (migration kompatibilitet)
         const entityType = item.entityType?.toLowerCase() || 'rabbit';
-        
+
         switch (entityType) {
             case 'rabbit':
                 return <LuRabbit size={14} />;
@@ -101,12 +101,12 @@ const SaleDetailsCard = memo(function SaleDetailsCard({
     // Beregn hvor længe siden annoncen blev oprettet
     const calculateTimeSince = () => {
         if (!item.dateListed) return 'Ukendt';
-        
+
         const listedDate = new Date(item.dateListed);
         const now = new Date();
         const diffTime = Math.abs(now.getTime() - listedDate.getTime());
         const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-        
+
         if (diffDays === 0) {
             return 'I dag';
         } else if (diffDays === 1) {
@@ -140,22 +140,22 @@ const SaleDetailsCard = memo(function SaleDetailsCard({
                     onError={() => setImageError(true)}
                     draggable={false}
                 />
-                
+
                 {/* Bund gradient for type og pris */}
                 <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-black/80 to-transparent" />
-                
+
                 {/* Type tag - nederst til venstre */}
                 <div className="absolute bottom-2 left-2 z-10 select-none">
                     {typeChip}
                 </div>
-                
+
                 {/* Pris tag - nederst til højre */}
                 <div className="absolute bottom-2 right-2 z-10 select-none">
                     {priceChip}
                 </div>
 
                 {/* Favorit knap - øverst til højre */}
-                <div 
+                <div
                     className="absolute top-2 right-2 z-20 favorite-button select-none"
                     aria-label={isFavorite ? "Fjern fra favoritter" : "Tilføj til favoritter"}
                 >
@@ -185,7 +185,7 @@ const SaleDetailsCard = memo(function SaleDetailsCard({
                     </Tooltip>
                 </div>
             </div>
-            
+
             {/* Header sektion med ID */}
             <CardHeader className="flex gap-3 py-2.5">
                 <div className="flex flex-col w-full">
@@ -194,7 +194,7 @@ const SaleDetailsCard = memo(function SaleDetailsCard({
                     </div>
                 </div>
             </CardHeader>
-            
+
             {/* Body sektion med ikoner */}
             <CardBody className="text-zinc-300 py-0 pb-3 select-none">
                 <div className="space-y-2">
@@ -205,10 +205,10 @@ const SaleDetailsCard = memo(function SaleDetailsCard({
                             <span className="text-sm">{calculateTimeSince()}</span>
                         </div>
                     </div>
-                    
+
                     {/* Lysere divider mellem tid og lokation */}
                     <Divider className="my-1.5 bg-zinc-700/50" />
-                    
+
                     <div className="flex items-center">
                         <IoLocationOutline className="text-zinc-400 mr-2 shrink-0" size={16} />
                         <div className="grid grid-cols-2 gap-x-2 w-full">

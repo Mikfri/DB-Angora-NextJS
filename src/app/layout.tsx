@@ -7,8 +7,8 @@ import AuthGuard from "@/components/auth/AuthGuard";
 
 export const metadata: Metadata = {
   title: {
-    default: "DenBlå-Angora",
-    template: "%s | DenBlå-Angora"
+    default: "Den Blå Angora",
+    template: "%s | Den Blå Angora"
   },
   description: "Det nemme kaninregister. Sælg garn, uld, skind og andet, relateret til din kanin produktion. Find andre avleres parringsparate kaniner. Registrer bl.a. klip, vægt og andre informationer på dine kaniner",
   metadataBase: new URL('https://db-angora.dk'),
@@ -26,12 +26,12 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'da_DK',
     url: 'https://db-angora.dk',
-    siteName: 'DenBlå-Angora',
+    siteName: 'Den Blå Angora',
     images: [{
       url: '/images/DB-Angora.png',
       width: 700,
       height: 700,
-      alt: 'DenBlå-Angora Logo'
+      alt: 'Den Blå Angora - Logo'
     }]
   },
   twitter: {
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
       url: '/images/DB-Angora.png',
       width: 700,
       height: 700,
-      alt: 'DenBlå-Angora Logo'
+      alt: 'Den Blå Angora - Logo'
     }]
   },
   robots: {
@@ -131,7 +131,7 @@ export default function RootLayout({
               // Fjern memberOf eller ret det:
               "owns": {
                 "@type": "WebSite",
-                "name": "DenBlå-Angora Platform",
+                "name": "Den Blå Angora - Platform",
                 "url": "https://db-angora.dk"
               }
             })

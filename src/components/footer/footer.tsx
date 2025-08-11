@@ -1,6 +1,7 @@
 // src/components/footer/footer.tsx
 'use client'
 import { Link } from "@heroui/react";
+import { ROUTES } from '@/constants/navigation';
 
 export default function Footer() {
     return (
@@ -14,9 +15,9 @@ export default function Footer() {
                         </p>
                     </div>
                     <div>
-                        <h3 className="text-lg font-semibold mb-4">Hurtige Links</h3>
+                        <h3 className="text-lg font-semibold mb-4">Nyttige Links</h3>
                         <div className="flex flex-col gap-2">
-                            <Link href="/sale" className="text-sm text-zinc-400 hover:text-zinc-200">Til Salg</Link>
+                            <Link href={ROUTES.SALE.BASE} className="text-sm text-zinc-400 hover:text-zinc-200">Salg</Link>
                             {/* <Link href="/about" className="text-sm text-zinc-400 hover:text-zinc-200">Om Os</Link>
                             <Link href="/contact" className="text-sm text-zinc-400 hover:text-zinc-200">Kontakt</Link> */}
                         </div>

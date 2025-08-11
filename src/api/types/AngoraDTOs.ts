@@ -527,14 +527,15 @@ export interface TransferRequest_ResponseDTO {
 export interface Blog_CardDTO {
     id: number;
     slug: string;
-    blogVisibility: string; // "Public", "PaidContent"...
+    blogVisibility: string; // eller evt. en enum-type hvis du ønsker det
     title: string;
-    subTitle: string | null;
+    subTitle?: string | null;
     contentSummary: string;
-    authorId: string;
-    authorName: string;
-    publishDate: string | null;
-    featuredImageUrl: string | null;
+    authorId?: string | null;
+    authorName?: string | null;
+    authorProfilePicture?: string | null;
+    publishDate?: string | null; // ISO8601 string fra backend (DateTime? i C#)
+    featuredImageUrl?: string | null;
     viewCount: number;
 }
 
@@ -552,18 +553,19 @@ export interface Blog_DTO {
     id: number;
     slug: string;
     title: string;
-    subTitle: string | null;
+    subTitle?: string | null;
     content: string;
     visibilityLevel: string;  // "Public", "Private"
-    tags: string | null;  // Comma-separated tags
+    tags?: string | null;  // Comma-separated tags
     authorId: string;
     authorName: string;
-    createdAt: string | null;
-    updatedAt: string | null;
-    publishDate: string | null;
+    authorProfilePicture: string;
+    createdAt?: string | null;
+    updatedAt?: string | null;
+    publishDate?: string | null;
     isPublished: boolean;
-    featuredImageUrl: string | null;
-    metaDescription: string | null;
+    featuredImageUrl?: string | null;
+    metaDescription?: string | null;
     viewCount: number;
     //--- DTO'er
     photos: PhotoPrivateDTO[];

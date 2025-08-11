@@ -4,10 +4,11 @@ import { Metadata } from 'next';
 import { fetchBlogsAction } from '../actions/blog/blogActions';
 import { Suspense } from 'react';
 import BlogList from './blogList';
+import type { Blog_CardFilterDTO } from '@/api/types/AngoraDTOs';
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
-    title: 'Blogindlæg - Den Blå Angora',
+    title: 'Blogindlæg',
     description: 'Læs spændende blogindlæg om angorakaniner, avl, pasning og meget mere fra eksperter i kaninavl.',
     keywords: 'angora kaniner blog, kaninavl tips, angora pasning, kaninpleje, avlstips',
     openGraph: {
@@ -18,17 +19,29 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default async function Page() {
-  // Standard filter (side 1, 12 pr side)
-  const filter = { page: 1, pageSize: 12 };
+interface Props {
+  searchParams: { [key: string]: string | string[] | undefined };
+}
+
+export default async function Page({ searchParams }: Props) {
+  // Konverter searchParams til Blog_CardFilterDTO
+  const filter: Blog_CardFilterDTO = {
+    authorFullName: typeof searchParams.AuthorFullName === 'string' ? searchParams.AuthorFullName : null,
+    searchTerm: typeof searchParams.SearchTerm === 'string' ? searchParams.SearchTerm : null,
+    tagFilter: typeof searchParams.TagFilter === 'string' ? searchParams.TagFilter : null,
+    blogSortOption: null, // Ikke brugt for nu
+    page: 1,
+    pageSize: 12
+  };
+
   const result = await fetchBlogsAction(filter);
 
   // Tilføj blog-specifik struktureret data
   const blogSchema = {
     "@context": "https://schema.org",
     "@type": "Blog",
-    "name": "Den Blå Angora Blog",
-    "description": "Blogindlæg om angorakaniner, avl, pasning og meget mere",
+    "name": "Den Blå Angora - Blog",
+    "description": "Blogindlæg om kaninregister opdateringer, angorakaniner, avl, pasning og meget mere",
     "url": "https://db-angora.dk/blogs",
     "publisher": {
       "@type": "Organization",
@@ -38,6 +51,10 @@ export default async function Page() {
     "inLanguage": "da-DK"
   };
 
+  // Håndter result baseret på success/error pattern
+  const blogs = result.success ? result.data.data : [];
+  const paging = result.success ? result.data : undefined;
+
   return (
     <>
       <script
@@ -45,7 +62,7 @@ export default async function Page() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(blogSchema) }}
       />
       <Suspense fallback={<div>Indlæser blogindlæg...</div>}>
-        <BlogList blogs={result?.data ?? []} paging={result ?? undefined} />
+        <BlogList blogs={blogs} paging={paging} />
       </Suspense>
     </>
   );

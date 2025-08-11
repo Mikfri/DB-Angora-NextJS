@@ -190,8 +190,8 @@ export const topNavigationLinks: NavGroup[] = [
   {
     title: "Hovedmenu",
     links: [
-      { href: ROUTES.BLOGS.BASE, label: 'Blogs' },
       { href: ROUTES.SALE.BASE, label: 'Salg' },
+      { href: ROUTES.BLOGS.BASE, label: 'Blogs' },
       { href: ROUTES.BREEDERS, label: 'Opdrættere', disabled: true },
       { href: ROUTES.CARE, label: 'Pleje & pasning', disabled: true },
       { href: ROUTES.ABOUT, label: 'Om os' }
