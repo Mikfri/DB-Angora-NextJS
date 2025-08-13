@@ -44,11 +44,64 @@ export async function getBlogs(
     return data as PagedResultDTO<Blog_CardDTO>;
 }
 
+/**
+ * Henter alle en brugers blogindlæg (inklusive kladder) med adgangskontrol.
+ * Kun admin, moderator og content team kan tilgå andres blogindlæg.
+ * @param userId - ID på brugeren hvis blogs ønskes
+ * @param searchTerm - Søgeord til filtrering (optional)
+ * @param page - Side (default 1)
+ * @param pageSize - Antal pr. side (default 12)
+ * @param accessToken - JWT token til adgangskontrol (optional)
+ * @returns Pagineret liste af blogkort eller null ved fejl
+ */
+export async function getBlogsAuthoredByUser(
+    userId: string,
+    searchTerm?: string,
+    page: number = 1,
+    pageSize: number = 12,
+    accessToken?: string
+): Promise<PagedResultDTO<Blog_CardDTO> | null> {
+    if (!userId || userId.trim() === "") {
+        throw new Error("User ID is required.");
+    }
+
+    const params = new URLSearchParams();
+    if (searchTerm) params.append("searchTerm", searchTerm);
+    params.append("page", page.toString());
+    params.append("pageSize", pageSize.toString());
+
+    const url = getApiUrl(`Blog/authored-by/${encodeURIComponent(userId)}?${params.toString()}`);
+
+    const headers: Record<string, string> = { 'Accept': 'application/json' };
+    if (accessToken) {
+        headers['Authorization'] = `Bearer ${accessToken}`;
+    }
+
+    const res = await fetch(url, {
+        method: 'GET',
+        headers
+    });
+
+    if (!res.ok) {
+        let errorMessage = `${res.status} ${res.statusText}`;
+        try {
+            const errorBody = await res.text();
+            if (errorBody) errorMessage = errorBody;
+        } catch (e) {
+            // ignore
+        }
+        throw new Error(`Fejl ved hentning af brugerens blogs: ${errorMessage}`);
+    }
+
+    const data = await res.json();
+    return data as PagedResultDTO<Blog_CardDTO>;
+}
+
 export async function getBlogBySlug(
     slug: string,
     accessToken?: string
 ): Promise<Blog_DTO | null> {
-    const url = getApiUrl(`Blog/slug/${encodeURIComponent(slug)}`);
+    const url = getApiUrl(`Blog/${encodeURIComponent(slug)}`);
 
     const headers: Record<string, string> = { 'Accept': 'application/json' };
     if (accessToken && accessToken.trim() !== "") {

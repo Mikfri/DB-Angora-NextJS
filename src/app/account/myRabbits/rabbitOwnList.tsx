@@ -1,8 +1,6 @@
-// src/app/account/myRabbits/rabbitOwnList.tsx
-
 'use client';
 import { useRouter } from 'next/navigation';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import RabbitOwnNav from '@/components/nav/side/index/RabbitOwnNav';
 import RabbitPreviewCard from '@/components/cards/rabbitPreviewCard';
 import SideNavLayout from '@/components/layouts/SideNavLayout';
@@ -10,8 +8,12 @@ import { useRabbitsOwnedStore } from '@/store/rabbitsOwnedStore';
 import { ROUTES } from '@/constants/navigation';
 
 // Ingen props nødvendig mere! Alt kommer fra storen
-export default function RabbitOwnList() {
+export default function RabbitOwnList({ userId }: { userId?: string }) {
     const router = useRouter();
+    const { fetchRabbits } = useRabbitsOwnedStore();
+    useEffect(() => {
+        fetchRabbits(1, userId);
+    }, [fetchRabbits, userId]);
 
     // Hent alt fra storen
     const {

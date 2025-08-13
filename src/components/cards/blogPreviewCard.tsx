@@ -67,9 +67,9 @@ const BlogPreviewCard = memo(function BlogPreviewCard({
 
 	return (
 		<Card
-			 isPressable
-			 onPress={handleCardPress}
-			 className="max-w-sm hover:shadow-lg transition-shadow bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 border border-zinc-700/50 select-none"
+			isPressable
+			onPress={handleCardPress}
+			className="max-w-sm hover:shadow-lg transition-shadow bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 border border-zinc-700/50 select-none"
 		>
 			{/* Billede container */}
 			<div className="relative w-full h-64">
@@ -89,22 +89,22 @@ const BlogPreviewCard = memo(function BlogPreviewCard({
 				>
 					<Tooltip content={isFavorite ? "Fjern fra favoritter" : "Tilføj til favoritter"}>
 						<div
-						 className="p-1.5 rounded-full bg-black/30 backdrop-blur-sm hover:bg-white/10 cursor-pointer"
-						 onClick={handleFavoriteClick}
-						 onMouseDown={e => { e.stopPropagation(); e.preventDefault(); }}
-						 onMouseUp={e => e.stopPropagation()}
-						 onPointerDown={e => e.stopPropagation()}
-						 onPointerUp={e => e.stopPropagation()}
-						 onTouchStart={e => e.stopPropagation()}
-						 onTouchEnd={e => e.stopPropagation()}
-						 role="button"
-						 tabIndex={0}
+							className="p-1.5 rounded-full bg-black/30 backdrop-blur-sm hover:bg-white/10 cursor-pointer"
+							onClick={handleFavoriteClick}
+							onMouseDown={e => { e.stopPropagation(); e.preventDefault(); }}
+							onMouseUp={e => e.stopPropagation()}
+							onPointerDown={e => e.stopPropagation()}
+							onPointerUp={e => e.stopPropagation()}
+							onTouchStart={e => e.stopPropagation()}
+							onTouchEnd={e => e.stopPropagation()}
+							role="button"
+							tabIndex={0}
 						>
-						 {isFavorite ? (
-							<FaHeart className="text-red-500" size={16} />
-						 ) : (
-							<FaRegHeart className="text-white/80 hover:text-red-400" size={16} />
-						 )}
+							{isFavorite ? (
+								<FaHeart className="text-red-500" size={16} />
+							) : (
+								<FaRegHeart className="text-white/80 hover:text-red-400" size={16} />
+							)}
 						</div>
 					</Tooltip>
 				</div>
@@ -117,32 +117,35 @@ const BlogPreviewCard = memo(function BlogPreviewCard({
 			</div>
 
 			{/* Header sektion med titel og forfatter */}
-							<CardHeader className="flex flex-col items-start gap-1 py-2.5 px-4">
-								<h3 className="text-md font-bold text-zinc-100 line-clamp-2 text-left w-full">{blog.title}</h3>
-								<div className="flex flex-row items-start gap-2 w-full">
-									<Avatar
-										src={blog.authorProfilePicture ?? undefined}
-										name={blog.authorName ?? 'Ukendt forfatter'}
-										size="sm"
-										className="border border-zinc-700 mt-0.5"
-									/>
-									<div className="flex flex-col">
-										<div className="flex items-center gap-2 text-xs text-zinc-400">
-											<span>{blog.authorName ?? 'Ukendt forfatter'}</span>
-											<span>•</span>
-											<span>{formatDate(blog.publishDate ?? undefined)}</span>
-										</div>
-										  <div className="text-xs text-zinc-500 italic text-left">Synlighed: {blog.blogVisibility}</div>
-									</div>
-								</div>
-								{blog.subTitle && (
-									<div className="text-xs text-zinc-400 italic line-clamp-1 text-left w-full">{blog.subTitle}</div>
-								)}
-							</CardHeader>
+			<CardHeader className="flex flex-col items-start gap-1 py-2.5 px-4">
+				<h3 className="text-md font-bold text-zinc-100 line-clamp-2 text-left w-full">{blog.title}</h3>
+				<div className="flex flex-row items-start gap-2 w-full">
+					<Avatar
+						src={blog.authorProfilePicture ?? undefined}
+						name={blog.authorName ?? 'Ukendt forfatter'}
+						size="sm"
+						className="border border-zinc-700 mt-0.5"
+					/>
+					<div className="flex flex-col">
+						<div className="flex items-center gap-2 text-xs text-zinc-400">
+							<span>{blog.authorName ?? 'Ukendt forfatter'}</span>
+							<span>•</span>
+							<span>{formatDate(blog.publishDate ?? undefined)}</span>
+						</div>
+						<div className="text-xs text-zinc-500 italic text-left">Synlighed: {blog.blogVisibility}</div>
+					</div>
+				</div>
+				{blog.subTitle && (
+					<div className="text-xs text-zinc-400 italic line-clamp-1 text-left w-full">{blog.subTitle}</div>
+				)}
+			</CardHeader>
 
 			{/* Body sektion med summary */}
 			<CardBody className="text-zinc-300 py-2 px-4">
-				<div className="line-clamp-3 text-sm mb-2">{blog.contentSummary}</div>
+				<div
+					className="line-clamp-3 text-sm mb-2"
+					dangerouslySetInnerHTML={{ __html: blog.contentSummary }}
+				/>
 			</CardBody>
 		</Card>
 	);

@@ -20,19 +20,20 @@
  */
 
 import { create } from 'zustand';
-import { Rabbit_PreviewDTO } from '@/api/types/AngoraDTOs';
+import { Rabbit_OwnedFilterDTO, Rabbit_PreviewDTO } from '@/api/types/AngoraDTOs';
+import { getRabbitsOwnedByUser } from '@/app/actions/rabbit/rabbitCrudActions';
+import { useAuthStore } from './authStore';
 import { OwnFilters } from '@/api/types/filterTypes';
-import { getMyRabbits } from '@/app/actions/breederAccount/breederAccountActions';
 
-// Default filter values - flyttet fra useRabbitOwnFilter.ts
+// Default filter values for OwnFilters (client-side/CSR)
 const DEFAULT_FILTERS: Required<OwnFilters> = {
     search: '',
-    gender: null,
-    race: null,
-    color: null,
+    gender: '',
+    race: '',
+    color: '',
     forSale: false,
     isForBreeding: false,
-    lifeStatus: null,  // NULL = vis alle, true = kun døde, false = kun levende
+    lifeStatus: null,
     showJuveniles: false,
     raceColorApproval: null,
     bornAfterDate: null,
@@ -60,35 +61,26 @@ const DEFAULT_PAGINATION: PaginationState = {
 
 // Hovedinterface for hele storen
 interface RabbitsOwnedStore {
-    // Tilstande
-    rabbits: Rabbit_PreviewDTO[];        // Alle kaniner på nuværende side
-    filters: Required<OwnFilters>;        // Aktive filtre
-    isAnyFilterActive: boolean;           // Flag om der er aktive filtre
-    pagination: PaginationState;          // Pagination information
-    isLoading: boolean;                   // Loading-tilstand
-    error: string | null;                 // Fejlbesked
-
-    // Beregnet data
-    filteredRabbits: Rabbit_PreviewDTO[]; // Filtrerede kaniner
-
-    // Handlinger - Data
-    fetchRabbits: (page?: number) => Promise<void>; // Hent kaniner
-
-    // Handlinger - Filtrering
+    rabbits: Rabbit_PreviewDTO[];
+    filters: Required<OwnFilters>;
+    isAnyFilterActive: boolean;
+    pagination: PaginationState;
+    isLoading: boolean;
+    error: string | null;
+    filteredRabbits: Rabbit_PreviewDTO[];
+    fetchRabbits: (page?: number, userId?: string) => Promise<void>;
     updateFilters: (newFilters: Partial<OwnFilters>) => void;
     resetFilters: () => void;
     setLifeStatusFilter: (status: 'all' | 'alive' | 'deceased') => void;
-
-    // Handlinger - Pagination
     changePage: (newPage: number) => void;
 }
 
 // Hjælpefunktion: Check om der er aktive filtre
 const checkActiveFilters = (filters: Required<OwnFilters>): boolean => {
     return filters.search !== '' ||
-        filters.gender !== null ||
-        filters.race !== null ||
-        filters.color !== null ||
+        filters.gender !== '' ||
+        filters.race !== '' ||
+        filters.color !== '' ||
         filters.forSale !== false ||
         filters.isForBreeding !== false ||
         filters.lifeStatus !== null ||
@@ -97,24 +89,18 @@ const checkActiveFilters = (filters: Required<OwnFilters>): boolean => {
         filters.bornAfterDate !== null;
 };
 
-// Hjælpefunktion: Filtrer kaniner baseret på filtre
+// Hjælpefunktion: Filtrer kaniner baseret på filtre (CSR)
 const filterRabbits = (rabbits: Rabbit_PreviewDTO[], filters: Required<OwnFilters>): Rabbit_PreviewDTO[] => {
     return rabbits.filter(rabbit => {
-        // Hvis der søges, ignorer lifeStatus-filteret
         const searchLower = filters.search?.toLowerCase() || '';
         const isDeceased = rabbit.dateOfDeath !== null;
         if (!searchLower) {
-            // Kun filtrer på lifeStatus hvis der IKKE søges
             if (filters.lifeStatus !== null && filters.lifeStatus !== isDeceased) {
                 return false;
             }
         }
-
-        // Tjek for ungdyr
         if (filters.showJuveniles && !rabbit.isJuvenile) return false;
 
-        // Søgning
-        //const searchLower = filters.search?.toLowerCase() || '';
         const matchesSearch = !searchLower || (
             (rabbit.nickName?.toLowerCase()?.includes(searchLower) || false) ||
             (rabbit.earCombId?.toLowerCase()?.includes(searchLower) || false) ||
@@ -122,25 +108,20 @@ const filterRabbits = (rabbits: Rabbit_PreviewDTO[], filters: Required<OwnFilter
             (rabbit.color?.toLowerCase()?.includes(searchLower) || false)
         );
 
-        // Race/farve godkendelse
-        const matchesRaceColorApproval = !filters.raceColorApproval ||
-            (filters.raceColorApproval === 'Approved' && rabbit.approvedRaceColorCombination === true) ||
-            (filters.raceColorApproval === 'NotApproved' && rabbit.approvedRaceColorCombination === false);
+        const matchesRaceColorApproval =
+            filters.raceColorApproval === null ||
+            (filters.raceColorApproval === true && rabbit.approvedRaceColorCombination === true) ||
+            (filters.raceColorApproval === false && rabbit.approvedRaceColorCombination === false);
 
-        // Dato filter
         const matchesBornAfter = !filters.bornAfterDate ||
             (rabbit.dateOfBirth && new Date(rabbit.dateOfBirth) >= new Date(filters.bornAfterDate));
 
-        // Basis egenskaber
         const matchesGender = !filters.gender || rabbit.gender === filters.gender;
         const matchesRace = !filters.race || rabbit.race === filters.race;
         const matchesColor = !filters.color || rabbit.color === filters.color;
-
-        // Flag filtre
         const matchesForSale = !filters.forSale || rabbit.hasSaleDetails === true;
         const matchesForBreeding = !filters.isForBreeding || rabbit.isForBreeding === true;
 
-        // Alle betingelser skal matche
         return matchesSearch &&
             matchesGender &&
             matchesRace &&
@@ -152,29 +133,48 @@ const filterRabbits = (rabbits: Rabbit_PreviewDTO[], filters: Required<OwnFilter
     });
 };
 
-// Opret Zustand store
+// Mapping OwnFilters -> Rabbit_OwnedFilterDTO (API filter)
+function mapOwnFiltersToDTO(filters: OwnFilters, page: number, pageSize: number): Rabbit_OwnedFilterDTO {
+    return {
+        rightEarId: filters.search ?? null,
+        gender: filters.gender ?? null,
+        race: filters.race ?? null,
+        color: filters.color ?? null,
+        isForBreeding: filters.isForBreeding ?? null,
+        onlyDeceased: filters.lifeStatus === true ? true : filters.lifeStatus === false ? false : null,
+        isJuvenile: filters.showJuveniles ?? null,
+        approvedRaceColorCombination: filters.raceColorApproval,
+        bornAfter: filters.bornAfterDate ?? null,
+        page,
+        pageSize,
+    };
+}
+
+// Zustand store
 export const useRabbitsOwnedStore = create<RabbitsOwnedStore>((set, get) => ({
-    // Initial tilstande
     rabbits: [],
     filters: DEFAULT_FILTERS,
     isAnyFilterActive: false,
     pagination: DEFAULT_PAGINATION,
     isLoading: false,
     error: null,
+    filteredRabbits: [],
 
-    // Beregn filtrerede kaniner via en funktion i stedet for getter
-    // Dette er en normal funktion som vi kalder i komponenterne
-    filteredRabbits: [], // Start med tom array
+    fetchRabbits: async (page = 1, userId?: string) => {
+    const { pagination, filters } = get();
+    const effectiveUserId = userId || useAuthStore.getState().userIdentity?.id;
 
-    // Handling: Hent kaniner
-    fetchRabbits: async (page = 1) => {
-        const { pagination } = get();
+    try {
+        if (!effectiveUserId) {
+            set({
+                error: "Bruger-ID mangler. Du skal være logget ind.",
+                isLoading: false
+            });
+            return;
+        }
 
-        try {
-            set({ isLoading: true, error: null });
-            console.log(`🔄 Zustand: Loading rabbits page ${page}`);
-
-            const result = await getMyRabbits(page, pagination.pageSize);
+        const filterDTO = mapOwnFiltersToDTO(filters, page, pagination.pageSize);
+        const result = await getRabbitsOwnedByUser(effectiveUserId, filterDTO, page, pagination.pageSize);
 
             if (!result.success) {
                 set({
@@ -185,14 +185,9 @@ export const useRabbitsOwnedStore = create<RabbitsOwnedStore>((set, get) => ({
             }
 
             const newRabbits = result.data?.data || [];
-            console.log(`📦 Zustand: Received ${newRabbits.length} rabbits`);
-
-            // Opdater store med nye data og filtrerede data
             set({
                 rabbits: newRabbits,
-                filters: DEFAULT_FILTERS,
-                isAnyFilterActive: false,
-                filteredRabbits: filterRabbits(newRabbits, DEFAULT_FILTERS),
+                filteredRabbits: filterRabbits(newRabbits, filters),
                 pagination: {
                     page: result.data?.page || 1,
                     pageSize: result.data?.pageSize || pagination.pageSize,
@@ -207,73 +202,55 @@ export const useRabbitsOwnedStore = create<RabbitsOwnedStore>((set, get) => ({
         } catch (error) {
             console.error("Error in fetchRabbits:", error);
             set({
-                error: "Der opstod en uventet fejl ved indlæsning af dine kaniner.",
+                error: error instanceof Error ? error.message : "Der opstod en uventet fejl ved indlæsning af dine kaniner.",
                 isLoading: false
             });
         }
     },
 
-    // Handling: Skift side
     changePage: (newPage) => {
         const { pagination, fetchRabbits } = get();
         if (newPage >= 1 && newPage <= pagination.totalPages) {
-            // Scroll til toppen med smooth animation
             window.scrollTo({ top: 0, behavior: 'smooth' });
             fetchRabbits(newPage);
         }
     },
 
-    // Handling: Opdater filtre
     updateFilters: (newFilters) => {
         set(state => {
             const updatedFilters = {
                 ...state.filters,
-                // Håndter lifeStatus særligt
-                ...(newFilters.lifeStatus !== undefined ? {
-                    lifeStatus: newFilters.lifeStatus
-                } : {}),
-
-                // Andre boolean properties
+                ...(newFilters.lifeStatus !== undefined ? { lifeStatus: newFilters.lifeStatus } : {}),
                 ...(newFilters.forSale !== undefined ? { forSale: Boolean(newFilters.forSale) } : {}),
                 ...(newFilters.isForBreeding !== undefined ? { isForBreeding: Boolean(newFilters.isForBreeding) } : {}),
                 ...(newFilters.showJuveniles !== undefined ? { showJuveniles: Boolean(newFilters.showJuveniles) } : {}),
-
-                // Andre egenskaber
                 ...(newFilters.search !== undefined ? { search: newFilters.search } : {}),
                 ...(newFilters.gender !== undefined ? { gender: newFilters.gender } : {}),
                 ...(newFilters.race !== undefined ? { race: newFilters.race } : {}),
                 ...(newFilters.color !== undefined ? { color: newFilters.color } : {}),
-                ...(newFilters.raceColorApproval !== undefined ? {
-                    raceColorApproval: newFilters.raceColorApproval
-                } : {}),
-                ...(newFilters.bornAfterDate !== undefined ? {
-                    bornAfterDate: newFilters.bornAfterDate
-                } : {}),
+                ...(newFilters.raceColorApproval !== undefined ? { raceColorApproval: newFilters.raceColorApproval } : {}),
+                ...(newFilters.bornAfterDate !== undefined ? { bornAfterDate: newFilters.bornAfterDate } : {}),
             };
 
             const isActive = checkActiveFilters(updatedFilters);
-
-            // Beregn nye filtrerede kaniner baseret på de opdaterede filtre
             const newFilteredRabbits = filterRabbits(state.rabbits, updatedFilters);
 
             return {
                 filters: updatedFilters,
                 isAnyFilterActive: isActive,
-                filteredRabbits: newFilteredRabbits // Opdater filtrerede resultater
+                filteredRabbits: newFilteredRabbits
             };
         });
     },
 
-    // Handling: Nulstil filtre
     resetFilters: () => {
         set(state => ({
             filters: DEFAULT_FILTERS,
             isAnyFilterActive: false,
-            filteredRabbits: filterRabbits(state.rabbits, DEFAULT_FILTERS) // Beregn filtrerede kaniner efter reset
+            filteredRabbits: filterRabbits(state.rabbits, DEFAULT_FILTERS)
         }));
     },
 
-    // Handling: Sæt levende/død filter
     setLifeStatusFilter: (status) => {
         const lifeStatus = status === 'all' ? null : status === 'deceased';
         get().updateFilters({ lifeStatus });

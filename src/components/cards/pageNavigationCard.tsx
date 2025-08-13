@@ -10,7 +10,7 @@ interface PageNavigationCardProps {
   href: string;
   imageSrc: string;
   title: string;
-  description: string;
+  description: React.ReactNode; // <-- Ændret fra string til React.ReactNode
   isDisabled?: boolean;
   onDisabledClick?: () => void;
   disabledMessage?: string;

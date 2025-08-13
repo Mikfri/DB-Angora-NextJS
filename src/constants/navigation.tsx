@@ -28,6 +28,10 @@ export const ROUTES = {
     TRANSFER_REQUESTS: '/account/myRabbits/transferRequests',
     RABBIT_PROFILE: (earCombId: string) => `/account/myRabbits/rabbitProfile/${earCombId}`,
     RABBITS_FOR_BREEDING: '/account/rabbitsForbreeding',
+
+    // NYE BLOG ROUTES
+    MY_BLOGS: '/account/myBlogs',
+    USER_BLOGS: (userId: string) => `/account/myBlogs/${userId}`,
   },
 
   // Sale routes - opdateret til at matche din faktiske mappestruktur
@@ -103,12 +107,19 @@ export const createIconMap = (iconClassName: string) => {
 export const BREEDER_ROLES: UserRole[] = [
   ...roleGroups.breeders as UserRole[],
   'Admin' as UserRole,
-  'ModeratorBreeder' as UserRole
+  'ModeratorBreeder' as UserRole,
+  'BreederPremium' as UserRole,
+  'BreederBasic' as UserRole,
 ];
 
 export const MODERATOR_ROLES: UserRole[] = [
   ...roleGroups.moderators as UserRole[],
-  'Admin' as UserRole
+  'Admin' as UserRole,
+  'ModeratorBreeder' as UserRole,
+  'Moderator' as UserRole,
+  'UserModerator' as UserRole,
+  'BreederModerator' as UserRole,
+  'RabbitModerator' as UserRole,
 ];
 
 // ============= NAVIGATION DEFINITIONER =============

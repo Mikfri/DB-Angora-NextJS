@@ -39,7 +39,7 @@ const FILTER_SECTIONS = {
 const APPROVAL_STATUS = {
     ALL: 'all',
     APPROVED: 'approved',
-    NOT_APPROVED: 'notApproved'
+    NOT_APPROVED: 'not_approved'
 } as const;
 
 // Ingen props længere - alt hentes fra storen
@@ -85,17 +85,17 @@ export function RabbitOwnNavClient() {
     // Hjælpefunktion til at konvertere raceColorApproval til approvalStatus string
     const getCurrentApprovalStatus = useCallback(() => {
         if (filters.raceColorApproval === null) return APPROVAL_STATUS.ALL;
-        return filters.raceColorApproval === 'Approved' ? APPROVAL_STATUS.APPROVED : APPROVAL_STATUS.NOT_APPROVED;
+        return filters.raceColorApproval === true ? APPROVAL_STATUS.APPROVED : APPROVAL_STATUS.NOT_APPROVED;
     }, [filters.raceColorApproval]);
 
     // Handler til approvalStatus radio
-    const handleApprovalStatusChange = useCallback((value: string) => {
-        let raceColorApproval: string | null = null;
+    const handleApprovalStatusChange = useCallback((value: string | boolean) => {
+        let raceColorApproval: boolean | null = null;
 
         if (value === APPROVAL_STATUS.APPROVED) {
-            raceColorApproval = 'Approved';
+            raceColorApproval = true;
         } else if (value === APPROVAL_STATUS.NOT_APPROVED) {
-            raceColorApproval = 'NotApproved';
+            raceColorApproval = false;
         }
 
         updateFilters({ raceColorApproval });

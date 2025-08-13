@@ -1,7 +1,7 @@
 // src/api/endpoints/rabbitController.ts
 import { getApiUrl } from "../config/apiConfig";
 import {
-    Rabbit_CreateDTO, Rabbit_ProfileDTO, SaleDetailsCardList,
+    Rabbit_CreateDTO, Rabbit_ProfileDTO,
     Rabbits_ForbreedingPreviewList, Rabbit_UpdateDTO, Rabbit_PreviewDTO,
     Rabbit_CreateSaleDetailsDTO, Rabbit_UpdateSaleDetailsDTO,
     CloudinaryUploadConfigDTO, Rabbit_PedigreeDTO,
@@ -10,8 +10,9 @@ import {
     PhotoDeleteDTO,
     CloudinaryPhotoRegistryRequestDTO,
     Rabbit_ParentValidationResultDTO,
+    PagedResultDTO,
+    Rabbit_OwnedFilterDTO,
 } from "../types/AngoraDTOs";
-import { Rabbit_ForSaleFilterDTO } from "../types/filterTypes";
 
 
 //-------------------- CREATE
@@ -180,45 +181,6 @@ export async function ValidateParentReference(
   return response.json();
 }
 
-/**
- * Henter kaniner til salg med angivne filtre
- * @param filters Valgfrie søgefiltre
- * @returns Liste over kaniner der matcher søgekriterierne
- */
-export async function GetRabbitsForSale(filters?: Rabbit_ForSaleFilterDTO): Promise<SaleDetailsCardList> {
-    let url = getApiUrl('Rabbit/ForSale');
-
-    if (filters) {
-        const params = new URLSearchParams();
-
-        // Tilføj kun definerede værdier til URL
-        Object.entries(filters).forEach(([key, value]) => {
-            // Konverter kun værdier der faktisk findes (ikke undefined og ikke null)
-            if (value !== undefined && value !== null) {
-                params.append(key, value.toString());
-            }
-        });
-
-        const queryString = params.toString();
-        if (queryString) {
-            url += '?' + queryString;
-        }
-    }
-
-    const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-            'accept': 'text/plain'
-        }
-    });
-
-    if (!response.ok) {
-        throw new Error(`API call failed: ${response.status}`);
-    }
-
-    return response.json();
-}
-
 
 export async function GetRabbitsForBreeding(accessToken: string): Promise<Rabbits_ForbreedingPreviewList> {
     const data = await fetch(getApiUrl('Rabbit/Forbreeding'), {
@@ -227,6 +189,54 @@ export async function GetRabbitsForBreeding(accessToken: string): Promise<Rabbit
     const forbreedingRabbits = await data.json();
     //console.log('API Response:', forbreedingRabbits); // Debug log
     return forbreedingRabbits;
+}
+
+/**
+ * Henter alle kaniner ejet af en specifik bruger, filtreret og pagineret.
+ * Kun admin/moderatorer med "Rabbit:Read" -> "Any" kan tilgå andres samlinger.
+ * @param userId ID på brugeren hvis kaniner ønskes
+ * @param filter Filtreringsparametre (Rabbit_OwnedFilterDTO)
+ * @param accessToken JWT token med brugerens auth information
+ * @param page Sidetal (starter fra 1)
+ * @param pageSize Antal elementer per side (default 12)
+ * @returns Pagineret liste af kaniner
+ */
+export async function GetRabbitsOwnedByUser(
+  userId: string,
+  filter: Rabbit_OwnedFilterDTO,
+  accessToken: string,
+  page: number = 1,
+  pageSize: number = 12
+): Promise<PagedResultDTO<Rabbit_PreviewDTO>> {
+  const params = new URLSearchParams();
+  // Tilføj filter-parametre til query
+  if (filter) {
+    Object.entries(filter).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== "") {
+        params.append(key, String(value));
+      }
+    });
+  }
+  params.append("page", page.toString());
+  params.append("pageSize", pageSize.toString());
+
+  const url = getApiUrl(`Rabbit/owned-by/${encodeURIComponent(userId)}?${params.toString()}`);
+
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+      'Accept': 'application/json'
+    }
+  });
+
+  if (!response.ok) {
+    // Fejlbeskeder fra API'en stoles på og sendes videre
+    const errorText = await response.text();
+    throw new Error(errorText || `Fejl: ${response.status} ${response.statusText}`);
+  }
+
+  return response.json();
 }
 
 /**

@@ -5,10 +5,13 @@ import { getAccessToken } from '@/app/actions/auth/session';
 import {
   CloudinaryPhotoRegistryRequestDTO,
   CloudinaryUploadConfigDTO,
+  PagedResultDTO,
   PhotoDeleteDTO,
   PhotoPrivateDTO,
   Rabbit_CreateDTO,
+  Rabbit_OwnedFilterDTO,
   Rabbit_ParentValidationResultDTO,
+  Rabbit_PreviewDTO,
   Rabbit_ProfileDTO
 } from '@/api/types/AngoraDTOs';
 import {
@@ -20,7 +23,8 @@ import {
   DeleteRabbitPhoto,
   SetRabbitProfilePhoto,
   RegisterRabbitPhoto,
-  ValidateParentReference
+  ValidateParentReference,
+  GetRabbitsOwnedByUser
 } from '@/api/endpoints/rabbitController';
 
 // ====================== TYPES ======================
@@ -28,6 +32,14 @@ import {
 export type CreateRabbitResult =
   | { success: true; earCombId: string }
   | { success: false; error: string };
+
+export type RegisterRabbitPhotoResult =
+  | { success: true; photo: PhotoPrivateDTO }
+  | { success: false; error: string; status?: number };
+
+export type RabbitsOwnedResult =
+  | { success: true; data: PagedResultDTO<Rabbit_PreviewDTO> }
+  | { success: false; error: string; status?: number };
 
 export type ProfileResult =
   | { success: true; data: Rabbit_ProfileDTO }
@@ -40,6 +52,7 @@ export type UpdateRabbitResult =
 export type DeleteRabbitResult =
   | { success: true; message: string }
   | { success: false; error: string };
+
 
 // ====================== CREATE ======================
 
@@ -84,9 +97,7 @@ export async function createRabbit(rabbitData: Rabbit_CreateDTO): Promise<Create
   }
 }
 
-export type RegisterRabbitPhotoResult =
-  | { success: true; photo: PhotoPrivateDTO }
-  | { success: false; error: string; status?: number };
+
 
 /**
  * Server Action: Registrerer et billede fra Cloudinary for en kanin
@@ -132,6 +143,42 @@ export async function registerRabbitPhoto(
 }
 
 // ====================== READ ======================
+/**
+ * Server Action: Henter alle kaniner ejet af en bestemt bruger, filtreret og pagineret.
+ * @param userId ID på brugeren hvis kaniner ønskes
+ * @param filter Filtreringsparametre (Rabbit_OwnedFilterDTO)
+ * @param page Sidetal (starter fra 1)
+ * @param pageSize Antal elementer per side (default 12)
+ * @returns Resultat med pagineret liste af kaniner eller fejlbesked
+ */
+export async function getRabbitsOwnedByUser(
+  userId: string,
+  filter: Rabbit_OwnedFilterDTO = {},
+  page: number = 1,
+  pageSize: number = 12
+): Promise<RabbitsOwnedResult> {
+  try {
+    const accessToken = await getAccessToken();
+    if (!accessToken) {
+      return {
+        success: false,
+        error: 'Du er ikke logget ind',
+        status: 401
+      };
+    }
+    const rabbits = await GetRabbitsOwnedByUser(userId, filter, accessToken, page, pageSize);
+    return {
+      success: true,
+      data: rabbits
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Uventet fejl',
+      status: 500
+    };
+  }
+}
 
 /**
  * Server Action: Henter en kanin profil baseret på øremærke

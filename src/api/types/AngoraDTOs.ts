@@ -262,6 +262,25 @@ export interface Rabbit_PreviewDTO {
 }
 export type Rabbits_PreviewList = Rabbit_PreviewDTO[];
 
+export interface Rabbit_OwnedFilterDTO {
+  onlyDeceased?: boolean | null;
+  rightEarId?: string | null;
+  leftEarId?: string | null;
+  nickName?: string | null;
+  race?: string | null;
+  color?: string | null;
+  gender?: string | null;
+  bornAfter?: string | null;
+  deathAfter?: string | null;
+  fatherId_Placeholder?: string | null;
+  motherId_Placeholder?: string | null;
+  isJuvenile?: boolean | null;
+  approvedRaceColorCombination?: boolean | null;
+  isForBreeding?: boolean | null;
+  page?: number | null;
+  pageSize?: number | null;
+}
+
 /**
  * Profil oplysningerne for en kanin, inclusive dens tilhørende:
  * - Salgsoplysninger

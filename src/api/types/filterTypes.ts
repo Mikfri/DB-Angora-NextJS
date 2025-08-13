@@ -31,7 +31,7 @@ export interface OwnFilters {
     isForBreeding?: boolean;
     lifeStatus?: boolean | null;  // NULL = vis alle, true = kun døde, false = kun levende
     showJuveniles?: boolean; 
-    raceColorApproval?: string | null;
+    raceColorApproval?: boolean | null;
     bornAfterDate?: string | null;
 }
 

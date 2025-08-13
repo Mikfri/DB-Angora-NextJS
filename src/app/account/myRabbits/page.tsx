@@ -1,4 +1,3 @@
-// src/app/account/myRabbits/page.tsx
 'use client';
 
 /**
@@ -150,7 +149,7 @@ export default function RabbitsPage() {
               disabled={!pagination.hasNextPage || isLoading}
               className="px-3 py-1 bg-zinc-700 rounded disabled:opacity-50"
             >
-              »
+              » 
             </button>
           </div>
         </div>
