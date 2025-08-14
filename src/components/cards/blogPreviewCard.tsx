@@ -5,7 +5,7 @@ import { Card, CardHeader, CardBody, Tooltip, Avatar } from '@heroui/react';
 import Image from 'next/image';
 import { FaRegHeart, FaHeart } from 'react-icons/fa';
 import { MdOutlineArticle } from 'react-icons/md';
-import { ROUTES } from '@/constants/navigation';
+import { ROUTES } from '@/constants/navigationConstants';
 import type { Blog_CardDTO } from '@/api/types/AngoraDTOs';
 
 interface Props {

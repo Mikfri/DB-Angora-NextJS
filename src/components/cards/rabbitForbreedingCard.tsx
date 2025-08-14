@@ -5,7 +5,7 @@ import { Rabbit_ForbreedingPreviewDTO } from '@/api/types/AngoraDTOs';
 import { Card, CardHeader, CardBody } from "@heroui/react";
 import Image from 'next/image';
 import { useState } from 'react';
-import { formatDate } from '@/lib/utils/formatters';
+import { formatDate } from '@/utils/formatters';
 
 interface Props {
     rabbit: Rabbit_ForbreedingPreviewDTO;

@@ -9,8 +9,8 @@ import { persist } from 'zustand/middleware';
 import { login as loginAction } from '@/app/actions/auth/login';
 import { logout as logoutAction } from '@/app/actions/auth/logout';
 import { getSessionStatus, getAccessToken as getTokenAction } from '@/app/actions/auth/session';
-import { getTokenExpiry, getTokenTimeRemaining, isTokenExpired } from '@/lib/utils/tokenUtils';
-import { UserIdentity, UserRole, hasRole, hasAnyRole, roleGroups } from '@/types/auth';
+import { getTokenExpiry, getTokenTimeRemaining, isTokenExpired } from '@/utils/tokenUtils';
+import { UserIdentity, UserRole, hasRole, hasAnyRole, roleGroups } from '@/types/authTypes';
 
 interface TokenCache {
   lastChecked: number;

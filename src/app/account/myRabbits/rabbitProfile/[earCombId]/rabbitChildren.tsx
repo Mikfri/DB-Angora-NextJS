@@ -2,7 +2,7 @@
 'use client';
 import { Rabbit_ProfileDTO, Rabbit_ChildPreviewDTO } from "@/api/types/AngoraDTOs";
 import RabbitChildPreviewCard from '@/components/cards/rabbitChildPreviewCard';
-import { formatDate } from '@/lib/utils/formatters';
+import { formatDate } from '@/utils/formatters';
 import { useMemo } from 'react';
 
 interface RabbitChildrenProps {

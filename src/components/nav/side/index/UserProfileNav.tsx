@@ -4,7 +4,7 @@
 import { useMemo } from 'react';
 import UserProfileNavBase from '../base/UserProfileNavBase';
 import { UserProfileNavClient } from '../client/UserProfileNavClient';
-import { NavAction } from '@/types/navigation';
+import { NavAction } from '@/types/navigationTypes';
 import { useUserAccountProfileStore } from '@/store/userAccountProfileStore';
 
 interface UserProfileNavProps {

@@ -5,7 +5,7 @@ import { Suspense } from 'react';
 import SideNavLayout from '@/components/layouts/SideNavLayout';
 import RabbitSaleNav from '@/components/nav/side/index/RabbitSaleNav';
 import MyNav from '@/components/nav/side/index/MyNav';
-import { ROUTES } from '@/constants/navigation';
+import { ROUTES } from '@/constants/navigationConstants';
 
 // Loading component for sidebar
 function SideNavLoading() {

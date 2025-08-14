@@ -5,7 +5,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import RabbitProfileNavBase from '../base/RabbitProfileNavBase';
 import { RabbitProfileNavClient } from '../client/RabbitProfileNavClient';
-import { NavAction } from '@/types/navigation';
+import { NavAction } from '@/types/navigationTypes';
 import { deleteRabbit } from '@/app/actions/rabbit/rabbitCrudActions';
 import DeleteRabbitModal from '@/components/modals/rabbit/deleteRabbitModal';
 import TransferOwnershipModal from '@/components/modals/rabbit/transferRabbitModal';

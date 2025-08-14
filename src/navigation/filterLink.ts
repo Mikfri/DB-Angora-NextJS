@@ -1,6 +1,6 @@
 // src/utils/navigation/filterLink.ts
-import { NavLink } from "@/types/navigation";
-import { UserIdentity, hasAnyRole } from "@/types/auth";
+import { NavLink } from "@/types/navigationTypes";
+import { UserIdentity, hasAnyRole } from "@/types/authTypes";
 
 /**
  * Filter function to determine if a navigation link should be displayed based on user authentication and roles.

@@ -1,10 +1,12 @@
 // src/hooks/rabbits/useRabbitProfile.ts
+
 import { useState, useCallback } from 'react';
 import { Rabbit_ProfileDTO, TransferRequest_CreateDTO } from '@/api/types/AngoraDTOs';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
 import { deleteRabbit, updateRabbit } from '@/app/actions/rabbit/rabbitCrudActions';
 import { createRabbitTransferRequest } from '@/app/actions/transfers/transferRequestsActions';
+import { ROUTES } from '@/constants/navigationConstants'; // <-- Tilføjet import
 
 export function useRabbitProfile(initialProfile: Rabbit_ProfileDTO) {
     const router = useRouter();
@@ -42,7 +44,7 @@ export function useRabbitProfile(initialProfile: Rabbit_ProfileDTO) {
             
             if (result.success) {
                 toast.success('Kaninen blev slettet');
-                router.push('/account/myRabbits');
+                router.push(ROUTES.ACCOUNT.MY_RABBITS); // <-- Opdateret til at bruge navigation.tsx
             } else {
                 toast.error(result.error || 'Der skete en fejl ved sletning af kaninen');
                 setIsDeleteModalOpen(false);

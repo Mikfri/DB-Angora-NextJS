@@ -1,6 +1,6 @@
-// src/types/navigation.ts
+// src/navigation/navigationTypes.ts
 import { ReactNode } from "react";
-import { UserRole } from "@/types/auth";
+import { UserRole } from "@/types/authTypes";
 
 /**
  * @typedef {Object} NavLink

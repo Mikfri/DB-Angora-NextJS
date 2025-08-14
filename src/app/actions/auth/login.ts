@@ -2,9 +2,9 @@
 'use server';
 
 import { Login } from "@/api/endpoints/authController";
-import { getCookieStore } from '@/lib/utils/cookieStore';
-import { getTokenExpiry, extractUserIdentity, getTokenClaim } from '@/lib/utils/tokenUtils';
-import { UserIdentity, formatRoles } from '@/types/auth';
+import { getCookieStore } from '@/utils/cookieStore';
+import { getTokenExpiry, extractUserIdentity, getTokenClaim } from '@/utils/tokenUtils';
+import { UserIdentity, formatRoles } from '@/types/authTypes';
 
 export type LoginResult = 
   | { success: true; userName: string; userRole: string; userIdentity: UserIdentity; tokenExpiry: number }

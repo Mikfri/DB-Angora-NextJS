@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
 import { Rabbit_CreateDTO } from '@/api/types/AngoraDTOs';
 import { createRabbit, validateParentReference } from '@/app/actions/rabbit/rabbitCrudActions';
+import { ROUTES } from '@/constants/navigationConstants'; // <-- Tilføjet import
 
 export function useCreateRabbit() {
     const router = useRouter();
@@ -59,7 +60,7 @@ export function useCreateRabbit() {
 
             if (result.success) {
                 toast.success('Kanin oprettet');
-                router.push(`/account/myRabbits/rabbitProfile/${result.earCombId}`);
+                router.push(ROUTES.ACCOUNT.RABBIT_PROFILE(result.earCombId));
             } else {
                 toast.error(`Fejl: ${result.error}`);
             }

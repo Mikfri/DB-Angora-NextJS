@@ -1,4 +1,4 @@
-// src/lib/utils/cookieStore.ts
+// src/utils/cookieStore.ts
 import { cookies } from 'next/headers';
 
 // Definer typen for cookie options separat så den kan genbruges

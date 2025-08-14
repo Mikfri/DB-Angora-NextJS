@@ -1,7 +1,7 @@
 // src/app/actions/auth/logout.ts
 'use server';
 
-import { getCookieStore } from '@/lib/utils/cookieStore';
+import { getCookieStore } from '@/utils/cookieStore';
 
 export async function logout(): Promise<{ success: boolean }> {
   try {

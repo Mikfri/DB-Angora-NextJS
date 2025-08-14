@@ -7,7 +7,7 @@ import ProfileImage from '@/components/ui/ProfileImage';
 import { IoLocationOutline, IoCallOutline, IoTimeOutline, IoEyeOutline } from "react-icons/io5";
 import { MdOutlineLocalShipping } from 'react-icons/md';
 import { FaUserCircle } from "react-icons/fa";
-import { formatDate } from '@/lib/utils/formatters';
+import { formatDate } from '@/utils/formatters';
 
 interface RabbitSaleProfileNavClientProps {
   // Sælger information

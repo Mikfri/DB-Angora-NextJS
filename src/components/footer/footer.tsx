@@ -1,7 +1,7 @@
 // src/components/footer/footer.tsx
 'use client'
 import { Link } from "@heroui/react";
-import { ROUTES } from '@/constants/navigation';
+import { ROUTES } from '@/constants/navigationConstants';
 
 export default function Footer() {
     return (

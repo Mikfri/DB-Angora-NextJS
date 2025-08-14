@@ -5,7 +5,7 @@ import { Rabbit_PreviewDTO } from '@/api/types/AngoraDTOs';
 import { Card, CardHeader, CardBody, Chip, Divider } from "@heroui/react";
 import Image from 'next/image';
 import { useState, ReactNode } from 'react';
-import { formatDate } from '@/lib/utils/formatters';
+import { formatDate } from '@/utils/formatters';
 // Importer nødvendige ikoner
 import { GiTombstone } from "react-icons/gi";
 import { LuRabbit } from "react-icons/lu";

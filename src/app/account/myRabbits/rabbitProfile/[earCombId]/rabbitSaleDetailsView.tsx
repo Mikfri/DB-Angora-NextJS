@@ -1,8 +1,8 @@
-// src/app/account/myRabbits/rabbitProfile/[earCombId]/rabbitSaleDetailsView.tsx
 import { RabbitSaleDetailsEmbeddedDTO } from '@/api/types/AngoraDTOs';
 import { Button, Card, CardBody, Chip } from "@heroui/react";
-import { formatCurrency, formatDate } from '@/lib/utils/formatters';
-import { FiEye, FiTag, FiTruck } from "react-icons/fi"; // Erstattet react-feather med react-icons/fi
+import { formatCurrency, formatDate } from '@/utils/formatters';
+import { FiEye, FiTag, FiTruck } from "react-icons/fi";
+import { ROUTES } from '@/constants/navigationConstants'; // <-- Tilføjet import
 
 interface SaleDetailsViewProps {
   saleDetails: RabbitSaleDetailsEmbeddedDTO;
@@ -45,12 +45,12 @@ export default function SaleDetailsView({
             <div className="text-sm text-zinc-400">
               <span className="font-medium mr-1">Offentlig URL:</span>
               <a 
-                href={`/rabbits/sale/${saleDetails.slug}`} 
+                href={ROUTES.SALE.RABBIT(saleDetails.slug)} 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="text-blue-400 hover:underline"
               >
-                /rabbits/sale/{saleDetails.slug}
+                {ROUTES.SALE.RABBIT(saleDetails.slug)}
               </a>
             </div>
             {saleDetails.canBeShipped && (

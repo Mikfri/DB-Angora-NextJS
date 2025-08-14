@@ -1,21 +1,20 @@
-// src/app/actions/cache/invalidateCache.ts
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { ROUTES } from '@/constants/navigationConstants';
 
 /**
- * Invaliderer cachen for forsale-relaterede sider
+ * Invaliderer cachen for annoncer-relaterede sider
  */
 export async function invalidateForsalePages() {
     // Invaliderer listevisningen
-    revalidatePath('/sale/rabbits');
-    
+    revalidatePath(ROUTES.SALE.RABBITS);
+
+    // Invaliderer layout for hovedannoncer-siden
+    revalidatePath(ROUTES.SALE.BASE, 'layout');
+
     // Invaliderer dynamiske ruter for detaljeret visning
-    // Den dybere invalidering sikrer at alle undersider også opdateres
-    revalidatePath('/sale', 'layout');
-    
-    // Hvis du også har en root forsale side
-    revalidatePath('/sale/rabbits/profile/[entityId]', 'layout');
-    
+    revalidatePath(ROUTES.SALE.RABBIT_PROFILE('[entityId]'), 'layout');
+
     return { success: true };
 }

@@ -3,7 +3,7 @@
 import PageNavigationCard from '@/components/cards/pageNavigationCard';
 import SideNavLayout from '@/components/layouts/SideNavLayout';
 import MyNav from '@/components/nav/side/index/MyNav';
-import { ROUTES } from '@/constants/navigation';
+import { ROUTES } from '@/constants/navigationConstants';
 
 export default function HomeContent() {
   return (

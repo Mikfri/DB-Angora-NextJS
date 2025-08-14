@@ -2,7 +2,7 @@
 'use client'
 import { usePathname } from 'next/navigation';
 import { Breadcrumbs, BreadcrumbItem } from "@heroui/react";
-import { topNavigationLinks } from '@/constants/navigation';
+import { topNavigationLinks } from '@/constants/navigationConstants';
 
 // Byg pageTitles dynamisk fra navigation-links
 const pageTitles: Record<string, string> = Object.fromEntries(

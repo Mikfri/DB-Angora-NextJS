@@ -5,7 +5,7 @@ import RabbitOwnNav from '@/components/nav/side/index/RabbitOwnNav';
 import RabbitPreviewCard from '@/components/cards/rabbitPreviewCard';
 import SideNavLayout from '@/components/layouts/SideNavLayout';
 import { useRabbitsOwnedStore } from '@/store/rabbitsOwnedStore';
-import { ROUTES } from '@/constants/navigation';
+import { ROUTES } from '@/constants/navigationConstants';
 
 export default function RabbitOwnList({ userId }: { userId: string }) {
     const router = useRouter();

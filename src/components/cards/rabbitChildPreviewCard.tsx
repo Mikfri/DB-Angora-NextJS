@@ -4,7 +4,7 @@ import { Rabbit_ChildPreviewDTO } from '@/api/types/AngoraDTOs';
 import { Card, CardHeader, CardBody, Chip } from "@heroui/react";
 import Image from 'next/image';
 import { useState } from 'react';
-import { formatDate } from '@/lib/utils/formatters';
+import { formatDate } from '@/utils/formatters';
 import NextLink from 'next/link';
 
 interface Props {

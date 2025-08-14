@@ -1,7 +1,7 @@
 // src/components/nav/side/base/RabbitSaleProfileNavBase.tsx
 import { ReactNode } from 'react';
 import NavBase from '../../base/NavBase';
-import { NavAction } from '@/types/navigation';
+import { NavAction } from '@/types/navigationTypes';
 
 interface RabbitSaleProfileNavBaseProps {
   children: ReactNode;

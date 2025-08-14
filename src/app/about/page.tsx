@@ -2,11 +2,11 @@ import { Metadata } from 'next';
 import React from "react";
 
 export const metadata: Metadata = {
-  title: 'Om Den Blå Angora | Dansk Kaninregister',
+  title: 'About',
   description: 'Læs om DenBlå-Angora – et dansk kaninregister med fokus på avl, køb og salg af angorakaniner, uld, garn og skind. Bag projektet står passionerede kaninavlere og udviklere.',
   keywords: 'om denblå-angora, kaninregister, angorakaniner, dansk angora klub, kaninavl, uld, garn, skind',
   openGraph: {
-    title: 'Om: Den Blå Angora',
+    title: 'About',
     description: 'Læs: om Den Blå Angora – et dansk kaninregister med fokus på avl, køb og salg af angorakaniner, uld, garn og skind.',
     url: 'https://db-angora.dk/about',
     images: [{

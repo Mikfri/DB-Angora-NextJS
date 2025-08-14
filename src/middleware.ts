@@ -1,7 +1,7 @@
 // src/middleware.ts
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { isTokenExpired } from '@/lib/utils/tokenUtils';
+import { isTokenExpired } from '@/utils/tokenUtils';
 
 export function middleware(request: NextRequest) {
   const token = request.cookies.get('accessToken');

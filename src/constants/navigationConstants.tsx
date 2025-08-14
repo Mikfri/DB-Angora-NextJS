@@ -1,6 +1,6 @@
-// src/constants/navigation.tsx
-import { NavGroup } from "@/types/navigation";
-import { UserRole, roleGroups } from "@/types/auth";
+// src/constants/navigationConstants.tsx
+import { roleGroups } from "@/types/authTypes";
+import { NavGroup } from "@/types/navigationTypes";
 import { IoHomeOutline, IoPersonOutline } from "react-icons/io5";
 import { MdPets } from "react-icons/md";
 import { FaUsersCog } from "react-icons/fa";
@@ -8,33 +8,23 @@ import { ImPriceTags } from 'react-icons/im';
 
 // ============= ROUTES KONSTANTER =============
 export const ROUTES = {
-  // Base routes
   HOME: '/',
   ABOUT: '/about',
-
   BLOGS: {
     BASE: '/blogs',
     BLOG: (slug: string) => `/blogs/${slug}`,
   },
-
-  // Account routes
   ACCOUNT: {
     BASE: '/account',
-    // User related routes
     PROFILE: '/account/profile',
     USER_PROFILE: (userProfileId: string) => `/account/profile/${userProfileId}`,
-    // Rabbit related routes
     MY_RABBITS: '/account/myRabbits',
     TRANSFER_REQUESTS: '/account/myRabbits/transferRequests',
     RABBIT_PROFILE: (earCombId: string) => `/account/myRabbits/rabbitProfile/${earCombId}`,
     RABBITS_FOR_BREEDING: '/account/rabbitsForbreeding',
-
-    // NYE BLOG ROUTES
     MY_BLOGS: '/account/myBlogs',
     USER_BLOGS: (userId: string) => `/account/myBlogs/${userId}`,
   },
-
-  // Sale routes - opdateret til at matche din faktiske mappestruktur
   SALE: {
     BASE: '/annoncer',
     RABBITS: '/annoncer/kaniner',
@@ -44,18 +34,12 @@ export const ROUTES = {
     WOOL_PROFILE: (id: string) => `/annoncer/uld/profile/${id}`,
     WOOL: (slug: string) => `/annoncer/uld/${slug}`,
   },
-
-  // Admin routes
   ADMIN: {
     USERS: '/admin/users',
     POSTS: '/admin/posts',
   },
-
-  // External/future routes
   BREEDERS: '/breeders',
   CARE: '/care',
-
-  // Hash anchors (for homepage)
   ANCHORS: {
     WELCOME: '#welcome',
     NEWS: '#news',
@@ -85,42 +69,20 @@ export const NAV_STYLES = {
 // ============= HELPER FUNKTIONER =============
 export const getDefaultSectionTitle = (href?: string): string | undefined => {
   if (!href) return undefined;
-
   if (href.startsWith(ROUTES.ACCOUNT.BASE)) return SECTION_TITLES.ACCOUNT;
   if (href.startsWith(ROUTES.SALE.BASE)) return SECTION_TITLES.SALE;
   if (href.includes('/admin')) return SECTION_TITLES.ADMIN;
   return undefined;
 };
 
-export const createIconMap = (iconClassName: string) => {
-  return {
-    [ROUTES.HOME]: <IoHomeOutline className={iconClassName} />,
-    [ROUTES.SALE.BASE]: <ImPriceTags className={iconClassName} />,
-    [ROUTES.ACCOUNT.BASE]: <IoPersonOutline className={iconClassName} />,
-    [ROUTES.ACCOUNT.MY_RABBITS]: <MdPets className={iconClassName} />,
-    [ROUTES.SALE.RABBITS]: <MdPets className={iconClassName} />,
-    [ROUTES.ADMIN.USERS]: <FaUsersCog className={iconClassName} />
-  };
-};
-
-// ============= ROLLER =============
-export const BREEDER_ROLES: UserRole[] = [
-  ...roleGroups.breeders as UserRole[],
-  'Admin' as UserRole,
-  'ModeratorBreeder' as UserRole,
-  'BreederPremium' as UserRole,
-  'BreederBasic' as UserRole,
-];
-
-export const MODERATOR_ROLES: UserRole[] = [
-  ...roleGroups.moderators as UserRole[],
-  'Admin' as UserRole,
-  'ModeratorBreeder' as UserRole,
-  'Moderator' as UserRole,
-  'UserModerator' as UserRole,
-  'BreederModerator' as UserRole,
-  'RabbitModerator' as UserRole,
-];
+export const createIconMap = (iconClassName: string) => ({
+  [ROUTES.HOME]: <IoHomeOutline className={iconClassName} />,
+  [ROUTES.SALE.BASE]: <ImPriceTags className={iconClassName} />,
+  [ROUTES.ACCOUNT.BASE]: <IoPersonOutline className={iconClassName} />,
+  [ROUTES.ACCOUNT.MY_RABBITS]: <MdPets className={iconClassName} />,
+  [ROUTES.SALE.RABBITS]: <MdPets className={iconClassName} />,
+  [ROUTES.ADMIN.USERS]: <FaUsersCog className={iconClassName} />
+});
 
 // ============= NAVIGATION DEFINITIONER =============
 export const navigationLinks: NavGroup[] = [
@@ -133,7 +95,6 @@ export const navigationLinks: NavGroup[] = [
   }
 ];
 
-
 export const breederNavigationLinks: NavGroup[] = [
   {
     title: "Avler funktioner",
@@ -142,13 +103,13 @@ export const breederNavigationLinks: NavGroup[] = [
         href: ROUTES.ACCOUNT.MY_RABBITS,
         label: 'Mine kaniner',
         requiresAuth: true,
-        requiredRoles: BREEDER_ROLES
+        requiredRoles: roleGroups.breeders
       },
       {
         href: ROUTES.ACCOUNT.RABBITS_FOR_BREEDING,
         label: 'Find avlskaniner',
         requiresAuth: true,
-        requiredRoles: BREEDER_ROLES
+        requiredRoles: roleGroups.breeders
       },
     ]
   }
@@ -162,13 +123,13 @@ export const moderatorNavigationLinks: NavGroup[] = [
         href: ROUTES.ADMIN.USERS,
         label: 'Find bruger',
         requiresAuth: true,
-        requiredRoles: MODERATOR_ROLES
+        requiredRoles: roleGroups.moderators
       },
       {
         href: ROUTES.ADMIN.POSTS,
         label: 'Opret indlæg',
         requiresAuth: true,
-        requiredRoles: MODERATOR_ROLES
+        requiredRoles: roleGroups.moderators
       },
     ]
   }
@@ -180,8 +141,6 @@ export const homeNavigationLinks: NavGroup[] = [
     links: [
       { href: ROUTES.ANCHORS.WELCOME, label: 'Velkommen til' },
       { href: ROUTES.ANCHORS.NEWS, label: 'Nyheder' },
-      // { href: ROUTES.ANCHORS.EVENTS, label: 'Arrangementer' },
-      // { href: ROUTES.ANCHORS.FEATURED, label: 'Fremhævede' }
     ]
   }
 ];
@@ -211,16 +170,9 @@ export const topNavigationLinks: NavGroup[] = [
 ];
 
 export const ROUTE_UTILS = {
-  // Checker om en path er under account sektion
   isAccountRoute: (path: string) => path.startsWith(ROUTES.ACCOUNT.BASE),
-
-  // Checker om en path er under sale sektion
   isSaleRoute: (path: string) => path.startsWith(ROUTES.SALE.BASE),
-
-  // Checker om en path er admin route
   isAdminRoute: (path: string) => path.includes('/admin'),
-
-  // Få parent route
   getParentRoute: (path: string) => {
     const segments = path.split('/').filter(Boolean);
     return segments.length > 1 ? `/${segments[0]}` : '/';

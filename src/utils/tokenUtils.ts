@@ -1,9 +1,9 @@
-// src/lib/utils/tokenUtils.ts
+// src/utils/tokenUtils.ts
 /**
  * Token utility funktioner for konsistent håndtering af JWT tokens
  */
 
-import { UserIdentity, UserRole } from "@/types/auth";
+import { UserIdentity, UserRole } from "@/types/authTypes";
 
 /**
  * Tjekker om et token er udløbet baseret på enten expiry cookie eller JWT payload

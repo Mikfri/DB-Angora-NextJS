@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import SaleDetailsCard from '@/components/cards/saleDetailsCard';
 import { SaleDetailsCardDTO } from '@/api/types/AngoraDTOs';
 import { Button, Pagination } from "@heroui/react";
-import { ROUTES } from '@/constants/navigation';
+import { ROUTES } from '@/constants/navigationConstants';
 
 // Interface for pagineringsinfo
 interface PagingInfo {

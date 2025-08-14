@@ -4,7 +4,7 @@
 
 import { useAuthStore } from '@/store/authStore';
 import RabbitOwnList from '../rabbitOwnList';
-import { hasRole, hasAnyRole, roleGroups } from '@/types/auth';
+import { hasRole, hasAnyRole, roleGroups } from '@/types/authTypes';
 import { useParams } from 'next/navigation';
 
 export default function TargetedUserRabbitsPage() {

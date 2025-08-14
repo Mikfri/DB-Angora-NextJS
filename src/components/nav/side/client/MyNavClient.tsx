@@ -1,4 +1,5 @@
 // src/components/nav/side/client/MyNavClient.tsx
+
 'use client'
 import { usePathname } from 'next/navigation';
 import { useMemo, useCallback } from 'react';
@@ -10,16 +11,14 @@ import {
     navigationLinks,
     homeNavigationLinks,
     saleNavigationLinks,
-    BREEDER_ROLES,
-    MODERATOR_ROLES,
     NAV_STYLES,
     createIconMap,
     getDefaultSectionTitle,
-    ROUTES,  // Tilføj denne import
-    ROUTE_UTILS  // Tilføj denne import
-} from '@/constants/navigation';
-import { NavGroup } from '@/types/navigation';
-import { hasAnyRole } from '@/types/auth';
+    ROUTES,
+    ROUTE_UTILS
+} from '@/constants/navigationConstants';
+import { NavGroup } from '@/types/navigationTypes';
+import { hasAnyRole, roleGroups } from '@/types/authTypes';
 
 /**
  * Client Component for MyNav
@@ -46,8 +45,8 @@ export function MyNavClient() {
 
     // Role checks bruger memoization for bedre performance
     const { hasBreederRoles, hasModeratorRoles } = useMemo(() => ({
-        hasBreederRoles: hasAnyRole(userIdentity, BREEDER_ROLES),
-        hasModeratorRoles: hasAnyRole(userIdentity, MODERATOR_ROLES)
+        hasBreederRoles: hasAnyRole(userIdentity, roleGroups.breeders),
+        hasModeratorRoles: hasAnyRole(userIdentity, roleGroups.moderators)
     }), [userIdentity]);
 
     // Opdateret current links logik med ROUTES konstanter

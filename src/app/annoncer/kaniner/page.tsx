@@ -38,8 +38,8 @@ export async function generateMetadata({ searchParams }: KaninerPageProps): Prom
   const filterString = filterDesc.length > 0 ? ` - ${filterDesc.join(', ')}` : '';
 
   return {
-    title: `Salg kaniner ${filterString}`,
-    description: `Find kaniner til salg hos Den Blå Angora: ${filterString}`,
+    title: `Salg-kaniner ${filterString}`,
+    description: `Find kaniner til salg på Den Blå Angora: ${filterString}`,
   };
 }
 

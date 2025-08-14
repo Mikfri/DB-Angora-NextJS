@@ -4,7 +4,7 @@
 
 import { useAuthStore } from '@/store/authStore';
 import BlogOwnList from '../blogOwnList';
-import { hasRole, hasAnyRole, roleGroups } from '@/types/auth';
+import { hasRole, hasAnyRole, roleGroups } from '@/types/authTypes';
 import { useParams } from 'next/navigation';
 
 export default function TargetedUserBlogsPage() {

@@ -1,9 +1,9 @@
 // src/app/actions/auth/session.ts
 'use server';
 
-import { getCookieStore } from '@/lib/utils/cookieStore';
-import { isTokenExpired, extractUserIdentity } from '@/lib/utils/tokenUtils';
-import { UserIdentity, formatRoles } from '@/types/auth';
+import { getCookieStore } from '@/utils/cookieStore';
+import { isTokenExpired, extractUserIdentity } from '@/utils/tokenUtils';
+import { UserIdentity, formatRoles } from '@/types/authTypes';
 import { cache } from 'react';
 
 export type SessionStatus = {

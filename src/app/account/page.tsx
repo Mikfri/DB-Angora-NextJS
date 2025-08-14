@@ -1,9 +1,9 @@
 // src/app/account/page.tsx
 
 import PageNavigationCard from '@/components/cards/pageNavigationCard';
-import { ROUTES } from '@/constants/navigation';
+import { ROUTES } from '@/constants/navigationConstants';
 import { getUserIdentity } from '@/app/actions/auth/session';
-import { isBreeder, isModerator, isPremiumUser } from '@/types/auth';
+import { isBreeder, isModerator, isPremiumUser } from '@/types/authTypes';
 
 export default async function AccountPage() {
     const userIdentity = await getUserIdentity();

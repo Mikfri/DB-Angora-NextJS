@@ -1,5 +1,5 @@
 // src/components/nav/base/NavBase.tsx
-import { SectionNavProps } from "@/types/navigation";
+import { SectionNavProps } from "@/types/navigationTypes";
 import { NavBaseClient } from "./NavBaseClient";
 
 /**

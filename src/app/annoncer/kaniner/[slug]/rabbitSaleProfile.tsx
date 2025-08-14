@@ -3,7 +3,7 @@
 import { SaleDetailsProfileDTO } from '@/api/types/AngoraDTOs';
 import { Card, CardBody, Divider } from "@heroui/react";
 import Image from 'next/image';
-import { formatCurrency, formatDate } from '@/lib/utils/formatters';
+import { formatCurrency, formatDate } from '@/utils/formatters';
 import { useState } from 'react';
 import { IoEyeOutline, IoLocationOutline } from 'react-icons/io5';
 

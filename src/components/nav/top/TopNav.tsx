@@ -10,10 +10,10 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useAuthStore } from '@/store/authStore';
-import { topNavigationLinks } from '@/constants/navigation';
-import { filterLink } from '@/utils/navigation';
+import { topNavigationLinks } from '@/constants/navigationConstants';
+import { filterLink } from '@/navigation';
 import LoginModal from '@/components/modals/login/loginModal';
-import { roleDisplayNames } from '@/types/auth';
+import { roleDisplayNames } from '@/types/authTypes';
 
 export default function TopNav() {
     const [isLoginOpen, setIsLoginOpen] = useState(false);

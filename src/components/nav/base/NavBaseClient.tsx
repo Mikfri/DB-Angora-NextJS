@@ -1,7 +1,7 @@
 // src/components/nav/base/NavBaseClient.tsx
 'use client'
 import { Button } from "@heroui/react";
-import { NavAction } from "@/types/navigation";
+import { NavAction } from "@/types/navigationTypes";
 
 interface NavBaseClientProps {
   actions: NavAction[];

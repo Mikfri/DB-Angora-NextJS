@@ -1,7 +1,7 @@
 // Server Component (ingen 'use client' direktiv)
 import { ReactNode } from 'react';
 import NavBase from '../../base/NavBase';
-import { NavAction } from '@/types/navigation';
+import { NavAction } from '@/types/navigationTypes';
 
 interface RabbitProfileNavBaseProps {
   children: ReactNode;

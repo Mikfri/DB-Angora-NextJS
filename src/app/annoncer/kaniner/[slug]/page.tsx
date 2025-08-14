@@ -3,7 +3,7 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getSaleDetailsBySlug } from '@/app/actions/sale/saleActions';
 import RabbitSaleProfile from './rabbitSaleProfile';
-import { ROUTES } from '@/constants/navigation';
+import { ROUTES } from '@/constants/navigationConstants';
 import RabbitSaleProfileNav from '@/components/nav/side/index/RabbitSaleProfileNav';
 import MyNav from '@/components/nav/side/index/MyNav';
 
