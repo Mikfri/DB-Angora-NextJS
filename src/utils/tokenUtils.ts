@@ -61,55 +61,61 @@ export function getTokenClaim<T = unknown>(token: string, claim: string): T | nu
 
 /**
  * Udtrækker brugeridentitet fra JWT token og returnerer UserIdentity objekt
- * Returnerer null hvis token er ugyldigt eller mangler nødvendige claims
  */
 export function extractUserIdentity(token: string): UserIdentity | null {
   try {
     const payload = JSON.parse(atob(token.split('.')[1]));
-    
+
     const userIdClaim = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier";
     const roleClaim = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role";
     const nameClaim = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name";
-    
-    // Hent bruger-ID
+
     const userId = payload[userIdClaim];
-    
-    // Hent brugernavn/email - prøv flere mulige claims
-    const username = payload[nameClaim] || 
-                    payload.unique_name || 
-                    payload.email || 
-                    payload.sub || 
-                    '';
-    
-    // Hent roller og konverter til array hvis nødvendigt
+    const username = payload[nameClaim] ||
+      payload.unique_name ||
+      payload.email ||
+      payload.sub ||
+      '';
+
     let roles: UserRole[] = [];
-    
     if (payload[roleClaim]) {
       roles = typeof payload[roleClaim] === 'string'
         ? [payload[roleClaim] as UserRole]
         : payload[roleClaim] as UserRole[];
     }
-    
+
     if (!userId || roles.length === 0) {
       return null;
     }
-    
-    // Tilføj claims til userIdentity
-    const rabbitImageCount = getTokenClaim<string>(token, 'Rabbit:ImageCount');
-    
+
+    // Udtræk alle custom claims (inkl. Rabbit:Read, Blog:Read osv.)
+    const standardClaims = [userIdClaim, roleClaim, nameClaim, 'exp', 'iat', 'nbf', 'aud', 'iss', 'sub', 'unique_name', 'email'];
+    const claims: Record<string, unknown> = {};
+    Object.keys(payload).forEach(key => {
+      if (!standardClaims.includes(key)) {
+        claims[key] = payload[key];
+      }
+    });
+
     return {
       id: userId,
       username,
       roles,
-      claims: {
-        rabbitImageCount: rabbitImageCount ? parseInt(rabbitImageCount, 10) : 0
-        // Andre relevante claims kan tilføjes her
-      }
+      claims
     };
   } catch (error) {
     console.error('Error extracting user identity from token:', error);
     return null;
   }
+}
+
+/**
+ * Helper til at tjekke om et claim eksisterer og evt. har en bestemt værdi
+ */
+export function hasClaim(identity: UserIdentity | null, claim: string, value?: unknown): boolean {
+  if (!identity?.claims) return false;
+  if (value !== undefined) return identity.claims[claim] === value;
+  return claim in identity.claims;
 }
 
 /**

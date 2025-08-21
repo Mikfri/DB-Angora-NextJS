@@ -135,19 +135,53 @@ const filterRabbits = (rabbits: Rabbit_PreviewDTO[], filters: Required<OwnFilter
 
 // Mapping OwnFilters -> Rabbit_OwnedFilterDTO (API filter)
 function mapOwnFiltersToDTO(filters: OwnFilters, page: number, pageSize: number): Rabbit_OwnedFilterDTO {
-    return {
-        rightEarId: filters.search ?? null,
-        gender: filters.gender ?? null,
-        race: filters.race ?? null,
-        color: filters.color ?? null,
-        isForBreeding: filters.isForBreeding ?? null,
-        onlyDeceased: filters.lifeStatus === true ? true : filters.lifeStatus === false ? false : null,
-        isJuvenile: filters.showJuveniles ?? null,
-        approvedRaceColorCombination: filters.raceColorApproval,
-        bornAfter: filters.bornAfterDate ?? null,
+    const dto: Rabbit_OwnedFilterDTO = {
         page,
         pageSize,
     };
+
+    // Tilføj kun filter-værdier hvis de faktisk er sat/valgt af brugeren
+    if (filters.search && filters.search.trim() !== '') {
+        dto.rightEarId = filters.search.trim();
+    }
+    
+    if (filters.gender && filters.gender !== '') {
+        dto.gender = filters.gender;
+    }
+    
+    if (filters.race && filters.race !== '') {
+        dto.race = filters.race;
+    }
+    
+    if (filters.color && filters.color !== '') {
+        dto.color = filters.color;
+    }
+    
+    // Kun tilføj boolean-værdier hvis de er eksplicit sat til true
+    if (filters.isForBreeding === true) {
+        dto.isForBreeding = true;
+    }
+    
+    if (filters.showJuveniles === true) {
+        dto.isJuvenile = true;
+    }
+    
+    // Håndter lifeStatus korrekt
+    if (filters.lifeStatus === true) {
+        dto.onlyDeceased = true;
+    } else if (filters.lifeStatus === false) {
+        dto.onlyDeceased = false;
+    }
+    
+    if (filters.raceColorApproval !== null) {
+        dto.approvedRaceColorCombination = filters.raceColorApproval;
+    }
+    
+    if (filters.bornAfterDate) {
+        dto.bornAfter = filters.bornAfterDate;
+    }
+
+    return dto;
 }
 
 // Zustand store

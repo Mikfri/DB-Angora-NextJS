@@ -9,7 +9,7 @@ import { persist } from 'zustand/middleware';
 import { login as loginAction } from '@/app/actions/auth/login';
 import { logout as logoutAction } from '@/app/actions/auth/logout';
 import { getSessionStatus, getAccessToken as getTokenAction } from '@/app/actions/auth/session';
-import { getTokenExpiry, getTokenTimeRemaining, isTokenExpired } from '@/utils/tokenUtils';
+import { getTokenExpiry, getTokenTimeRemaining, hasClaim, isTokenExpired } from '@/utils/tokenUtils';
 import { UserIdentity, UserRole, hasRole, hasAnyRole, roleGroups } from '@/types/authTypes';
 
 interface TokenCache {
@@ -33,6 +33,7 @@ interface AuthState {
   isModerator: () => boolean;
   isBreeder: () => boolean;
   isPremiumUser: () => boolean;
+  hasClaim: (claim: string, value?: unknown) => boolean; // <-- NYT
   // Funktioner til at hente/opdatere auth status
   checkAuth: () => Promise<boolean>;
   getAccessToken: () => Promise<string | null>;
@@ -65,6 +66,7 @@ export const useAuthStore = create<AuthState>()(
       isModerator: () => get().isAdmin() || hasAnyRole(get().userIdentity, roleGroups.moderators),
       isBreeder: () => hasAnyRole(get().userIdentity, roleGroups.breeders),
       isPremiumUser: () => hasAnyRole(get().userIdentity, roleGroups.premiumUsers),
+      hasClaim: (claim: string, value?: unknown) => hasClaim(get().userIdentity, claim, value),
 
       // Access token hentning med cache
       getAccessToken: async () => {

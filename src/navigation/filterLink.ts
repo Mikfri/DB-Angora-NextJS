@@ -1,4 +1,4 @@
-// src/utils/navigation/filterLink.ts
+// src/navigation/filterLink.ts
 import { NavLink } from "@/types/navigationTypes";
 import { UserIdentity, hasAnyRole } from "@/types/authTypes";
 

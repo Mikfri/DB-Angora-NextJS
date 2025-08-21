@@ -3,18 +3,25 @@
 import PageNavigationCard from '@/components/cards/pageNavigationCard';
 import { ROUTES } from '@/constants/navigationConstants';
 import { getUserIdentity } from '@/app/actions/auth/session';
-import { isBreeder, isModerator, isPremiumUser } from '@/types/authTypes';
+import { isBreeder, isContentCreator, isModerator, isPremiumUser } from '@/types/authTypes';
 
 export default async function AccountPage() {
     const userIdentity = await getUserIdentity();
 
+    // Log claims og roller til konsollen
+    // console.log('UserIdentity:', userIdentity);
+    // console.log('Claims:', userIdentity?.claims);
+    // console.log('Roles:', userIdentity?.roles);
+
     // Always show profile card if logged in
     const showProfile = !!userIdentity;
-    const showMyRabbits = !!userIdentity;
+    const showMyRabbits =
+        userIdentity?.claims?.['Rabbit:Read'] === 'Own' ||
+        userIdentity?.claims?.['Rabbit:Read'] === 'Any';
     const showBreeding = userIdentity && isBreeder(userIdentity);
     const showTransfers = userIdentity && (isBreeder(userIdentity) || isModerator(userIdentity) || isPremiumUser(userIdentity));
-    const showMyBlogs = !!userIdentity;
-
+    const showMyBlogs = userIdentity && isContentCreator(userIdentity);
+    
     return (
         <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-6">
             <div className="flex flex-col justify-center items-center gap-6">
