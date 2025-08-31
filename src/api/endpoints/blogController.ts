@@ -97,6 +97,16 @@ export async function getBlogsAuthoredByUser(
     return data as PagedResultDTO<Blog_CardDTO>;
 }
 
+/**
+ * Dette endpoint er for sitets almene brugere/konsumers som vil tilgå blog-post for at læse indholdet.
+ * Det kan være almene brugere UDEN LOGIN, brugerer som er registreret MED LOGIN, og med forskellige rettigheder:
+ * • Almene brugere kan kun tilgå 'public' blogindlæg.
+ * • Brugere som er registreret kan tilgå både 'public' ogz 'paidContent' blogindlæg,
+ *  afhængigt af deres rettigheder.
+ * @param slug 
+ * @param accessToken 
+ * @returns 
+ */
 export async function getBlogBySlug(
     slug: string,
     accessToken?: string
@@ -114,13 +124,63 @@ export async function getBlogBySlug(
     });
 
     if (res.status === 404) {
-        return null; // Blog ikke fundet
+        return null;
     }
     if (!res.ok) {
         let errorMessage = `${res.status} ${res.statusText}`;
         try {
             const errorBody = await res.text();
             if (errorBody) errorMessage = errorBody;
+        } catch (e) {}
+        throw new Error(`Fejl ved hentning af blog: ${errorMessage}`);
+    }
+
+    const data = await res.json();
+    return data as Blog_DTO;
+}
+
+/**
+ * Henter et blogindlæg baseret på ID med adgangskontrol.
+ * Endpointet er tiltænkt blog-content teamet som skal kunne tilgå et arbejdsdokument,
+ * hvorfra de via andre endpoints kan redigere og opdatere indholdet.
+ * Kræver Blog:Read claim i accessToken.
+ * @param blogId - ID på blogindlægget (integer)
+ * @param accessToken - JWT token til adgangskontrol (påkrævet)
+ * @returns Blog_DTO eller null hvis ikke fundet
+ */
+export async function getBlogById(
+    blogId: number,
+    accessToken: string
+): Promise<Blog_DTO | null> {
+    if (!accessToken || accessToken.trim() === "") {
+        throw new Error("Access token is required for this endpoint.");
+    }
+
+    const url = getApiUrl(`Blog/${blogId}`);
+
+    const headers: Record<string, string> = {
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${accessToken}`
+    };
+
+    const res = await fetch(url, {
+        method: 'GET',
+        headers
+    });
+
+    if (res.status === 404) {
+        return null; // Blog ikke fundet
+    }
+    
+    if (!res.ok) {
+        // API'en sender strukturerede fejlbeskeder via ExceptionMiddleware
+        let errorMessage = `${res.status} ${res.statusText}`;
+        try {
+            const errorBody = await res.text();
+            if (errorBody) {
+                const errorData = JSON.parse(errorBody);
+                errorMessage = errorData.message || errorMessage;
+            }
         } catch (e) {}
         throw new Error(`Fejl ved hentning af blog: ${errorMessage}`);
     }

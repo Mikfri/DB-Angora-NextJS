@@ -24,6 +24,7 @@ export const ROUTES = {
     RABBITS_FOR_BREEDING: '/account/rabbitsForbreeding',
     MY_BLOGS: '/account/myBlogs',
     USER_BLOGS: (userId: string) => `/account/myBlogs/${userId}`,
+    BLOG_WORKSPACE: (blogId: number) => `/account/myBlogs/blogWorkspace/${blogId}`,
   },
   SALE: {
     BASE: '/annoncer',

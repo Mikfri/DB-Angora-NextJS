@@ -4,12 +4,16 @@
 import { useEffect, useState } from 'react';
 import { fetchBlogsAuthoredByUserAction } from '@/app/actions/blog/blogActions';
 import type { Blog_CardDTO } from '@/api/types/AngoraDTOs';
-import BlogPreviewCard from '@/components/cards/blogPreviewCard';
+import { ROUTES } from '@/constants/navigationConstants';
+import { useRouter } from 'next/navigation';
+import BlogOwnPreviewCard from '@/components/cards/blogOwnPreviewCard';
 
 export default function BlogOwnList({ userId }: { userId: string }) {
   const [blogs, setBlogs] = useState<Blog_CardDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter(); // <-- NY LINJE
+
 
   useEffect(() => {
     setLoading(true);
@@ -40,6 +44,10 @@ export default function BlogOwnList({ userId }: { userId: string }) {
       });
   }, [userId]);
 
+  const handleBlogClick = (blogId: number) => {
+    router.push(ROUTES.ACCOUNT.BLOG_WORKSPACE(blogId));
+  }; // <-- NY FUNKTION
+
   if (loading) return (
     <div className="flex justify-center items-center min-h-[50vh]">
       <div className="flex flex-col items-center gap-4">
@@ -66,7 +74,11 @@ export default function BlogOwnList({ userId }: { userId: string }) {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {blogs.map(blog => (
-            <BlogPreviewCard key={blog.id} blog={blog} />
+            <BlogOwnPreviewCard
+              key={blog.id}
+              blog={blog}
+              onClick={() => handleBlogClick(blog.id)}
+            />
           ))}
         </div>
       )}

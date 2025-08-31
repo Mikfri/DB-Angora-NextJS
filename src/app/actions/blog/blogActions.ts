@@ -2,7 +2,7 @@
 
 'use server';
 import { getAccessToken } from '@/app/actions/auth/session';
-import { getBlogs, getBlogBySlug, getBlogsAuthoredByUser } from '@/api/endpoints/blogControllser';
+import { getBlogs, getBlogBySlug, getBlogsAuthoredByUser, getBlogById } from '@/api/endpoints/blogController';
 import type { Blog_CardFilterDTO, PagedResultDTO, Blog_CardDTO, Blog_DTO } from '@/api/types/AngoraDTOs';
 
 // ====================== TYPES ======================
@@ -166,6 +166,60 @@ export async function fetchBlogBySlugAction(
                 status: 404
             };
         }
+
+        return {
+            success: false,
+            error: error instanceof Error ? error.message : 'Der skete en uventet fejl',
+            status: 500
+        };
+    }
+}
+
+// ====================== READ (BY BLOGID) ======================
+/**
+ * Server Action: Henter et enkelt blogindlæg via ID (for blog-content teamet)
+ * Kræver Blog:Read claim i accessToken.
+ * @param blogId ID for blogindlægget (integer)
+ * @returns Detaljeret blog eller fejlbesked
+ */
+export async function fetchBlogByIdAction(
+    blogId: number
+): Promise<BlogResult> {
+    try {
+        if (!blogId || blogId <= 0) {
+            return {
+                success: false,
+                error: 'Ugyldigt blog ID',
+                status: 400
+            };
+        }
+
+        const accessToken = await getAccessToken();
+        
+        if (!accessToken) {
+            return {
+                success: false,
+                error: 'Du skal være logget ind for at tilgå dette indhold',
+                status: 401
+            };
+        }
+
+        const blog = await getBlogById(blogId, accessToken);
+
+        if (!blog) {
+            return {
+                success: false,
+                error: `Blog med ID '${blogId}' blev ikke fundet.`,
+                status: 404
+            };
+        }
+
+        return {
+            success: true,
+            data: blog
+        };
+    } catch (error) {
+        console.error(`Failed to fetch blog with ID ${blogId}:`, error);
 
         return {
             success: false,
