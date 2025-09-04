@@ -40,8 +40,8 @@ export async function GetOwnRabbits(
       try {
         const errorBody = await response.text();
         if (errorBody) errorMessage = errorBody;
-      } catch (e) {
-        console.error('Kunne ikke læse fejlbesked:', e);
+      } catch {
+        console.error();
       }
       throw new Error(`Fejl ved hentning af egne kaniner: ${errorMessage}`);
     }
@@ -102,7 +102,7 @@ export async function GetReceivedTransferRequests(
     try {
       const errorResponse = await response.text();
       if (errorResponse) errorMessage = errorResponse;
-    } catch (e) {
+    } catch {
       // ignore
     }
     throw new Error(`Fejl ved hentning af modtagne overførselsanmodninger: ${errorMessage}`);
@@ -149,7 +149,7 @@ export async function GetSentTransferRequests(
     try {
       const errorResponse = await response.text();
       if (errorResponse) errorMessage = errorResponse;
-    } catch (e) {
+    } catch {
       // ignore
     }
     throw new Error(`Fejl ved hentning af udstedte overførselsanmodninger: ${errorMessage}`);
@@ -186,7 +186,7 @@ export async function UpdateBreederAccount(
     try {
       const errorBody = await response.text();
       if (errorBody) errorMessage = errorBody;
-    } catch (e) {
+    } catch {
       // ignore
     }
     throw new Error(`Fejl ved opdatering af opdrætterkonto: ${errorMessage}`);

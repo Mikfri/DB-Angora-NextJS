@@ -34,7 +34,7 @@ export async function getBlogs(
         try {
             const errorBody = await res.text();
             if (errorBody) errorMessage = errorBody;
-        } catch (e) {
+        } catch {
             // ignore
         }
         throw new Error(`Fejl ved hentning af blogs: ${errorMessage}`);
@@ -87,7 +87,7 @@ export async function getBlogsAuthoredByUser(
         try {
             const errorBody = await res.text();
             if (errorBody) errorMessage = errorBody;
-        } catch (e) {
+        } catch {
             // ignore
         }
         throw new Error(`Fejl ved hentning af brugerens blogs: ${errorMessage}`);
@@ -131,7 +131,7 @@ export async function getBlogBySlug(
         try {
             const errorBody = await res.text();
             if (errorBody) errorMessage = errorBody;
-        } catch (e) {}
+        } catch {}
         throw new Error(`Fejl ved hentning af blog: ${errorMessage}`);
     }
 
@@ -181,7 +181,7 @@ export async function getBlogById(
                 const errorData = JSON.parse(errorBody);
                 errorMessage = errorData.message || errorMessage;
             }
-        } catch (e) {}
+        } catch {}
         throw new Error(`Fejl ved hentning af blog: ${errorMessage}`);
     }
 

@@ -43,14 +43,8 @@ export default function UserProfile({ userProfile: initialProfile }: Props) {
 
   // Funktion til at genindlæse brugerprofilen (fx efter upload/sletning af billede)
   const refreshProfile = useCallback(async () => {
-    // Hvis du har en server action til at hente profilen, brug den her:
-    // Eksempel:
-    // const updated = await fetchUserProfile(userProfile.userId);
-    // if (updated) setUserProfile(updated);
-
-    // Midlertidig fallback: reload siden (kan erstattes med ovenstående)
     window.location.reload();
-  }, [userProfile.userId]);
+  }, []);
 
   return (
     <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-6 shadow-lg">

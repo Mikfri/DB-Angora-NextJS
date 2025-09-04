@@ -41,7 +41,7 @@ export function useUserProfile(
       setEditedData({});
       setIsSaving(false);
       setUserProfile(result.data);
-    } catch (err) {
+    } catch {
       setError("Der opstod en fejl ved opdatering.");
       setIsSaving(false);
     }

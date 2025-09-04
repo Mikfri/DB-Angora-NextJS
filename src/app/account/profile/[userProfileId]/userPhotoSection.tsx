@@ -80,7 +80,7 @@ const handleDeletePhoto = async (photoId: number) => {
     });
     if (!result.success) setError(result.error || 'Der opstod en fejl ved sletning af billede');
     await refreshProfile();
-  } catch (err) {
+  } catch {
     setError('Uventet fejl ved sletning af billede');
   }
   setIsLoadingDeleteAction(null);

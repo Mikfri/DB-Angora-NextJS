@@ -1,17 +1,30 @@
 // src/app/account/page.tsx
+'use client';
 
+import { useEffect, useState } from 'react';
+import { useAuthStore } from '@/store/authStore';
 import PageNavigationCard from '@/components/cards/pageNavigationCard';
 import { ROUTES } from '@/constants/navigationConstants';
-import { getUserIdentity } from '@/app/actions/auth/session';
 import { isBreeder, isContentCreator, isModerator, isPremiumUser } from '@/types/authTypes';
+import { Spinner } from '@heroui/react';
 
-export default async function AccountPage() {
-    const userIdentity = await getUserIdentity();
+export default function AccountPage() {
+    const { userIdentity, isLoading, checkAuth } = useAuthStore();
+    const [mounted, setMounted] = useState(false);
 
-    // Log claims og roller til konsollen
-    // console.log('UserIdentity:', userIdentity);
-    // console.log('Claims:', userIdentity?.claims);
-    // console.log('Roles:', userIdentity?.roles);
+    useEffect(() => {
+        setMounted(true);
+        checkAuth();
+    }, [checkAuth]);
+
+    // Viser loading spinner indtil siden er mounted og auth er tjekket
+    if (!mounted || isLoading) {
+        return (
+            <div className="flex justify-center items-center min-h-[50vh]">
+                <Spinner size="lg" color="primary" />
+            </div>
+        );
+    }
 
     // Always show profile card if logged in
     const showProfile = !!userIdentity;

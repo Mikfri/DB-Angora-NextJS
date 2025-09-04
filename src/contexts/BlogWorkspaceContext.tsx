@@ -23,42 +23,75 @@ export function BlogWorkspaceProvider({ children }: { children: React.ReactNode 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<{ message: string; status?: number } | null>(null);
 
-  const loadBlog = async () => {
-    if (isNaN(blogId) || blogId <= 0) {
-      setError({ message: 'Ugyldigt blog ID', status: 400 });
-      setIsLoading(false);
-      return;
-    }
-
-    try {
-      setIsLoading(true);
-      setError(null);
-      
-      const result = await fetchBlogByIdAction(blogId);
-      
-      if (result.success) {
-        setBlog(result.data);
-      } else {
-        setError({ 
-          message: result.error, 
-          status: result.status 
-        });
-      }
-    } catch (err) {
-      setError({ 
-        message: 'Der opstod en uventet fejl', 
-        status: 500 
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   useEffect(() => {
+    // Flyt loadBlog ind i useEffect
+    const loadBlog = async () => {
+      if (isNaN(blogId) || blogId <= 0) {
+        setError({ message: 'Ugyldigt blog ID', status: 400 });
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        setError(null);
+        
+        const result = await fetchBlogByIdAction(blogId);
+        
+        if (result.success) {
+          setBlog(result.data);
+        } else {
+          setError({ 
+            message: result.error, 
+            status: result.status 
+          });
+        }
+      } catch {
+        setError({ 
+          message: 'Der opstod en uventet fejl', 
+          status: 500 
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     loadBlog();
-  }, [blogId]);
+  }, [blogId]); // Nu er dependency array korrekt
 
   const refreshBlog = async () => {
+    // For refreshBlog, opret en ny loadBlog funktion
+    const loadBlog = async () => {
+      if (isNaN(blogId) || blogId <= 0) {
+        setError({ message: 'Ugyldigt blog ID', status: 400 });
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        setError(null);
+        
+        const result = await fetchBlogByIdAction(blogId);
+        
+        if (result.success) {
+          setBlog(result.data);
+        } else {
+          setError({ 
+            message: result.error, 
+            status: result.status 
+          });
+        }
+      } catch {
+        setError({ 
+          message: 'Der opstod en uventet fejl', 
+          status: 500 
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     await loadBlog();
   };
 

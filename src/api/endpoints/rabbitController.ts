@@ -367,7 +367,7 @@ export async function UpdateSaleDetails(
         // Prøv at parse response som JSON
         const result = await response.json();
         return result === true || Boolean(result); // Konverter til boolean
-    } catch (e) {
+    } catch {
         // Hvis parsing fejler, antages det at operationen lykkedes
         return true;
     }
