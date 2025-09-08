@@ -135,8 +135,8 @@ const BlogPreviewCard = memo(function BlogPreviewCard({
 						<div className="text-xs text-zinc-500 italic text-left">Synlighed: {blog.blogVisibility}</div>
 					</div>
 				</div>
-				{blog.subTitle && (
-					<div className="text-xs text-zinc-400 italic line-clamp-1 text-left w-full">{blog.subTitle}</div>
+				{blog.subtitle && (
+					<div className="text-xs text-zinc-400 italic line-clamp-1 text-left w-full">{blog.subtitle}</div>
 				)}
 			</CardHeader>
 
