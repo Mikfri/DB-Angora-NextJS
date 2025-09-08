@@ -23,7 +23,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
     "@context": "https://schema.org",
     "@type": "Article",
     "headline": blog.title,
-    "alternativeHeadline": blog.subTitle || undefined,
+    "alternativeHeadline": blog.subtitle || undefined,
     "image": blog.featuredImageUrl || undefined,
     "author": {
       "@type": "Person",
@@ -41,7 +41,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
         "url": "https://db-angora.dk/images/DB-Angora.png"
       }
     },
-    "description": blog.subTitle || blog.title,
+    "description": blog.subtitle || blog.title,
     "articleBody": blog.content?.replace(/<[^>]+>/g, '').slice(0, 200), // Kort uddrag uden HTML
     "keywords": blog.tags || undefined
   };

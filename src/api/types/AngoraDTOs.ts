@@ -49,6 +49,11 @@ export interface PhotoPublicDTO {
     isProfilePicture: boolean;
 }
 
+/**
+ * DTO til sletning af et billede.
+ * Frontenden skal sikre at det rette 'entityId' vælges,
+ * i form af string eller int med udgangspunkt i den entitet som billedet er knyttet til.
+ */
 export interface PhotoDeleteDTO {
   photoId: number;
   entityStringId?: string | null;
@@ -548,7 +553,7 @@ export interface Blog_CardDTO {
     slug: string;
     blogVisibility: string; // eller evt. en enum-type hvis du ønsker det
     title: string;
-    subTitle?: string | null;
+    subtitle?: string | null;
     contentSummary: string;
     authorId?: string | null;
     authorName?: string | null;
@@ -568,13 +573,43 @@ export interface Blog_CardFilterDTO {
     pageSize: number;
 }
 
+/**
+ * DTO til offentlige blogindlæg, som kan tilgås uden autentifikation.
+ * Indeholder kun de felter som er nødvendige for offentlig visning, uden følsomme oplysninger.
+ */
+export interface BlogPublicDTO {
+    id: number;
+    slug: string;
+    title: string;
+    subtitle?: string | null;
+    content: string;
+    visibilityLevel: string;  // "Public", "PaidContent"
+    tags?: string | null;  // Comma-separated tags
+    //authorId: string;
+    authorName: string;
+    authorProfilePicture: string;
+    //createdAt?: string | null;
+    //updatedAt?: string | null;
+    publishDate?: string | null;
+    isPublished: boolean;
+    featuredImageUrl?: string | null;
+    metaDescription?: string | null;
+    viewCount: number;
+    //--- DTO'er
+    photos: PhotoPublicDTO[];
+}
+
+/**
+ * DTO til fulde blogindlæg, som kræver autentifikation for at tilgå.
+ * Indeholder alle felter, inklusive følsomme oplysninger som authorId.
+ */
 export interface Blog_DTO {
     id: number;
     slug: string;
     title: string;
-    subTitle?: string | null;
+    subtitle?: string | null;
     content: string;
-    visibilityLevel: string;  // "Public", "Private"
+    visibilityLevel: string;  // "Public", "PaidContent"
     tags?: string | null;  // Comma-separated tags
     authorId: string;
     authorName: string;
@@ -588,4 +623,14 @@ export interface Blog_DTO {
     viewCount: number;
     //--- DTO'er
     photos: PhotoPrivateDTO[];
+}
+
+export interface Blog_UpdateDTO {
+    title: string;
+    subtitle?: string | null;
+    content: string;
+    visibilityLevel: string;    // "Public", "PaidContent"
+    tags?: string | null;
+    authorId?: string | null;    
+    metaDescription?: string | null;
 }

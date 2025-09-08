@@ -2,14 +2,18 @@
 
 'use server';
 import { getAccessToken } from '@/app/actions/auth/session';
-import { getBlogs, getBlogBySlug, getBlogsAuthoredByUser, getBlogById } from '@/api/endpoints/blogController';
-import type { Blog_CardFilterDTO, PagedResultDTO, Blog_CardDTO, Blog_DTO } from '@/api/types/AngoraDTOs';
+import { getBlogs, getBlogBySlug, getBlogsAuthoredByUser, getBlogById, updateBlog } from '@/api/endpoints/blogController';
+import type { Blog_CardFilterDTO, PagedResultDTO, Blog_CardDTO, Blog_DTO, Blog_UpdateDTO, BlogPublicDTO } from '@/api/types/AngoraDTOs';
 
 // ====================== TYPES ======================
 
 export type BlogListResult =
     | { success: true; data: PagedResultDTO<Blog_CardDTO> }
     | { success: false; error: string };
+
+export type BlogPublicResult =
+    | { success: true; data: BlogPublicDTO }
+    | { success: false; error: string; status?: number };
 
 export type BlogResult =
     | { success: true; data: Blog_DTO }
@@ -122,7 +126,7 @@ export async function fetchBlogsAuthoredByUserAction(
     }
 }
 
-// ====================== READ (BY SLUG) ======================
+// ---------------------- READ (BY SLUG)
 
 /**
  * Server Action: Henter et enkelt blogindlæg via slug
@@ -131,7 +135,7 @@ export async function fetchBlogsAuthoredByUserAction(
  */
 export async function fetchBlogBySlugAction(
     slug: string
-): Promise<BlogResult> {
+): Promise<BlogPublicResult> { // <-- RET HER
     try {
         if (!slug) {
             return {
@@ -154,7 +158,7 @@ export async function fetchBlogBySlugAction(
 
         return {
             success: true,
-            data: blog
+            data: blog // <-- BlogPublicDTO
         };
     } catch (error) {
         console.error(`Failed to fetch blog with slug ${slug}:`, error);
@@ -195,7 +199,7 @@ export async function fetchBlogByIdAction(
         }
 
         const accessToken = await getAccessToken();
-        
+
         if (!accessToken) {
             return {
                 success: false,
@@ -220,6 +224,54 @@ export async function fetchBlogByIdAction(
         };
     } catch (error) {
         console.error(`Failed to fetch blog with ID ${blogId}:`, error);
+
+        return {
+            success: false,
+            error: error instanceof Error ? error.message : 'Der skete en uventet fejl',
+            status: 500
+        };
+    }
+}
+
+// ====================== PUT (UPDATE) ======================
+
+/**
+ * Server Action: Opdaterer et eksisterende blogindlæg
+ * Kræver UpdateBlog claim i accessToken.
+ * @param blogId - ID på blogindlægget (integer)
+ * @param updateDTO - Data til opdatering af blogindlægget
+ * @returns Det opdaterede blogindlæg eller fejlbesked
+ */
+export async function updateBlogAction(
+    blogId: number,
+    updateDTO: Blog_UpdateDTO
+): Promise<BlogResult> {
+    try {
+        if (!blogId || blogId <= 0) {
+            return {
+                success: false,
+                error: 'Ugyldigt blog ID',
+                status: 400
+            };
+        }
+
+        const accessToken = await getAccessToken();
+        if (!accessToken) {
+            return {
+                success: false,
+                error: 'Du skal være logget ind for at opdatere et blogindlæg',
+                status: 401
+            };
+        }
+
+        const updatedBlog = await updateBlog(blogId, updateDTO, accessToken);
+
+        return {
+            success: true,
+            data: updatedBlog
+        };
+    } catch (error) {
+        console.error(`Failed to update blog with ID ${blogId}:`, error);
 
         return {
             success: false,

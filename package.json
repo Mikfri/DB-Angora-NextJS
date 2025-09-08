@@ -14,7 +14,10 @@
    "dependencies": {
       "@heroui/react": "2.6.14",
       "@hookform/resolvers": "^3.9.1",
+      "@lexical/react": "^0.35.0",
+      "@tailwindcss/typography": "^0.5.16",
       "framer-motion": "^11.11.17",
+      "lexical": "^0.35.0",
       "next": "^15.2.3",
       "next-cloudinary": "^6.16.0",
       "next-sitemap": "^4.2.3",

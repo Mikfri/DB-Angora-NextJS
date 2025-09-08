@@ -1,6 +1,6 @@
 // src/api/endpoints/blogController.ts
 import { getApiUrl } from "../config/apiConfig";
-import type { Blog_CardFilterDTO, PagedResultDTO, Blog_CardDTO, Blog_DTO } from '@/api/types/AngoraDTOs';
+import type { Blog_CardFilterDTO, PagedResultDTO, Blog_CardDTO, Blog_DTO, Blog_UpdateDTO, BlogPublicDTO } from '@/api/types/AngoraDTOs';
 
 //---------------- POST METHODS -----------------
 //----------------- GET METHODS -----------------
@@ -110,7 +110,7 @@ export async function getBlogsAuthoredByUser(
 export async function getBlogBySlug(
     slug: string,
     accessToken?: string
-): Promise<Blog_DTO | null> {
+): Promise<BlogPublicDTO | null> {
     const url = getApiUrl(`Blog/${encodeURIComponent(slug)}`);
 
     const headers: Record<string, string> = { 'Accept': 'application/json' };
@@ -136,7 +136,7 @@ export async function getBlogBySlug(
     }
 
     const data = await res.json();
-    return data as Blog_DTO;
+    return data as BlogPublicDTO;
 }
 
 /**
@@ -189,4 +189,58 @@ export async function getBlogById(
     return data as Blog_DTO;
 }
 //------------------ PUT METHODS -------------------
+
+/**
+ * Opdaterer et eksisterende blogindlæg med adgangskontrol.
+ * Kræver UpdateBlog claim i accessToken.
+ * @param blogId - ID på blogindlægget (integer)
+ * @param updateDTO - Data til opdatering af blogindlægget
+ * @param accessToken - JWT token til adgangskontrol (påkrævet)
+ * @returns Det opdaterede blogindlæg (Blog_DTO)
+ */
+export async function updateBlog(
+    blogId: number,
+    updateDTO: Blog_UpdateDTO,
+    accessToken: string
+): Promise<Blog_DTO> {
+    if (!accessToken || accessToken.trim() === "") {
+        throw new Error("Access token is required for this endpoint.");
+    }
+
+    if (!blogId || blogId <= 0) {
+        throw new Error("Valid blog ID is required.");
+    }
+
+    const url = getApiUrl(`Blog/${blogId}`);
+
+    const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${accessToken}`
+    };
+
+    const res = await fetch(url, {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify(updateDTO)
+    });
+
+    if (!res.ok) {
+        // API'en sender strukturerede fejlbeskeder via ExceptionMiddleware
+        let errorMessage = `${res.status} ${res.statusText}`;
+        try {
+            const errorBody = await res.text();
+            if (errorBody) {
+                const errorData = JSON.parse(errorBody);
+                errorMessage = errorData.message || errorMessage;
+            }
+        } catch {}
+        throw new Error(`Fejl ved opdatering af blog: ${errorMessage}`);
+    }
+
+    const data = await res.json();
+    return data as Blog_DTO;
+}
+
+
 //---------------- DELETE METHODS ------------------
