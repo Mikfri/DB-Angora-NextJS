@@ -64,7 +64,7 @@ function ImageSelector({ blogId, isOpen, onClose, onImageSelect, existingPhotos 
       } else {
         toast.error(`Kunne ikke hente upload konfiguration: ${result.error}`);
       }
-    } catch (error) {
+    } catch {
       toast.error('Der skete en fejl ved forberedelse af upload');
     } finally {
       setIsLoadingConfig(false);
@@ -220,7 +220,7 @@ export function ToolbarPlugin({ blogId, existingPhotos = [] }: { blogId: number;
       },
       1,
     );
-  }, [updateToolbar]);
+  }, [updateToolbar, editor]);
 
   const formatParagraph = () => {
     editor.update(() => {
