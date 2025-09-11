@@ -38,7 +38,7 @@ export const BlogNavClient = memo(function BlogNavClient() {
             size="sm"
             variant="light"
             className="h-5 text-xs text-zinc-400 hover:text-zinc-200"
-            onClick={clearAllFilters}
+            onPress={clearAllFilters}
           >
             Nulstil alle
           </Button>
@@ -59,7 +59,7 @@ export const BlogNavClient = memo(function BlogNavClient() {
               isIconOnly
               size="sm"
               variant="light"
-              onClick={() => clearFilter('searchTerm')}
+              onPress={() => clearFilter('searchTerm')}
             >
               <IoMdClose />
             </Button>
@@ -81,7 +81,7 @@ export const BlogNavClient = memo(function BlogNavClient() {
               isIconOnly
               size="sm"
               variant="light"
-              onClick={() => clearFilter('authorFullName')}
+              onPress={() => clearFilter('authorFullName')}
             >
               <IoMdClose />
             </Button>
@@ -103,7 +103,7 @@ export const BlogNavClient = memo(function BlogNavClient() {
               isIconOnly
               size="sm"
               variant="light"
-              onClick={() => clearFilter('tagFilter')}
+              onPress={() => clearFilter('tagFilter')}
             >
               <IoMdClose />
             </Button>
@@ -118,7 +118,7 @@ export const BlogNavClient = memo(function BlogNavClient() {
           variant="solid"
           color="primary"
           className="w-full"
-          onClick={applyFilters}
+          onPress={applyFilters}
         >
           Anvend filtre
         </Button>

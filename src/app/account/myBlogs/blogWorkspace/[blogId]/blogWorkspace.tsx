@@ -7,14 +7,15 @@ import { useState, useMemo, useEffect } from 'react';
 import { useNav } from "@/components/providers/Providers";
 import { useBlogWorkspace } from '@/hooks/blogs/useBlogWorkspace';
 import MyNav from "@/components/nav/side/index/MyNav";
-import { editableFieldLabels, renderBlogField } from './blogFormFields'; // <-- BRUG DETTE
+import { editableFieldLabels, renderBlogField } from './blogFormFields';
 import { Blog_UpdateDTO } from '@/api/types/AngoraDTOs';
 import { FaEdit } from 'react-icons/fa';
+import BlogImageSection from './blogImages'; // <-- TILFØJ DENNE IMPORT
 
 // Import ikoner
 import { RiEditLine, RiSettingsLine, RiEyeLine, RiImageLine, RiSendPlaneLine } from "react-icons/ri";
 
-// Placeholder komponenter (uændret...)
+// Placeholder komponenter (FJERN BlogImageSection placeholder!)
 const BlogSettings = ({ blog }: { blog: Blog_DTO }) => (
     <div className="p-4 bg-zinc-700/50 rounded-lg">
         <h3 className="text-lg font-semibold mb-2">Blog Indstillinger</h3>
@@ -22,12 +23,13 @@ const BlogSettings = ({ blog }: { blog: Blog_DTO }) => (
     </div>
 );
 
-const BlogImageSection = ({ blogId }: { blogId: number }) => (
-    <div className="p-4 bg-zinc-700/50 rounded-lg">
-        <h3 className="text-lg font-semibold mb-2">Blog Billeder</h3>
-        <p className="text-zinc-300">Billede håndtering kommer her... Blog ID: {blogId}</p>
-    </div>
-);
+// FJERN DENNE PLACEHOLDER - den er erstattet af import fra blogImages.tsx
+// const BlogImageSection = ({ blogId }: { blogId: number }) => (
+//     <div className="p-4 bg-zinc-700/50 rounded-lg">
+//         <h3 className="text-lg font-semibold mb-2">Blog Billeder</h3>
+//         <p className="text-zinc-300">Billede håndtering kommer her... Blog ID: {blogId}</p>
+//     </div>
+// );
 
 const BlogPreview = ({ blog }: { blog: Blog_DTO }) => (
     <div className="p-4 bg-zinc-700/50 rounded-lg">
@@ -161,22 +163,22 @@ export default function BlogWorkspace({ blog: initialBlog }: { blog: Blog_DTO })
                             {(Object.keys(editableFieldLabels) as Array<keyof Blog_UpdateDTO>)
                                 .filter(key => key !== 'authorId') // Skip non-editable field
                                 .map((key) => (
-                                <div key={key} className="space-y-2">
-                                    <label
-                                        htmlFor={`${key}-input`}
-                                        className="block text-sm font-medium text-zinc-300"
-                                    >
-                                        {editableFieldLabels[key]}
-                                    </label>
-                                    {renderBlogField(
-                                        key,
-                                        currentBlog[key],
-                                        isEditing,
-                                        editedData,
-                                        setEditedData
-                                    )}
-                                </div>
-                            ))}
+                                    <div key={key} className="space-y-2">
+                                        <label
+                                            htmlFor={`${key}-input`}
+                                            className="block text-sm font-medium text-zinc-300"
+                                        >
+                                            {editableFieldLabels[key]}
+                                        </label>
+                                        {renderBlogField(
+                                            key,
+                                            currentBlog[key],
+                                            isEditing,
+                                            editedData,
+                                            setEditedData
+                                        )}
+                                    </div>
+                                ))}
                         </form>
                     </div>
                 </Tab>
@@ -186,7 +188,14 @@ export default function BlogWorkspace({ blog: initialBlog }: { blog: Blog_DTO })
                 </Tab>
 
                 <Tab key="images" title={<div className="flex items-center space-x-2"><RiImageLine className="text-xl" /><span>Billeder</span></div>}>
-                    <BlogImageSection blogId={currentBlog.id} />
+                    <BlogImageSection
+                        blogId={currentBlog.id}
+                        currentPhotos={currentBlog.photos || []}
+                        featuredImageId={undefined} // <-- ÆNDRET FRA featuredImageUrl til undefined
+                        onPhotosUpdated={() => {
+                            window.location.reload();
+                        }}
+                    />
                 </Tab>
 
                 <Tab key="preview" title={<div className="flex items-center space-x-2"><RiEyeLine className="text-xl" /><span>Forhåndsvisning</span></div>}>

@@ -1,4 +1,4 @@
-// src/app/account/myBlogs/blogWorkspace/[blogId]/blogLexicalEditor.tsx
+// src/app/account/myBlogs/blogWorkspace/[blogId]/LexicalEditor.tsx
 'use client';
 
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
@@ -16,11 +16,16 @@ import { CodeHighlightNode, CodeNode } from "@lexical/code";
 import { AutoLinkNode, LinkNode } from "@lexical/link";
 import { useEffect, useRef } from "react";
 import { ToolbarPlugin } from "./LexicalToolbarPlugin";
+import { ImagePlugin } from "./LexicalImagePlugin";
+import { ImageNode } from "./LexicalImageNode";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
+import type { PhotoPrivateDTO } from '@/api/types/AngoraDTOs';
 
 interface Props {
   value: string;
   onChange: (html: string) => void;
+  blogId: number; // <-- TILFØJ DENNE
+  existingPhotos?: PhotoPrivateDTO[]; // <-- OG DENNE
 }
 
 const initialConfig = {
@@ -34,6 +39,7 @@ const initialConfig = {
     CodeHighlightNode,
     AutoLinkNode,
     LinkNode,
+    ImageNode,
   ],
   theme: {
     paragraph: "mb-2 text-zinc-300 leading-relaxed",
@@ -56,6 +62,7 @@ const initialConfig = {
     quote: "border-l-4 border-blue-500 pl-4 italic text-zinc-400 my-4",
     code: "bg-zinc-800 text-green-300 p-4 rounded font-mono text-sm overflow-x-auto my-4",
     link: "text-blue-400 hover:text-blue-300 underline",
+    image: "blog-image-container",
   },
   onError(error: Error) {
     console.error('Lexical error:', error);
@@ -63,13 +70,13 @@ const initialConfig = {
   editorState: null,
 };
 
-export default function BlogLexicalEditor({ value, onChange }: Props) {
+export default function BlogLexicalEditor({ value, onChange, blogId, existingPhotos = [] }: Props) {
   const isInitialized = useRef(false);
 
   return (
     <LexicalComposer initialConfig={initialConfig}>
       <div className="border rounded-lg bg-zinc-900 overflow-hidden">
-        <ToolbarPlugin />
+        <ToolbarPlugin blogId={blogId} existingPhotos={existingPhotos} />
         
         <div className="relative">
           <RichTextPlugin
@@ -89,18 +96,17 @@ export default function BlogLexicalEditor({ value, onChange }: Props) {
 
         <HistoryPlugin />
         <ListPlugin />
+        <ImagePlugin /> {/* <-- TILFØJ IMAGE PLUGIN */}
         
-        {/* HTML output */}
         <OnChangePlugin
-          onChange={(editorState: EditorState, editor: LexicalEditor) => { // <-- RET HER
-            editor.read(() => { // <-- BRUG editor
-              const html = $generateHtmlFromNodes(editor, null); // <-- BRUG editor
+          onChange={(editorState: EditorState, editor: LexicalEditor) => {
+            editor.read(() => {
+              const html = $generateHtmlFromNodes(editor, null);
               onChange(html);
             });
           }}
         />
 
-        {/* Initialize with existing content */}
         <InitializeEditorPlugin initialHtml={value} isInitialized={isInitialized} />
       </div>
     </LexicalComposer>

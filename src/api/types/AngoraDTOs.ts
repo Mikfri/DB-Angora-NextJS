@@ -32,7 +32,7 @@ export interface PagedResultDTO<T> {
 
 export interface PhotoPrivateDTO {
     id: number;
-    filePath: string;
+    filePath: string;   // URL til billedet
     fileName: string;
     cloudinaryPublicId: string;
     uploadDate: string;
@@ -43,7 +43,7 @@ export interface PhotoPrivateDTO {
 
 export interface PhotoPublicDTO {
     id: number;
-    filePath: string;
+    filePath: string;   // URL til billedet
     fileName: string;
     uploadDate: string;
     isProfilePicture: boolean;
@@ -622,7 +622,7 @@ export interface Blog_DTO {
     metaDescription?: string | null;
     viewCount: number;
     //--- DTO'er
-    photos: PhotoPrivateDTO[];
+    photos?: PhotoPrivateDTO[];
 }
 
 export interface Blog_UpdateDTO {

@@ -2,7 +2,7 @@
 import React, { ReactNode } from "react";
 import { Input, Textarea, Select, SelectItem } from "@heroui/react";
 import { Blog_DTO, Blog_UpdateDTO } from "@/api/types/AngoraDTOs";
-import BlogLexicalEditor from "./blogLexicalEditor";
+import BlogLexicalEditor from "./LexicalEditor";
 
 // Redigerbare felter for blog
 export const editableFieldLabels: Record<keyof Blog_UpdateDTO, string> = {
@@ -80,6 +80,8 @@ function renderEditMode(
             <BlogLexicalEditor
                 value={editedData.content || ""}
                 onChange={(html) => setEditedData({ ...editedData, content: html })}
+                blogId={editedData.id} // <-- TILFØJ DETTE
+                existingPhotos={editedData.photos || []} // <-- OG DETTE
             />
         );
     }

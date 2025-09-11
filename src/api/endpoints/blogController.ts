@@ -1,8 +1,66 @@
 // src/api/endpoints/blogController.ts
 import { getApiUrl } from "../config/apiConfig";
-import type { Blog_CardFilterDTO, PagedResultDTO, Blog_CardDTO, Blog_DTO, Blog_UpdateDTO, BlogPublicDTO } from '@/api/types/AngoraDTOs';
+import type {
+    Blog_CardFilterDTO, PagedResultDTO, Blog_CardDTO, Blog_DTO, Blog_UpdateDTO, BlogPublicDTO,
+    CloudinaryUploadConfigDTO, PhotoPrivateDTO, CloudinaryPhotoRegistryRequestDTO,
+    PhotoDeleteDTO
+} from '@/api/types/AngoraDTOs';
 
 //---------------- POST METHODS -----------------
+
+/**
+ * Registrerer et billede fra Cloudinary til et blogindlæg.
+ * Kræver CreateBlog claim i accessToken.
+ * @param blogId - ID på blogindlægget billedet tilhører
+ * @param requestDTO - Billedoplysninger fra Cloudinary
+ * @param accessToken - JWT token til adgangskontrol (påkrævet)
+ * @returns Det oprettede private Photo DTO
+ */
+export async function registerCloudinaryBlogPhoto(
+    blogId: number,
+    requestDTO: CloudinaryPhotoRegistryRequestDTO,
+    accessToken: string
+): Promise<PhotoPrivateDTO> {
+    if (!accessToken || accessToken.trim() === "") {
+        throw new Error("Access token is required for this endpoint.");
+    }
+    if (!blogId || blogId <= 0) {
+        throw new Error("Valid blog ID is required.");
+    }
+    if (!requestDTO) {
+        throw new Error("Cloudinary photo registry request is required.");
+    }
+
+    const url = getApiUrl(`Blog/register-photo/${blogId}`);
+
+    const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${accessToken}`
+    };
+
+    const res = await fetch(url, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(requestDTO)
+    });
+
+    if (!res.ok) {
+        let errorMessage = `${res.status} ${res.statusText}`;
+        try {
+            const errorBody = await res.text();
+            if (errorBody) {
+                const errorData = JSON.parse(errorBody);
+                errorMessage = errorData.message || errorMessage;
+            }
+        } catch { }
+        throw new Error(`Fejl ved registrering af blogfoto: ${errorMessage}`);
+    }
+
+    const data = await res.json();
+    return data as PhotoPrivateDTO;
+}
+
 //----------------- GET METHODS -----------------
 // Modtag accessToken som parameter (best practice)
 export async function getBlogs(
@@ -131,7 +189,7 @@ export async function getBlogBySlug(
         try {
             const errorBody = await res.text();
             if (errorBody) errorMessage = errorBody;
-        } catch {}
+        } catch { }
         throw new Error(`Fejl ved hentning af blog: ${errorMessage}`);
     }
 
@@ -171,7 +229,7 @@ export async function getBlogById(
     if (res.status === 404) {
         return null; // Blog ikke fundet
     }
-    
+
     if (!res.ok) {
         // API'en sender strukturerede fejlbeskeder via ExceptionMiddleware
         let errorMessage = `${res.status} ${res.statusText}`;
@@ -181,13 +239,63 @@ export async function getBlogById(
                 const errorData = JSON.parse(errorBody);
                 errorMessage = errorData.message || errorMessage;
             }
-        } catch {}
+        } catch { }
         throw new Error(`Fejl ved hentning af blog: ${errorMessage}`);
     }
 
     const data = await res.json();
     return data as Blog_DTO;
 }
+
+/**
+ * Henter konfigurationen for at uploade et billede til et blogindlæg.
+ * Kræver UpdateBlog claim i accessToken.
+ * @param blogId - ID på blogindlægget (integer)
+ * @param accessToken - JWT token til adgangskontrol (påkrævet)
+ * @returns Cloudinary upload konfiguration
+ */
+export async function getBlogImageUploadConfig(
+    blogId: number,
+    accessToken: string
+): Promise<CloudinaryUploadConfigDTO> {
+    if (!accessToken || accessToken.trim() === "") {
+        throw new Error("Access token is required for this endpoint.");
+    }
+
+    if (!blogId || blogId <= 0) {
+        throw new Error("Valid blog ID is required.");
+    }
+
+    const url = getApiUrl(`Blog/upload-config/${blogId}`);
+
+    const headers: Record<string, string> = {
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${accessToken}`
+    };
+
+    const res = await fetch(url, {
+        method: 'GET',
+        headers
+    });
+
+    if (!res.ok) {
+        // API'en sender strukturerede fejlbeskeder via ExceptionMiddleware
+        let errorMessage = `${res.status} ${res.statusText}`;
+        try {
+            const errorBody = await res.text();
+            if (errorBody) {
+                const errorData = JSON.parse(errorBody);
+                errorMessage = errorData.message || errorMessage;
+            }
+        } catch { }
+        throw new Error(`Fejl ved hentning af upload konfiguration: ${errorMessage}`);
+    }
+
+    const data = await res.json();
+    return data as CloudinaryUploadConfigDTO;
+}
+
+
 //------------------ PUT METHODS -------------------
 
 /**
@@ -234,7 +342,7 @@ export async function updateBlog(
                 const errorData = JSON.parse(errorBody);
                 errorMessage = errorData.message || errorMessage;
             }
-        } catch {}
+        } catch { }
         throw new Error(`Fejl ved opdatering af blog: ${errorMessage}`);
     }
 
@@ -242,5 +350,103 @@ export async function updateBlog(
     return data as Blog_DTO;
 }
 
+/**
+ * Opdaterer hvilket billede der skal være featured image for et blogindlæg.
+ * Kræver UpdateBlog claim i accessToken.
+ * @param blogId - ID på blogindlægget
+ * @param photoId - ID på billedet der skal sættes som featured image
+ * @param accessToken - JWT token til adgangskontrol (påkrævet)
+ * @returns Det opdaterede foto
+ */
+export async function updateBlogFeaturedImage(
+    blogId: number,
+    photoId: number,
+    accessToken: string
+): Promise<PhotoPrivateDTO> {
+    if (!accessToken || accessToken.trim() === "") {
+        throw new Error("Access token is required for this endpoint.");
+    }
+    if (!blogId || blogId <= 0) {
+        throw new Error("Valid blog ID is required.");
+    }
+    if (!photoId || photoId <= 0) {
+        throw new Error("Valid photo ID is required.");
+    }
+
+    const url = getApiUrl(`Blog/${blogId}/featured-image/${photoId}`);
+
+    const headers: Record<string, string> = {
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${accessToken}`
+    };
+
+    const res = await fetch(url, {
+        method: 'PUT',
+        headers
+    });
+
+    if (!res.ok) {
+        let errorMessage = `${res.status} ${res.statusText}`;
+        try {
+            const errorBody = await res.text();
+            if (errorBody) {
+                const errorData = JSON.parse(errorBody);
+                errorMessage = errorData.message || errorMessage;
+            }
+        } catch { }
+        throw new Error(`Fejl ved opdatering af featured image: ${errorMessage}`);
+    }
+
+    const data = await res.json();
+    return data as PhotoPrivateDTO;
+}
 
 //---------------- DELETE METHODS ------------------
+
+/**
+ * Sletter et billede fra et blogindlæg.
+ * Kræver UpdateBlog claim i accessToken.
+ * @param deletionDTO - DTO med PhotoId og BlogId
+ * @param accessToken - JWT token til adgangskontrol (påkrævet)
+ * @returns Bekræftelse på sletning (object med message)
+ */
+export async function deleteBlogPhoto(
+    deletionDTO: PhotoDeleteDTO,
+    accessToken: string
+): Promise<{ message: string }> {
+    if (!accessToken || accessToken.trim() === "") {
+        throw new Error("Access token is required for this endpoint.");
+    }
+    if (!deletionDTO || !deletionDTO.photoId || !deletionDTO.entityIntId) {
+        throw new Error("PhotoDeleteDTO med PhotoId og BlogId er påkrævet.");
+    }
+
+    const url = getApiUrl(`Blog/delete-photo`);
+
+    const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${accessToken}`
+    };
+
+    const res = await fetch(url, {
+        method: 'DELETE',
+        headers,
+        body: JSON.stringify(deletionDTO)
+    });
+
+    if (!res.ok) {
+        let errorMessage = `${res.status} ${res.statusText}`;
+        try {
+            const errorBody = await res.text();
+            if (errorBody) {
+                const errorData = JSON.parse(errorBody);
+                errorMessage = errorData.message || errorMessage;
+            }
+        } catch { }
+        throw new Error(`Fejl ved sletning af blogfoto: ${errorMessage}`);
+    }
+
+    const data = await res.json();
+    return data as { message: string };
+}
