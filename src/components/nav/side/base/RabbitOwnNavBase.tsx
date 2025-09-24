@@ -6,10 +6,6 @@ interface RabbitOwnNavBaseProps {
   children: ReactNode;
 }
 
-/**
- * Server Component for RabbitOwnNav
- * Contains the base structure for the My Rabbits navigation
- */
 export default function RabbitOwnNavBase({ 
   children
 }: RabbitOwnNavBaseProps) {

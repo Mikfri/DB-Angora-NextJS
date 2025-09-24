@@ -1,20 +1,19 @@
-// src/hooks/blogs/useBlogWorkspace.ts
 import { useState, useCallback } from 'react';
 import { Blog_DTO, Blog_UpdateDTO } from '@/api/types/AngoraDTOs';
-import { updateBlogAction } from '@/app/actions/blog/blogActions';
+import { updateBlogAction, publishBlogAction, unpublishBlogAction } from '@/app/actions/blog/blogActions';
 import { toast } from 'react-toastify';
 
 export function useBlogWorkspace(initialBlog: Blog_DTO) {
     const [currentBlog, setCurrentBlog] = useState<Blog_DTO>(initialBlog);
     const [isEditing, setIsEditing] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
+    const [isPublishing, setIsPublishing] = useState(false);
     const [editedData, setEditedData] = useState<Blog_DTO>(initialBlog);
 
     // Handle save
     const handleSave = useCallback(async () => {
         setIsSaving(true);
         try {
-            // Konverter til UpdateDTO format
             const updateDTO: Blog_UpdateDTO = {
                 title: editedData.title,
                 subtitle: editedData.subtitle,
@@ -25,7 +24,6 @@ export function useBlogWorkspace(initialBlog: Blog_DTO) {
             };
 
             const result = await updateBlogAction(currentBlog.id, updateDTO);
-            
             if (result.success) {
                 setCurrentBlog(result.data);
                 setEditedData(result.data);
@@ -42,6 +40,44 @@ export function useBlogWorkspace(initialBlog: Blog_DTO) {
         }
     }, [editedData, currentBlog.id]);
 
+    // Handle publish
+    const handlePublish = useCallback(async () => {
+        setIsPublishing(true);
+        try {
+            const result = await publishBlogAction(currentBlog.id);
+            if (result.success) {
+                setCurrentBlog(result.data);
+                toast.success('Blog publiceret!');
+            } else {
+                toast.error(result.error || 'Fejl ved publicering');
+            }
+        } catch (error) {
+            console.error('Publish error:', error);
+            toast.error('Der opstod en uventet fejl');
+        } finally {
+            setIsPublishing(false);
+        }
+    }, [currentBlog.id]);
+
+    // Handle unpublish
+    const handleUnpublish = useCallback(async () => {
+        setIsPublishing(true);
+        try {
+            const result = await unpublishBlogAction(currentBlog.id);
+            if (result.success) {
+                setCurrentBlog(result.data);
+                toast.success('Blog trukket tilbage!');
+            } else {
+                toast.error(result.error || 'Fejl ved tilbagetrækning');
+            }
+        } catch (error) {
+            console.error('Unpublish error:', error);
+            toast.error('Der opstod en uventet fejl');
+        } finally {
+            setIsPublishing(false);
+        }
+    }, [currentBlog.id]);
+
     // Handle cancel
     const handleCancelEdit = useCallback(() => {
         setEditedData(currentBlog);
@@ -53,10 +89,13 @@ export function useBlogWorkspace(initialBlog: Blog_DTO) {
         setCurrentBlog,
         isEditing,
         isSaving,
+        isPublishing,
         editedData,
         setEditedData,
         setIsEditing,
         handleSave,
-        handleCancelEdit
+        handleCancelEdit,
+        handlePublish,
+        handleUnpublish,
     };
 }

@@ -548,6 +548,16 @@ export interface TransferRequest_ResponseDTO {
 }
 
 //---------- BLOG SECTION
+export interface Blog_CreateDTO {
+    title: string;
+    subtitle?: string | null;
+    content: string;
+    visibilityLevel: string;    // "Public", "PaidContent"
+    tags?: string | null;
+    //metaDescription?: string | null; // Undladt ved oprettelse (metaDescription = title)
+}
+
+
 export interface Blog_CardDTO {
     id: number;
     slug: string;

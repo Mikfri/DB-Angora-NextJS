@@ -2,14 +2,30 @@
 
 'use server';
 import { getAccessToken } from '@/app/actions/auth/session';
-import { getBlogs, getBlogBySlug, getBlogsAuthoredByUser, getBlogById, updateBlog, getBlogImageUploadConfig, registerCloudinaryBlogPhoto, deleteBlogPhoto, updateBlogFeaturedImage } from '@/api/endpoints/blogController';
-import type { Blog_CardFilterDTO, PagedResultDTO, Blog_CardDTO, Blog_DTO, Blog_UpdateDTO, BlogPublicDTO, CloudinaryUploadConfigDTO, PhotoPrivateDTO, CloudinaryPhotoRegistryRequestDTO, PhotoDeleteDTO } from '@/api/types/AngoraDTOs';
+import { getBlogs, getBlogBySlug, getBlogsAuthoredByUser, getBlogById, updateBlog, getBlogImageUploadConfig, registerCloudinaryBlogPhoto, deleteBlogPhoto, updateBlogFeaturedImage, createBlog, publishBlog, unpublishBlog, schedulePublishBlog, deleteBlog } from '@/api/endpoints/blogController';
+import type { Blog_CardFilterDTO, PagedResultDTO, Blog_CardDTO, Blog_DTO, Blog_UpdateDTO, BlogPublicDTO, CloudinaryUploadConfigDTO, PhotoPrivateDTO, CloudinaryPhotoRegistryRequestDTO, PhotoDeleteDTO, Blog_CreateDTO } from '@/api/types/AngoraDTOs';
 
 // ====================== TYPES ======================
+export type BlogCreateResult =
+    | { success: true; data: Blog_DTO }
+    | { success: false; error: string; status?: number };
+
+export type BlogPublishResult =
+    | { success: true; data: Blog_DTO }
+    | { success: false; error: string; status?: number };
+
+export type BlogSchedulePublishResult =
+    | { success: true; data: Blog_DTO }
+    | { success: false; error: string; status?: number };
+
+export type BlogUnpublishResult =
+    | { success: true; data: Blog_DTO }
+    | { success: false; error: string; status?: number };
+
 export type BlogPhotoRegistryResult =
     | { success: true; data: PhotoPrivateDTO }
     | { success: false; error: string; status?: number };
-    
+
 export type BlogListResult =
     | { success: true; data: PagedResultDTO<Blog_CardDTO> }
     | { success: false; error: string };
@@ -34,7 +50,191 @@ export type BlogPhotoDeleteResult =
     | { success: true; message: string }
     | { success: false; error: string; status?: number };
 
+export type BlogDeleteResult =
+    | { success: true; message: string }
+    | { success: false; error: string; status?: number };
 // ====================== POST METHODS ======================
+/**
+ * Server Action: Opretter et nyt blogindlæg
+ * Kræver CreateBlog claim i accessToken.
+ * @param createDTO - Data til oprettelse af nyt blogindlæg
+ * @returns Det oprettede blogindlæg eller fejlbesked
+ */
+export async function createBlogAction(
+    createDTO: Blog_CreateDTO
+): Promise<BlogCreateResult> {
+    try {
+        if (!createDTO) {
+            return {
+                success: false,
+                error: 'Blog data mangler',
+                status: 400,
+            };
+        }
+
+        // Hent accessToken fra session/server
+        const accessToken = await getAccessToken();
+        if (!accessToken) {
+            return {
+                success: false,
+                error: 'Du skal være logget ind for at oprette et blogindlæg',
+                status: 401,
+            };
+        }
+
+        const blog = await createBlog(createDTO, accessToken);
+
+        return {
+            success: true,
+            data: blog,
+        };
+    } catch (error) {
+        console.error('Failed to create blog:', error);
+        return {
+            success: false,
+            error: error instanceof Error ? error.message : 'Der skete en uventet fejl',
+            status: 500,
+        };
+    }
+}
+
+/**
+ * Server Action: Publicerer et blogindlæg
+ * Kræver UpdateBlog claim i accessToken.
+ * @param blogId - ID på blogindlægget
+ * @returns Det publicerede blogindlæg eller fejlbesked
+ */
+export async function publishBlogAction(
+    blogId: number
+): Promise<BlogPublishResult> {
+    try {
+        if (!blogId || blogId <= 0) {
+            return {
+                success: false,
+                error: 'Ugyldigt blog ID',
+                status: 400,
+            };
+        }
+
+        const accessToken = await getAccessToken();
+        if (!accessToken) {
+            return {
+                success: false,
+                error: 'Du skal være logget ind for at publicere et blogindlæg',
+                status: 401,
+            };
+        }
+
+        const blog = await publishBlog(blogId, accessToken);
+
+        return {
+            success: true,
+            data: blog,
+        };
+    } catch (error) {
+        console.error('Failed to publish blog:', error);
+        return {
+            success: false,
+            error: error instanceof Error ? error.message : 'Der skete en uventet fejl',
+            status: 500,
+        };
+    }
+}
+
+/**
+ * Server Action: Planlægger publicering af et blogindlæg på en given dato
+ * Kræver UpdateBlog claim i accessToken.
+ * @param blogId - ID på blogindlægget
+ * @param publishDate - Dato for publicering (ISO string eller Date)
+ * @returns Det planlagte blogindlæg eller fejlbesked
+ */
+export async function schedulePublishBlogAction(
+    blogId: number,
+    publishDate: Date | string
+): Promise<BlogSchedulePublishResult> {
+    try {
+        if (!blogId || blogId <= 0) {
+            return {
+                success: false,
+                error: 'Ugyldigt blog ID',
+                status: 400,
+            };
+        }
+        if (!publishDate) {
+            return {
+                success: false,
+                error: 'Publiceringsdato mangler',
+                status: 400,
+            };
+        }
+
+        const accessToken = await getAccessToken();
+        if (!accessToken) {
+            return {
+                success: false,
+                error: 'Du skal være logget ind for at planlægge publicering',
+                status: 401,
+            };
+        }
+
+        const blog = await schedulePublishBlog(blogId, publishDate, accessToken);
+
+        return {
+            success: true,
+            data: blog,
+        };
+    } catch (error) {
+        console.error('Failed to schedule blog publish:', error);
+        return {
+            success: false,
+            error: error instanceof Error ? error.message : 'Der skete en uventet fejl',
+            status: 500,
+        };
+    }
+}
+
+/**
+ * Server Action: Trækker et blogindlæg tilbage fra publicering (unpublish)
+ * Kræver UpdateBlog claim i accessToken.
+ * @param blogId - ID på blogindlægget
+ * @returns Det opdaterede blogindlæg eller fejlbesked
+ */
+export async function unpublishBlogAction(
+    blogId: number
+): Promise<BlogUnpublishResult> {
+    try {
+        if (!blogId || blogId <= 0) {
+            return {
+                success: false,
+                error: 'Ugyldigt blog ID',
+                status: 400,
+            };
+        }
+
+        const accessToken = await getAccessToken();
+        if (!accessToken) {
+            return {
+                success: false,
+                error: 'Du skal være logget ind for at trække et blogindlæg tilbage',
+                status: 401,
+            };
+        }
+
+        const blog = await unpublishBlog(blogId, accessToken);
+
+        return {
+            success: true,
+            data: blog,
+        };
+    } catch (error) {
+        console.error('Failed to unpublish blog:', error);
+        return {
+            success: false,
+            error: error instanceof Error ? error.message : 'Der skete en uventet fejl',
+            status: 500,
+        };
+    }
+}
 
 /**
  * Server Action: Registrerer et billede fra Cloudinary til et blogindlæg
@@ -447,6 +647,49 @@ export async function updateBlogFeaturedImageAction(
 }
 
 // ====================== DELETE ======================
+
+/**
+ * Server Action: Sletter et blogindlæg og alle relaterede fotos
+ * Kræver DeleteBlog claim i accessToken.
+ * @param blogId - ID på blogindlægget
+ * @returns Bekræftelse på sletning eller fejlbesked
+ */
+export async function deleteBlogAction(
+  blogId: number
+): Promise<BlogDeleteResult> {
+  try {
+    if (!blogId || blogId <= 0) {
+      return {
+        success: false,
+        error: 'Ugyldigt blog ID',
+        status: 400,
+      };
+    }
+
+    const accessToken = await getAccessToken();
+    if (!accessToken) {
+      return {
+        success: false,
+        error: 'Du skal være logget ind for at slette et blogindlæg',
+        status: 401,
+      };
+    }
+
+    const result = await deleteBlog(blogId, accessToken);
+
+    return {
+      success: true,
+      message: result.message,
+    };
+  } catch (error) {
+    console.error('Failed to delete blog:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Der skete en uventet fejl',
+      status: 500,
+    };
+  }
+}
 
 /**
  * Server Action: Sletter et billede fra et blogindlæg

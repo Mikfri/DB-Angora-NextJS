@@ -9,10 +9,6 @@ interface RabbitProfileNavBaseProps {
   footerActions?: NavAction[]; // Ændret type til NavAction[] fra vores shared types
 }
 
-/**
- * Basis struktur for kaninprofilnavigation
- * Følger samme mønster som RabbitOwnNavBase
- */
 export default function RabbitProfileNavBase({
   children,
   title,

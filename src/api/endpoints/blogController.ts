@@ -3,10 +3,221 @@ import { getApiUrl } from "../config/apiConfig";
 import type {
     Blog_CardFilterDTO, PagedResultDTO, Blog_CardDTO, Blog_DTO, Blog_UpdateDTO, BlogPublicDTO,
     CloudinaryUploadConfigDTO, PhotoPrivateDTO, CloudinaryPhotoRegistryRequestDTO,
-    PhotoDeleteDTO
+    PhotoDeleteDTO,
+    Blog_CreateDTO
 } from '@/api/types/AngoraDTOs';
 
 //---------------- POST METHODS -----------------
+/**
+ * Opretter et nyt blogindlæg.
+ * Kræver CreateBlog claim i accessToken.
+ * @param createDTO - Data til oprettelse af nyt blogindlæg
+ * @param accessToken - JWT token til adgangskontrol (påkrævet)
+ * @returns Det oprettede blogindlæg (Blog_DTO)
+ */
+export async function createBlog(
+    createDTO: Blog_CreateDTO,
+    accessToken: string
+): Promise<Blog_DTO> {
+    if (!accessToken || accessToken.trim() === "") {
+        throw new Error("Access token is required for this endpoint.");
+    }
+    if (!createDTO) {
+        throw new Error("Blog create data is required.");
+    }
+
+    const url = getApiUrl('Blog');
+
+    const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${accessToken}`
+    };
+
+    const res = await fetch(url, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(createDTO)
+    });
+
+    if (!res.ok) {
+        let errorMessage = `${res.status} ${res.statusText}`;
+        try {
+            const errorBody = await res.text();
+            if (errorBody) {
+                const errorData = JSON.parse(errorBody);
+                errorMessage = errorData.message || errorMessage;
+            }
+        } catch { }
+        throw new Error(`Fejl ved oprettelse af blog: ${errorMessage}`);
+    }
+
+    const data = await res.json();
+    // Backend returnerer { message: string, blog: Blog_DTO }
+    return data.blog as Blog_DTO;
+}
+
+/**
+ * Publicerer et blogindlæg direkte, hvis brugeren har rettigheder.
+ * Kræver UpdateBlog claim i accessToken.
+ * @param blogId - ID på blogindlægget
+ * @param accessToken - JWT token til adgangskontrol (påkrævet)
+ * @returns Det publicerede blogindlæg (Blog_DTO)
+ */
+export async function publishBlog(
+    blogId: number,
+    accessToken: string
+): Promise<Blog_DTO> {
+    if (!accessToken || accessToken.trim() === "") {
+        throw new Error("Access token is required for this endpoint.");
+    }
+    if (!blogId || blogId <= 0) {
+        throw new Error("Valid blog ID is required.");
+    }
+
+    const url = getApiUrl(`Blog/publish/${blogId}`);
+
+    const headers: Record<string, string> = {
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${accessToken}`
+    };
+
+    const res = await fetch(url, {
+        method: 'POST',
+        headers
+    });
+
+    if (res.status === 404) {
+        throw new Error("Blogindlægget blev ikke fundet.");
+    }
+    if (!res.ok) {
+        let errorMessage = `${res.status} ${res.statusText}`;
+        try {
+            const errorBody = await res.text();
+            if (errorBody) {
+                const errorData = JSON.parse(errorBody);
+                errorMessage = errorData.message || errorMessage;
+            }
+        } catch { }
+        throw new Error(`Fejl ved publicering af blog: ${errorMessage}`);
+    }
+
+    const data = await res.json();
+    // Backend returnerer { message: string, blog: Blog_DTO }
+    return data.blog as Blog_DTO;
+}
+
+/**
+ * Planlægger publicering af et blogindlæg på en given dato.
+ * Kræver UpdateBlog claim i accessToken.
+ * @param blogId - ID på blogindlægget
+ * @param publishDate - Dato for publicering (ISO string eller Date)
+ * @param accessToken - JWT token til adgangskontrol (påkrævet)
+ * @returns Det planlagte blogindlæg (Blog_DTO)
+ */
+export async function schedulePublishBlog(
+    blogId: number,
+    publishDate: Date | string,
+    accessToken: string
+): Promise<Blog_DTO> {
+    if (!accessToken || accessToken.trim() === "") {
+        throw new Error("Access token is required for this endpoint.");
+    }
+    if (!blogId || blogId <= 0) {
+        throw new Error("Valid blog ID is required.");
+    }
+    // Konverter publishDate til ISO string hvis det er en Date
+    const publishDateIso = typeof publishDate === "string" ? publishDate : publishDate.toISOString();
+
+    // Tjek at publishDate er i fremtiden
+    if (new Date(publishDateIso) <= new Date()) {
+        throw new Error("Publiceringstidspunktet skal være i fremtiden");
+    }
+
+    const url = getApiUrl(`Blog/schedule/${blogId}`);
+
+    const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${accessToken}`
+    };
+
+    const res = await fetch(url, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(publishDateIso)
+    });
+
+    if (res.status === 404) {
+        throw new Error("Blogindlægget blev ikke fundet.");
+    }
+    if (!res.ok) {
+        let errorMessage = `${res.status} ${res.statusText}`;
+        try {
+            const errorBody = await res.text();
+            if (errorBody) {
+                const errorData = JSON.parse(errorBody);
+                errorMessage = errorData.message || errorMessage;
+            }
+        } catch { }
+        throw new Error(`Fejl ved planlægning af publicering: ${errorMessage}`);
+    }
+
+    const data = await res.json();
+    // Backend returnerer Blog_DTO direkte
+    return data as Blog_DTO;
+}
+
+/**
+ * Trækker et blogindlæg tilbage fra publicering (unpublish).
+ * Sætter IsPublished = false og PublishDate = null.
+ * Kræver UpdateBlog claim i accessToken.
+ * @param blogId - ID på blogindlægget
+ * @param accessToken - JWT token til adgangskontrol (påkrævet)
+ * @returns Det opdaterede blogindlæg (Blog_DTO)
+ */
+export async function unpublishBlog(
+    blogId: number,
+    accessToken: string
+): Promise<Blog_DTO> {
+    if (!accessToken || accessToken.trim() === "") {
+        throw new Error("Access token is required for this endpoint.");
+    }
+    if (!blogId || blogId <= 0) {
+        throw new Error("Valid blog ID is required.");
+    }
+
+    const url = getApiUrl(`Blog/unpublish/${blogId}`);
+
+    const headers: Record<string, string> = {
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${accessToken}`
+    };
+
+    const res = await fetch(url, {
+        method: 'POST',
+        headers
+    });
+
+    if (res.status === 404) {
+        throw new Error("Blogindlægget blev ikke fundet.");
+    }
+    if (!res.ok) {
+        let errorMessage = `${res.status} ${res.statusText}`;
+        try {
+            const errorBody = await res.text();
+            if (errorBody) {
+                const errorData = JSON.parse(errorBody);
+                errorMessage = errorData.message || errorMessage;
+            }
+        } catch { }
+        throw new Error(`Fejl ved tilbagetrækning af blog: ${errorMessage}`);
+    }
+
+    const data = await res.json();
+    // Backend returnerer { message: string, blog: Blog_DTO }
+    return data.blog as Blog_DTO;
+}
 
 /**
  * Registrerer et billede fra Cloudinary til et blogindlæg.
@@ -63,6 +274,15 @@ export async function registerCloudinaryBlogPhoto(
 
 //----------------- GET METHODS -----------------
 // Modtag accessToken som parameter (best practice)
+
+/**
+ * Henter en liste af blogindlæg baseret på filterkriterier.
+ * Metoden kræver ikke nødvendigvis et accessToken, da alleme brugere kan tilgå public blogs.
+ * Nogen blogs kan dog være paidContent som kræver login og rettigheder.
+ * @param filter - Filterkriterier for blogindlæg
+ * @param accessToken - JWT token til adgangskontrol (påkrævet)
+ * @returns En pagineret liste af blogindlæg eller null ved fejl
+ */
 export async function getBlogs(
     filter: Blog_CardFilterDTO,
     accessToken?: string
@@ -402,6 +622,56 @@ export async function updateBlogFeaturedImage(
 }
 
 //---------------- DELETE METHODS ------------------
+
+/**
+ * Sletter et blogindlæg og alle relaterede fotos.
+ * Kræver DeleteBlog claim i accessToken.
+ * @param blogId - ID på blogindlægget
+ * @param accessToken - JWT token til adgangskontrol (påkrævet)
+ * @returns Bekræftelse på sletning (object med message)
+ */
+export async function deleteBlog(
+    blogId: number,
+    accessToken: string
+): Promise<{ message: string }> {
+    if (!accessToken || accessToken.trim() === "") {
+        throw new Error("Access token is required for this endpoint.");
+    }
+    if (!blogId || blogId <= 0) {
+        throw new Error("Valid blog ID is required.");
+    }
+
+    const url = getApiUrl(`Blog/${blogId}`);
+
+    const headers: Record<string, string> = {
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${accessToken}`
+    };
+
+    const res = await fetch(url, {
+        method: 'DELETE',
+        headers
+    });
+
+    if (res.status === 404) {
+        throw new Error(`Blogindlæg med ID ${blogId} blev ikke fundet`);
+    }
+    if (!res.ok) {
+        let errorMessage = `${res.status} ${res.statusText}`;
+        try {
+            const errorBody = await res.text();
+            if (errorBody) {
+                const errorData = JSON.parse(errorBody);
+                errorMessage = errorData.message || errorMessage;
+            }
+        } catch { }
+        throw new Error(`Fejl ved sletning af blog: ${errorMessage}`);
+    }
+
+    const data = await res.json();
+    // Backend returnerer { message: string }
+    return data as { message: string };
+}
 
 /**
  * Sletter et billede fra et blogindlæg.

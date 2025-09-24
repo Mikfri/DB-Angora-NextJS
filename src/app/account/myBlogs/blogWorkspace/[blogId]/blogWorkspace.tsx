@@ -3,33 +3,15 @@
 
 import { Blog_DTO } from '@/api/types/AngoraDTOs';
 import { Tabs, Tab, Button } from "@heroui/react";
-import { useState, useMemo, useEffect } from 'react';
-import { useNav } from "@/components/providers/Providers";
+import { useState } from 'react';
 import { useBlogWorkspace } from '@/hooks/blogs/useBlogWorkspace';
-import MyNav from "@/components/nav/side/index/MyNav";
 import { editableFieldLabels, renderBlogField } from './blogFormFields';
 import { Blog_UpdateDTO } from '@/api/types/AngoraDTOs';
 import { FaEdit } from 'react-icons/fa';
 import BlogImageSection from './blogImages'; // <-- TILFØJ DENNE IMPORT
 
 // Import ikoner
-import { RiEditLine, RiSettingsLine, RiEyeLine, RiImageLine, RiSendPlaneLine } from "react-icons/ri";
-
-// Placeholder komponenter (FJERN BlogImageSection placeholder!)
-const BlogSettings = ({ blog }: { blog: Blog_DTO }) => (
-    <div className="p-4 bg-zinc-700/50 rounded-lg">
-        <h3 className="text-lg font-semibold mb-2">Blog Indstillinger</h3>
-        <p className="text-zinc-300">Indstillinger kommer her... Blog ID: {blog.id}</p>
-    </div>
-);
-
-// FJERN DENNE PLACEHOLDER - den er erstattet af import fra blogImages.tsx
-// const BlogImageSection = ({ blogId }: { blogId: number }) => (
-//     <div className="p-4 bg-zinc-700/50 rounded-lg">
-//         <h3 className="text-lg font-semibold mb-2">Blog Billeder</h3>
-//         <p className="text-zinc-300">Billede håndtering kommer her... Blog ID: {blogId}</p>
-//     </div>
-// );
+import { RiEditLine, RiEyeLine, RiImageLine, RiSendPlaneLine } from "react-icons/ri";
 
 const BlogPreview = ({ blog }: { blog: Blog_DTO }) => (
     <div className="p-4 bg-zinc-700/50 rounded-lg">
@@ -47,32 +29,20 @@ const BlogPublishing = ({ blog }: { blog: Blog_DTO }) => (
 
 export default function BlogWorkspace({ blog: initialBlog }: { blog: Blog_DTO }) {
     const [activeTab, setActiveTab] = useState("editor");
-    const { setSecondaryNav } = useNav();
+    //const { setSecondaryNav } = useNav();
 
     // Brug blog workspace hook
     const {
-        currentBlog,
-        isEditing,
-        isSaving,
-        editedData,
-        setEditedData,
-        setIsEditing,
-        handleSave,
-        handleCancelEdit
-    } = useBlogWorkspace(initialBlog);
-
-    // Sekundær navigation
-    const secondaryNavComponent = useMemo(() => (
-        <MyNav key="secondary-nav" />
-    ), []);
-
-    useEffect(() => {
-        setSecondaryNav(secondaryNavComponent);
-        return () => {
-            setSecondaryNav(null);
-        };
-    }, [setSecondaryNav, secondaryNavComponent]);
-
+    currentBlog,
+    isEditing,
+    isSaving,
+    editedData,
+    setEditedData,
+    setIsEditing,
+    handleSave,
+    handleCancelEdit
+} = useBlogWorkspace(initialBlog);
+    
     const displayTitle = currentBlog.title || 'Nyt blogindlæg';
     const publishStatus = currentBlog.isPublished ? 'Publiceret' : 'Kladde';
 
@@ -181,10 +151,6 @@ export default function BlogWorkspace({ blog: initialBlog }: { blog: Blog_DTO })
                                 ))}
                         </form>
                     </div>
-                </Tab>
-
-                <Tab key="settings" title={<div className="flex items-center space-x-2"><RiSettingsLine className="text-xl" /><span>Indstillinger</span></div>}>
-                    <BlogSettings blog={currentBlog} />
                 </Tab>
 
                 <Tab key="images" title={<div className="flex items-center space-x-2"><RiImageLine className="text-xl" /><span>Billeder</span></div>}>

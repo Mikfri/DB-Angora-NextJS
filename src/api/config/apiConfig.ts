@@ -7,7 +7,7 @@ interface ApiConfig {
 export const apiConfig: ApiConfig = {
   env: process.env.NEXT_PUBLIC_API_ENV || 'production',
   get baseUrl() {
-      const url = process.env.NEXT_PUBLIC_API_BASE_URL; // vercel.db-angora/settings/environments
+      const url = process.env.NEXT_PUBLIC_API_BASE_URL; // din lokale '.env.development' fil
       if (!url) {
           console.warn('Missing NEXT_PUBLIC_API_BASE_URL, using fallback');
           return 'https://api.db-angora.dk';  // Update fallback URL

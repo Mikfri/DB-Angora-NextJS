@@ -25,6 +25,8 @@ export const ROUTES = {
     MY_BLOGS: '/account/myBlogs',
     USER_BLOGS: (userId: string) => `/account/myBlogs/${userId}`,
     BLOG_WORKSPACE: (blogId: number) => `/account/myBlogs/blogWorkspace/${blogId}`,
+    BLOG_WORKSPACE_BASE: '/account/myBlogs/blogWorkspace',
+
   },
   SALE: {
     BASE: '/annoncer',
