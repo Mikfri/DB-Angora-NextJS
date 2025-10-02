@@ -1,30 +1,46 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import BlogWorkspaceNavBase from '../base/BlogWorkspaceNavBase';
 import { BlogWorkspaceNavClient } from '../client/BlogWorkspaceNavClient';
 import { NavAction } from '@/types/navigationTypes';
 import { Blog_DTO } from '@/api/types/AngoraDTOs';
+import DeleteBlogModal from '@/components/modals/blog/deleteBlogModal';
+import { useBlogWorkspace } from '@/contexts/BlogWorkspaceContext';
 
 interface BlogWorkspaceNavProps {
     blog: Blog_DTO;
     onPublishClick?: () => void;
     onUnpublishClick?: () => void;
-    onDeleteClick?: () => void;
     isPublishing?: boolean;
 }
 
-/**
- * Wrapper til BlogWorkspace navigation.
- * Kombinerer base, client og actions.
- */
 export default function BlogWorkspaceNav({
     blog,
     onPublishClick,
     onUnpublishClick,
-    onDeleteClick,
     isPublishing = false,
 }: BlogWorkspaceNavProps) {
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
+
+    const { handleDelete } = useBlogWorkspace();
+
+    const handleDeleteClick = useCallback(() => {
+        setIsDeleteModalOpen(true);
+    }, []);
+
+    const handleDeleteCancel = useCallback(() => {
+        setIsDeleteModalOpen(false);
+    }, []);
+
+    const handleDeleteConfirm = useCallback(async () => {
+        setIsDeleting(true);
+        await handleDelete();
+        setIsDeleting(false);
+        setIsDeleteModalOpen(false);
+    }, [handleDelete]);
+
     const footerActions = useMemo((): NavAction[] => [
         {
             label: 'Publicer',
@@ -42,15 +58,25 @@ export default function BlogWorkspaceNav({
         },
         {
             label: 'Slet',
-            onClick: onDeleteClick ?? (() => { }),
+            onClick: handleDeleteClick,
             color: 'danger',
             variant: 'flat',
             disabled: isPublishing,
         },
-    ], [onPublishClick, onUnpublishClick, onDeleteClick, blog.isPublished, isPublishing]);
+    ], [onPublishClick, onUnpublishClick, handleDeleteClick, blog.isPublished, isPublishing]);
+
     return (
-        <BlogWorkspaceNavBase title={`Blog: ${blog.title}`} footerActions={footerActions}>
-            <BlogWorkspaceNavClient blog={blog} />
-        </BlogWorkspaceNavBase>
+        <>
+            <BlogWorkspaceNavBase title={`Blog: ${blog.title}`} footerActions={footerActions}>
+                <BlogWorkspaceNavClient blog={blog} />
+            </BlogWorkspaceNavBase>
+            <DeleteBlogModal
+                isOpen={isDeleteModalOpen}
+                onClose={handleDeleteCancel}
+                onConfirm={handleDeleteConfirm}
+                blogTitle={blog.title ?? ''}
+                isDeleting={isDeleting}
+            />
+        </>
     );
 }

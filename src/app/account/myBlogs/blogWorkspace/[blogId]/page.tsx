@@ -1,5 +1,4 @@
 // src/app/account/myBlogs/blogWorkspace/[blogId]/page.tsx
-'use client';
 
 /**
  * VIGTIG NOTE OM RENDERING:
@@ -13,7 +12,8 @@
  * 
  * Derfor skal denne implementering IKKE ændres tilbage til SSR uden
  * at tage højde for TypeScript komplikationerne.
- */
+*/
+'use client';
 
 import { notFound, useParams } from "next/navigation";
 import { Spinner } from "@heroui/react";
@@ -23,14 +23,14 @@ import { useBlogWorkspace } from "@/contexts/BlogWorkspaceContext";
 export default function BlogWorkspacePage() {
   const params = useParams();
   const blogId = parseInt(params.blogId as string, 10);
-  
+
   const { blog, isLoading, error } = useBlogWorkspace();
-  
+
   // Valider blogId
   if (isNaN(blogId) || blogId <= 0) {
     return notFound();
   }
-  
+
   // Viser loading spinner
   if (isLoading) {
     return (
@@ -39,13 +39,13 @@ export default function BlogWorkspacePage() {
       </div>
     );
   }
-  
+
   // Viser fejlmeddelelser
   if (error) {
     if (error.status === 404) {
       return notFound();
     }
-    
+
     if (error.status === 403) {
       return (
         <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-6">
@@ -53,18 +53,17 @@ export default function BlogWorkspacePage() {
         </div>
       );
     }
-    
+
     return (
       <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-6">
         <p className="text-red-500">{error.message}</p>
       </div>
     );
   }
-  
-  // Viser blog workspace når den er indlæst
+
   if (blog) {
-    return <BlogWorkspace blog={blog} />;
+    return <BlogWorkspace />;
   }
-  
+
   return null;
 }

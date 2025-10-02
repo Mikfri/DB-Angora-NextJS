@@ -1,16 +1,14 @@
-// src/app/account/myBlogs/blogWorkspace/[blogId]/blogWorkspace.tsx
 'use client';
 
 import { Blog_DTO } from '@/api/types/AngoraDTOs';
 import { Tabs, Tab, Button } from "@heroui/react";
 import { useState } from 'react';
-import { useBlogWorkspace } from '@/hooks/blogs/useBlogWorkspace';
 import { editableFieldLabels, renderBlogField } from './blogFormFields';
 import { Blog_UpdateDTO } from '@/api/types/AngoraDTOs';
 import { FaEdit } from 'react-icons/fa';
-import BlogImageSection from './blogImages'; // <-- TILFØJ DENNE IMPORT
+import BlogImageSection from './blogImages';
+import { useBlogWorkspace } from '@/contexts/BlogWorkspaceContext';
 
-// Import ikoner
 import { RiEditLine, RiEyeLine, RiImageLine, RiSendPlaneLine } from "react-icons/ri";
 
 const BlogPreview = ({ blog }: { blog: Blog_DTO }) => (
@@ -27,22 +25,25 @@ const BlogPublishing = ({ blog }: { blog: Blog_DTO }) => (
     </div>
 );
 
-export default function BlogWorkspace({ blog: initialBlog }: { blog: Blog_DTO }) {
+export default function BlogWorkspace() {
     const [activeTab, setActiveTab] = useState("editor");
-    //const { setSecondaryNav } = useNav();
 
-    // Brug blog workspace hook
+    // Brug context-hooken
     const {
-    currentBlog,
-    isEditing,
-    isSaving,
-    editedData,
-    setEditedData,
-    setIsEditing,
-    handleSave,
-    handleCancelEdit
-} = useBlogWorkspace(initialBlog);
-    
+        blog: currentBlog,
+        isEditing,
+        isSaving,
+        editedData,
+        setEditedData,
+        setIsEditing,
+        handleSave,
+        handleCancelEdit
+    } = useBlogWorkspace();
+
+    if (!currentBlog) {
+        return <div>Loading...</div>;
+    }
+
     const displayTitle = currentBlog.title || 'Nyt blogindlæg';
     const publishStatus = currentBlog.isPublished ? 'Publiceret' : 'Kladde';
 
@@ -87,9 +88,7 @@ export default function BlogWorkspace({ blog: initialBlog }: { blog: Blog_DTO })
                         </div>
                     }
                 >
-                    {/* DIREKTE BLOG EDITOR - ingen mellemlag */}
                     <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-lg border border-zinc-700/50 overflow-hidden">
-                        {/* Header med edit/save knapper */}
                         <div className="flex justify-between items-center p-4 border-b border-zinc-700/50">
                             <h3 className="text-zinc-100 font-medium">Blog Editor</h3>
                             <div className="flex items-center gap-2">
@@ -128,10 +127,9 @@ export default function BlogWorkspace({ blog: initialBlog }: { blog: Blog_DTO })
                             </div>
                         </div>
 
-                        {/* Content - brug blogFormFields direkte */}
                         <form onSubmit={handleSubmit} className="grid gap-6 p-6">
                             {(Object.keys(editableFieldLabels) as Array<keyof Blog_UpdateDTO>)
-                                .filter(key => key !== 'authorId') // Skip non-editable field
+                                .filter(key => key !== 'authorId')
                                 .map((key) => (
                                     <div key={key} className="space-y-2">
                                         <label
@@ -144,7 +142,7 @@ export default function BlogWorkspace({ blog: initialBlog }: { blog: Blog_DTO })
                                             key,
                                             currentBlog[key],
                                             isEditing,
-                                            editedData,
+                                            editedData ?? currentBlog, // <-- FIX: fallback til currentBlog
                                             setEditedData
                                         )}
                                     </div>
@@ -157,7 +155,7 @@ export default function BlogWorkspace({ blog: initialBlog }: { blog: Blog_DTO })
                     <BlogImageSection
                         blogId={currentBlog.id}
                         currentPhotos={currentBlog.photos || []}
-                        featuredImageId={undefined} // <-- ÆNDRET FRA featuredImageUrl til undefined
+                        featuredImageId={undefined}
                         onPhotosUpdated={() => {
                             window.location.reload();
                         }}

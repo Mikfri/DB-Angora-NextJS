@@ -23,14 +23,13 @@ function SideNavLoading() {
 
 // Wrapper for sidenav, så vi kan hente blog-data fra context
 function BlogWorkspaceSideNav() {
-  const { blog, isLoading, isPublishing, handlePublish, handleUnpublish, handleDelete } = useBlogWorkspace();
+  const { blog, isLoading, isPublishing, handlePublish, handleUnpublish } = useBlogWorkspace();
   if (isLoading || !blog) return <SideNavLoading />;
   return (
     <BlogWorkspaceNav
       blog={blog}
       onPublishClick={handlePublish}
       onUnpublishClick={handleUnpublish}
-      onDeleteClick={handleDelete}
       isPublishing={isPublishing}
     />
   );

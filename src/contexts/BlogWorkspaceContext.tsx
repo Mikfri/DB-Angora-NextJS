@@ -18,20 +18,26 @@
 
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { useParams } from 'next/navigation';
-import { Blog_DTO } from '@/api/types/AngoraDTOs';
-import { deleteBlogAction, fetchBlogByIdAction, publishBlogAction, unpublishBlogAction } from '@/app/actions/blog/blogActions';
+import { Blog_DTO, Blog_UpdateDTO } from '@/api/types/AngoraDTOs';
+import { deleteBlogAction, fetchBlogByIdAction, publishBlogAction, unpublishBlogAction, updateBlogAction } from '@/app/actions/blog/blogActions';
 import { toast } from 'react-toastify';
 
 interface BlogWorkspaceContextType {
   blog: Blog_DTO | null;
   isLoading: boolean;
   isPublishing: boolean;
+  isEditing: boolean;
+  isSaving: boolean;
+  editedData: Blog_DTO | null;
   error: { message: string; status?: number } | null;
+  setIsEditing: (editing: boolean) => void;
+  setEditedData: (data: Blog_DTO) => void;
   refreshBlog: () => Promise<void>;
   handlePublish: () => Promise<void>;
   handleUnpublish: () => Promise<void>;
   handleDelete: () => Promise<void>;
-
+  handleSave: () => Promise<void>;
+  handleCancelEdit: () => void;
 }
 
 const BlogWorkspaceContext = createContext<BlogWorkspaceContextType | undefined>(undefined);
@@ -43,6 +49,9 @@ export function BlogWorkspaceProvider({ children }: { children: React.ReactNode 
   const [blog, setBlog] = useState<Blog_DTO | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isPublishing, setIsPublishing] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [editedData, setEditedData] = useState<Blog_DTO | null>(null);
   const [error, setError] = useState<{ message: string; status?: number } | null>(null);
 
   // Load blog data
@@ -61,6 +70,7 @@ export function BlogWorkspaceProvider({ children }: { children: React.ReactNode 
 
       if (result.success) {
         setBlog(result.data);
+        setEditedData(result.data);
       } else {
         setError({
           message: result.error,
@@ -85,6 +95,46 @@ export function BlogWorkspaceProvider({ children }: { children: React.ReactNode 
   const refreshBlog = useCallback(async () => {
     await loadBlog();
   }, [loadBlog]);
+
+  // Handle save
+  const handleSave = useCallback(async () => {
+    if (!blog || !editedData) return;
+
+    setIsSaving(true);
+    try {
+      const updateData: Blog_UpdateDTO = {
+        title: editedData.title,
+        subtitle: editedData.subtitle,
+        content: editedData.content,
+        tags: editedData.tags,
+        visibilityLevel: editedData.visibilityLevel,
+        authorId: editedData.authorId
+      };
+
+      const result = await updateBlogAction(blog.id, updateData);
+      if (result.success) {
+        setBlog(result.data);
+        setEditedData(result.data);
+        setIsEditing(false);
+        toast.success('Blog gemt!');
+      } else {
+        toast.error(result.error || 'Fejl ved gemning');
+      }
+    } catch (error) {
+      console.error('Save error:', error);
+      toast.error('Der opstod en uventet fejl');
+    } finally {
+      setIsSaving(false);
+    }
+  }, [blog, editedData]);
+
+  // Handle cancel edit
+  const handleCancelEdit = useCallback(() => {
+    if (blog) {
+      setEditedData(blog);
+    }
+    setIsEditing(false);
+  }, [blog]);
 
   // Handle publish
   const handlePublish = useCallback(async () => {
@@ -128,16 +178,12 @@ export function BlogWorkspaceProvider({ children }: { children: React.ReactNode 
 
   const handleDelete = useCallback(async () => {
     if (!blog) return;
-    // Brug en confirm dialog eller modal for sikkerhed
-    const confirmed = window.confirm('Er du sikker på, at du vil slette dette blogindlæg og alle relaterede fotos? Denne handling kan ikke fortrydes.');
-    if (!confirmed) return;
 
     try {
       const result = await deleteBlogAction(blog.id);
       if (result.success) {
-        toast.success(result.message);
-        // Redirect eller opdater UI efter sletning
-        window.location.href = '/account/myBlogs'; // Eksempel redirect
+        toast.success(result.message || 'Blog slettet!');
+        window.location.href = '/account/myBlogs';
       } else {
         toast.error(result.error || 'Fejl ved sletning');
       }
@@ -152,11 +198,18 @@ export function BlogWorkspaceProvider({ children }: { children: React.ReactNode 
       blog,
       isLoading,
       isPublishing,
+      isEditing,
+      isSaving,
+      editedData,
       error,
+      setIsEditing,
+      setEditedData,
       refreshBlog,
       handlePublish,
       handleUnpublish,
-      handleDelete
+      handleDelete,
+      handleSave,
+      handleCancelEdit
     }}>
       {children}
     </BlogWorkspaceContext.Provider>

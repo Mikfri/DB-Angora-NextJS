@@ -1,10 +1,10 @@
+// src/app/account/myBlogs/layout.tsx
 'use client';
 
-import { usePathname } from 'next/navigation';
 import { Suspense } from 'react';
+import { usePathname } from 'next/navigation';
 import SideNavLayout from '@/components/layouts/SideNavLayout';
-import MyNav from '@/components/nav/side/index/MyNav';
-import { useNav } from '@/components/providers/Providers';
+import BlogOwnNav from '@/components/nav/side/index/BlogOwnNav';
 import { ROUTES } from '@/constants/navigationConstants';
 
 // Sidenav loading skeleton
@@ -23,35 +23,21 @@ function SideNavLoading() {
   );
 }
 
-// Paths that should NOT use the default sidenav
-const noSideNavPaths = [
-  ROUTES.ACCOUNT.PROFILE,
-  ROUTES.ACCOUNT.MY_RABBITS,
-  ROUTES.ACCOUNT.MY_BLOGS,
-  ROUTES.ACCOUNT.BLOG_WORKSPACE_BASE,
-  //ROUTES.ACCOUNT.RABBIT_PROFILE_BASE,
-];
-
-export default function AccountLayout({ children }: { children: React.ReactNode }) {
+export default function MyBlogsLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { primaryNav } = useNav();
 
-  // Skal denne side have sidenav?
-  const shouldShowSideNav = !noSideNavPaths.some(path =>
-    pathname === path || pathname.startsWith(path)
-  );
+  // Sluk sidenav hvis vi er på blogWorkspace
+  const isWorkspaceRoute = pathname.startsWith(ROUTES.ACCOUNT.BLOG_WORKSPACE_BASE);
 
-  if (!shouldShowSideNav) {
+  if (isWorkspaceRoute) {
     return children;
   }
-
-  const sideNav = primaryNav || <MyNav />;
 
   return (
     <SideNavLayout
       sideNav={
         <Suspense fallback={<SideNavLoading />}>
-          {sideNav}
+          <BlogOwnNav />
         </Suspense>
       }
     >
