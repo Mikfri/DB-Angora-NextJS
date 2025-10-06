@@ -3,7 +3,7 @@
 'use server';
 import { getAccessToken } from '@/app/actions/auth/session';
 import { getBlogs, getBlogBySlug, getBlogsAuthoredByUser, getBlogById, updateBlog, getBlogImageUploadConfig, registerCloudinaryBlogPhoto, deleteBlogPhoto, updateBlogFeaturedImage, createBlog, publishBlog, unpublishBlog, schedulePublishBlog, deleteBlog } from '@/api/endpoints/blogController';
-import type { Blog_CardFilterDTO, PagedResultDTO, Blog_CardDTO, Blog_DTO, Blog_UpdateDTO, BlogPublicDTO, CloudinaryUploadConfigDTO, PhotoPrivateDTO, CloudinaryPhotoRegistryRequestDTO, PhotoDeleteDTO, Blog_CreateDTO } from '@/api/types/AngoraDTOs';
+import type { Blog_CardFilterDTO, PagedResultDTO, Blog_CardDTO, Blog_DTO, Blog_UpdateDTO, BlogPublicDTO, CloudinaryUploadConfigDTO, PhotoPrivateDTO, CloudinaryPhotoRegistryRequestDTO, PhotoDeleteDTO, Blog_CreateDTO, BlogAuthedCardFilterDTO } from '@/api/types/AngoraDTOs';
 
 // ====================== TYPES ======================
 export type BlogCreateResult =
@@ -28,7 +28,7 @@ export type BlogPhotoRegistryResult =
 
 export type BlogListResult =
     | { success: true; data: PagedResultDTO<Blog_CardDTO> }
-    | { success: false; error: string };
+    | { success: false; error: string; status?: number };
 
 export type BlogPublicResult =
     | { success: true; data: BlogPublicDTO }
@@ -348,14 +348,14 @@ export async function fetchBlogsAction(
  * Server Action: Henter alle blogs skrevet af en bestemt bruger (inklusive kladder, hvis adgang)
  * Kun admin, moderator og content team kan tilgå andres blogindlæg.
  * @param userId - ID på brugeren hvis blogs ønskes
- * @param searchTerm - Søgeord til filtrering (optional)
+ * @param filterDTO - Filtreringsparametre (BlogAuthedCardFilterDTO) - UDEN page/pageSize!
  * @param page - Side (default 1)
  * @param pageSize - Antal pr. side (default 12)
  * @returns Pagineret liste af blogs eller fejlbesked
  */
 export async function fetchBlogsAuthoredByUserAction(
     userId: string,
-    searchTerm?: string,
+    filterDTO: Omit<BlogAuthedCardFilterDTO, 'page' | 'pageSize'> = {},
     page: number = 1,
     pageSize: number = 12
 ): Promise<BlogListResult> {
@@ -368,12 +368,20 @@ export async function fetchBlogsAuthoredByUserAction(
         }
 
         const accessToken = await getAccessToken();
+        if (!accessToken) {
+            return {
+                success: false,
+                error: "Du skal være logget ind for at tilgå brugerens blogs.",
+                status: 401
+            };
+        }
+
         const blogs = await getBlogsAuthoredByUser(
             userId,
-            searchTerm,
+            filterDTO,
             page,
             pageSize,
-            accessToken ?? undefined
+            accessToken // <-- nu altid required!
         );
 
         if (!blogs) {
@@ -655,40 +663,40 @@ export async function updateBlogFeaturedImageAction(
  * @returns Bekræftelse på sletning eller fejlbesked
  */
 export async function deleteBlogAction(
-  blogId: number
+    blogId: number
 ): Promise<BlogDeleteResult> {
-  try {
-    if (!blogId || blogId <= 0) {
-      return {
-        success: false,
-        error: 'Ugyldigt blog ID',
-        status: 400,
-      };
+    try {
+        if (!blogId || blogId <= 0) {
+            return {
+                success: false,
+                error: 'Ugyldigt blog ID',
+                status: 400,
+            };
+        }
+
+        const accessToken = await getAccessToken();
+        if (!accessToken) {
+            return {
+                success: false,
+                error: 'Du skal være logget ind for at slette et blogindlæg',
+                status: 401,
+            };
+        }
+
+        const result = await deleteBlog(blogId, accessToken);
+
+        return {
+            success: true,
+            message: result.message,
+        };
+    } catch (error) {
+        console.error('Failed to delete blog:', error);
+        return {
+            success: false,
+            error: error instanceof Error ? error.message : 'Der skete en uventet fejl',
+            status: 500,
+        };
     }
-
-    const accessToken = await getAccessToken();
-    if (!accessToken) {
-      return {
-        success: false,
-        error: 'Du skal være logget ind for at slette et blogindlæg',
-        status: 401,
-      };
-    }
-
-    const result = await deleteBlog(blogId, accessToken);
-
-    return {
-      success: true,
-      message: result.message,
-    };
-  } catch (error) {
-    console.error('Failed to delete blog:', error);
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Der skete en uventet fejl',
-      status: 500,
-    };
-  }
 }
 
 /**

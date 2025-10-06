@@ -4,7 +4,8 @@ import type {
     Blog_CardFilterDTO, PagedResultDTO, Blog_CardDTO, Blog_DTO, Blog_UpdateDTO, BlogPublicDTO,
     CloudinaryUploadConfigDTO, PhotoPrivateDTO, CloudinaryPhotoRegistryRequestDTO,
     PhotoDeleteDTO,
-    Blog_CreateDTO
+    Blog_CreateDTO,
+    BlogAuthedCardFilterDTO
 } from '@/api/types/AngoraDTOs';
 
 //---------------- POST METHODS -----------------
@@ -325,30 +326,37 @@ export async function getBlogs(
 /**
  * Henter alle en brugers blogindlæg (inklusive kladder) med adgangskontrol.
  * Kun admin, moderator og content team kan tilgå andres blogindlæg.
- * @param userId - ID på brugeren hvis blogs ønskes
- * @param searchTerm - Søgeord til filtrering (optional)
- * @param page - Side (default 1)
- * @param pageSize - Antal pr. side (default 12)
+ * @param targetedUserId - ID på brugeren hvis blogs ønskes
+ * @param filterDTO - Filtreringsparametre (BlogAuthedCardFilterDTO) - UDEN page/pageSize!
+ * @param page - Side
+ * @param pageSize - Antal pr. side
  * @param accessToken - JWT token til adgangskontrol (optional)
  * @returns Pagineret liste af blogkort eller null ved fejl
  */
 export async function getBlogsAuthoredByUser(
-    userId: string,
-    searchTerm?: string,
-    page: number = 1,
-    pageSize: number = 12,
-    accessToken?: string
+    targetedUserId: string,
+    filterDTO: Omit<BlogAuthedCardFilterDTO, 'page' | 'pageSize'>,
+    page: number,
+    pageSize: number,
+    accessToken: string // <-- ikke optional!
 ): Promise<PagedResultDTO<Blog_CardDTO> | null> {
-    if (!userId || userId.trim() === "") {
-        throw new Error("User ID is required.");
+    if (!accessToken || accessToken.trim() === "") {
+        throw new Error("Access token is required for this endpoint.");
     }
 
     const params = new URLSearchParams();
-    if (searchTerm) params.append("searchTerm", searchTerm);
+
+    // Tilføj filterDTO properties som query params
+    Object.entries(filterDTO).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '') {
+            params.append(key, value.toString());
+        }
+    });
+
     params.append("page", page.toString());
     params.append("pageSize", pageSize.toString());
 
-    const url = getApiUrl(`Blog/authored-by/${encodeURIComponent(userId)}?${params.toString()}`);
+    const url = getApiUrl(`Blog/authored-by/${encodeURIComponent(targetedUserId)}?${params.toString()}`);
 
     const headers: Record<string, string> = { 'Accept': 'application/json' };
     if (accessToken) {

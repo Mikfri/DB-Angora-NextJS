@@ -569,16 +569,42 @@ export interface Blog_CardDTO {
     authorName?: string | null;
     authorProfilePicture?: string | null;
     publishDate?: string | null; // ISO8601 string fra backend (DateTime? i C#)
+    isPublished: boolean;        // Har altid værdi, som enten true eller false
     featuredImageUrl?: string | null;
     viewCount: number;
 }
 
-
+/**
+ * DTO til filtrering af blogindlæg for alle besøgende af sitet.
+ * Benyttes under './blogs' sektionen.
+ */
 export interface Blog_CardFilterDTO {
     authorFullName?: string | null;
     searchTerm?: string | null;
     tagFilter?: string | null;
     blogSortOption?: string | null;  // "Newest", ...
+    page: number;
+    pageSize: number;
+}
+
+/** DTO til filtrering af blogindlæg for autentificerede brugere.
+ * Benyttes under './account/myBlogs/' sektionen.
+ */
+export interface BlogAuthedCardFilterDTO {
+    isPublished?: boolean | null;
+    visibilityLevel?: string | null; // "Public", "PaidContent"
+    searchTitlesAndContent?: string | null;      // .Title, .Subtitle, .Content
+}
+
+/**
+ * DTO til filtrering af blogindlæg for autentificerede brugere.
+ * Benyttes under './account/myBlogs/' sektionen.
+ */
+export interface BlogAuthedCardFilterDTO {
+    isPublished?: boolean | null;
+    visibilityLevel?: string | null; // "Public", "PaidContent"
+    searchTerm?: string | null;      // .Title, .Subtitle, .Content
+    tagFilter?: string | null;
     page: number;
     pageSize: number;
 }
