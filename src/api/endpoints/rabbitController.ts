@@ -2,7 +2,7 @@
 import { getApiUrl } from "../config/apiConfig";
 import {
     Rabbit_CreateDTO, Rabbit_ProfileDTO,
-    Rabbits_ForbreedingPreviewList, Rabbit_UpdateDTO, Rabbit_PreviewDTO,
+    Rabbits_ForbreedingPreviewList, Rabbit_UpdateDTO, Rabbit_OwnedPreviewDTO,
     Rabbit_CreateSaleDetailsDTO, Rabbit_UpdateSaleDetailsDTO,
     CloudinaryUploadConfigDTO, Rabbit_PedigreeDTO,
     SaleDetailsProfileDTO,
@@ -207,7 +207,7 @@ export async function GetRabbitsOwnedByUser(
   accessToken: string,
   page: number = 1,
   pageSize: number = 12
-): Promise<PagedResultDTO<Rabbit_PreviewDTO>> {
+): Promise<PagedResultDTO<Rabbit_OwnedPreviewDTO>> {
   const params = new URLSearchParams();
   // Tilføj filter-parametre til query
   if (filter) {
@@ -406,12 +406,12 @@ export async function SetRabbitProfilePhoto(
  * Sletter en kanin, inkl. rettighedstjek og oprydning af relationer.
  * @param earCombId Kaninens øremærke-id
  * @param accessToken JWT token for bruger
- * @returns Rabbit_PreviewDTO for den slettede kanin
+ * @returns Rabbit_OwnedPreviewDTO for den slettede kanin
  */
 export async function DeleteRabbit(
   earCombId: string,
   accessToken: string
-): Promise<Rabbit_PreviewDTO> {
+): Promise<Rabbit_OwnedPreviewDTO> {
   const response = await fetch(getApiUrl(`Rabbit/Delete/${earCombId}`), {
     method: 'DELETE',
     headers: {

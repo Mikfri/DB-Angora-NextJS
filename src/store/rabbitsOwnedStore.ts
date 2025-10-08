@@ -20,7 +20,7 @@
  */
 
 import { create } from 'zustand';
-import { Rabbit_OwnedFilterDTO, Rabbit_PreviewDTO } from '@/api/types/AngoraDTOs';
+import { Rabbit_OwnedFilterDTO, Rabbit_OwnedPreviewDTO } from '@/api/types/AngoraDTOs';
 import { getRabbitsOwnedByUser } from '@/app/actions/rabbit/rabbitCrudActions';
 import { useAuthStore } from './authStore';
 import { OwnFilters } from '@/api/types/filterTypes';
@@ -61,13 +61,13 @@ const DEFAULT_PAGINATION: PaginationState = {
 
 // Hovedinterface for hele storen
 interface RabbitsOwnedStore {
-    rabbits: Rabbit_PreviewDTO[];
+    rabbits: Rabbit_OwnedPreviewDTO[];
     filters: Required<OwnFilters>;
     isAnyFilterActive: boolean;
     pagination: PaginationState;
     isLoading: boolean;
     error: string | null;
-    filteredRabbits: Rabbit_PreviewDTO[];
+    filteredRabbits: Rabbit_OwnedPreviewDTO[];
     fetchRabbits: (page?: number, userId?: string) => Promise<void>;
     updateFilters: (newFilters: Partial<OwnFilters>) => void;
     resetFilters: () => void;
@@ -90,7 +90,7 @@ const checkActiveFilters = (filters: Required<OwnFilters>): boolean => {
 };
 
 // Hjælpefunktion: Filtrer kaniner baseret på filtre (CSR)
-const filterRabbits = (rabbits: Rabbit_PreviewDTO[], filters: Required<OwnFilters>): Rabbit_PreviewDTO[] => {
+const filterRabbits = (rabbits: Rabbit_OwnedPreviewDTO[], filters: Required<OwnFilters>): Rabbit_OwnedPreviewDTO[] => {
     return rabbits.filter(rabbit => {
         const searchLower = filters.search?.toLowerCase() || '';
         const isDeceased = rabbit.dateOfDeath !== null;

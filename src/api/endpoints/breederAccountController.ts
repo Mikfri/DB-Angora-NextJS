@@ -1,11 +1,12 @@
 // src/api/endpoints/breederAccountController.ts
 import { getApiUrl } from "../config/apiConfig";
 import {
-  Rabbit_PreviewDTO, PagedResultDTO,  
+  PagedResultDTO,  
   BreederAccount_PrivateProfileDTO,
   BreederAccount_UpdateDTO,
   TransferRequestPreviewDTO,
-  TransferRequestPreviewFilterDTO
+  TransferRequestPreviewFilterDTO,
+  Rabbit_OwnedPreviewDTO
 } from "../types/AngoraDTOs";
 
 //-------------------- RABBITS --------------------
@@ -20,7 +21,7 @@ export async function GetOwnRabbits(
   accessToken: string,
   page: number = 1,
   pageSize: number = 10
-): Promise<PagedResultDTO<Rabbit_PreviewDTO>> {
+): Promise<PagedResultDTO<Rabbit_OwnedPreviewDTO>> {
   try {
     // Simpel query med kun page og pageSize
     const url = getApiUrl(`BreederAccount/Rabbits_Owned?page=${page}&pageSize=${pageSize}`);
@@ -47,7 +48,7 @@ export async function GetOwnRabbits(
     }
 
     const data = await response.json();
-    return data as PagedResultDTO<Rabbit_PreviewDTO>;
+    return data as PagedResultDTO<Rabbit_OwnedPreviewDTO>;
   } catch (error) {
     console.error('Error fetching own rabbits:', error);
     // Returner en tom pagineret liste i tilfælde af fejl

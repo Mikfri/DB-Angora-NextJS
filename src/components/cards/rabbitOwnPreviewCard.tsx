@@ -1,7 +1,7 @@
 // src/components/cards/rabbitPreviewCard.tsx
 'use client';
 
-import { Rabbit_PreviewDTO } from '@/api/types/AngoraDTOs';
+import { Rabbit_OwnedPreviewDTO } from '@/api/types/AngoraDTOs';
 import { Card, CardHeader, CardBody, Chip, Divider } from "@heroui/react";
 import Image from 'next/image';
 import { useState, ReactNode } from 'react';
@@ -16,7 +16,7 @@ import { ImPriceTag } from 'react-icons/im';
 import { TbHeartSearch } from 'react-icons/tb';
 
 interface Props {
-    rabbit: Rabbit_PreviewDTO;
+    rabbit: Rabbit_OwnedPreviewDTO;
     onClick?: () => void;
 }
 

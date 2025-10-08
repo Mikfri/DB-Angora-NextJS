@@ -2,7 +2,7 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import RabbitOwnNav from '@/components/nav/side/index/RabbitOwnNav';
-import RabbitPreviewCard from '@/components/cards/rabbitPreviewCard';
+import RabbitPreviewCard from '@/components/cards/rabbitOwnPreviewCard';
 import SideNavLayout from '@/components/layouts/SideNavLayout';
 import { useRabbitsOwnedStore } from '@/store/rabbitsOwnedStore';
 import { ROUTES } from '@/constants/navigationConstants';

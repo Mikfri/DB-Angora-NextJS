@@ -3,7 +3,7 @@
 
 import { getAccessToken } from '@/app/actions/auth/session';
 import { GetOwnRabbits, GetReceivedTransferRequests, GetSentTransferRequests, UpdateBreederAccount } from '@/api/endpoints/breederAccountController';
-import { BreederAccount_PrivateProfileDTO, BreederAccount_UpdateDTO, PagedResultDTO, Rabbit_PreviewDTO, TransferRequestPreviewDTO, TransferRequestPreviewFilterDTO } from '@/api/types/AngoraDTOs';
+import { BreederAccount_PrivateProfileDTO, BreederAccount_UpdateDTO, PagedResultDTO, Rabbit_OwnedPreviewDTO, TransferRequestPreviewDTO, TransferRequestPreviewFilterDTO } from '@/api/types/AngoraDTOs';
 
 
 /**
@@ -18,7 +18,7 @@ export async function getMyRabbits(
   pageSize: number = 10
 ): Promise<{
   success: boolean;
-  data?: PagedResultDTO<Rabbit_PreviewDTO>;
+  data?: PagedResultDTO<Rabbit_OwnedPreviewDTO>;
   error?: string;
 }> {
   try {
@@ -178,7 +178,7 @@ export async function updateBreederAccount(
 //   showDeceased?: boolean;
 //   raceColorApproval?: string;
 //   bornAfterDate?: string | null;
-// }): Promise<Rabbit_PreviewDTO[]> {
+// }): Promise<Rabbit_OwnedPreviewDTO[]> {
 //   try {
 //     const rabbits = await getMyRabbits();
     

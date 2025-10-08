@@ -244,7 +244,7 @@ export type Rabbits_ForbreedingPreviewList = Rabbit_ForbreedingPreviewDTO[];
  * Preview oplysningerne for ejede kaniner, som benyttes i lister.
  * Indeholder kun properties som er relevante for at kunne filtrerer på.
  */
-export interface Rabbit_PreviewDTO {
+export interface Rabbit_OwnedPreviewDTO {
     earCombId: string;
     nickName: string | null;
     originFullName: string | null;
@@ -265,7 +265,7 @@ export interface Rabbit_PreviewDTO {
     inbreedingCoefficient: number; // 0.0 - 1.0
     profilePicture: string | null;  // Nullable i C#
 }
-export type Rabbits_PreviewList = Rabbit_PreviewDTO[];
+export type Rabbits_PreviewList = Rabbit_OwnedPreviewDTO[];
 
 export interface Rabbit_OwnedFilterDTO {
   onlyDeceased?: boolean | null;

@@ -10,20 +10,20 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { Rabbit_PreviewDTO } from '@/api/types/AngoraDTOs';
+import { Rabbit_OwnedPreviewDTO } from '@/api/types/AngoraDTOs';
 
 interface RabbitState {
   // Client-side state
-  myRabbits: Rabbit_PreviewDTO[];
+  myRabbits: Rabbit_OwnedPreviewDTO[];
   favorites: string[]; // Liste af earCombIds som brugeren har markeret som favoritter
-  draftRabbit: Partial<Rabbit_PreviewDTO> | null; // For at gemme ufærdig kanin-information
+  draftRabbit: Partial<Rabbit_OwnedPreviewDTO> | null; // For at gemme ufærdig kanin-information
 
   // Actions
-  setMyRabbits: (rabbits: Rabbit_PreviewDTO[]) => void;
+  setMyRabbits: (rabbits: Rabbit_OwnedPreviewDTO[]) => void;
   addFavorite: (earCombId: string) => void;
   removeFavorite: (earCombId: string) => void;
   isFavorite: (earCombId: string) => boolean;
-  setDraftRabbit: (data: Partial<Rabbit_PreviewDTO> | null) => void;
+  setDraftRabbit: (data: Partial<Rabbit_OwnedPreviewDTO> | null) => void;
 }
 
 export const useRabbitStore = create<RabbitState>()(

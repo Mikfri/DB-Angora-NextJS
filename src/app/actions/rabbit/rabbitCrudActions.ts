@@ -11,7 +11,7 @@ import {
   Rabbit_CreateDTO,
   Rabbit_OwnedFilterDTO,
   Rabbit_ParentValidationResultDTO,
-  Rabbit_PreviewDTO,
+  Rabbit_OwnedPreviewDTO,
   Rabbit_ProfileDTO
 } from '@/api/types/AngoraDTOs';
 import {
@@ -38,7 +38,7 @@ export type RegisterRabbitPhotoResult =
   | { success: false; error: string; status?: number };
 
 export type RabbitsOwnedResult =
-  | { success: true; data: PagedResultDTO<Rabbit_PreviewDTO> }
+  | { success: true; data: PagedResultDTO<Rabbit_OwnedPreviewDTO> }
   | { success: false; error: string; status?: number };
 
 export type ProfileResult =
