@@ -64,7 +64,7 @@ export default function AccountPage() {
                             href={ROUTES.ACCOUNT.RABBITS_FOR_BREEDING}
                             imageSrc="/images/sideNavigationCard_RabbitsForbreeding.jpg"
                             title="Find avlskaniner"
-                            description={<span className="text-xs">Find kaniner tilgængelig for avl blandt sitets andre avlere. Kontakt avleren og hør nærmere (Delvist klar, kan ikke tilgå profil)</span>}
+                            description={<span className="text-xs">Se avlsdyr udvalgt af andre avlere som egnede til avl. Kontakt avleren for yderligere information</span>}
                         />
                     )}                    
                     {showTransfers && (

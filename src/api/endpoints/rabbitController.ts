@@ -4,7 +4,7 @@ import {
     Rabbit_CreateDTO, Rabbit_ProfileDTO,
     Rabbits_ForbreedingPreviewList, Rabbit_UpdateDTO, Rabbit_OwnedPreviewDTO,
     Rabbit_CreateSaleDetailsDTO, Rabbit_UpdateSaleDetailsDTO,
-    CloudinaryUploadConfigDTO, Rabbit_PedigreeDTO,
+    CloudinaryUploadConfigDTO,
     SaleDetailsProfileDTO,
     PhotoPrivateDTO,
     PhotoDeleteDTO,
@@ -12,6 +12,8 @@ import {
     Rabbit_ParentValidationResultDTO,
     PagedResultDTO,
     Rabbit_OwnedFilterDTO,
+    Rabbit_ForbreedingProfileDTO,
+    PedigreeResultDTO,
 } from "../types/AngoraDTOs";
 
 
@@ -243,42 +245,104 @@ export async function GetRabbitsOwnedByUser(
 * Henter en kaninprofil ud fra øremærke
 */
 export async function GetRabbitProfile(accessToken: string, earCombId: string): Promise<Rabbit_ProfileDTO> {
-    const data = await fetch(getApiUrl(`Rabbit/Profile/${earCombId}`), {
+    const response = await fetch(getApiUrl(`Rabbit/Profile/${earCombId}`), {
         headers: { Authorization: `Bearer ${accessToken}` }
-    })
-    const rabbitProfile = await data.json();
-    //console.log('API Response:', rabbitProfile); // Debug log
-    return rabbitProfile;
+    });
+
+    if (!response.ok) {
+        let errorMessage = `Fejl: ${response.status} ${response.statusText}`;
+        try {
+            const errorJson = await response.json();
+            if (errorJson?.message) errorMessage = errorJson.message;
+        } catch {
+            // fallback hvis ikke JSON
+            const errorText = await response.text();
+            if (errorText) errorMessage = errorText;
+        }
+
+
+        if (response.status === 401) throw new Error(errorMessage);
+        if (response.status === 403) throw new Error(errorMessage);
+        if (response.status === 404) throw new Error(errorMessage);
+        throw new Error(errorMessage);
+    }
+
+    return response.json();
+}
+
+/**
+ * Henter en kanins avls-profil, hvis kaninen er markeret til avl og brugeren har de rette rettigheder.
+ * @param accessToken JWT token for bruger
+ * @param earCombId Kaninens øremærke-id
+ * @returns Rabbit_ForbreedingProfileDTO eller kaster fejl med meningsfuld besked
+ */
+export async function GetRabbitForbreedingProfile(
+  accessToken: string,
+  earCombId: string
+): Promise<Rabbit_ForbreedingProfileDTO> {
+  const response = await fetch(getApiUrl(`Rabbit/ForbreedingProfile/${earCombId}`), {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+      'Accept': 'application/json'
+    }
+  });
+
+  if (!response.ok) {
+    let errorMessage = `Fejl: ${response.status} ${response.statusText}`;
+    try {
+      const errorJson = await response.json();
+      if (errorJson?.message) errorMessage = errorJson.message;
+    } catch {
+      const errorText = await response.text();
+      if (errorText) errorMessage = errorText;
+    }
+
+    if (response.status === 401) throw new Error(errorMessage);
+    if (response.status === 403) throw new Error(errorMessage);
+    if (response.status === 404) throw new Error(errorMessage);
+    throw new Error(errorMessage);
+  }
+
+  return response.json();
 }
 
 // PEDIGREE
 /**
- * Henter stamtræet for en specifik kanin
- * 
+ * Henter stamtræet og indavlskoefficient for en specifik kanin
  * @param accessToken - Brugerens JWT authentication token
  * @param earCombId - Kaninens øremærke-id
- * @returns Stamtræ for kaninen med indavlskoefficient og relationer
+ * @param maxGeneration - Maks antal generationer (default 4)
+ * @returns PedigreeResultDTO med indavlskoefficient, COI-bidragydere og stamtræ
  */
 export async function GetRabbitPedigree(
     accessToken: string,
-    earCombId: string
-): Promise<Rabbit_PedigreeDTO> {
-    const response = await fetch(getApiUrl(`Rabbit/Pedigree/${earCombId}`), {
+    earCombId: string,
+    maxGeneration: number = 4
+): Promise<PedigreeResultDTO> {
+    const url = getApiUrl(`Rabbit/Pedigree/${earCombId}?maxGeneration=${maxGeneration}`);
+    const response = await fetch(url, {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${accessToken}`,
-            'accept': 'text/plain'
+            'Accept': 'application/json'
         }
     });
 
     if (!response.ok) {
-        const errorText = await response.text();
-        console.error('API Error:', {
-            status: response.status,
-            statusText: response.statusText,
-            body: errorText
-        });
-        throw new Error(`Failed to fetch rabbit pedigree: ${response.status} ${response.statusText}`);
+        let errorMessage = `Fejl: ${response.status} ${response.statusText}`;
+        try {
+            const errorJson = await response.json();
+            if (errorJson?.message) errorMessage = errorJson.message;
+        } catch {
+            const errorText = await response.text();
+            if (errorText) errorMessage = errorText;
+        }
+
+        if (response.status === 401) throw new Error(errorMessage);
+        if (response.status === 403) throw new Error(errorMessage);
+        if (response.status === 404) throw new Error(errorMessage);
+        throw new Error(errorMessage);
     }
 
     return response.json();

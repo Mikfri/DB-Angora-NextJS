@@ -1,13 +1,12 @@
-// src/app/account/myRabbits/rabbitProfile/[earCombId]/rabbitPedigree.tsx
 "use client";
 
 import { useRabbitPedigree } from '@/hooks/rabbits/useRabbitPedigree';
 import { useState, useEffect, useCallback } from 'react';
 import { Spinner, Button } from "@heroui/react";
 import Image from 'next/image';
+import { Rabbit_PedigreeDTO } from '@/api/types/AngoraDTOs';
 import ReactFlowPedigree from '@/components/pedigree/ReactFlowPedigree';
 import React from 'react';
-import { Rabbit_PedigreeDTO } from '@/api/types/AngoraDTOs';
 
 // Type til debugging info
 interface DebugInfo {
@@ -17,7 +16,7 @@ interface DebugInfo {
     cycleCheck: string[];
 }
 
-export default function RabbitPedigree({ earCombId }: { earCombId: string }) {
+export default function RabbitBreedingPedigree({ earCombId }: { earCombId: string }) {
     const { pedigreeResult, isLoading, error, refreshPedigree } = useRabbitPedigree(earCombId);
     const [maxGenerations, setMaxGenerations] = useState(3);
     const [debugInfo, setDebugInfo] = useState<DebugInfo | null>(null);

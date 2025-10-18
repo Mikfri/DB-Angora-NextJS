@@ -136,7 +136,7 @@ export function RabbitOwnNavClient() {
                             color="primary"
                             size="sm"
                             className="ml-auto mr-2 "
-                            variant="flat"
+                            variant="solid"
                             radius="full"
                         >
                             {pendingCount}

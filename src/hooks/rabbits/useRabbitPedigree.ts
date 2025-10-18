@@ -1,10 +1,10 @@
 // src/hooks/rabbits/useRabbitPedigree.ts
 import { useCallback, useEffect, useState } from 'react';
-import { Rabbit_PedigreeDTO } from '@/api/types/AngoraDTOs';
-import { getRabbitPedigree } from '@/app/actions/rabbit/pedigree';
+import { PedigreeResultDTO } from '@/api/types/AngoraDTOs';
+import { getRabbitPedigree } from '@/app/actions/rabbit/rabbitCrudActions';
 
-export function useRabbitPedigree(earCombId: string) {
-  const [pedigree, setPedigree] = useState<Rabbit_PedigreeDTO | null>(null);
+export function useRabbitPedigree(earCombId: string, maxGeneration: number = 4) {
+  const [pedigreeResult, setPedigreeResult] = useState<PedigreeResultDTO | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -15,10 +15,10 @@ export function useRabbitPedigree(earCombId: string) {
     setError(null);
 
     try {
-      const result = await getRabbitPedigree(earCombId);
+      const result = await getRabbitPedigree(earCombId, maxGeneration);
       
       if (result.success) {
-        setPedigree(result.data);
+        setPedigreeResult(result.data);
       } else {
         setError(result.error);
       }
@@ -28,14 +28,14 @@ export function useRabbitPedigree(earCombId: string) {
     } finally {
       setIsLoading(false);
     }
-  }, [earCombId]);
+  }, [earCombId, maxGeneration]);
 
   useEffect(() => {
     fetchPedigree();
   }, [fetchPedigree]);
 
   return {
-    pedigree,
+    pedigreeResult,
     isLoading,
     error,
     refreshPedigree: fetchPedigree

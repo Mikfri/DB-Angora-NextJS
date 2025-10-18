@@ -3,7 +3,7 @@
 'use server';
 import { getAccessToken } from '@/app/actions/auth/session';
 import { getBlogs, getBlogBySlug, getBlogsAuthoredByUser, getBlogById, updateBlog, getBlogImageUploadConfig, registerCloudinaryBlogPhoto, deleteBlogPhoto, updateBlogFeaturedImage, createBlog, publishBlog, unpublishBlog, schedulePublishBlog, deleteBlog } from '@/api/endpoints/blogController';
-import type { Blog_CardFilterDTO, PagedResultDTO, Blog_CardDTO, Blog_DTO, Blog_UpdateDTO, BlogPublicDTO, CloudinaryUploadConfigDTO, PhotoPrivateDTO, CloudinaryPhotoRegistryRequestDTO, PhotoDeleteDTO, Blog_CreateDTO, BlogAuthedCardFilterDTO } from '@/api/types/AngoraDTOs';
+import type { Blog_CardFilterDTO, PagedResultDTO, Blog_CardDTO, Blog_DTO, Blog_UpdateDTO, BlogPublicDTO, CloudinaryUploadConfigDTO, PhotoPrivateDTO, CloudinaryPhotoRegistryRequestDTO, PhotoDeleteDTO, Blog_CreateDTO } from '@/api/types/AngoraDTOs';
 
 // ====================== TYPES ======================
 export type BlogCreateResult =
@@ -345,20 +345,15 @@ export async function fetchBlogsAction(
 }
 
 /**
- * Server Action: Henter alle blogs skrevet af en bestemt bruger (inklusive kladder, hvis adgang)
+ * Server Action: Henter ALLE blogs skrevet af en bestemt bruger (inklusive kladder).
+ * Looper over alle sider fra backend.
  * Kun admin, moderator og content team kan tilgå andres blogindlæg.
  * @param userId - ID på brugeren hvis blogs ønskes
- * @param filterDTO - Filtreringsparametre (BlogAuthedCardFilterDTO) - UDEN page/pageSize!
- * @param page - Side (default 1)
- * @param pageSize - Antal pr. side (default 12)
- * @returns Pagineret liste af blogs eller fejlbesked
+ * @returns Array af alle brugerens blogs eller fejlbesked
  */
 export async function fetchBlogsAuthoredByUserAction(
-    userId: string,
-    filterDTO: Omit<BlogAuthedCardFilterDTO, 'page' | 'pageSize'> = {},
-    page: number = 1,
-    pageSize: number = 12
-): Promise<BlogListResult> {
+    userId: string
+): Promise<{ success: true; data: Blog_CardDTO[] } | { success: false; error: string; status?: number }> {
     try {
         if (!userId || userId.trim() === "") {
             return {
@@ -376,24 +371,38 @@ export async function fetchBlogsAuthoredByUserAction(
             };
         }
 
-        const blogs = await getBlogsAuthoredByUser(
-            userId,
-            filterDTO,
-            page,
-            pageSize,
-            accessToken // <-- nu altid required!
-        );
+        // Loop over alle sider
+        const allBlogs: Blog_CardDTO[] = [];
+        let page = 1;
+        const pageSize = 50; // Intern page size til loop (ikke eksponeret til klient)
 
-        if (!blogs) {
-            return {
-                success: false,
-                error: "Kunne ikke hente brugerens blogs"
-            };
+        while (true) {
+            const paged = await getBlogsAuthoredByUser(
+                userId,
+                {}, // Ingen filters
+                page,
+                pageSize,
+                accessToken
+            );
+
+            if (!paged) {
+                return {
+                    success: false,
+                    error: "Kunne ikke hente brugerens blogs"
+                };
+            }
+
+            allBlogs.push(...paged.data);
+
+            if (!paged.hasNextPage) {
+                break;
+            }
+            page++;
         }
 
         return {
             success: true,
-            data: blogs
+            data: allBlogs
         };
     } catch (error) {
         console.error("Failed to fetch blogs authored by user:", error);

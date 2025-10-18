@@ -1,68 +1,11 @@
 // src/api/endpoints/breederAccountController.ts
 import { getApiUrl } from "../config/apiConfig";
 import {
-  PagedResultDTO,  
   BreederAccount_PrivateProfileDTO,
   BreederAccount_UpdateDTO,
   TransferRequestPreviewDTO,
   TransferRequestPreviewFilterDTO,
-  Rabbit_OwnedPreviewDTO
 } from "../types/AngoraDTOs";
-
-//-------------------- RABBITS --------------------
-/**
- * Henter alle brugerens kaniner med paginering
- * @param accessToken JWT token med brugerens auth information
- * @param page Sidetal (starter fra 1)
- * @param pageSize Antal elementer per side
- * @returns Pagineret liste af kaniner
- */
-export async function GetOwnRabbits(
-  accessToken: string,
-  page: number = 1,
-  pageSize: number = 10
-): Promise<PagedResultDTO<Rabbit_OwnedPreviewDTO>> {
-  try {
-    // Simpel query med kun page og pageSize
-    const url = getApiUrl(`BreederAccount/Rabbits_Owned?page=${page}&pageSize=${pageSize}`);
-
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'Accept': 'text/plain',
-        'Content-Type': 'application/json'
-      }
-    });
-
-    if (!response.ok) {
-      // Standardiseret fejlhåndtering
-      let errorMessage = `${response.status} ${response.statusText}`;
-      try {
-        const errorBody = await response.text();
-        if (errorBody) errorMessage = errorBody;
-      } catch {
-        console.error();
-      }
-      throw new Error(`Fejl ved hentning af egne kaniner: ${errorMessage}`);
-    }
-
-    const data = await response.json();
-    return data as PagedResultDTO<Rabbit_OwnedPreviewDTO>;
-  } catch (error) {
-    console.error('Error fetching own rabbits:', error);
-    // Returner en tom pagineret liste i tilfælde af fejl
-    return {
-      data: [],
-      totalCount: 0,
-      page: page,
-      pageSize: pageSize,
-      totalPages: 0,
-      hasNextPage: false,
-      hasPreviousPage: false
-    };
-  }
-}
 
 //-------------------- TRANSFER REQUESTS --------------------
 /**

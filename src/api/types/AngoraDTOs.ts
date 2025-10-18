@@ -9,6 +9,8 @@ export interface IdentityError {
   description: string | null;
 }
 
+
+
 /**
  * Generisk DTO til paginerede resultater.
  * @template T Typen af data i resultatet
@@ -190,20 +192,44 @@ export interface SaleDetailsProfileDTO {
     photos: PhotoPublicDTO[];
 }
 
+/**
+ * Resultat DTO for stamtavle-beregning.
+ * Indeholder den beregnede indavlskoefficient, en liste af bidragende forfædre,
+ * samt den fulde stamtavle for kaninen.
+ */
+export interface PedigreeResultDTO {
+    CalculatedInbreedingCoefficient: number;
+    COIContributors: COIContributorDTO[];
+    Pedigree: Rabbit_PedigreeDTO;
+}
 
+export interface COIContributorDTO {
+    EarCombId: string;              
+    NickName: string | null;        
+    Contribution: number;           //(absolut værdi, 0.0-1.0)
+    ContributionPercent: number;    // (procent af total COI)
+    AncestorPaths: string[];
+}
+
+/**
+ * DTO til visning af en kanins stamtavle.
+ * Indeholder også forfaderens stamtavle rekursivt.
+ */
 export interface Rabbit_PedigreeDTO {
     Generation: number;
     Relation: string;
     EarCombId: string;
     NickName: string | null;
+    Gender: string;
     DateOfBirth: string;
     Race: string;
     Color: string;
     UserOriginName: string | null;
     UserOwnerName: string | null;
     ProfilePicture: string | null;
-    InbreedingCoefficient: number;
-    InbreedingDetails: Rabbit_InbreedingDetailDTO[];
+    InbreedingCoefficient: number | null;  // Ændret fra number til number | null
+    AncestorPath: string[];
+    // --- DTO'er
     Father: Rabbit_PedigreeDTO | null;
     Mother: Rabbit_PedigreeDTO | null;
 }
@@ -317,6 +343,38 @@ export interface Rabbit_ProfileDTO {
     photos: PhotoPrivateDTO[];
     children: Rabbit_ChildPreviewDTO[];
 }
+
+/**
+ * Kanin avls-profil oplysningerne, inclusive dens tilhørende:
+ * - Salgsoplysninger
+ * - Billeder
+ */
+export interface Rabbit_ForbreedingProfileDTO {
+    earCombId: string;
+    nickName: string | null;
+    //ownerId: string;  // Vi har denne prop fra backenden.. Men den behøves ikke i frontend.
+    ownerFullName: string | null;
+    originFullName: string | null;
+    race: string;
+    color: string;
+    approvedRaceColorCombination: boolean;
+    dateOfBirth: string;  // API: string($date) format, nullable
+    //dateOfDeath: string | null; // Ikke relevant for avls-profil
+    isJuvenile: boolean;
+    gender: string;
+    //isForBreeding: boolean | null;    // Ikke relevant for avls-profil
+    fatherId_Placeholder: string | null;
+    father_EarCombId: string | null;
+    motherId_Placeholder: string | null;
+    mother_EarCombId: string | null;
+    inbreedingCoefficient: number;
+    profilePicture: string | null;
+    // --- DTO'er
+    saleDetailsEmbedded: RabbitSaleDetailsEmbeddedDTO | null;
+    photos: PhotoPublicDTO[];
+    //children: Rabbit_ChildPreviewDTO[];   // Ikke relevant for avls-profil
+}
+
 
 export interface RabbitSaleDetailsEmbeddedDTO {
     // --- SaleDetails
@@ -496,6 +554,7 @@ export interface TransferRequest_ContractDTO {
     //--- Rabbit
     rabbit_EarCombId: string;
     rabbit_NickName: string | null;
+    rabbit_ProfilePicture: string | null;
     //--- Sale
     price: number | null;
     saleConditions: string | null;

@@ -1,8 +1,10 @@
-import { Rabbit_PedigreeDTO } from '@/api/types/AngoraDTOs';
+// src/components/pedigree/pedigreeUtils.ts
 import { MarkerType } from 'reactflow';
+import { Rabbit_PedigreeDTO } from '@/api/types/AngoraDTOs';
 
 /**
  * Finder kaniner der optræder flere gange i stamtræet (indavl)
+ * Opdateret til at bruge den nye struktur
  */
 export function findInbreedingRabbits(pedigree: Rabbit_PedigreeDTO) {
   const seen = new Map<string, string[]>(); // Map fra ID til sti i træet
@@ -50,14 +52,15 @@ interface TreeNode {
   isMotherSide?: boolean;
   width: number;
   height: number;
-  rabbit: Rabbit_PedigreeDTO | null;
+  rabbit: Rabbit_PedigreeDTO;
 }
 
 /**
  * Konverterer et Rabbit_PedigreeDTO til et tree layout der kan bruges af D3's træalgoritme
+ * Opdateret til at bruge den nye struktur
  */
 function buildTreeStructure(
-  rabbit: Rabbit_PedigreeDTO | null, 
+  rabbit: Rabbit_PedigreeDTO | null,
   path: string = "root", 
   generation: number = 0, 
   isMotherSide: boolean = false,

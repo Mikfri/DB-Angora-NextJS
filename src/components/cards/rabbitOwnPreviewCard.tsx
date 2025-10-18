@@ -1,4 +1,4 @@
-// src/components/cards/rabbitPreviewCard.tsx
+// src/components/cards/rabbitOwnPreviewCard.tsx
 'use client';
 
 import { Rabbit_OwnedPreviewDTO } from '@/api/types/AngoraDTOs';

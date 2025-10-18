@@ -2,54 +2,8 @@
 'use server';
 
 import { getAccessToken } from '@/app/actions/auth/session';
-import { GetOwnRabbits, GetReceivedTransferRequests, GetSentTransferRequests, UpdateBreederAccount } from '@/api/endpoints/breederAccountController';
-import { BreederAccount_PrivateProfileDTO, BreederAccount_UpdateDTO, PagedResultDTO, Rabbit_OwnedPreviewDTO, TransferRequestPreviewDTO, TransferRequestPreviewFilterDTO } from '@/api/types/AngoraDTOs';
-
-
-/**
- * Server Action: Henter alle brugerens kaniner med paginering
- * Wrapper omkring GetOwnRabbits der håndterer token-hentning
- * @param page Sidetal (starter fra 1)
- * @param pageSize Antal elementer per side
- * @returns Object med success flag, pagineret data og evt. fejlbesked
- */
-export async function getMyRabbits(
-  page: number = 1, 
-  pageSize: number = 10
-): Promise<{
-  success: boolean;
-  data?: PagedResultDTO<Rabbit_OwnedPreviewDTO>;
-  error?: string;
-}> {
-  try {
-    console.log(`Server Action: getMyRabbits called with page=${page}, pageSize=${pageSize}`);
-    // Hent token direkte via server action
-    const accessToken = await getAccessToken();
-    
-    if (!accessToken) {
-      return {
-        success: false,
-        error: "Du skal være logget ind for at se dine kaniner"
-      };
-    }
-    
-    // Pass the page and pageSize parameters explicitly
-    const pagedResult = await GetOwnRabbits(accessToken, page, pageSize);
-    
-    console.log(`Server Action: getMyRabbits received page ${pagedResult.page} of ${pagedResult.totalPages}`);
-    
-    return {
-      success: true,
-      data: pagedResult
-    };
-  } catch (error) {
-    console.error("Error in getMyRabbits server action:", error);
-    return {
-      success: false,
-      error: "Der opstod en fejl ved indlæsning af dine kaniner"
-    };
-  }
-}
+import { GetReceivedTransferRequests, GetSentTransferRequests, UpdateBreederAccount } from '@/api/endpoints/breederAccountController';
+import { BreederAccount_PrivateProfileDTO, BreederAccount_UpdateDTO, TransferRequestPreviewDTO, TransferRequestPreviewFilterDTO } from '@/api/types/AngoraDTOs';
 
 /**
  * Server Action: Henter modtagne overførselsanmodninger for brugeren (med filtrering)

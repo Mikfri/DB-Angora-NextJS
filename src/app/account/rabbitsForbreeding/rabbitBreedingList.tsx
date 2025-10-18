@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useCallback } from 'react';
 import { Rabbit_ForbreedingPreviewDTO } from '@/api/types/AngoraDTOs';
 import RabbitForbreedingCard from '@/components/cards/rabbitForbreedingCard';
+import { ROUTES } from '@/constants/navigationConstants';
 
 type Props = {
     rabbits: Rabbit_ForbreedingPreviewDTO[];
@@ -14,7 +15,7 @@ export default function RabbitBreedingList({ rabbits }: Props) {
 
     // Card click handler
     const handleCardClick = useCallback((earCombId: string) => {
-        router.push(`/account/rabbitsForbreeding/profile/${earCombId}`);
+        router.push(ROUTES.ACCOUNT.RABBIT_BREEDING_PROFILE(earCombId));
     }, [router]);
 
     return (
@@ -27,7 +28,7 @@ export default function RabbitBreedingList({ rabbits }: Props) {
                         onClick={() => handleCardClick(rabbit.earCombId)}
                     />
                 ))}
-                
+
                 {rabbits.length === 0 && (
                     <div className="col-span-3 py-10 text-center">
                         <h3 className="text-xl text-zinc-300 mb-2">Ingen kaniner matcher dine filterkriterier</h3>

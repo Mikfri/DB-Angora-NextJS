@@ -3,7 +3,7 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import { fetchBlogsAuthoredByUserAction } from '@/app/actions/blog/blogActions';
-import type { Blog_CardDTO, PagedResultDTO } from '@/api/types/AngoraDTOs';
+import type { Blog_CardDTO } from '@/api/types/AngoraDTOs';
 
 interface BlogOwnedFilters {
   search: string;
@@ -107,53 +107,32 @@ export const useBlogOwnedStore = create<BlogOwnedStoreState>()(
         set({ loading: true, error: null });
 
         try {
-          const accumulated: Blog_CardDTO[] = [];
-          let page = 1;
-            // Vælg fornuftig pageSize (backend begrænser nok; juster efter behov)
-          const pageSize = 50;
-
-          while (true) {
-            const result = await fetchBlogsAuthoredByUserAction(
-              userId,
-              {},          // INGEN filters – hent ALT
-              page,
-              pageSize
-            );
+            const result = await fetchBlogsAuthoredByUserAction(userId);
 
             if (!result.success) {
-              set({
+                set({
+                    loading: false,
+                    error: result.error || 'Kunne ikke hente blogs',
+                    initialized: true
+                });
+                return;
+            }
+
+            set({
+                allBlogs: result.data, // Nu direkte array
+                initialized: true,
                 loading: false,
-                error: result.error || 'Kunne ikke hente blogs',
-                initialized: true
-              });
-              return;
-            }
+                error: null
+            });
 
-            const paged: PagedResultDTO<Blog_CardDTO> = result.data;
-            accumulated.push(...paged.data);
-
-            if (!paged.hasNextPage) {
-              break;
-            }
-            page += 1;
-          }
-
-          set({
-            allBlogs: accumulated,
-            initialized: true,
-            loading: false,
-            error: null
-          });
-
-          // Efter vi har hele datasættet: anvend filtre + initial pagination
-          get().applyFilters();
+            get().applyFilters();
 
         } catch (e) {
-          set({
-            loading: false,
-            error: e instanceof Error ? e.message : 'Uventet fejl',
-            initialized: true
-          });
+            set({
+                loading: false,
+                error: e instanceof Error ? e.message : 'Uventet fejl',
+                initialized: true
+            });
         }
       },
 

@@ -84,8 +84,8 @@ export default function RabbitNode({ data }: NodeProps<RabbitNodeData>) {
         </div>
       </div>
       
-      {/* Indavlsinformation */}
-      {rabbit.InbreedingCoefficient > 0 && (
+      {/* Indavlsinformation - nu nullable */}
+      {rabbit.InbreedingCoefficient && rabbit.InbreedingCoefficient > 0 && (
         <div className="mt-1 flex items-center justify-between">
           <span className="text-xs text-blue-400">Indavl:</span>
           <span className="text-xs font-medium text-blue-400">
@@ -101,7 +101,7 @@ export default function RabbitNode({ data }: NodeProps<RabbitNodeData>) {
         </div>
       )}
       
-      {/* Udvidelsesskjult information */}
+      {/* Udvidelsesskjult information - fjernet InbreedingDetails da det nu er COIContributors på højere niveau */}
       {showDetails && (
         <div className="mt-2 pt-2 border-t border-zinc-700/50 text-xs">
           {/* Opdrætter og ejer information */}
@@ -118,26 +118,6 @@ export default function RabbitNode({ data }: NodeProps<RabbitNodeData>) {
                 <span className="text-zinc-500">Ejer:</span>
                 <span className="text-zinc-300 truncate">{rabbit.UserOwnerName}</span>
               </>
-            )}
-            
-            {/* Indavlsdetaljer - kun første par detaljer når det er i fokus */}
-            {rabbit.InbreedingDetails && rabbit.InbreedingDetails.length > 0 && (
-              <div className="col-span-2 mt-2">
-                <p className="text-zinc-400 mb-1 font-medium">Indavlsbidrag (top 3):</p>
-                <div className="max-h-32 overflow-auto bg-black/20 rounded p-1">
-                  {rabbit.InbreedingDetails.slice(0, 3).map((detail, idx) => (
-                    <div key={idx} className="grid grid-cols-2 mb-1 gap-1">
-                      <div className="text-zinc-500 truncate">{detail.AncestorId}</div>
-                      <div className="text-right">
-                        <span className="text-blue-400 font-medium">{(detail.Contribution * 100).toFixed(1)}%</span>
-                        <span className="text-zinc-500 text-[10px] ml-1">
-                          (F:{detail.FatherDepth}/M:{detail.MotherDepth})
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
             )}
           </div>
           

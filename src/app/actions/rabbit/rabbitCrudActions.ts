@@ -12,7 +12,9 @@ import {
   Rabbit_OwnedFilterDTO,
   Rabbit_ParentValidationResultDTO,
   Rabbit_OwnedPreviewDTO,
-  Rabbit_ProfileDTO
+  Rabbit_ProfileDTO,
+  Rabbit_ForbreedingProfileDTO,
+  PedigreeResultDTO
 } from '@/api/types/AngoraDTOs';
 import {
   CreateRabbit,
@@ -24,7 +26,9 @@ import {
   SetRabbitProfilePhoto,
   RegisterRabbitPhoto,
   ValidateParentReference,
-  GetRabbitsOwnedByUser
+  GetRabbitsOwnedByUser,
+  GetRabbitForbreedingProfile,
+  GetRabbitPedigree
 } from '@/api/endpoints/rabbitController';
 
 // ====================== TYPES ======================
@@ -52,6 +56,10 @@ export type UpdateRabbitResult =
 export type DeleteRabbitResult =
   | { success: true; message: string }
   | { success: false; error: string };
+
+  export type PedigreeResult =
+  | { success: true; data: PedigreeResultDTO }
+  | { success: false; error: string; status: number };
 
 
 // ====================== CREATE ======================
@@ -220,10 +228,62 @@ export async function getRabbitProfile(earCombId: string): Promise<ProfileResult
       data: rabbit
     };
   } catch (error) {
-    console.error(`Error fetching rabbit profile:`, error);
     return {
       success: false,
-      error: "Failed to fetch rabbit profile",
+      error: error instanceof Error ? error.message : "Failed to fetch rabbit profile",
+      status: 500
+    };
+  }
+}
+
+export type ForbreedingProfileResult =
+  | { success: true; data: Rabbit_ForbreedingProfileDTO }
+  | { success: false; error: string; status: number };
+
+/**
+ * Server Action: Henter en kanins avls-profil, hvis kaninen er markeret til avl og brugeren har de rette rettigheder.
+ * @param earCombId Kaninens øremærke-id
+ * @returns Resultat med avlsprofil eller fejlbesked
+ */
+export async function getRabbitForbreedingProfile(
+  earCombId: string
+): Promise<ForbreedingProfileResult> {
+  try {
+    if (!earCombId) {
+      return {
+        success: false,
+        error: "Missing earCombId parameter",
+        status: 400
+      };
+    }
+
+    const accessToken = await getAccessToken();
+    if (!accessToken) {
+      return {
+        success: false,
+        error: "Authentication required",
+        status: 401
+      };
+    }
+
+    const profile = await GetRabbitForbreedingProfile(accessToken, earCombId);
+
+    if (!profile) {
+      return {
+        success: false,
+        error: "Forbreeding profile not found",
+        status: 404
+      };
+    }
+
+    return {
+      success: true,
+      data: profile
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to fetch forbreeding profile",
       status: 500
     };
   }
@@ -546,6 +606,57 @@ export async function deleteRabbitPhoto(
     return {
       success: false,
       error: error instanceof Error ? error.message : "Uventet fejl",
+      status: 500
+    };
+  }
+}
+
+/**
+ * Server Action: Henter stamtræet og indavlskoefficient for en specifik kanin
+ * @param earCombId Kaninens øremærke-id
+ * @param maxGeneration Maks antal generationer (default 4)
+ * @returns Resultat med pedigree-data eller fejlbesked
+ */
+export async function getRabbitPedigree(
+  earCombId: string,
+  maxGeneration: number = 4
+): Promise<PedigreeResult> {
+  try {
+    if (!earCombId) {
+      return {
+        success: false,
+        error: "Missing earCombId parameter",
+        status: 400
+      };
+    }
+
+    const accessToken = await getAccessToken();
+    if (!accessToken) {
+      return {
+        success: false,
+        error: "Authentication required",
+        status: 401
+      };
+    }
+
+    const pedigreeResult = await GetRabbitPedigree(accessToken, earCombId, maxGeneration);
+
+    if (!pedigreeResult) {
+      return {
+        success: false,
+        error: "Pedigree not found",
+        status: 404
+      };
+    }
+
+    return {
+      success: true,
+      data: pedigreeResult
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to fetch pedigree",
       status: 500
     };
   }

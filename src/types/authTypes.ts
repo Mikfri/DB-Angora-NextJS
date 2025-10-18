@@ -37,8 +37,8 @@ export const roleGroups = {
   admins: ['Admin'] as UserRole[],
   moderators: ['Moderator', 'RabbitModerator', 'UserModerator', 'ModeratorBreeder'] as UserRole[],
   contentCreators: ['Editor', 'BlogPoster'] as UserRole[],
-  breeders: ['BreederPremium', 'BreederBasic', 'ModeratorBreeder'] as UserRole[],
-  premiumUsers: ['BreederPremium', 'ModeratorBreeder'] as UserRole[],
+  breeders: ['Admin', 'BreederPremium', 'BreederBasic', 'ModeratorBreeder'] as UserRole[],
+  premiumUsers: ['Admin', 'BreederPremium', 'ModeratorBreeder'] as UserRole[],
   anyUser: [
     'Admin', 'Moderator', 'RabbitModerator', 'UserModerator', 'ModeratorBreeder',
     'Editor', 'BlogPoster', 'BreederPremium', 'BreederBasic', 'UserBasicFree'
