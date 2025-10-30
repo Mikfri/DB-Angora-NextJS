@@ -28,7 +28,8 @@ import {
   ValidateParentReference,
   GetRabbitsOwnedByUser,
   GetRabbitForbreedingProfile,
-  GetRabbitPedigree
+  GetRabbitPedigree,
+  GetTestMatingPedigree
 } from '@/api/endpoints/rabbitController';
 
 // ====================== TYPES ======================
@@ -657,6 +658,64 @@ export async function getRabbitPedigree(
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to fetch pedigree",
+      status: 500
+    };
+  }
+}
+
+/**
+ * Server Action: Henter test-mating pedigree for et tænkt afkom ud fra far og mor
+ * @param fatherEarCombId Øremærke på far (Buck)
+ * @param motherEarCombId Øremærke på mor (Doe)
+ * @param maxGeneration Maks antal generationer (default 4)
+ * @returns Resultat med pedigree-data eller fejlbesked
+ */
+export async function getTestMatingPedigree(
+  fatherEarCombId: string,
+  motherEarCombId: string,
+  maxGeneration: number = 4
+): Promise<PedigreeResult> {
+  try {
+    if (!fatherEarCombId || !motherEarCombId) {
+      return {
+        success: false,
+        error: "Missing fatherEarCombId or motherEarCombId parameter",
+        status: 400
+      };
+    }
+
+    const accessToken = await getAccessToken();
+    if (!accessToken) {
+      return {
+        success: false,
+        error: "Authentication required",
+        status: 401
+      };
+    }
+
+    const pedigreeResult = await GetTestMatingPedigree(
+      accessToken,
+      fatherEarCombId,
+      motherEarCombId,
+      maxGeneration
+    );
+
+    if (!pedigreeResult) {
+      return {
+        success: false,
+        error: "Pedigree could not be generated for the provided parents.",
+        status: 404
+      };
+    }
+
+    return {
+      success: true,
+      data: pedigreeResult
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to fetch test mating pedigree",
       status: 500
     };
   }

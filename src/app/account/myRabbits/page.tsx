@@ -1,5 +1,4 @@
 // src/app/account/myRabbits/page.tsx
-'use client';
 
 /**
  * VIGTIG NOTE OM RENDERING:
@@ -16,13 +15,13 @@
 
 'use client';
 
+
 import { useAuthStore } from '@/store/authStore';
 import RabbitOwnList from './rabbitOwnList';
 
 export default function RabbitsPage() {
   const { userIdentity, isLoading } = useAuthStore();
 
-  // Vent på at brugerdata er klar
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-[50vh]">
@@ -42,6 +41,5 @@ export default function RabbitsPage() {
     );
   }
 
-  // Send userId som prop til RabbitOwnList
   return <RabbitOwnList userId={userIdentity.id} />;
 }

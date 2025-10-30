@@ -181,24 +181,6 @@ export function RabbitOwnNavClient() {
 
                     <div className="flex gap-2" >
                         <Tooltip
-                            content="Vis alle kaniner"
-                            showArrow={true}
-                            placement="bottom"
-                            className="dark"
-                        >
-                            <Button
-                                size="sm"
-                                variant={filters.lifeStatus === null ? "solid" : "flat"}
-                                color={filters.lifeStatus === null ? "primary" : "default"}
-                                onPress={() => setLifeStatusFilter('all')}
-                                isIconOnly
-                                aria-label="Vis alle kaniner"
-                            >
-                                <BsHouse className="text-lg" />
-                            </Button>
-                        </Tooltip>
-
-                        <Tooltip
                             content="Kun levende kaniner"
                             showArrow={true}
                             placement="bottom"
@@ -215,7 +197,7 @@ export function RabbitOwnNavClient() {
                                 <BsHouseHeart className="text-lg" />
                             </Button>
                         </Tooltip>
-
+                        
                         <Tooltip
                             content="Kun afdøde kaniner"
                             showArrow={true}
@@ -233,6 +215,24 @@ export function RabbitOwnNavClient() {
                                 <BsHouseX className="text-lg" />
                             </Button>
                         </Tooltip>
+
+                        <Tooltip
+                            content="Vis alle kaniner"
+                            showArrow={true}
+                            placement="bottom"
+                            className="dark"
+                        >
+                            <Button
+                                size="sm"
+                                variant={filters.lifeStatus === null ? "solid" : "flat"}
+                                color={filters.lifeStatus === null ? "primary" : "default"}
+                                onPress={() => setLifeStatusFilter('all')}
+                                isIconOnly
+                                aria-label="Vis alle kaniner"
+                            >
+                                <BsHouse className="text-lg" />
+                            </Button>
+                        </Tooltip>                        
                     </div>
                 </div>
             </div>

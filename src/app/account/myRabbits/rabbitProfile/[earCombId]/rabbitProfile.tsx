@@ -15,9 +15,9 @@ import DeleteRabbitModal from '@/components/modals/rabbit/deleteRabbitModal';
 import TransferOwnershipModal from '@/components/modals/rabbit/transferRabbitModal';
 // Import ikoner for hver tab
 import { RiInformationLine } from "react-icons/ri";
-import { PiArrowsSplitLight } from "react-icons/pi";
 import { RiPriceTag3Line, RiPriceTag3Fill } from "react-icons/ri";
-import { FaTreeCity } from "react-icons/fa6";
+import { GiFamilyTree } from 'react-icons/gi';
+import { LuNetwork } from 'react-icons/lu';
 
 export default function RabbitProfile({ rabbitProfile: initialRabbitProfile }: { rabbitProfile: Rabbit_ProfileDTO }) {
     // Hent hooks-funktioner fra useNav
@@ -129,7 +129,7 @@ export default function RabbitProfile({ rabbitProfile: initialRabbitProfile }: {
                         key="children"
                         title={
                             <div className="flex items-center space-x-2">
-                                <PiArrowsSplitLight className="text-xl" />
+                                <LuNetwork className="text-xl" />
                                 <span>Afkom</span>
                                 {childrenCount > 0 && (
                                     <span className={`ml-1 px-2 py-0.5 ${countBgColor} ${countTextColor} text-xs font-medium rounded-full`}>
@@ -148,7 +148,7 @@ export default function RabbitProfile({ rabbitProfile: initialRabbitProfile }: {
                         key="pedigree"
                         title={
                             <div className="flex items-center space-x-2">
-                                <FaTreeCity className="text-xl" />
+                                <GiFamilyTree className="text-xl" />
                                 <span>Stamtavle</span>
                             </div>
                         }

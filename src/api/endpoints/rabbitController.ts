@@ -14,6 +14,8 @@ import {
     Rabbit_OwnedFilterDTO,
     Rabbit_ForbreedingProfileDTO,
     PedigreeResultDTO,
+    COIContributorDTO,
+    Rabbit_PedigreeDTO,
 } from "../types/AngoraDTOs";
 
 
@@ -222,7 +224,7 @@ export async function GetRabbitsOwnedByUser(
   params.append("page", page.toString());
   params.append("pageSize", pageSize.toString());
 
-  const url = getApiUrl(`Rabbit/owned-by/${encodeURIComponent(userId)}?${params.toString()}`);
+  const url = getApiUrl(`Rabbit/related-to/${encodeURIComponent(userId)}?${params.toString()}`);
 
   const response = await fetch(url, {
     method: 'GET',
@@ -345,9 +347,92 @@ export async function GetRabbitPedigree(
         throw new Error(errorMessage);
     }
 
-    return response.json();
+    const rawData: unknown = await response.json();
+    
+    // Type guard helper ('any' alternative for NextJS 15+)
+    function unwrapArray<T>(data: unknown): T[] {
+        if (data && typeof data === 'object' && '$values' in data) {
+            return (data as { $values: T[] }).$values;
+        }
+        return Array.isArray(data) ? data : [];
+    }
+
+    // Safe cast med unwrap af arrays
+    const result = rawData as Record<string, unknown>;
+    
+    return {
+        CalculatedInbreedingCoefficient: result.CalculatedInbreedingCoefficient as number,
+        COIContributors: unwrapArray<COIContributorDTO>(result.COIContributors).map(c => ({
+            ...c,
+            AncestorPaths: unwrapArray<string>(c.AncestorPaths)
+        })),
+        Pedigree: result.Pedigree as Rabbit_PedigreeDTO
+    };
 }
 
+/**
+ * Henter test-mating pedigree for et tænkt afkom ud fra far og mor.
+ * @param accessToken JWT token for bruger
+ * @param fatherEarCombId Øremærke på far (Buck)
+ * @param motherEarCombId Øremærke på mor (Doe)
+ * @param maxGeneration Maks antal generationer (default 4)
+ * @returns PedigreeResultDTO med indavlskoefficient og stamtavle
+ */
+export async function GetTestMatingPedigree(
+    accessToken: string,
+    fatherEarCombId: string,
+    motherEarCombId: string,
+    maxGeneration: number = 4
+): Promise<PedigreeResultDTO> {
+    const url = getApiUrl(
+        `Rabbit/TestMatingPedigree?fatherEarCombId=${encodeURIComponent(fatherEarCombId)}&motherEarCombId=${encodeURIComponent(motherEarCombId)}&maxGeneration=${maxGeneration}`
+    );
+    const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Accept': 'application/json'
+        }
+    });
+
+    if (!response.ok) {
+        let errorMessage = `Fejl: ${response.status} ${response.statusText}`;
+        try {
+            const errorJson = await response.json();
+            if (errorJson?.message) errorMessage = errorJson.message;
+        } catch {
+            const errorText = await response.text();
+            if (errorText) errorMessage = errorText;
+        }
+
+        if (response.status === 400) throw new Error(errorMessage);
+        if (response.status === 401) throw new Error(errorMessage);
+        if (response.status === 403) throw new Error(errorMessage);
+        if (response.status === 404) throw new Error(errorMessage);
+        throw new Error(errorMessage);
+    }
+
+    const rawData: unknown = await response.json();
+
+    // Type guard helper (samme som GetRabbitPedigree)
+    function unwrapArray<T>(data: unknown): T[] {
+        if (data && typeof data === 'object' && '$values' in data) {
+            return (data as { $values: T[] }).$values;
+        }
+        return Array.isArray(data) ? data : [];
+    }
+
+    const result = rawData as Record<string, unknown>;
+
+    return {
+        CalculatedInbreedingCoefficient: result.CalculatedInbreedingCoefficient as number,
+        COIContributors: unwrapArray<COIContributorDTO>(result.COIContributors).map(c => ({
+            ...c,
+            AncestorPaths: unwrapArray<string>(c.AncestorPaths)
+        })),
+        Pedigree: result.Pedigree as Rabbit_PedigreeDTO
+    };
+}
 
 
 //-------------------- PUT

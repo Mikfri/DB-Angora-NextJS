@@ -88,7 +88,7 @@ export default function TopNav() {
                                 size="sm"
                                 className="ml-2 font-bold tracking-wide"
                             >
-                                v0.25 ALPHA
+                                v0.26 ALPHA
                             </Chip>
                         </Link>
                         

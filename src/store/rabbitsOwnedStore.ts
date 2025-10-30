@@ -33,10 +33,11 @@ const DEFAULT_FILTERS: Required<OwnFilters> = {
     color: '',
     forSale: false,
     isForBreeding: false,
-    lifeStatus: null,
+    lifeStatus: false,
     showJuveniles: false,
     raceColorApproval: null,
     bornAfterDate: null,
+    includeLinkedRabbits: true, // <-- NYT FELT
 };
 
 // Tilstandstyper for pagination
@@ -140,45 +141,38 @@ function mapOwnFiltersToDTO(filters: OwnFilters, page: number, pageSize: number)
         pageSize,
     };
 
-    // Tilføj kun filter-værdier hvis de faktisk er sat/valgt af brugeren
     if (filters.search && filters.search.trim() !== '') {
         dto.rightEarId = filters.search.trim();
     }
-    
     if (filters.gender && filters.gender !== '') {
         dto.gender = filters.gender;
     }
-    
     if (filters.race && filters.race !== '') {
         dto.race = filters.race;
     }
-    
     if (filters.color && filters.color !== '') {
         dto.color = filters.color;
     }
-    
-    // Kun tilføj boolean-værdier hvis de er eksplicit sat til true
     if (filters.isForBreeding === true) {
         dto.isForBreeding = true;
     }
-    
     if (filters.showJuveniles === true) {
         dto.isJuvenile = true;
     }
-    
-    // Håndter lifeStatus korrekt
     if (filters.lifeStatus === true) {
         dto.onlyDeceased = true;
     } else if (filters.lifeStatus === false) {
         dto.onlyDeceased = false;
     }
-    
     if (filters.raceColorApproval !== null) {
         dto.approvedRaceColorCombination = filters.raceColorApproval;
     }
-    
     if (filters.bornAfterDate) {
         dto.bornAfter = filters.bornAfterDate;
+    }
+    // NYT: includeLinkedRabbits
+    if (typeof filters.includeLinkedRabbits === 'boolean') {
+        dto.includeLinkedRabbits = filters.includeLinkedRabbits;
     }
 
     return dto;
@@ -195,20 +189,20 @@ export const useRabbitsOwnedStore = create<RabbitsOwnedStore>((set, get) => ({
     filteredRabbits: [],
 
     fetchRabbits: async (page = 1, userId?: string) => {
-    const { pagination, filters } = get();
-    const effectiveUserId = userId || useAuthStore.getState().userIdentity?.id;
+        const { pagination, filters } = get();
+        const effectiveUserId = userId || useAuthStore.getState().userIdentity?.id;
 
-    try {
-        if (!effectiveUserId) {
-            set({
-                error: "Bruger-ID mangler. Du skal være logget ind.",
-                isLoading: false
-            });
-            return;
-        }
+        try {
+            if (!effectiveUserId) {
+                set({
+                    error: "Bruger-ID mangler. Du skal være logget ind.",
+                    isLoading: false
+                });
+                return;
+            }
 
-        const filterDTO = mapOwnFiltersToDTO(filters, page, pagination.pageSize);
-        const result = await getRabbitsOwnedByUser(effectiveUserId, filterDTO, page, pagination.pageSize);
+            const filterDTO = mapOwnFiltersToDTO(filters, page, pagination.pageSize);
+            const result = await getRabbitsOwnedByUser(effectiveUserId, filterDTO, page, pagination.pageSize);
 
             if (!result.success) {
                 set({
@@ -264,6 +258,7 @@ export const useRabbitsOwnedStore = create<RabbitsOwnedStore>((set, get) => ({
                 ...(newFilters.color !== undefined ? { color: newFilters.color } : {}),
                 ...(newFilters.raceColorApproval !== undefined ? { raceColorApproval: newFilters.raceColorApproval } : {}),
                 ...(newFilters.bornAfterDate !== undefined ? { bornAfterDate: newFilters.bornAfterDate } : {}),
+                ...(newFilters.includeLinkedRabbits !== undefined ? { includeLinkedRabbits: newFilters.includeLinkedRabbits } : {}), // <-- NYT
             };
 
             const isActive = checkActiveFilters(updatedFilters);

@@ -1,38 +1,34 @@
 // src/hooks/rabbits/useRabbitPedigree.ts
-import { useCallback, useEffect, useState } from 'react';
-import { PedigreeResultDTO } from '@/api/types/AngoraDTOs';
-import { getRabbitPedigree } from '@/app/actions/rabbit/rabbitCrudActions';
 
-export function useRabbitPedigree(earCombId: string, maxGeneration: number = 4) {
+import { useState, useEffect, useCallback } from 'react';
+import { getRabbitPedigree } from '@/app/actions/rabbit/rabbitCrudActions';
+import type { PedigreeResultDTO } from '@/api/types/AngoraDTOs';
+
+export function useRabbitPedigree(earCombId: string, maxGenerations: number = 4) {
   const [pedigreeResult, setPedigreeResult] = useState<PedigreeResultDTO | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchPedigree = useCallback(async () => {
-    if (!earCombId) return;
-
     setIsLoading(true);
     setError(null);
 
-    try {
-      const result = await getRabbitPedigree(earCombId, maxGeneration);
-      
-      if (result.success) {
-        setPedigreeResult(result.data);
-      } else {
-        setError(result.error);
-      }
-    } catch (err) {
-      setError('Der opstod en fejl ved indlæsning af stamtavlen');
-      console.error('Pedigree fetch error:', err);
-    } finally {
-      setIsLoading(false);
+    const result = await getRabbitPedigree(earCombId, maxGenerations);
+
+    if (result.success) {
+      setPedigreeResult(result.data);
+    } else {
+      setError(result.error);
     }
-  }, [earCombId, maxGeneration]);
+
+    setIsLoading(false);
+  }, [earCombId, maxGenerations]);
 
   useEffect(() => {
-    fetchPedigree();
-  }, [fetchPedigree]);
+    if (earCombId) {
+      fetchPedigree();
+    }
+  }, [earCombId, maxGenerations, fetchPedigree]);
 
   return {
     pedigreeResult,

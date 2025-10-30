@@ -228,7 +228,7 @@ export interface Rabbit_PedigreeDTO {
     UserOwnerName: string | null;
     ProfilePicture: string | null;
     InbreedingCoefficient: number | null;  // Ændret fra number til number | null
-    AncestorPath: string[];
+    AncestorPaths: string[];
     // --- DTO'er
     Father: Rabbit_PedigreeDTO | null;
     Mother: Rabbit_PedigreeDTO | null;
@@ -283,6 +283,7 @@ export interface Rabbit_OwnedPreviewDTO {
     isJuvenile: boolean;
     gender: string;
     isForBreeding: boolean | null;
+    isOwnedByTargetedUser: boolean;
     hasSaleDetails: boolean;  // Bemærk: ikke nullable i C#
     fatherId_Placeholder: string | null;
     father_EarCombId: string | null;
@@ -308,6 +309,7 @@ export interface Rabbit_OwnedFilterDTO {
   isJuvenile?: boolean | null;
   approvedRaceColorCombination?: boolean | null;
   isForBreeding?: boolean | null;
+  includeLinkedRabbits?: boolean | null;
   page?: number | null;
   pageSize?: number | null;
 }

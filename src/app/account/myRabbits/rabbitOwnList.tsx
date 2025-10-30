@@ -6,6 +6,9 @@ import RabbitPreviewCard from '@/components/cards/rabbitOwnPreviewCard';
 import SideNavLayout from '@/components/layouts/SideNavLayout';
 import { useRabbitsOwnedStore } from '@/store/rabbitsOwnedStore';
 import { ROUTES } from '@/constants/navigationConstants';
+import { Tabs, Tab } from "@heroui/react";
+import TestMatingTab from './testMatingTab';
+import { FaUser, FaLayerGroup, FaVial } from "react-icons/fa6"; // eller brug andre ikoner
 
 export default function RabbitOwnList({ userId }: { userId: string }) {
     const router = useRouter();
@@ -40,6 +43,16 @@ export default function RabbitOwnList({ userId }: { userId: string }) {
         return rabbitsCopy;
     }, [filteredRabbits, sortBy, sortOrder]);
 
+    // Flyt disse to hooks OP før alle returns!
+    const mineKaniner = useMemo(
+        () => sortedRabbits.filter(r => r.isOwnedByTargetedUser),
+        [sortedRabbits]
+    );
+    const bestandKaniner = useMemo(
+        () => sortedRabbits.filter(r => !r.isOwnedByTargetedUser),
+        [sortedRabbits]
+    );
+
     // Opret navigation element
     const navElement = useMemo(() => (
         <RabbitOwnNav />
@@ -71,32 +84,36 @@ export default function RabbitOwnList({ userId }: { userId: string }) {
     // Loading og fejl
     if (isLoading && rabbits.length === 0) {
         return (
-            <div className="flex justify-center items-center min-h-[50vh]">
-                <div className="flex flex-col items-center gap-4">
-                    <span className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
-                    <p className="text-zinc-300">Indlæser dine kaniner...</p>
+            <SideNavLayout sideNav={navElement}>
+                <div className="flex justify-center items-center min-h-[50vh]">
+                    <div className="flex flex-col items-center gap-4">
+                        <span className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
+                        <p className="text-zinc-300">Indlæser dine kaniner...</p>
+                    </div>
                 </div>
-            </div>
+            </SideNavLayout>
         );
     }
 
     if (error) {
         return (
-            <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-6">
-                <p className="text-red-500">{error}</p>
-            </div>
+            <SideNavLayout sideNav={navElement}>
+                <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-6">
+                    <p className="text-red-500">{error}</p>
+                </div>
+            </SideNavLayout>
         );
     }
 
-    // Content med kaniner
-    const content = (
-        <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-6">
+    // Tab: Mine kaniner
+    const mineKaninerTab = (
+        <div>
             <div className="text-xs text-zinc-500 mb-4">
-                Side {pagination.page} • Viser {sortedRabbits.length} ud af {rabbits.length} kaniner
+                Side {pagination.page} • Viser {mineKaniner.length} ud af {rabbits.length} kaniner
             </div>
             {sortControls}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {sortedRabbits.map((rabbit) => (
+                {mineKaniner.map((rabbit) => (
                     <RabbitPreviewCard
                         key={rabbit.earCombId}
                         rabbit={rabbit}
@@ -104,7 +121,7 @@ export default function RabbitOwnList({ userId }: { userId: string }) {
                     />
                 ))}
 
-                {sortedRabbits.length === 0 && (
+                {mineKaniner.length === 0 && (
                     <div className="col-span-full text-center py-8">
                         <p className="text-zinc-400">Ingen kaniner matcher de valgte filtre</p>
                         <button
@@ -116,81 +133,220 @@ export default function RabbitOwnList({ userId }: { userId: string }) {
                     </div>
                 )}
             </div>
-        </div>
-    );
-
-    // Pagineringskontrol
-    const paginationControls = pagination.totalPages > 1 && (
-        <div className="flex flex-col items-center gap-4 mt-8">
-            <p className="text-zinc-400">
-                Viser side {pagination.page} af {pagination.totalPages} 
-                ({pagination.totalCount} kaniner i alt)
-            </p>
-            <div className="flex gap-2">
-                <button
-                    onClick={() => changePage(1)}
-                    disabled={!pagination.hasPreviousPage || isLoading}
-                    className="px-3 py-1 bg-zinc-700 rounded disabled:opacity-50"
-                >
-                    «
-                </button>
-                <button
-                    onClick={() => changePage(pagination.page - 1)}
-                    disabled={!pagination.hasPreviousPage || isLoading}
-                    className="px-3 py-1 bg-zinc-700 rounded disabled:opacity-50"
-                >
-                    ‹
-                </button>
-                <div className="flex gap-1">
-                    {Array.from({ length: pagination.totalPages }, (_, i) => i + 1)
-                        .filter(pageNum => 
-                            pageNum === 1 || 
-                            pageNum === pagination.totalPages || 
-                            Math.abs(pageNum - pagination.page) <= 1
-                        )
-                        .map((pageNum, index, arr) => {
-                            const showEllipsisBefore = index > 0 && arr[index - 1] !== pageNum - 1;
-                            return (
-                                <div key={pageNum} className="flex">
-                                    {showEllipsisBefore && <span className="px-3 py-1">...</span>}
-                                    <button
-                                        onClick={() => changePage(pageNum)}
-                                        disabled={isLoading}
-                                        className={`px-3 py-1 rounded min-w-[2.5rem] ${
-                                            pageNum === pagination.page
-                                                ? "bg-primary text-white"
-                                                : "bg-zinc-700 hover:bg-zinc-600"
-                                        }`}
-                                    >
-                                        {pageNum}
-                                    </button>
-                                </div>
-                            );
-                        })}
+            {pagination.totalPages > 1 && (
+                <div className="flex flex-col items-center gap-4 mt-8">
+                    <p className="text-zinc-400">
+                        Viser side {pagination.page} af {pagination.totalPages} 
+                        ({pagination.totalCount} kaniner i alt)
+                    </p>
+                    <div className="flex gap-2">
+                        <button
+                            onClick={() => changePage(1)}
+                            disabled={!pagination.hasPreviousPage || isLoading}
+                            className="px-3 py-1 bg-zinc-700 rounded disabled:opacity-50"
+                        >
+                            «
+                        </button>
+                        <button
+                            onClick={() => changePage(pagination.page - 1)}
+                            disabled={!pagination.hasPreviousPage || isLoading}
+                            className="px-3 py-1 bg-zinc-700 rounded disabled:opacity-50"
+                        >
+                            ‹
+                        </button>
+                        <div className="flex gap-1">
+                            {Array.from({ length: pagination.totalPages }, (_, i) => i + 1)
+                                .filter(pageNum => 
+                                    pageNum === 1 || 
+                                    pageNum === pagination.totalPages || 
+                                    Math.abs(pageNum - pagination.page) <= 1
+                                )
+                                .map((pageNum, index, arr) => {
+                                    const showEllipsisBefore = index > 0 && arr[index - 1] !== pageNum - 1;
+                                    return (
+                                        <div key={pageNum} className="flex">
+                                            {showEllipsisBefore && <span className="px-3 py-1">...</span>}
+                                            <button
+                                                onClick={() => changePage(pageNum)}
+                                                disabled={isLoading}
+                                                className={`px-3 py-1 rounded min-w-[2.5rem] ${
+                                                    pageNum === pagination.page
+                                                        ? "bg-primary text-white"
+                                                        : "bg-zinc-700 hover:bg-zinc-600"
+                                                }`}
+                                            >
+                                                {pageNum}
+                                            </button>
+                                        </div>
+                                    );
+                                })}
+                        </div>
+                        <button
+                            onClick={() => changePage(pagination.page + 1)}
+                            disabled={!pagination.hasNextPage || isLoading}
+                            className="px-3 py-1 bg-zinc-700 rounded disabled:opacity-50"
+                        >
+                            ›
+                        </button>
+                        <button
+                            onClick={() => changePage(pagination.totalPages)}
+                            disabled={!pagination.hasNextPage || isLoading}
+                            className="px-3 py-1 bg-zinc-700 rounded disabled:opacity-50"
+                        >
+                            » 
+                        </button>
+                    </div>
                 </div>
-                <button
-                    onClick={() => changePage(pagination.page + 1)}
-                    disabled={!pagination.hasNextPage || isLoading}
-                    className="px-3 py-1 bg-zinc-700 rounded disabled:opacity-50"
-                >
-                    ›
-                </button>
-                <button
-                    onClick={() => changePage(pagination.totalPages)}
-                    disabled={!pagination.hasNextPage || isLoading}
-                    className="px-3 py-1 bg-zinc-700 rounded disabled:opacity-50"
-                >
-                    » 
-                </button>
-            </div>
+            )}
         </div>
     );
 
-    // Wrap alt i SideNavLayout
+    // Tab: Bestand (ikke ejet)
+    const bestandTab = (
+        <div>
+            <div className="text-xs text-zinc-500 mb-4">
+                Side {pagination.page} • Viser {bestandKaniner.length} ud af {rabbits.length} kaniner
+            </div>
+            {sortControls}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {bestandKaniner.map((rabbit) => (
+                    <RabbitPreviewCard
+                        key={rabbit.earCombId}
+                        rabbit={rabbit}
+                        onClick={() => router.push(ROUTES.ACCOUNT.RABBIT_PROFILE(rabbit.earCombId))}
+                    />
+                ))}
+
+                {bestandKaniner.length === 0 && (
+                    <div className="col-span-full text-center py-8">
+                        <p className="text-zinc-400">Ingen kaniner matcher de valgte filtre</p>
+                        <button
+                            onClick={resetFilters}
+                            className="mt-2 text-primary underline text-sm"
+                        >
+                            Nulstil alle filtre
+                        </button>
+                    </div>
+                )}
+            </div>
+            {pagination.totalPages > 1 && (
+                <div className="flex flex-col items-center gap-4 mt-8">
+                    <p className="text-zinc-400">
+                        Viser side {pagination.page} af {pagination.totalPages} 
+                        ({pagination.totalCount} kaniner i alt)
+                    </p>
+                    <div className="flex gap-2">
+                        <button
+                            onClick={() => changePage(1)}
+                            disabled={!pagination.hasPreviousPage || isLoading}
+                            className="px-3 py-1 bg-zinc-700 rounded disabled:opacity-50"
+                        >
+                            «
+                        </button>
+                        <button
+                            onClick={() => changePage(pagination.page - 1)}
+                            disabled={!pagination.hasPreviousPage || isLoading}
+                            className="px-3 py-1 bg-zinc-700 rounded disabled:opacity-50"
+                        >
+                            ‹
+                        </button>
+                        <div className="flex gap-1">
+                            {Array.from({ length: pagination.totalPages }, (_, i) => i + 1)
+                                .filter(pageNum => 
+                                    pageNum === 1 || 
+                                    pageNum === pagination.totalPages || 
+                                    Math.abs(pageNum - pagination.page) <= 1
+                                )
+                                .map((pageNum, index, arr) => {
+                                    const showEllipsisBefore = index > 0 && arr[index - 1] !== pageNum - 1;
+                                    return (
+                                        <div key={pageNum} className="flex">
+                                            {showEllipsisBefore && <span className="px-3 py-1">...</span>}
+                                            <button
+                                                onClick={() => changePage(pageNum)}
+                                                disabled={isLoading}
+                                                className={`px-3 py-1 rounded min-w-[2.5rem] ${
+                                                    pageNum === pagination.page
+                                                        ? "bg-primary text-white"
+                                                        : "bg-zinc-700 hover:bg-zinc-600"
+                                                }`}
+                                            >
+                                                {pageNum}
+                                            </button>
+                                        </div>
+                                    );
+                                })}
+                        </div>
+                        <button
+                            onClick={() => changePage(pagination.page + 1)}
+                            disabled={!pagination.hasNextPage || isLoading}
+                            className="px-3 py-1 bg-zinc-700 rounded disabled:opacity-50"
+                        >
+                            ›
+                        </button>
+                        <button
+                            onClick={() => changePage(pagination.totalPages)}
+                            disabled={!pagination.hasNextPage || isLoading}
+                            className="px-3 py-1 bg-zinc-700 rounded disabled:opacity-50"
+                        >
+                            » 
+                        </button>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+
     return (
         <SideNavLayout sideNav={navElement}>
-            {content}
-            {paginationControls}
+            <Tabs
+                aria-label="Mine kaniner"
+                variant="bordered"
+                color="primary"
+                radius="lg"
+                classNames={{
+                    base: "w-full",
+                    tabList: "gap-2 w-full relative p-2 bg-zinc-900 border border-zinc-700 rounded-xl",
+                    tab: "px-4 py-2 rounded-lg data-[selected=true]:bg-primary data-[selected=true]:text-white data-[hover=true]:bg-zinc-800 text-sm font-medium flex items-center gap-2",
+                    cursor: "",
+                    tabContent: "",
+                    panel: "pt-6"
+                }}
+            >
+                <Tab
+                    key="mine"
+                    title={
+                        <span className="flex items-center gap-2">
+                            <FaUser className="text-lg" />
+                            I-folden
+                        </span>
+                    }
+                >
+                    {mineKaninerTab}
+                </Tab>                
+                <Tab
+                    key="test-mating"
+                    title={
+                        <span className="flex items-center gap-2">
+                            <FaVial className="text-lg" />
+                            Test parringer
+                        </span>
+                    }
+                >
+                    <TestMatingTab />
+                </Tab>
+                <Tab
+                    key="bestand"
+                    title={
+                        <span className="flex items-center gap-2">
+                            <FaLayerGroup className="text-lg" />
+                            Udenfor-folden
+                        </span>
+                    }
+                >
+                    {bestandTab}
+                </Tab>
+            </Tabs>
         </SideNavLayout>
     );
 }

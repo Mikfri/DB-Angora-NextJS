@@ -1,5 +1,9 @@
 // src/api/types/filterTypes.ts
 
+/* Denne fil er overordnet for Client side filtertyper, som ene og alene
+håndteres i browseren og ikke på serveren. Dvs at disse parametre ikke når ud til API'en,
+modsat DTO'erne i ../types/AngoraDTOs.ts */
+
 /**
  * Filter interface for kaniner til salg
  * Alle felter er valgfrie da søgning kan udføres på hvilken som helst kombination
@@ -33,6 +37,7 @@ export interface OwnFilters {
     showJuveniles?: boolean; 
     raceColorApproval?: boolean | null;
     bornAfterDate?: string | null;
+    includeLinkedRabbits?: boolean; // <-- NYT FELT
 }
 
 /**
