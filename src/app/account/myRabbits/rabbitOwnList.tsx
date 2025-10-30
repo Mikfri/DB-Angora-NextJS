@@ -8,7 +8,7 @@ import { useRabbitsOwnedStore } from '@/store/rabbitsOwnedStore';
 import { ROUTES } from '@/constants/navigationConstants';
 import { Tabs, Tab } from "@heroui/react";
 import TestMatingTab from './testMatingTab';
-import { FaUser, FaLayerGroup, FaVial } from "react-icons/fa6"; // eller brug andre ikoner
+import { TbFolderHeart, TbFolderPin, TbFolderQuestion } from 'react-icons/tb';
 
 export default function RabbitOwnList({ userId }: { userId: string }) {
     const router = useRouter();
@@ -317,7 +317,7 @@ export default function RabbitOwnList({ userId }: { userId: string }) {
                     key="mine"
                     title={
                         <span className="flex items-center gap-2">
-                            <FaUser className="text-lg" />
+                            <TbFolderPin className="text-lg" />
                             I-folden
                         </span>
                     }
@@ -328,7 +328,7 @@ export default function RabbitOwnList({ userId }: { userId: string }) {
                     key="test-mating"
                     title={
                         <span className="flex items-center gap-2">
-                            <FaVial className="text-lg" />
+                            <TbFolderHeart className="text-lg" />
                             Test parringer
                         </span>
                     }
@@ -339,7 +339,7 @@ export default function RabbitOwnList({ userId }: { userId: string }) {
                     key="bestand"
                     title={
                         <span className="flex items-center gap-2">
-                            <FaLayerGroup className="text-lg" />
+                            <TbFolderQuestion className="text-lg" />
                             Udenfor-folden
                         </span>
                     }
