@@ -13,9 +13,10 @@ import { IoColorPaletteOutline } from "react-icons/io5";
 import { RiAddCircleLine, RiExchangeLine, RiGenderlessLine } from "react-icons/ri";
 import { FaInfoCircle } from "react-icons/fa";
 import { BiPurchaseTagAlt } from "react-icons/bi";
-import { BsHouse, BsHouseGear, BsHouseHeart, BsHouseX } from "react-icons/bs";
 import { SiMicrogenetics } from "react-icons/si";
-import { TbFilterSearch } from "react-icons/tb";
+import { GiHealthNormal } from "react-icons/gi";
+import { PiSelectionPlus } from "react-icons/pi";
+import { TbGrave2 } from "react-icons/tb";
 
 // De enum typer der bruges i denne komponent
 const REQUIRED_ENUMS: RabbitEnum[] = ['Race', 'Color', 'Gender'];
@@ -155,10 +156,10 @@ export function RabbitOwnNavClient() {
 
                 {/* Søgefelt */}
                 <div className="flex items-center gap-1">
-                    <div className="flex items-center gap-1.5 min-w-[70px]">
+                    {/* <div className="flex items-center gap-1.5 min-w-[70px]">
                         <TbFilterSearch className="text-lg text-default-500" />
                         <span className="text-xs font-medium">Søg</span>
-                    </div>
+                    </div> */}
                     <div className="flex-1">
                         <Input
                             size="sm"
@@ -175,8 +176,8 @@ export function RabbitOwnNavClient() {
 
                 <div className="space-y-1.5 dark">
                     <div className="flex items-center gap-1.5">
-                        <BsHouseGear className="text-lg text-default-500" />
-                        <span className="text-xs font-medium">Visning</span>
+                        {/* <BsHouseGear className="text-lg text-default-500" /> */}
+                        {/* <span className="text-xs font-medium">Visning</span> */}
                     </div>
 
                     <div className="flex gap-2" >
@@ -194,7 +195,7 @@ export function RabbitOwnNavClient() {
                                 isIconOnly
                                 aria-label="Kun levende kaniner"
                             >
-                                <BsHouseHeart className="text-lg" />
+                                <GiHealthNormal className="text-lg" />
                             </Button>
                         </Tooltip>
                         
@@ -212,7 +213,7 @@ export function RabbitOwnNavClient() {
                                 isIconOnly
                                 aria-label="Kun afdøde kaniner"
                             >
-                                <BsHouseX className="text-lg" />
+                                <TbGrave2 className="text-lg" />
                             </Button>
                         </Tooltip>
 
@@ -230,7 +231,7 @@ export function RabbitOwnNavClient() {
                                 isIconOnly
                                 aria-label="Vis alle kaniner"
                             >
-                                <BsHouse className="text-lg" />
+                                <PiSelectionPlus className="text-lg" />
                             </Button>
                         </Tooltip>                        
                     </div>

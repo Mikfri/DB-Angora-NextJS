@@ -1,51 +1,74 @@
-
 "use client";
 // src/app/blogs/[slug]/blogPost.tsx
 
 import Image from 'next/image';
+import { useState, useRef, useEffect } from 'react';
 import type { BlogPublicDTO } from '@/api/types/AngoraDTOs';
-import { Avatar } from '@heroui/react';
 
 interface Props {
   blog: BlogPublicDTO;
 }
 
 export default function BlogPost({ blog }: Props) {
+  const [modalImageUrl, setModalImageUrl] = useState<string | null>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  // Gør ALLE billeder i content klikbare
+  useEffect(() => {
+    const imgs = contentRef.current?.querySelectorAll('img');
+    if (imgs) {
+      imgs.forEach(img => {
+        img.style.cursor = 'pointer';
+        img.onclick = () => setModalImageUrl(img.src);
+      });
+    }
+    return () => {
+      imgs?.forEach(img => (img.onclick = null));
+    };
+  }, [blog.content, modalImageUrl]);
+
   return (
     <article className="max-w-4xl mx-auto py-8 px-4">
+      {/* Klikbart hovedbillede */}
       {blog.featuredImageUrl && (
-        <Image
-          src={blog.featuredImageUrl}
-          alt={blog.title}
-          width={800}
-          height={256}
-          className="w-full h-64 object-cover rounded-lg mb-8 shadow-lg"
-        />
-      )}
-      
-      <header className="mb-8">
-        <h1 className="text-4xl font-bold text-zinc-100 mb-4">{blog.title}</h1>
-        {blog.subtitle && (
-          <h2 className="text-xl text-zinc-400 mb-6">{blog.subtitle}</h2>
-        )}
-        
-        <div className="flex items-center gap-4 text-sm text-zinc-500 pb-6 border-b border-zinc-700">
-          <Avatar
-            src={blog.authorProfilePicture}
-            name={blog.authorName}
-            size="md"
-            className="border border-zinc-600"
+        <>
+          <Image
+            src={blog.featuredImageUrl}
+            alt={blog.title}
+            width={800}
+            height={256}
+            className="w-full h-64 object-cover rounded-lg mb-8 shadow-lg cursor-pointer transition hover:brightness-90"
+            onClick={() => blog.featuredImageUrl && setModalImageUrl(blog.featuredImageUrl)}
+            priority
           />
-          <div>
-            <span className="text-zinc-300 font-medium">{blog.authorName}</span>
-            <span className="mx-2">•</span>
-            <span>{blog.publishDate ? new Date(blog.publishDate).toLocaleDateString('da-DK') : ''}</span>
-          </div>
-        </div>
-      </header>
+        </>
+      )}
 
-      {/* FORBEDRET CONTENT MED TYPOGRAPHY */}
-      <div 
+      {/* Modal for ALLE billeder */}
+      {modalImageUrl && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80"
+          onClick={() => setModalImageUrl(null)}
+        >
+          <img
+            src={modalImageUrl}
+            alt="Fuld størrelse"
+            className="max-w-[90vw] max-h-[90vh] rounded-lg shadow-2xl"
+            onClick={e => e.stopPropagation()}
+          />
+          <button
+            className="absolute top-6 right-8 text-white text-3xl font-bold"
+            onClick={() => setModalImageUrl(null)}
+            aria-label="Luk billede"
+          >
+            ×
+          </button>
+        </div>
+      )}
+
+      {/* Blog content med klikbare billeder */}
+      <div
+        ref={contentRef}
         className="prose prose-invert prose-zinc max-w-none mb-8
           prose-headings:text-zinc-100 
           prose-h1:text-3xl prose-h1:mb-6 prose-h1:mt-8
@@ -58,7 +81,7 @@ export default function BlogPost({ blog }: Props) {
           prose-strong:text-zinc-100 prose-strong:font-semibold
           prose-code:bg-zinc-700 prose-code:text-amber-300 prose-code:px-2 prose-code:rounded
         "
-        dangerouslySetInnerHTML={{ __html: blog.content }} 
+        dangerouslySetInnerHTML={{ __html: blog.content }}
       />
 
       <footer className="mt-8 pt-6 border-t border-zinc-700">
