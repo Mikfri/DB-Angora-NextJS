@@ -255,7 +255,7 @@ export default function SimpleCloudinaryWidget({
         clientAllowedFormats: ['jpg', 'jpeg', 'png', 'webp'],
         showAdvancedOptions: false,
         cropping: true,
-        croppingAspectRatio: 1,
+        //croppingAspectRatio: 1,   // 1 = kvadratisk
         croppingShowDimensions: true,
         language: 'da',
         widgetId: uniqueId,

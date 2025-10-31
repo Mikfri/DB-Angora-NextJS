@@ -62,7 +62,11 @@ export interface PhotoDeleteDTO {
   entityIntId?: number | null;
 }
 
-
+/**
+ * Sender billedoplysninger fra frontenden (DB-AngoraNextJS) til backenden (DB-AngoraREST API'en), 
+ * EFTER at et billede er uploadet til Cloudinary.
+ * Backenden bruger denne DTO til at registrere billedets oplysninger i databasen. 
+ */
 export interface CloudinaryPhotoRegistryRequestDTO {
     publicId: string;
     cloudinaryUrl: string;
@@ -72,6 +76,9 @@ export interface CloudinaryPhotoRegistryRequestDTO {
     entityType: string;
 }
 
+/**
+ * Benyttes pt ikke.
+ */
 export interface CloudinaryUploadSignatureDTO {
     apiKey: string;
     cloudName: string;
@@ -98,11 +105,11 @@ export interface CloudinaryUploadConfigDTO {
     //timestamp: string;
     //uploadSignature: string;
     folder: string;
-    uploadPreset: string;
+    uploadPreset: string; // er det foruddefinerede upload preset i Cloudinary, der bruges til at konfigurere upload-indstillingerne
     source: string;
     entityId: string;
     entityType: string;
-    context: string;
+    context: string;      // Bruges til at angive metadata om entiteten, fx "entity_type=rabbit|entity_id=1234-5678"
     tags: string;
 }
 

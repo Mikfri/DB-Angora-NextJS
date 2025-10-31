@@ -14,7 +14,8 @@ import {
 } from 'lexical';
 import { DecoratorNode } from 'lexical';
 import Image from 'next/image';
-import { JSX } from 'react';
+import { JSX, useState } from 'react';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 
 export interface ImagePayload {
   src: string;
@@ -33,6 +34,52 @@ export type SerializedImageNode = Spread<
   },
   SerializedLexicalNode
 >;
+
+function ImageNodeComponent({ node }: { node: ImageNode }) {
+  const [editor] = useLexicalComposerContext();
+  const [width, setWidth] = useState(node.__width);
+  const aspectRatio = node.__width / node.__height;
+  const height = Math.round(width / aspectRatio);
+
+  // Opdater både React state og node-data i Lexical
+  const updateSize = (newWidth: number) => {
+    setWidth(newWidth);
+    editor.update(() => {
+      const latestNode = node.getLatest();
+      latestNode.__width = newWidth;
+      latestNode.__height = Math.round(newWidth / aspectRatio);
+    });
+  };
+
+  return (
+    <div className="blog-image-container my-4 flex flex-col items-center">
+      <Image
+        src={node.__src}
+        alt={node.__alt}
+        width={width}
+        height={height}
+        className="max-w-full h-auto rounded-lg shadow-lg mx-auto block"
+        style={{ width, height: 'auto' }}
+        priority={false}
+        unoptimized={node.__src.startsWith('data:') || !node.__src.includes('res.cloudinary.com')}
+      />
+      <div className="w-full flex flex-col items-center mt-2">
+        <label className="text-xs text-zinc-400 mb-1">Billedbredde: {width}px</label>
+        <input
+          type="range"
+          min={Math.max(50, Math.round(node.__width * 0.2))}
+          max={Math.min(1200, Math.round(node.__width * 2))}
+          value={width}
+          onChange={e => {
+            const newWidth = Number(e.target.value);
+            updateSize(newWidth);
+          }}
+          className="w-48"
+        />
+      </div>
+    </div>
+  );
+}
 
 export class ImageNode extends DecoratorNode<JSX.Element> {
   __src: string;
@@ -133,20 +180,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
   }
 
   decorate(): JSX.Element {
-    return (
-      <div className="blog-image-container my-4">
-        <Image
-          src={this.__src}
-          alt={this.__alt}
-          width={this.__width}
-          height={this.__height}
-          className="max-w-full h-auto rounded-lg shadow-lg mx-auto block"
-          style={{ width: 'auto', height: 'auto' }}
-          priority={false}
-          unoptimized={this.__src.startsWith('data:') || !this.__src.includes('res.cloudinary.com')}
-        />
-      </div>
-    );
+    return <ImageNodeComponent node={this} />;
   }
 }
 
