@@ -72,11 +72,20 @@ const initialConfig = {
 
 export default function BlogLexicalEditor({ value, onChange, blogId, existingPhotos = [] }: Props) {
   const isInitialized = useRef(false);
+  const editorContainerRef = useRef<HTMLDivElement>(null);
 
   return (
     <LexicalComposer initialConfig={initialConfig}>
-      <div className="border rounded-lg bg-zinc-900 overflow-hidden">
-        <ToolbarPlugin blogId={blogId} existingPhotos={existingPhotos} />
+      <div 
+        ref={editorContainerRef} 
+        className="border rounded-lg bg-zinc-900 overflow-hidden"
+        style={{ position: "relative" }}
+      >
+        <ToolbarPlugin 
+          blogId={blogId} 
+          existingPhotos={existingPhotos} 
+          editorContainerRef={editorContainerRef}
+        />
         
         <div className="relative">
           <RichTextPlugin

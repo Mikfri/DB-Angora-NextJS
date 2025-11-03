@@ -5,18 +5,19 @@ import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext
 import {
   $getSelection,
   $isRangeSelection,
-  FORMAT_TEXT_COMMAND,
+  $createParagraphNode,
   SELECTION_CHANGE_COMMAND,
-  $createParagraphNode
+  FORMAT_TEXT_COMMAND,
 } from "lexical";
 import {
   $createHeadingNode,
   $createQuoteNode,
-  HeadingTagType
+  HeadingTagType,
 } from "@lexical/rich-text";
 import {
   INSERT_UNORDERED_LIST_COMMAND,
   INSERT_ORDERED_LIST_COMMAND,
+  REMOVE_LIST_COMMAND,
   $isListNode
 } from "@lexical/list";
 import { useCallback, useEffect, useState } from "react";
@@ -40,6 +41,7 @@ import type { CloudinaryUploadConfigDTO, CloudinaryPhotoRegistryRequestDTO, Phot
 import SimpleCloudinaryWidget from '@/components/cloudinary/SimpleCloudinaryWidget';
 import CloudinaryImage from '@/components/cloudinary/CloudinaryImage';
 import { toast } from 'react-toastify';
+import { ContextMenu } from "./LexicalContextMenu"; // Tilføj denne import
 
 interface ImageSelectorProps {
   blogId: number;
@@ -183,13 +185,24 @@ function ImageSelector({ blogId, isOpen, onClose, onImageSelect, existingPhotos 
   );
 }
 
-export function ToolbarPlugin({ blogId, existingPhotos = [] }: { blogId: number; existingPhotos?: PhotoPrivateDTO[] }) {
+export function ToolbarPlugin({
+  blogId,
+  existingPhotos = [],
+  editorContainerRef
+}: {
+  blogId: number;
+  existingPhotos?: PhotoPrivateDTO[];
+  editorContainerRef: React.RefObject<HTMLDivElement | null>;
+}) {
   const [editor] = useLexicalComposerContext();
   const [isBold, setIsBold] = useState(false);
   const [isItalic, setIsItalic] = useState(false);
   const [isUnderline, setIsUnderline] = useState(false);
   const [blockType, setBlockType] = useState('paragraph');
   const [showImageSelector, setShowImageSelector] = useState(false);
+
+  // Context menu state
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
 
   const updateToolbar = useCallback(() => {
     const selection = $getSelection();
@@ -227,36 +240,42 @@ export function ToolbarPlugin({ blogId, existingPhotos = [] }: { blogId: number;
       const selection = $getSelection();
       if ($isRangeSelection(selection)) {
         const anchorNode = selection.anchor.getNode();
-        const element = anchorNode.getKey() === 'root' ? anchorNode : anchorNode.getTopLevelElementOrThrow();
-        element.replace($createParagraphNode());
+        const element = anchorNode.getTopLevelElementOrThrow();
+        const paragraph = $createParagraphNode();
+        paragraph.append(...element.getChildren());
+        element.replace(paragraph);
+        paragraph.selectEnd();
       }
     });
   };
 
   const formatHeading = (headingSize: HeadingTagType) => {
-    if (blockType !== headingSize) {
-      editor.update(() => {
-        const selection = $getSelection();
-        if ($isRangeSelection(selection)) {
-          const anchorNode = selection.anchor.getNode();
-          const element = anchorNode.getKey() === 'root' ? anchorNode : anchorNode.getTopLevelElementOrThrow();
-          element.replace($createHeadingNode(headingSize));
-        }
-      });
-    }
+    editor.update(() => {
+      const selection = $getSelection();
+      if ($isRangeSelection(selection)) {
+        // Skift bloktype uden at slette indhold
+        const anchorNode = selection.anchor.getNode();
+        const element = anchorNode.getTopLevelElementOrThrow();
+        const heading = $createHeadingNode(headingSize);
+        heading.append(...element.getChildren());
+        element.replace(heading);
+        heading.selectEnd();
+      }
+    });
   };
 
   const formatQuote = () => {
-    if (blockType !== 'quote') {
-      editor.update(() => {
-        const selection = $getSelection();
-        if ($isRangeSelection(selection)) {
-          const anchorNode = selection.anchor.getNode();
-          const element = anchorNode.getKey() === 'root' ? anchorNode : anchorNode.getTopLevelElementOrThrow();
-          element.replace($createQuoteNode());
-        }
-      });
-    }
+    editor.update(() => {
+      const selection = $getSelection();
+      if ($isRangeSelection(selection)) {
+        const anchorNode = selection.anchor.getNode();
+        const element = anchorNode.getTopLevelElementOrThrow();
+        const quote = $createQuoteNode();
+        quote.append(...element.getChildren());
+        element.replace(quote);
+        quote.selectEnd(); // <-- Sæt selection til den nye node!
+      }
+    });
   };
 
   const insertImage = (src: string, alt: string) => {
@@ -268,8 +287,63 @@ export function ToolbarPlugin({ blogId, existingPhotos = [] }: { blogId: number;
     });
   };
 
+  const toggleList = (listType: 'bullet' | 'number') => {
+    if (blockType === listType) {
+      // Hvis allerede i listen, fjern den
+      editor.dispatchCommand(REMOVE_LIST_COMMAND, undefined);
+    } else {
+      // Ellers indsæt listen
+      if (listType === 'bullet') {
+        editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
+      } else {
+        editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
+      }
+    }
+  };
+
+  // Håndter højreklik i editoren
+  useEffect(() => {
+    const editorElem = editor.getRootElement();
+    if (!editorElem) return;
+
+    const handleContextMenu = (e: Event) => {
+      e.preventDefault();
+      const mouseEvent = e as MouseEvent;
+      if (editorContainerRef.current) {
+        const rect = editorContainerRef.current.getBoundingClientRect();
+        setContextMenu({
+          x: mouseEvent.clientX - rect.left,
+          y: mouseEvent.clientY - rect.top,
+        });
+      }
+    };
+
+    editorElem.addEventListener("contextmenu", handleContextMenu as EventListener);
+    return () => {
+      editorElem.removeEventListener("contextmenu", handleContextMenu as EventListener);
+    };
+  }, [editor, editorContainerRef]);
+
+  // Håndter valg i context menuen
+  const handleFormat = (type: string) => {
+    console.log("Format valgt:", type);
+    if (type === "bold") editor.dispatchCommand(FORMAT_TEXT_COMMAND, "bold");
+    if (type === "italic") editor.dispatchCommand(FORMAT_TEXT_COMMAND, "italic");
+    if (type === "underline") editor.dispatchCommand(FORMAT_TEXT_COMMAND, "underline");
+    if (type === "bullet") toggleList("bullet");
+    if (type === "number") toggleList("number");
+    if (type === "h1") formatHeading("h1");
+    if (type === "h2") formatHeading("h2");
+    if (type === "h3") formatHeading("h3");
+    if (type === "normal") formatParagraph();
+    if (type === "quote") formatQuote();
+    if (type === "image") setShowImageSelector(true);
+    setContextMenu(null);
+  };
+
   return (
     <>
+      {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-1 p-2 border-b border-zinc-700 bg-zinc-800">
         {/* Text formatting */}
         <div className="flex items-center gap-1 mr-2">
@@ -339,10 +413,22 @@ export function ToolbarPlugin({ blogId, existingPhotos = [] }: { blogId: number;
 
         {/* Lists */}
         <div className="flex items-center gap-1 mr-2">
-          <Button size="sm" variant="light" onPress={() => editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined)} isIconOnly>
+          <Button
+            size="sm"
+            variant={blockType === 'bullet' ? "solid" : "light"}
+            color={blockType === 'bullet' ? "primary" : "default"}
+            onPress={() => toggleList('bullet')}
+            isIconOnly
+          >
             <FaListUl />
           </Button>
-          <Button size="sm" variant="light" onPress={() => editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined)} isIconOnly>
+          <Button
+            size="sm"
+            variant={blockType === 'number' ? "solid" : "light"}
+            color={blockType === 'number' ? "primary" : "default"}
+            onPress={() => toggleList('number')}
+            isIconOnly
+          >
             <FaListOl />
           </Button>
           <Button size="sm" variant="light" onPress={formatQuote} isIconOnly>
@@ -350,6 +436,16 @@ export function ToolbarPlugin({ blogId, existingPhotos = [] }: { blogId: number;
           </Button>
         </div>
       </div>
+
+      {/* Context menu */}
+      {contextMenu && (
+        <ContextMenu
+          x={contextMenu.x}
+          y={contextMenu.y}
+          onFormat={handleFormat}
+          onClose={() => setContextMenu(null)}
+        />
+      )}
 
       <ImageSelector
         blogId={blogId}

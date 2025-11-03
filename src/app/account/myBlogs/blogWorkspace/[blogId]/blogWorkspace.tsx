@@ -1,3 +1,4 @@
+// src/app/account/myBlogs/blogWorkspace/[blogId]/blogWorkspace.tsx
 'use client';
 
 import { Blog_DTO } from '@/api/types/AngoraDTOs';

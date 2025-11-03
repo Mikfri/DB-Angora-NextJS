@@ -2,13 +2,9 @@
 'use client';
 
 import { ReactNode } from 'react';
-import { Divider } from '@heroui/react';
+import { Divider, Button } from '@heroui/react';
 import { FaRegEdit, FaUserCircle, FaCalendarAlt, FaEye, FaEyeSlash } from "react-icons/fa";
-import { Blog_DTO } from '@/api/types/AngoraDTOs';
-
-interface BlogWorkspaceNavClientProps {
-  blog: Blog_DTO;
-}
+import { useBlogWorkspace } from '@/contexts/BlogWorkspaceContext'; // <-- Importér context-hook
 
 const SECTIONS = {
   INFO: 'Blog information',
@@ -21,15 +17,23 @@ const DEFAULT_TEXTS = {
   NOT_SET: 'Ikke angivet'
 } as const;
 
-/**
- * Client-side visning af blog workspace navigation.
- */
-export function BlogWorkspaceNavClient({ blog }: BlogWorkspaceNavClientProps) {
+export function BlogWorkspaceNavClient() {
+  // Brug context direkte
+  const {
+    blog,
+    isPublishing,
+    handlePublish,
+    handleUnpublish,
+    handleDelete,
+  } = useBlogWorkspace();
+
+  if (!blog) return null;
+
   // Fallbacks
   const title = blog.title || DEFAULT_TEXTS.NOT_SET;
   const subtitle = blog.subtitle || DEFAULT_TEXTS.NOT_SET;
-  const author = blog.authorName || DEFAULT_TEXTS.UNKNOWN; // <-- Rettet
-  const created = blog.createdAt ? new Date(blog.createdAt).toLocaleDateString() : DEFAULT_TEXTS.UNKNOWN; // <-- Rettet
+  const author = blog.authorName || DEFAULT_TEXTS.UNKNOWN;
+  const created = blog.createdAt ? new Date(blog.createdAt).toLocaleDateString() : DEFAULT_TEXTS.UNKNOWN;
   const published = blog.isPublished
     ? (blog.publishDate ? new Date(blog.publishDate).toLocaleDateString() : 'Planlagt')
     : 'Ikke publiceret';
@@ -37,6 +41,44 @@ export function BlogWorkspaceNavClient({ blog }: BlogWorkspaceNavClientProps) {
 
   return (
     <div className="w-full p-1 space-y-2">
+      {/* Action section header */}
+      <div>
+        <h3 className="text-[13px] font-medium text-zinc-400 mb-1">Handlinger</h3>
+        <div className="flex flex-col gap-2 mb-3">
+          <Button
+            color="primary"
+            variant="bordered"
+            fullWidth
+            size="sm"
+            onPress={handlePublish}
+            disabled={isPublishing || blog.isPublished}
+          >
+            Publicer
+          </Button>
+          <Button
+            color="primary"
+            variant="bordered"
+            fullWidth
+            size="sm"
+            onPress={handleUnpublish}
+            disabled={isPublishing || !blog.isPublished}
+          >
+            Træk tilbage
+          </Button>
+          <Button
+            color="danger"
+            variant="bordered"
+            fullWidth
+            size="sm"
+            onPress={handleDelete}
+            disabled={isPublishing}
+          >
+            Slet
+          </Button>
+        </div>
+        <Divider className="bg-zinc-200/5 my-0.5" />
+      </div>
+
       {/* Blog info */}
       <div>
         <h3 className="text-[13px] font-medium text-zinc-400 mb-0.5">{SECTIONS.INFO}</h3>

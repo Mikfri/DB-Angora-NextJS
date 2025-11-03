@@ -1,6 +1,7 @@
+// src/app/account/myBlogs/blogWorkspace/[blogId]/layout.tsx
 'use client';
 
-import { BlogWorkspaceProvider, useBlogWorkspace } from '@/contexts/BlogWorkspaceContext';
+import { BlogWorkspaceProvider } from '@/contexts/BlogWorkspaceContext';
 import SideNavLayout from '@/components/layouts/SideNavLayout';
 import BlogWorkspaceNav from '@/components/nav/side/index/BlogWorkspaceNav';
 import { Suspense } from 'react';
@@ -21,20 +22,6 @@ function SideNavLoading() {
   );
 }
 
-// Wrapper for sidenav, så vi kan hente blog-data fra context
-function BlogWorkspaceSideNav() {
-  const { blog, isLoading, isPublishing, handlePublish, handleUnpublish } = useBlogWorkspace();
-  if (isLoading || !blog) return <SideNavLoading />;
-  return (
-    <BlogWorkspaceNav
-      blog={blog}
-      onPublishClick={handlePublish}
-      onUnpublishClick={handleUnpublish}
-      isPublishing={isPublishing}
-    />
-  );
-}
-
 export default function BlogWorkspaceLayout({
   children,
 }: {
@@ -45,7 +32,7 @@ export default function BlogWorkspaceLayout({
       <SideNavLayout
         sideNav={
           <Suspense fallback={<SideNavLoading />}>
-            <BlogWorkspaceSideNav />
+            <BlogWorkspaceNav />
           </Suspense>
         }
       >
