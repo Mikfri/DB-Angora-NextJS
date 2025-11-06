@@ -10,22 +10,20 @@ import type {
 
 //---------------- POST METHODS -----------------
 /**
- * Opretter et nyt blogindlæg.
- * Kræver CreateBlog claim i accessToken.
- * @param createDTO - Data til oprettelse af nyt blogindlæg
+ * Opretter et nyt blogindlæg som kladde.
+ * Du kan sende et tomt objekt som createDTO.
+ * @param createDTO - Data til oprettelse af nyt blogindlæg (kan være tomt)
  * @param accessToken - JWT token til adgangskontrol (påkrævet)
  * @returns Det oprettede blogindlæg (Blog_DTO)
  */
 export async function createBlog(
-    createDTO: Blog_CreateDTO,
+    createDTO: Blog_CreateDTO = {},
     accessToken: string
 ): Promise<Blog_DTO> {
     if (!accessToken || accessToken.trim() === "") {
         throw new Error("Access token is required for this endpoint.");
     }
-    if (!createDTO) {
-        throw new Error("Blog create data is required.");
-    }
+    // createDTO kan nu være tomt, så ingen check her
 
     const url = getApiUrl('Blog');
 
@@ -41,21 +39,46 @@ export async function createBlog(
         body: JSON.stringify(createDTO)
     });
 
-    if (!res.ok) {
-        let errorMessage = `${res.status} ${res.statusText}`;
+    if (res.status === 401) {
+        throw new Error("Du er ikke logget ind.");
+    }
+    if (res.status === 403) {
+        throw new Error("Du har ikke rettigheder til at oprette blogs.");
+    }
+    if (res.status === 400) {
+        let message = "Ugyldige data.";
+        const errorBody = await res.text();
         try {
-            const errorBody = await res.text();
-            if (errorBody) {
-                const errorData = JSON.parse(errorBody);
-                errorMessage = errorData.message || errorMessage;
-            }
-        } catch { }
+            const errorData = JSON.parse(errorBody) as { message?: string };
+            if (errorData.message) message = errorData.message;
+        } catch {
+            // Ignorer JSON parse fejl
+        }
+        throw new Error(message);
+    }
+    if (!res.ok && res.status !== 201) {
+        let errorMessage = `${res.status} ${res.statusText}`;
+        const errorBody = await res.text();
+        try {
+            const errorData = JSON.parse(errorBody) as { message?: string };
+            if (errorData.message) errorMessage = errorData.message;
+        } catch {
+            // Ignorer JSON parse fejl
+        }
         throw new Error(`Fejl ved oprettelse af blog: ${errorMessage}`);
     }
 
-    const data = await res.json();
-    // Backend returnerer { message: string, blog: Blog_DTO }
-    return data.blog as Blog_DTO;
+    const data: unknown = await res.json();
+    // Forventet: { message: string, blog: Blog_DTO }
+    if (
+        typeof data === "object" &&
+        data !== null &&
+        "blog" in data &&
+        typeof (data as { blog: unknown }).blog === "object"
+    ) {
+        return (data as { blog: Blog_DTO }).blog;
+    }
+    throw new Error("API svarede ikke med blog-data.");
 }
 
 /**
@@ -88,24 +111,62 @@ export async function publishBlog(
         headers
     });
 
-    if (res.status === 404) {
-        throw new Error("Blogindlægget blev ikke fundet.");
+    // 401 Unauthorized
+    if (res.status === 401) {
+        const errorBody = await res.text();
+        let message = "Ikke autoriseret.";
+        try {
+            const errorData = JSON.parse(errorBody) as { message?: string };
+            if (errorData.message) message = errorData.message;
+        } catch {}
+        throw new Error(message);
     }
+
+    // 403 Forbidden
+    if (res.status === 403) {
+        const errorBody = await res.text();
+        let message = "Adgang nægtet.";
+        try {
+            const errorData = JSON.parse(errorBody) as { message?: string };
+            if (errorData.message) message = errorData.message;
+        } catch {}
+        throw new Error(message);
+    }
+
+    // 404 Not Found
+    if (res.status === 404) {
+        const errorBody = await res.text();
+        let message = "Blogindlægget blev ikke fundet.";
+        try {
+            const errorData = JSON.parse(errorBody) as { message?: string };
+            if (errorData.message) message = errorData.message;
+        } catch {}
+        throw new Error(message);
+    }
+
+    // Andre fejl
     if (!res.ok) {
         let errorMessage = `${res.status} ${res.statusText}`;
         try {
             const errorBody = await res.text();
-            if (errorBody) {
-                const errorData = JSON.parse(errorBody);
-                errorMessage = errorData.message || errorMessage;
-            }
-        } catch { }
+            const errorData = JSON.parse(errorBody) as { message?: string };
+            if (errorData.message) errorMessage = errorData.message;
+        } catch {}
         throw new Error(`Fejl ved publicering af blog: ${errorMessage}`);
     }
 
-    const data = await res.json();
-    // Backend returnerer { message: string, blog: Blog_DTO }
-    return data.blog as Blog_DTO;
+    // 200 OK
+    const data: unknown = await res.json();
+    // Forventet: { message: string, blog: Blog_DTO }
+    if (
+        typeof data === "object" &&
+        data !== null &&
+        "blog" in data &&
+        typeof (data as { blog: unknown }).blog === "object"
+    ) {
+        return (data as { blog: Blog_DTO }).blog;
+    }
+    throw new Error("API svarede ikke med blog-data.");
 }
 
 /**
@@ -149,24 +210,73 @@ export async function schedulePublishBlog(
         body: JSON.stringify(publishDateIso)
     });
 
-    if (res.status === 404) {
-        throw new Error("Blogindlægget blev ikke fundet.");
+    // 401 Unauthorized
+    if (res.status === 401) {
+        const errorBody = await res.text();
+        let message = "Ikke autoriseret.";
+        try {
+            const errorData = JSON.parse(errorBody) as { message?: string };
+            if (errorData.message) message = errorData.message;
+        } catch {}
+        throw new Error(message);
     }
+
+    // 403 Forbidden
+    if (res.status === 403) {
+        const errorBody = await res.text();
+        let message = "Adgang nægtet.";
+        try {
+            const errorData = JSON.parse(errorBody) as { message?: string };
+            if (errorData.message) message = errorData.message;
+        } catch {}
+        throw new Error(message);
+    }
+
+    // 404 Not Found
+    if (res.status === 404) {
+        const errorBody = await res.text();
+        let message = "Blogindlægget blev ikke fundet.";
+        try {
+            const errorData = JSON.parse(errorBody) as { message?: string };
+            if (errorData.message) message = errorData.message;
+        } catch {}
+        throw new Error(message);
+    }
+
+    // 400 Bad Request
+    if (res.status === 400) {
+        const errorBody = await res.text();
+        let message = "Publiceringstidspunktet skal være i fremtiden";
+        try {
+            const errorData = JSON.parse(errorBody) as { message?: string };
+            if (errorData.message) message = errorData.message;
+        } catch {}
+        throw new Error(message);
+    }
+
+    // Andre fejl
     if (!res.ok) {
         let errorMessage = `${res.status} ${res.statusText}`;
         try {
             const errorBody = await res.text();
-            if (errorBody) {
-                const errorData = JSON.parse(errorBody);
-                errorMessage = errorData.message || errorMessage;
-            }
-        } catch { }
+            const errorData = JSON.parse(errorBody) as { message?: string };
+            if (errorData.message) errorMessage = errorData.message;
+        } catch {}
         throw new Error(`Fejl ved planlægning af publicering: ${errorMessage}`);
     }
 
-    const data = await res.json();
-    // Backend returnerer Blog_DTO direkte
-    return data as Blog_DTO;
+    // 200 OK
+    const data: unknown = await res.json();
+    // Forventet: { message: string, blog: Blog_DTO }
+    if (
+        typeof data === "object" &&
+        data !== null &&
+        "blog" in data &&
+        typeof (data as { blog: unknown }).blog === "object"
+    ) {
+        return (data as { blog: Blog_DTO }).blog;
+    }
+    throw new Error("API svarede ikke med blog-data.");
 }
 
 /**
@@ -200,24 +310,62 @@ export async function unpublishBlog(
         headers
     });
 
-    if (res.status === 404) {
-        throw new Error("Blogindlægget blev ikke fundet.");
+    // 401 Unauthorized
+    if (res.status === 401) {
+        const errorBody = await res.text();
+        let message = "Ikke autoriseret.";
+        try {
+            const errorData = JSON.parse(errorBody) as { message?: string };
+            if (errorData.message) message = errorData.message;
+        } catch {}
+        throw new Error(message);
     }
+
+    // 403 Forbidden
+    if (res.status === 403) {
+        const errorBody = await res.text();
+        let message = "Adgang nægtet.";
+        try {
+            const errorData = JSON.parse(errorBody) as { message?: string };
+            if (errorData.message) message = errorData.message;
+        } catch {}
+        throw new Error(message);
+    }
+
+    // 404 Not Found
+    if (res.status === 404) {
+        const errorBody = await res.text();
+        let message = "Blogindlægget blev ikke fundet.";
+        try {
+            const errorData = JSON.parse(errorBody) as { message?: string };
+            if (errorData.message) message = errorData.message;
+        } catch {}
+        throw new Error(message);
+    }
+
+    // Andre fejl
     if (!res.ok) {
         let errorMessage = `${res.status} ${res.statusText}`;
         try {
             const errorBody = await res.text();
-            if (errorBody) {
-                const errorData = JSON.parse(errorBody);
-                errorMessage = errorData.message || errorMessage;
-            }
-        } catch { }
+            const errorData = JSON.parse(errorBody) as { message?: string };
+            if (errorData.message) errorMessage = errorData.message;
+        } catch {}
         throw new Error(`Fejl ved tilbagetrækning af blog: ${errorMessage}`);
     }
 
-    const data = await res.json();
-    // Backend returnerer { message: string, blog: Blog_DTO }
-    return data.blog as Blog_DTO;
+    // 200 OK
+    const data: unknown = await res.json();
+    // Forventet: { message: string, blog: Blog_DTO }
+    if (
+        typeof data === "object" &&
+        data !== null &&
+        "blog" in data &&
+        typeof (data as { blog: unknown }).blog === "object"
+    ) {
+        return (data as { blog: Blog_DTO }).blog;
+    }
+    throw new Error("API svarede ikke med blog-data.");
 }
 
 /**
@@ -387,7 +535,7 @@ export async function getBlogsAuthoredByUser(
  * Dette endpoint er for sitets almene brugere/konsumers som vil tilgå blog-post for at læse indholdet.
  * Det kan være almene brugere UDEN LOGIN, brugerer som er registreret MED LOGIN, og med forskellige rettigheder:
  * • Almene brugere kan kun tilgå 'public' blogindlæg.
- * • Brugere som er registreret kan tilgå både 'public' ogz 'paidContent' blogindlæg,
+ * • Brugere som er registreret kan tilgå både 'public' og 'paidContent' blogindlæg,
  *  afhængigt af deres rettigheder.
  * @param slug 
  * @param accessToken 
@@ -409,20 +557,62 @@ export async function getBlogBySlug(
         headers
     });
 
+    // 401 Unauthorized
+    if (res.status === 401) {
+        const errorBody = await res.text();
+        let message = "Ikke autoriseret.";
+        try {
+            const errorData = JSON.parse(errorBody) as { message?: string };
+            if (errorData.message) message = errorData.message;
+        } catch {}
+        throw new Error(message);
+    }
+
+    // 403 Forbidden
+    if (res.status === 403) {
+        const errorBody = await res.text();
+        let message = "Adgang nægtet.";
+        try {
+            const errorData = JSON.parse(errorBody) as { message?: string };
+            if (errorData.message) message = errorData.message;
+        } catch {}
+        throw new Error(message);
+    }
+
+    // 404 Not Found
     if (res.status === 404) {
+        const errorBody = await res.text();
+        let message = "Blogindlægget blev ikke fundet.";
+        try {
+            const errorData = JSON.parse(errorBody) as { message?: string };
+            if (errorData.message) message = errorData.message;
+        } catch {}
         return null;
     }
+
+    // Andre fejl
     if (!res.ok) {
         let errorMessage = `${res.status} ${res.statusText}`;
         try {
             const errorBody = await res.text();
-            if (errorBody) errorMessage = errorBody;
-        } catch { }
+            const errorData = JSON.parse(errorBody) as { message?: string };
+            if (errorData.message) errorMessage = errorData.message;
+        } catch {}
         throw new Error(`Fejl ved hentning af blog: ${errorMessage}`);
     }
 
-    const data = await res.json();
-    return data as BlogPublicDTO;
+    // 200 OK
+    const data: unknown = await res.json();
+    // Forventet: { message: string, blog: BlogPublicDTO }
+    if (
+        typeof data === "object" &&
+        data !== null &&
+        "blog" in data &&
+        typeof (data as { blog: unknown }).blog === "object"
+    ) {
+        return (data as { blog: BlogPublicDTO }).blog;
+    }
+    throw new Error("API svarede ikke med blog-data.");
 }
 
 /**
@@ -454,25 +644,62 @@ export async function getBlogById(
         headers
     });
 
-    if (res.status === 404) {
-        return null; // Blog ikke fundet
+    // 401 Unauthorized
+    if (res.status === 401) {
+        const errorBody = await res.text();
+        let message = "Ikke autoriseret.";
+        try {
+            const errorData = JSON.parse(errorBody) as { message?: string };
+            if (errorData.message) message = errorData.message;
+        } catch {}
+        throw new Error(message);
     }
 
-    if (!res.ok) {
-        // API'en sender strukturerede fejlbeskeder via ExceptionMiddleware
-        let errorMessage = `${res.status} ${res.statusText}`;
+    // 403 Forbidden
+    if (res.status === 403) {
+        const errorBody = await res.text();
+        let message = "Adgang nægtet.";
         try {
-            const errorBody = await res.text();
-            if (errorBody) {
-                const errorData = JSON.parse(errorBody);
-                errorMessage = errorData.message || errorMessage;
-            }
-        } catch { }
+            const errorData = JSON.parse(errorBody) as { message?: string };
+            if (errorData.message) message = errorData.message;
+        } catch {}
+        throw new Error(message);
+    }
+
+    // 404 Not Found
+    if (res.status === 404) {
+        const errorBody = await res.text();
+        let message = "Blogindlægget blev ikke fundet.";
+        try {
+            const errorData = JSON.parse(errorBody) as { message?: string };
+            if (errorData.message) message = errorData.message;
+        } catch {}
+        return null;
+    }
+
+    // 400 Bad Request eller andre fejl
+    if (!res.ok) {
+        let errorMessage = `${res.status} ${res.statusText}`;
+        const errorBody = await res.text();
+        try {
+            const errorData = JSON.parse(errorBody) as { message?: string };
+            if (errorData.message) errorMessage = errorData.message;
+        } catch {}
         throw new Error(`Fejl ved hentning af blog: ${errorMessage}`);
     }
 
-    const data = await res.json();
-    return data as Blog_DTO;
+    // 200 OK
+    const data: unknown = await res.json();
+    // Forventet: { message: string, blog: Blog_DTO }
+    if (
+        typeof data === "object" &&
+        data !== null &&
+        "blog" in data &&
+        typeof (data as { blog: unknown }).blog === "object"
+    ) {
+        return (data as { blog: Blog_DTO }).blog;
+    }
+    throw new Error("API svarede ikke med blog-data.");
 }
 
 /**
@@ -542,7 +769,6 @@ export async function updateBlog(
     if (!accessToken || accessToken.trim() === "") {
         throw new Error("Access token is required for this endpoint.");
     }
-
     if (!blogId || blogId <= 0) {
         throw new Error("Valid blog ID is required.");
     }
@@ -561,21 +787,73 @@ export async function updateBlog(
         body: JSON.stringify(updateDTO)
     });
 
+    // 401 Unauthorized
+    if (res.status === 401) {
+        const errorBody = await res.text();
+        let message = "Ikke autoriseret.";
+        try {
+            const errorData = JSON.parse(errorBody) as { message?: string };
+            if (errorData.message) message = errorData.message;
+        } catch {}
+        throw new Error(message);
+    }
+
+    // 403 Forbidden
+    if (res.status === 403) {
+        const errorBody = await res.text();
+        let message = "Adgang nægtet.";
+        try {
+            const errorData = JSON.parse(errorBody) as { message?: string };
+            if (errorData.message) message = errorData.message;
+        } catch {}
+        throw new Error(message);
+    }
+
+    // 404 Not Found
+    if (res.status === 404) {
+        const errorBody = await res.text();
+        let message = "Blogindlægget blev ikke fundet.";
+        try {
+            const errorData = JSON.parse(errorBody) as { message?: string };
+            if (errorData.message) message = errorData.message;
+        } catch {}
+        throw new Error(message);
+    }
+
+    // 400 Bad Request
+    if (res.status === 400) {
+        const errorBody = await res.text();
+        let message = "Ugyldig opdateringsdata.";
+        try {
+            const errorData = JSON.parse(errorBody) as { message?: string };
+            if (errorData.message) message = errorData.message;
+        } catch {}
+        throw new Error(message);
+    }
+
+    // Andre fejl
     if (!res.ok) {
-        // API'en sender strukturerede fejlbeskeder via ExceptionMiddleware
         let errorMessage = `${res.status} ${res.statusText}`;
         try {
             const errorBody = await res.text();
-            if (errorBody) {
-                const errorData = JSON.parse(errorBody);
-                errorMessage = errorData.message || errorMessage;
-            }
-        } catch { }
+            const errorData = JSON.parse(errorBody) as { message?: string };
+            if (errorData.message) errorMessage = errorData.message;
+        } catch {}
         throw new Error(`Fejl ved opdatering af blog: ${errorMessage}`);
     }
 
-    const data = await res.json();
-    return data as Blog_DTO;
+    // 200 OK
+    const data: unknown = await res.json();
+    // Forventet: { message: string, blog: Blog_DTO }
+    if (
+        typeof data === "object" &&
+        data !== null &&
+        "blog" in data &&
+        typeof (data as { blog: unknown }).blog === "object"
+    ) {
+        return (data as { blog: Blog_DTO }).blog;
+    }
+    throw new Error("API svarede ikke med blog-data.");
 }
 
 /**
@@ -641,7 +919,7 @@ export async function updateBlogFeaturedImage(
 export async function deleteBlog(
     blogId: number,
     accessToken: string
-): Promise<{ message: string }> {
+): Promise<{ message: string; deleted?: unknown }> {
     if (!accessToken || accessToken.trim() === "") {
         throw new Error("Access token is required for this endpoint.");
     }
@@ -661,24 +939,61 @@ export async function deleteBlog(
         headers
     });
 
-    if (res.status === 404) {
-        throw new Error(`Blogindlæg med ID ${blogId} blev ikke fundet`);
+    // 401 Unauthorized
+    if (res.status === 401) {
+        const errorBody = await res.text();
+        let message = "Ikke autoriseret.";
+        try {
+            const errorData = JSON.parse(errorBody) as { message?: string };
+            if (errorData.message) message = errorData.message;
+        } catch {}
+        throw new Error(message);
     }
+
+    // 403 Forbidden
+    if (res.status === 403) {
+        const errorBody = await res.text();
+        let message = "Adgang nægtet.";
+        try {
+            const errorData = JSON.parse(errorBody) as { message?: string };
+            if (errorData.message) message = errorData.message;
+        } catch {}
+        throw new Error(message);
+    }
+
+    // 404 Not Found
+    if (res.status === 404) {
+        const errorBody = await res.text();
+        let message = `Blogindlægget blev ikke fundet.`;
+        try {
+            const errorData = JSON.parse(errorBody) as { message?: string };
+            if (errorData.message) message = errorData.message;
+        } catch {}
+        throw new Error(message);
+    }
+
+    // Andre fejl
     if (!res.ok) {
         let errorMessage = `${res.status} ${res.statusText}`;
         try {
             const errorBody = await res.text();
-            if (errorBody) {
-                const errorData = JSON.parse(errorBody);
-                errorMessage = errorData.message || errorMessage;
-            }
-        } catch { }
+            const errorData = JSON.parse(errorBody) as { message?: string };
+            if (errorData.message) errorMessage = errorData.message;
+        } catch {}
         throw new Error(`Fejl ved sletning af blog: ${errorMessage}`);
     }
 
-    const data = await res.json();
-    // Backend returnerer { message: string }
-    return data as { message: string };
+    // 200 OK
+    const data: unknown = await res.json();
+    // Forventet: { message: string, deleted?: unknown }
+    if (
+        typeof data === "object" &&
+        data !== null &&
+        "message" in data
+    ) {
+        return data as { message: string; deleted?: unknown };
+    }
+    throw new Error("API svarede ikke med sletnings-data.");
 }
 
 /**

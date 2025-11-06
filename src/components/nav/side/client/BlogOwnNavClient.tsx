@@ -2,11 +2,11 @@
 
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useTransition } from 'react';
 import { Input, Button, Divider, Tooltip, Chip } from "@heroui/react";
 import { useRouter } from 'next/navigation';
 import { useBlogOwnedStore } from '@/store/BlogOwnedStore';
-import { ROUTES } from "@/constants/navigationConstants";
+import { createBlogAction } from "@/app/actions/blog/blogActions";
 
 import {
   RiAddCircleLine,
@@ -30,6 +30,7 @@ const SECTION = {
 
 export function BlogOwnNavClient() {
   const router = useRouter();
+  const [isPending, startTransition] = useTransition();
 
   const {
     filters,
@@ -67,6 +68,18 @@ export function BlogOwnNavClient() {
 
   const hasDate = Boolean(filters.createdAfter);
 
+  const handleCreateBlog = () => {
+    startTransition(async () => {
+      const result = await createBlogAction({});
+      if (result.success) {
+        router.push(`/account/myBlogs/blogWorkspace/${result.data.id}`);
+      } else {
+        // Du kan evt. vise en toast eller fejlbesked her
+        alert(result.error || "Kunne ikke oprette blog.");
+      }
+    });
+  };
+
   return (
     <div className="w-full p-1 space-y-2">
       {/* Handlinger */}
@@ -79,9 +92,10 @@ export function BlogOwnNavClient() {
           size="sm"
           className="justify-start"
           startContent={<RiAddCircleLine className="text-lg" />}
-          onPress={() => router.push(ROUTES.ACCOUNT.CREATE_BLOG)}
+          onPress={handleCreateBlog}
+          isLoading={isPending}
         >
-          Opret ny blog
+          Ny blog-kladde
         </Button>
       </div>
 

@@ -61,16 +61,17 @@ export type BlogDeleteResult =
  * @returns Det oprettede blogindlæg eller fejlbesked
  */
 export async function createBlogAction(
-    createDTO: Blog_CreateDTO
+    createDTO: Blog_CreateDTO = {}
 ): Promise<BlogCreateResult> {
     try {
-        if (!createDTO) {
-            return {
-                success: false,
-                error: 'Blog data mangler',
-                status: 400,
-            };
-        }
+        // Fjern denne check:
+        // if (!createDTO) {
+        //     return {
+        //         success: false,
+        //         error: 'Blog data mangler',
+        //         status: 400,
+        //     };
+        // }
 
         // Hent accessToken fra session/server
         const accessToken = await getAccessToken();

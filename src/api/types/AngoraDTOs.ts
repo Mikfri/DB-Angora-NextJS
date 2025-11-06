@@ -617,10 +617,10 @@ export interface TransferRequest_ResponseDTO {
 
 //---------- BLOG SECTION
 export interface Blog_CreateDTO {
-    title: string;
+    title?: string | null;
     subtitle?: string | null;
-    content: string;
-    visibilityLevel: string;    // "Public", "PaidContent"
+    content?: string | null;
+    visibilityLevel?: string | null;    // "Public", "PaidContent"
     tags?: string | null;
     //metaDescription?: string | null; // Undladt ved oprettelse (metaDescription = title)
 }
