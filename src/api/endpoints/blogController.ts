@@ -118,7 +118,7 @@ export async function publishBlog(
         try {
             const errorData = JSON.parse(errorBody) as { message?: string };
             if (errorData.message) message = errorData.message;
-        } catch {}
+        } catch { }
         throw new Error(message);
     }
 
@@ -129,7 +129,7 @@ export async function publishBlog(
         try {
             const errorData = JSON.parse(errorBody) as { message?: string };
             if (errorData.message) message = errorData.message;
-        } catch {}
+        } catch { }
         throw new Error(message);
     }
 
@@ -140,7 +140,7 @@ export async function publishBlog(
         try {
             const errorData = JSON.parse(errorBody) as { message?: string };
             if (errorData.message) message = errorData.message;
-        } catch {}
+        } catch { }
         throw new Error(message);
     }
 
@@ -151,7 +151,7 @@ export async function publishBlog(
             const errorBody = await res.text();
             const errorData = JSON.parse(errorBody) as { message?: string };
             if (errorData.message) errorMessage = errorData.message;
-        } catch {}
+        } catch { }
         throw new Error(`Fejl ved publicering af blog: ${errorMessage}`);
     }
 
@@ -217,7 +217,7 @@ export async function schedulePublishBlog(
         try {
             const errorData = JSON.parse(errorBody) as { message?: string };
             if (errorData.message) message = errorData.message;
-        } catch {}
+        } catch { }
         throw new Error(message);
     }
 
@@ -228,7 +228,7 @@ export async function schedulePublishBlog(
         try {
             const errorData = JSON.parse(errorBody) as { message?: string };
             if (errorData.message) message = errorData.message;
-        } catch {}
+        } catch { }
         throw new Error(message);
     }
 
@@ -239,7 +239,7 @@ export async function schedulePublishBlog(
         try {
             const errorData = JSON.parse(errorBody) as { message?: string };
             if (errorData.message) message = errorData.message;
-        } catch {}
+        } catch { }
         throw new Error(message);
     }
 
@@ -250,7 +250,7 @@ export async function schedulePublishBlog(
         try {
             const errorData = JSON.parse(errorBody) as { message?: string };
             if (errorData.message) message = errorData.message;
-        } catch {}
+        } catch { }
         throw new Error(message);
     }
 
@@ -261,7 +261,7 @@ export async function schedulePublishBlog(
             const errorBody = await res.text();
             const errorData = JSON.parse(errorBody) as { message?: string };
             if (errorData.message) errorMessage = errorData.message;
-        } catch {}
+        } catch { }
         throw new Error(`Fejl ved planlægning af publicering: ${errorMessage}`);
     }
 
@@ -317,7 +317,7 @@ export async function unpublishBlog(
         try {
             const errorData = JSON.parse(errorBody) as { message?: string };
             if (errorData.message) message = errorData.message;
-        } catch {}
+        } catch { }
         throw new Error(message);
     }
 
@@ -328,7 +328,7 @@ export async function unpublishBlog(
         try {
             const errorData = JSON.parse(errorBody) as { message?: string };
             if (errorData.message) message = errorData.message;
-        } catch {}
+        } catch { }
         throw new Error(message);
     }
 
@@ -339,7 +339,7 @@ export async function unpublishBlog(
         try {
             const errorData = JSON.parse(errorBody) as { message?: string };
             if (errorData.message) message = errorData.message;
-        } catch {}
+        } catch { }
         throw new Error(message);
     }
 
@@ -350,7 +350,7 @@ export async function unpublishBlog(
             const errorBody = await res.text();
             const errorData = JSON.parse(errorBody) as { message?: string };
             if (errorData.message) errorMessage = errorData.message;
-        } catch {}
+        } catch { }
         throw new Error(`Fejl ved tilbagetrækning af blog: ${errorMessage}`);
     }
 
@@ -564,7 +564,7 @@ export async function getBlogBySlug(
         try {
             const errorData = JSON.parse(errorBody) as { message?: string };
             if (errorData.message) message = errorData.message;
-        } catch {}
+        } catch { }
         throw new Error(message);
     }
 
@@ -575,18 +575,13 @@ export async function getBlogBySlug(
         try {
             const errorData = JSON.parse(errorBody) as { message?: string };
             if (errorData.message) message = errorData.message;
-        } catch {}
+        } catch { }
         throw new Error(message);
     }
 
     // 404 Not Found
     if (res.status === 404) {
-        const errorBody = await res.text();
-        let message = "Blogindlægget blev ikke fundet.";
-        try {
-            const errorData = JSON.parse(errorBody) as { message?: string };
-            if (errorData.message) message = errorData.message;
-        } catch {}
+        await res.text(); // Optionelt: du kan logge errorBody hvis du vil debugge
         return null;
     }
 
@@ -597,7 +592,7 @@ export async function getBlogBySlug(
             const errorBody = await res.text();
             const errorData = JSON.parse(errorBody) as { message?: string };
             if (errorData.message) errorMessage = errorData.message;
-        } catch {}
+        } catch { }
         throw new Error(`Fejl ved hentning af blog: ${errorMessage}`);
     }
 
@@ -651,7 +646,7 @@ export async function getBlogById(
         try {
             const errorData = JSON.parse(errorBody) as { message?: string };
             if (errorData.message) message = errorData.message;
-        } catch {}
+        } catch { }
         throw new Error(message);
     }
 
@@ -662,18 +657,13 @@ export async function getBlogById(
         try {
             const errorData = JSON.parse(errorBody) as { message?: string };
             if (errorData.message) message = errorData.message;
-        } catch {}
+        } catch { }
         throw new Error(message);
     }
 
     // 404 Not Found
     if (res.status === 404) {
-        const errorBody = await res.text();
-        let message = "Blogindlægget blev ikke fundet.";
-        try {
-            const errorData = JSON.parse(errorBody) as { message?: string };
-            if (errorData.message) message = errorData.message;
-        } catch {}
+        await res.text(); // Optionelt: du kan logge errorBody hvis du vil debugge
         return null;
     }
 
@@ -684,7 +674,7 @@ export async function getBlogById(
         try {
             const errorData = JSON.parse(errorBody) as { message?: string };
             if (errorData.message) errorMessage = errorData.message;
-        } catch {}
+        } catch { }
         throw new Error(`Fejl ved hentning af blog: ${errorMessage}`);
     }
 
@@ -794,7 +784,7 @@ export async function updateBlog(
         try {
             const errorData = JSON.parse(errorBody) as { message?: string };
             if (errorData.message) message = errorData.message;
-        } catch {}
+        } catch { }
         throw new Error(message);
     }
 
@@ -805,7 +795,7 @@ export async function updateBlog(
         try {
             const errorData = JSON.parse(errorBody) as { message?: string };
             if (errorData.message) message = errorData.message;
-        } catch {}
+        } catch { }
         throw new Error(message);
     }
 
@@ -816,7 +806,7 @@ export async function updateBlog(
         try {
             const errorData = JSON.parse(errorBody) as { message?: string };
             if (errorData.message) message = errorData.message;
-        } catch {}
+        } catch { }
         throw new Error(message);
     }
 
@@ -827,7 +817,7 @@ export async function updateBlog(
         try {
             const errorData = JSON.parse(errorBody) as { message?: string };
             if (errorData.message) message = errorData.message;
-        } catch {}
+        } catch { }
         throw new Error(message);
     }
 
@@ -838,7 +828,7 @@ export async function updateBlog(
             const errorBody = await res.text();
             const errorData = JSON.parse(errorBody) as { message?: string };
             if (errorData.message) errorMessage = errorData.message;
-        } catch {}
+        } catch { }
         throw new Error(`Fejl ved opdatering af blog: ${errorMessage}`);
     }
 
@@ -946,7 +936,7 @@ export async function deleteBlog(
         try {
             const errorData = JSON.parse(errorBody) as { message?: string };
             if (errorData.message) message = errorData.message;
-        } catch {}
+        } catch { }
         throw new Error(message);
     }
 
@@ -957,7 +947,7 @@ export async function deleteBlog(
         try {
             const errorData = JSON.parse(errorBody) as { message?: string };
             if (errorData.message) message = errorData.message;
-        } catch {}
+        } catch { }
         throw new Error(message);
     }
 
@@ -968,7 +958,7 @@ export async function deleteBlog(
         try {
             const errorData = JSON.parse(errorBody) as { message?: string };
             if (errorData.message) message = errorData.message;
-        } catch {}
+        } catch { }
         throw new Error(message);
     }
 
@@ -979,7 +969,7 @@ export async function deleteBlog(
             const errorBody = await res.text();
             const errorData = JSON.parse(errorBody) as { message?: string };
             if (errorData.message) errorMessage = errorData.message;
-        } catch {}
+        } catch { }
         throw new Error(`Fejl ved sletning af blog: ${errorMessage}`);
     }
 
