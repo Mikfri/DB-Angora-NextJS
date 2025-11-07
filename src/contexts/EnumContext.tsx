@@ -29,7 +29,7 @@ const COMMON_ENUMS: RabbitEnum[] = ['Race', 'Color', 'Gender'];
 const CACHE_EXPIRY = 7 * 24 * 60 * 60 * 1000;
 
 // Cache version - opdater dette hvis enum struktur ændres
-const CACHE_VERSION = '1.0.1';
+const CACHE_VERSION = '1.0.2';
 
 // Helper funktion - flyttet ud af komponenten for at undgå cirkulær reference
 function clearLocalStorageCache() {
