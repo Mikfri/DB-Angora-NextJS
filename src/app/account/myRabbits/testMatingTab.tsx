@@ -31,8 +31,8 @@ function mapOwnedPreviewToPedigree(r: Rabbit_OwnedPreviewDTO): Rabbit_PedigreeDT
 
 export default function TestMatingTab() {
   const { filteredRabbits, fetchRabbits, filters } = useRabbitsOwnedStore();
-  const [selectedDoe, setSelectedDoe] = useState<Rabbit_OwnedPreviewDTO | null>(null);
-  const [selectedBuck, setSelectedBuck] = useState<Rabbit_OwnedPreviewDTO | null>(null);
+  const [selectedHun, setSelectedHun] = useState<Rabbit_OwnedPreviewDTO | null>(null);
+  const [selectedHan, setSelectedHan] = useState<Rabbit_OwnedPreviewDTO | null>(null);
   const [manualFatherId, setManualFatherId] = useState<string>("");
   const [manualMotherId, setManualMotherId] = useState<string>("");
   const [result, setResult] = useState<PedigreeResultDTO | null>(null);
@@ -41,26 +41,26 @@ export default function TestMatingTab() {
 
   useEffect(() => {
     if (!filteredRabbits.length) fetchRabbits();
-    setSelectedDoe(null);
-    setSelectedBuck(null);
+    setSelectedHun(null);
+    setSelectedHan(null);
     setResult(null);
     setError(null);
     setManualFatherId("");
     setManualMotherId("");
   }, [filters, fetchRabbits, filteredRabbits.length]);
 
-  const does = useMemo(
-    () => filteredRabbits.filter(r => r.gender === "Doe" && !r.dateOfDeath),
+  const Huns = useMemo(
+    () => filteredRabbits.filter(r => r.gender === "Hun" && !r.dateOfDeath),
     [filteredRabbits]
   );
-  const bucks = useMemo(
-    () => filteredRabbits.filter(r => r.gender === "Buck" && !r.dateOfDeath),
+  const Hans = useMemo(
+    () => filteredRabbits.filter(r => r.gender === "Han" && !r.dateOfDeath),
     [filteredRabbits]
   );
 
   const handleTestPedigree = async () => {
-    const fatherId = manualFatherId.trim() || selectedBuck?.earCombId;
-    const motherId = manualMotherId.trim() || selectedDoe?.earCombId;
+    const fatherId = manualFatherId.trim() || selectedHan?.earCombId;
+    const motherId = manualMotherId.trim() || selectedHun?.earCombId;
     if (!fatherId || !motherId) return;
     setLoading(true);
     setError(null);
@@ -78,44 +78,44 @@ export default function TestMatingTab() {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Doe cards */}
+        {/* Hun cards */}
         <div>
-          <h3 className="font-medium mb-2">Vælg hun (Doe)</h3>
+          <h3 className="font-medium mb-2">Vælg hun (Hun)</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {does.map(d => (
+            {Huns.map(d => (
               <div
                 key={d.earCombId}
-                className={`cursor-pointer transition-shadow ${selectedDoe?.earCombId === d.earCombId ? "ring-2 ring-secondary" : "hover:shadow-lg"}`}
+                className={`cursor-pointer transition-shadow ${selectedHun?.earCombId === d.earCombId ? "ring-2 ring-secondary" : "hover:shadow-lg"}`}
                 onClick={() => {
-                  setSelectedDoe(d);
+                  setSelectedHun(d);
                   setManualMotherId(d.earCombId);
                 }}
               >
                 <RabbitPedigreeCard rabbit={mapOwnedPreviewToPedigree(d)} />
               </div>
             ))}
-            {!does.length && (
+            {!Huns.length && (
               <div className="text-xs text-zinc-400 col-span-full">Ingen hun-kaniner fundet</div>
             )}
           </div>
         </div>
-        {/* Buck cards */}
+        {/* Han cards */}
         <div>
-          <h3 className="font-medium mb-2">Vælg han (Buck)</h3>
+          <h3 className="font-medium mb-2">Vælg han (Han)</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {bucks.map(b => (
+            {Hans.map(b => (
               <div
                 key={b.earCombId}
-                className={`cursor-pointer transition-shadow ${selectedBuck?.earCombId === b.earCombId ? "ring-2 ring-primary" : "hover:shadow-lg"}`}
+                className={`cursor-pointer transition-shadow ${selectedHan?.earCombId === b.earCombId ? "ring-2 ring-primary" : "hover:shadow-lg"}`}
                 onClick={() => {
-                  setSelectedBuck(b);
+                  setSelectedHan(b);
                   setManualFatherId(b.earCombId);
                 }}
               >
                 <RabbitPedigreeCard rabbit={mapOwnedPreviewToPedigree(b)} />
               </div>
             ))}
-            {!bucks.length && (
+            {!Hans.length && (
               <div className="text-xs text-zinc-400 col-span-full">Ingen han-kaniner fundet</div>
             )}
           </div>
@@ -126,7 +126,7 @@ export default function TestMatingTab() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <label className="block text-xs text-zinc-400 mb-1" htmlFor="manualMotherId">
-            Øremærke på hun (Doe)
+            Øremærke på hun (Hun)
           </label>
           <input
             id="manualMotherId"
@@ -134,7 +134,7 @@ export default function TestMatingTab() {
             value={manualMotherId}
             onChange={e => {
               setManualMotherId(e.target.value);
-              setSelectedDoe(null);
+              setSelectedHun(null);
             }}
             placeholder="fx 1234-5678"
             className="w-full px-2 py-1 rounded border border-zinc-600 bg-zinc-900 text-zinc-200 text-sm"
@@ -142,7 +142,7 @@ export default function TestMatingTab() {
         </div>
         <div>
           <label className="block text-xs text-zinc-400 mb-1" htmlFor="manualFatherId">
-            Øremærke på han (Buck)
+            Øremærke på han (Han)
           </label>
           <input
             id="manualFatherId"
@@ -150,7 +150,7 @@ export default function TestMatingTab() {
             value={manualFatherId}
             onChange={e => {
               setManualFatherId(e.target.value);
-              setSelectedBuck(null);
+              setSelectedHan(null);
             }}
             placeholder="fx 1234-5678"
             className="w-full px-2 py-1 rounded border border-zinc-600 bg-zinc-900 text-zinc-200 text-sm"
@@ -164,8 +164,8 @@ export default function TestMatingTab() {
           color="primary"
           disabled={
             loading ||
-            (!manualFatherId.trim() && !selectedBuck) ||
-            (!manualMotherId.trim() && !selectedDoe)
+            (!manualFatherId.trim() && !selectedHan) ||
+            (!manualMotherId.trim() && !selectedHun)
           }
           onPress={handleTestPedigree}
         >

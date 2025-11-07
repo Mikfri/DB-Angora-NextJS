@@ -160,13 +160,13 @@ export async function GetRabbitPhotoUploadPermission(
  * Validerer om en kanin eksisterer og har det forventede køn (forældrevalidering).
  * @param accessToken JWT token for bruger
  * @param parentId Øremærke på den potentielle forældrekanin
- * @param expectedGender Forventet køn ('Buck' for far, 'Doe' for mor)
+ * @param expectedGender Forventet køn ('Han' for far, 'Hun' for mor)
  * @returns Valideringsresultat med evt. kanindetaljer
  */
 export async function ValidateParentReference(
   accessToken: string,
   parentId: string,
-  expectedGender: string // Typisk 'Buck' eller 'Doe'
+  expectedGender: string // Typisk 'Han' eller 'Hun'
 ): Promise<Rabbit_ParentValidationResultDTO> {
   const url = getApiUrl(`Rabbit/Validate-parent?parentId=${encodeURIComponent(parentId)}&expectedGender=${encodeURIComponent(expectedGender)}`);
   const response = await fetch(url, {
@@ -373,8 +373,8 @@ export async function GetRabbitPedigree(
 /**
  * Henter test-mating pedigree for et tænkt afkom ud fra far og mor.
  * @param accessToken JWT token for bruger
- * @param fatherEarCombId Øremærke på far (Buck)
- * @param motherEarCombId Øremærke på mor (Doe)
+ * @param fatherEarCombId Øremærke på far (Han)
+ * @param motherEarCombId Øremærke på mor (Hun)
  * @param maxGeneration Maks antal generationer (default 4)
  * @returns PedigreeResultDTO med indavlskoefficient og stamtavle
  */

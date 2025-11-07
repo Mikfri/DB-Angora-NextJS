@@ -40,9 +40,9 @@ export default function RabbitPedigreeCard({ rabbit }: Props) {
   const displayName = truncate(displayNameFull, 7);
   const profileImage = ProfilePicture || '/images/default-rabbit.jpg';
 
-  const genderIcon = Gender && Gender.toLowerCase().includes('buck')
+  const genderIcon = Gender && Gender.toLowerCase().includes('han')
     ? <BsGenderMale className="text-blue-400" size={14} aria-label="han" />
-    : Gender && Gender.toLowerCase().includes('doe')
+    : Gender && Gender.toLowerCase().includes('hun')
       ? <BsGenderFemale className="text-pink-400" size={14} aria-label="hun" />
       : <LuRabbit className="text-zinc-400" size={14} aria-label="ukendt" />;
 

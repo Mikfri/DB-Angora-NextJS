@@ -342,7 +342,7 @@ export type ParentValidationResult =
 /**
  * Server Action: Validerer om en kanin eksisterer og har det forventede køn (forældrevalidering)
  * @param parentId Øremærke på den potentielle forældrekanin
- * @param expectedGender Forventet køn ('Buck' for far, 'Doe' for mor)
+ * @param expectedGender Forventet køn ('Han' for far, 'Hun' for mor)
  * @returns Resultat med valideringsresultat eller fejlbesked
  */
 export async function validateParentReference(
@@ -665,8 +665,8 @@ export async function getRabbitPedigree(
 
 /**
  * Server Action: Henter test-mating pedigree for et tænkt afkom ud fra far og mor
- * @param fatherEarCombId Øremærke på far (Buck)
- * @param motherEarCombId Øremærke på mor (Doe)
+ * @param fatherEarCombId Øremærke på far (Han)
+ * @param motherEarCombId Øremærke på mor (Hun)
  * @param maxGeneration Maks antal generationer (default 4)
  * @returns Resultat med pedigree-data eller fejlbesked
  */

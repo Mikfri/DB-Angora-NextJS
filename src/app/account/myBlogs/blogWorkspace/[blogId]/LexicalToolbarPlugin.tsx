@@ -8,6 +8,7 @@ import {
   $createParagraphNode,
   SELECTION_CHANGE_COMMAND,
   FORMAT_TEXT_COMMAND,
+  $insertNodes,
 } from "lexical";
 import {
   $createHeadingNode,
@@ -30,7 +31,8 @@ import {
   FaListOl,
   FaQuoteLeft,
   FaHeading,
-  FaImage
+  FaImage,
+  FaYoutube
 } from "react-icons/fa";
 import { INSERT_IMAGE_COMMAND } from "./LexicalImagePlugin";
 import {
@@ -42,6 +44,7 @@ import SimpleCloudinaryWidget from '@/components/cloudinary/SimpleCloudinaryWidg
 import CloudinaryImage from '@/components/cloudinary/CloudinaryImage';
 import { toast } from 'react-toastify';
 import { ContextMenu } from "./LexicalContextMenu"; // Tilføj denne import
+import { $createYouTubeNode } from "./LexicalYouTubeNode";
 
 interface ImageSelectorProps {
   blogId: number;
@@ -301,6 +304,25 @@ export function ToolbarPlugin({
     }
   };
 
+  const insertYouTube = () => {
+    const url = prompt('Indsæt YouTube URL:');
+    if (!url) return;
+    
+    // Udtræk video ID fra URL
+    const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+    if (!match) {
+      alert('Ugyldig YouTube URL');
+      return;
+    }
+    
+    const videoId = match[1];
+    
+    editor.update(() => {
+      const youtubeNode = $createYouTubeNode({ videoId });
+      $insertNodes([youtubeNode]);
+    });
+  };
+
   // Håndter højreklik i editoren
   useEffect(() => {
     const editorElem = editor.getRootElement();
@@ -433,6 +455,21 @@ export function ToolbarPlugin({
           </Button>
           <Button size="sm" variant="light" onPress={formatQuote} isIconOnly>
             <FaQuoteLeft />
+          </Button>
+        </div>
+
+        <div className="w-px h-6 bg-zinc-600 mx-2" />
+
+        {/* YouTube knap */}
+        <div className="flex items-center gap-1 mr-2">
+          <Button
+            size="sm"
+            variant="light"
+            onPress={insertYouTube}
+            startContent={<FaYoutube className="text-red-500" />}
+            className="min-w-fit px-2"
+          >
+            YouTube
           </Button>
         </div>
       </div>

@@ -25,9 +25,9 @@ export function useCreateRabbit() {
                 return;
             }
 
-            // Valider far (Buck)
+            // Valider far (Han)
             if (formData.fatherId_Placeholder) {
-                const fatherValidation = await validateParentReference(formData.fatherId_Placeholder, 'Buck');
+                const fatherValidation = await validateParentReference(formData.fatherId_Placeholder, 'Han');
                 if (!fatherValidation.success) {
                     toast.error(fatherValidation.error || 'Far-øremærke er ugyldigt');
                     setIsSubmitting(false);
@@ -40,9 +40,9 @@ export function useCreateRabbit() {
                 }
             }
 
-            // Valider mor (Doe)
+            // Valider mor (Hun)
             if (formData.motherId_Placeholder) {
-                const motherValidation = await validateParentReference(formData.motherId_Placeholder, 'Doe');
+                const motherValidation = await validateParentReference(formData.motherId_Placeholder, 'Hun');
                 if (!motherValidation.success) {
                     toast.error(motherValidation.error || 'Mor-øremærke er ugyldigt');
                     setIsSubmitting(false);

@@ -18,6 +18,7 @@ import { useEffect, useRef } from "react";
 import { ToolbarPlugin } from "./LexicalToolbarPlugin";
 import { ImagePlugin } from "./LexicalImagePlugin";
 import { ImageNode } from "./LexicalImageNode";
+import { YouTubeNode } from "./LexicalYouTubeNode";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import type { PhotoPrivateDTO } from '@/api/types/AngoraDTOs';
 
@@ -40,6 +41,7 @@ const initialConfig = {
     AutoLinkNode,
     LinkNode,
     ImageNode,
+    YouTubeNode, // <-- TILFØJ DENNE
   ],
   theme: {
     paragraph: "mb-2 text-zinc-300 leading-relaxed",

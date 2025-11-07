@@ -40,7 +40,7 @@ export default function CreateRabbitForm() {
         if (!formData.fatherId_Placeholder) return;
         setFatherValidation('Validerer...');
         setFatherIsValid(null);
-        const res = await validateParentReference(formData.fatherId_Placeholder, 'Buck');
+        const res = await validateParentReference(formData.fatherId_Placeholder, 'Han');
         if (!res.success) {
             setFatherValidation(res.error || 'Ugyldig far');
             setFatherIsValid(false);
@@ -57,7 +57,7 @@ export default function CreateRabbitForm() {
         if (!formData.motherId_Placeholder) return;
         setMotherValidation('Validerer...');
         setMotherIsValid(null);
-        const res = await validateParentReference(formData.motherId_Placeholder, 'Doe');
+        const res = await validateParentReference(formData.motherId_Placeholder, 'Hun');
         if (!res.success) {
             setMotherValidation(res.error || 'Ugyldig mor');
             setMotherIsValid(false);
