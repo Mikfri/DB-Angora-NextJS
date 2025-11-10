@@ -65,36 +65,88 @@ export async function CreateSaleDetails(
     saleDetails: Rabbit_CreateSaleDetailsDTO,
     accessToken: string
 ): Promise<SaleDetailsProfileDTO> {
+    if (!accessToken || accessToken.trim() === "") {
+        throw new Error("Access token is required for this endpoint.");
+    }
+    if (!earCombId || earCombId.trim() === "") {
+        throw new Error("earCombId er påkrævet.");
+    }
+    if (!saleDetails) {
+        throw new Error("Salgsdetaljer er påkrævet.");
+    }
+
     const response = await fetch(getApiUrl(`Rabbit/CreateSaleDetails/${earCombId}`), {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json',
-            'Accept': 'application/json' // <-- Skift fra 'text/plain' til 'application/json'
+            'Accept': 'application/json'
         },
         body: JSON.stringify(saleDetails)
     });
 
-    if (!response.ok) {
+    // 401 Unauthorized
+    if (response.status === 401) {
         const errorText = await response.text();
-        let apiMessage = '';
+        let message = "Ikke autoriseret.";
         try {
-            const parsed = JSON.parse(errorText);
-            apiMessage = parsed.message || errorText;
-        } catch {
-            apiMessage = errorText;
-        }
-        console.error('API Error:', {
-            status: response.status,
-            statusText: response.statusText,
-            body: errorText,
-            sentData: saleDetails
-        });
-        // Send API-beskeden videre!
-        throw new Error(apiMessage || `Failed to create sale details: ${response.status} ${response.statusText}`);
+            const errorData = JSON.parse(errorText) as { message?: string };
+            if (errorData.message) message = errorData.message;
+        } catch {}
+        throw new Error(message);
     }
 
-    return response.json();
+    // 403 Forbidden
+    if (response.status === 403) {
+        const errorText = await response.text();
+        let message = "Adgang nægtet.";
+        try {
+            const errorData = JSON.parse(errorText) as { message?: string };
+            if (errorData.message) message = errorData.message;
+        } catch {}
+        throw new Error(message);
+    }
+
+    // 404 Not Found
+    if (response.status === 404) {
+        const errorText = await response.text();
+        let message = "Kaninen blev ikke fundet.";
+        try {
+            const errorData = JSON.parse(errorText) as { message?: string };
+            if (errorData.message) message = errorData.message;
+        } catch {}
+        throw new Error(message);
+    }
+
+    // 400 Bad Request
+    if (response.status === 400) {
+        const errorText = await response.text();
+        let message = "Ugyldig anmodning.";
+        try {
+            const errorData = JSON.parse(errorText) as { message?: string };
+            if (errorData.message) message = errorData.message;
+        } catch {}
+        throw new Error(message);
+    }
+
+    // Andre fejl
+    if (!response.ok && response.status !== 201) {
+        let errorMessage = `${response.status} ${response.statusText}`;
+        try {
+            const errorText = await response.text();
+            const errorData = JSON.parse(errorText) as { message?: string };
+            if (errorData.message) errorMessage = errorData.message;
+        } catch {}
+        throw new Error(`Fejl ved oprettelse af salgsdetaljer: ${errorMessage}`);
+    }
+
+    // 201 Created
+    const data: unknown = await response.json();
+    // Forventet: SaleDetailsProfileDTO
+    if (typeof data === "object" && data !== null) {
+        return data as SaleDetailsProfileDTO;
+    }
+    throw new Error("API svarede ikke med salgsdetaljer-data.");
 }
 
 /**

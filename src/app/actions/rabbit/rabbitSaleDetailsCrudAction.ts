@@ -41,48 +41,32 @@ export async function createRabbitSaleDetails(
 ): Promise<CreateSaleDetailsResult> {
   try {
     const accessToken = await getAccessToken();
-    
+
     if (!accessToken) {
       return {
         success: false,
         error: 'Du er ikke logget ind'
       };
     }
-    
-    // Validér data på server-siden
-    if (!saleDetailsData.title || saleDetailsData.title.trim() === '') {
+
+    // Kald API endpoint og håndter API-fejlbeskeder
+    try {
+      const saleDetails = await CreateSaleDetails(
+        earCombId,
+        saleDetailsData,
+        accessToken
+      );
       return {
-        success: false, 
-        error: 'Titel er påkrævet'
+        success: true,
+        data: saleDetails
+      };
+    } catch (apiError) {
+      // API-fejl (fx 400, 401, 403, 404)
+      return {
+        success: false,
+        error: apiError instanceof Error ? apiError.message : 'Der skete en fejl ved oprettelse'
       };
     }
-    
-    if (saleDetailsData.price <= 0) {
-      return {
-        success: false, 
-        error: 'Prisen skal være større end 0'
-      };
-    }
-    
-    if (!saleDetailsData.description || saleDetailsData.description.trim() === '') {
-      return {
-        success: false, 
-        error: 'Beskrivelse er påkrævet'
-      };
-    }
-    
-    // Kald API endpoint
-    const saleDetails = await CreateSaleDetails(
-      earCombId,
-      saleDetailsData, 
-      accessToken
-    );
-    
-    // Returner et success objekt med det nye salgsopslag
-    return {
-      success: true,
-      data: saleDetails
-    };
   } catch (error) {
     console.error('Failed to create sale details:', error);
     return {
