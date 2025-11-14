@@ -7,7 +7,7 @@ import { LuRabbit } from "react-icons/lu";
 import { IoColorPaletteOutline } from "react-icons/io5";
 import { FaVenusMars } from "react-icons/fa";
 import { BreedingFilters } from "@/api/types/filterTypes";
-import { useEnums, RabbitEnum } from '@/contexts/EnumContext';
+import { useEnums, EnumType } from '@/contexts/EnumContext';
 import EnumAutocomplete from '@/components/enumHandlers/enumAutocomplete';
 
 interface RabbitBreedingNavClientProps {
@@ -16,7 +16,7 @@ interface RabbitBreedingNavClientProps {
 }
 
 // De enum typer der bruges i denne komponent
-const REQUIRED_ENUMS: RabbitEnum[] = ['Race', 'Color', 'Gender'];
+const REQUIRED_ENUMS: EnumType[] = ['Race', 'Color', 'Gender'];
 
 // Konstanter til sektioner - FJERNET ACTIONS herfra!
 const FILTER_SECTIONS = {
@@ -102,8 +102,8 @@ export const RabbitBreedingNavClient = memo(function RabbitBreedingNavClient({
                         <div className="flex-1">
                             <EnumAutocomplete
                                 enumType="Race"
-                                value={filters.Race || null}
-                                onChange={(value) => handleFilterChange({ Race: value })}
+                                value={filters.Race ?? ""}
+                                onChange={value => handleFilterChange({ Race: value ?? undefined })}
                                 label="Race"
                             />
                         </div>
@@ -118,8 +118,8 @@ export const RabbitBreedingNavClient = memo(function RabbitBreedingNavClient({
                         <div className="flex-1">
                             <EnumAutocomplete
                                 enumType="Color"
-                                value={filters.Color || null}
-                                onChange={(value) => handleFilterChange({ Color: value })}
+                                value={filters.Color ?? ""}
+                                onChange={value => handleFilterChange({ Color: value ?? undefined })}
                                 label="Farve"
                             />
                         </div>
@@ -134,8 +134,8 @@ export const RabbitBreedingNavClient = memo(function RabbitBreedingNavClient({
                         <div className="flex-1">
                             <EnumAutocomplete
                                 enumType="Gender"
-                                value={filters.Gender || null}
-                                onChange={(value) => handleFilterChange({ Gender: value })}
+                                value={filters.Gender ?? ""}
+                                onChange={value => handleFilterChange({ Gender: value ?? undefined })}
                                 label="Køn"
                             />
                         </div>

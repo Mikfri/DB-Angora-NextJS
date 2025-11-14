@@ -2,8 +2,8 @@
 
 'use server';
 import { getAccessToken } from '@/app/actions/auth/session';
-import { getBlogs, getBlogBySlug, getBlogsAuthoredByUser, getBlogById, updateBlog, getBlogImageUploadConfig, registerCloudinaryBlogPhoto, deleteBlogPhoto, updateBlogFeaturedImage, createBlog, publishBlog, unpublishBlog, schedulePublishBlog, deleteBlog } from '@/api/endpoints/blogController';
-import type { Blog_CardFilterDTO, PagedResultDTO, Blog_CardDTO, Blog_DTO, Blog_UpdateDTO, BlogPublicDTO, CloudinaryUploadConfigDTO, PhotoPrivateDTO, CloudinaryPhotoRegistryRequestDTO, PhotoDeleteDTO, Blog_CreateDTO } from '@/api/types/AngoraDTOs';
+import { getBlogs, getBlogBySlug, getBlogsAuthoredByUser, getBlogById, updateBlog, getBlogImageUploadConfig, registerCloudinaryBlogPhoto, deleteBlogPhoto, updateBlogFeaturedImage, createBlog, publishBlog, unpublishBlog, schedulePublishBlog, deleteBlog, getLatestBlogsByCategory } from '@/api/endpoints/blogController';
+import type { Blog_CardFilterDTO, PagedResultDTO, Blog_CardDTO, Blog_DTO, Blog_UpdateDTO, BlogPublicDTO, CloudinaryUploadConfigDTO, PhotoPrivateDTO, CloudinaryPhotoRegistryRequestDTO, PhotoDeleteDTO, Blog_CreateDTO, BlogsLatestByCategoryDTO } from '@/api/types/AngoraDTOs';
 
 // ====================== TYPES ======================
 export type BlogCreateResult =
@@ -24,6 +24,10 @@ export type BlogUnpublishResult =
 
 export type BlogPhotoRegistryResult =
     | { success: true; data: PhotoPrivateDTO }
+    | { success: false; error: string; status?: number };
+
+export type BlogLatestByCategoryResult =
+    | { success: true; data: BlogsLatestByCategoryDTO }
     | { success: false; error: string; status?: number };
 
 export type BlogListResult =
@@ -291,6 +295,49 @@ export async function registerCloudinaryBlogPhotoAction(
 }
 
 // ====================== READ (FILTERED) ======================
+
+/**
+ * Server Action: Henter de seneste publicerede blogs for en given kategori
+ * @param category Blogkategori (fx "PatchNotes", "Generel" osv.)
+ * @returns DTO med seneste blogs for kategorien eller fejlbesked
+ */
+export async function fetchLatestBlogsByCategoryAction(
+    category: string
+): Promise<BlogLatestByCategoryResult> {
+    try {
+        if (!category || category.trim() === "") {
+            return {
+                success: false,
+                error: "Kategori skal angives",
+                status: 400
+            };
+        }
+
+        // Hent accessToken hvis nødvendigt (valgfrit, afhængigt af API)
+        const accessToken = await getAccessToken();
+
+        const result = await getLatestBlogsByCategory(category, accessToken ?? undefined);
+
+        if (!result) {
+            return {
+                success: false,
+                error: "Ingen blogs fundet for denne kategori",
+                status: 404
+            };
+        }
+
+        return {
+            success: true,
+            data: result
+        };
+    } catch (error) {
+        return {
+            success: false,
+            error: error instanceof Error ? error.message : "Der skete en uventet fejl",
+            status: 500
+        };
+    }
+}
 
 /**
  * Server Action: Henter filtrerede blogs

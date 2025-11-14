@@ -7,6 +7,8 @@ import { Input, Button, Divider, Tooltip, Chip } from "@heroui/react";
 import { useRouter } from 'next/navigation';
 import { useBlogOwnedStore } from '@/store/BlogOwnedStore';
 import { createBlogAction } from "@/app/actions/blog/blogActions";
+import { useEnums } from '@/contexts/EnumContext';
+import EnumAutocomplete from '@/components/enumHandlers/enumAutocomplete';
 
 import {
   RiAddCircleLine,
@@ -31,6 +33,7 @@ const SECTION = {
 export function BlogOwnNavClient() {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const { isLoading } = useEnums();
 
   const {
     filters,
@@ -74,7 +77,6 @@ export function BlogOwnNavClient() {
       if (result.success) {
         router.push(`/account/myBlogs/blogWorkspace/${result.data.id}`);
       } else {
-        // Du kan evt. vise en toast eller fejlbesked her
         alert(result.error || "Kunne ikke oprette blog.");
       }
     });
@@ -150,33 +152,50 @@ export function BlogOwnNavClient() {
 
         {/* Oprettet efter */}
         <div className="flex items-center gap-1 mt-2">
-            <div className="flex items-center gap-1.5 min-w-[68px]">
-              <MdCalendarMonth className="text-lg text-default-500" />
-              <span className="text-xs font-medium">Efter</span>
-            </div>
-            <div className="flex-1 flex items-center gap-1">
-              <Input
+          <div className="flex items-center gap-1.5 min-w-[68px]">
+            <MdCalendarMonth className="text-lg text-default-500" />
+            <span className="text-xs font-medium">Efter</span>
+          </div>
+          <div className="flex-1 flex items-center gap-1">
+            <Input
+              size="sm"
+              type="date"
+              value={filters.createdAfter || ''}
+              onChange={(e) => updateFilters({ createdAfter: e.target.value || null })}
+              classNames={{
+                inputWrapper: "h-7 min-h-unit-7 px-2",
+                input: "text-xs"
+              }}
+            />
+            {hasDate && (
+              <Button
                 size="sm"
-                type="date"
-                value={filters.createdAfter || ''}
-                onChange={(e) => updateFilters({ createdAfter: e.target.value || null })}
-                classNames={{
-                  inputWrapper: "h-7 min-h-unit-7 px-2",
-                  input: "text-xs"
-                }}
-              />
-              {hasDate && (
-                <Button
-                  size="sm"
-                  variant="light"
-                  isIconOnly
-                  aria-label="Ryd dato"
-                  onPress={() => updateFilters({ createdAfter: null })}
-                >
-                  <RiCloseLine className="text-sm" />
-                </Button>
-              )}
-            </div>
+                variant="light"
+                isIconOnly
+                aria-label="Ryd dato"
+                onPress={() => updateFilters({ createdAfter: null })}
+              >
+                <RiCloseLine className="text-sm" />
+              </Button>
+            )}
+          </div>
+        </div>
+
+        {/* Kategori filter */}
+        <div className="flex items-center gap-1 mt-2">
+          <div className="flex items-center gap-1.5 min-w-[68px]">
+            <MdCalendarMonth className="text-lg text-default-500" />
+            <span className="text-xs font-medium">Kategori</span>
+          </div>
+          <div className="flex-1 flex items-center gap-1">
+            <EnumAutocomplete
+              enumType="BlogCategories"
+              value={filters.category}
+              onChange={val => updateFilters({ category: val })}
+              label="Kategori"
+              placeholder={isLoading('BlogCategories') ? "Indlæser..." : "Vælg kategori"}
+            />
+          </div>
         </div>
       </div>
 

@@ -46,10 +46,11 @@ export const ROUTES = {
   BREEDERS: '/breeders',
   CARE: '/care',
   ANCHORS: {
-    WELCOME: '#welcome',
-    NEWS: '#news',
-    EVENTS: '#events',
-    FEATURED: '#featured',
+    WELCOME: '/#welcome',
+    NEWS: '/#news',
+    FEATURED: '/#updates',  // Ændret til #updates
+    SALE: '/#sale',         // NY
+    BLOGS: '/#blogs'        // NY
   }
 } as const;
 
@@ -146,6 +147,9 @@ export const homeNavigationLinks: NavGroup[] = [
     links: [
       { href: ROUTES.ANCHORS.WELCOME, label: 'Velkommen til' },
       { href: ROUTES.ANCHORS.NEWS, label: 'Nyheder' },
+      { href: ROUTES.ANCHORS.FEATURED, label: 'Opdateringer' },
+      { href: ROUTES.ANCHORS.SALE, label: 'Salg' },
+      { href: ROUTES.ANCHORS.BLOGS, label: 'Blogs' }
     ]
   }
 ];

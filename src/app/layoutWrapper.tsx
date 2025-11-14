@@ -20,9 +20,9 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
 
   return (
     <div className="flex flex-col min-h-screen">
-      {/* TopNav med fuld bredde */}
-      <div className="w-full border-b border-zinc-800/50">
-        <div className="w-full px-4 mx-auto">
+      {/* TopNav wrapper - border flyttet ind i container så den flugter med content */}
+      <div className="w-full">
+        <div className="mx-auto max-w-screen-2xl w-full px-4 border-b border-zinc-800/50">
           <TopNav />
         </div>
       </div>
@@ -31,7 +31,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
       <main className="flex-grow w-full px-4">
         <div className="mx-auto max-w-screen-2xl">
           {shouldShowHeader && (
-            <div className="py-4">
+            <div className="py-4 bg-white dark:bg-zinc-900 transition-colors rounded-xl shadow-sm">
               <PageHeader />
             </div>
           )}

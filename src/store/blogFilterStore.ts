@@ -6,7 +6,7 @@
  * Central state management for blog filter/search UI.
  *
  * Ansvar:
- *  - Holder og opdaterer alle filterværdier for blogs (searchTerm, authorFullName, tagFilter)
+ *  - Holder og opdaterer alle filterværdier for blogs (searchTerm, authorFullName, tagFilter, categoryFilter)
  *  - Synkroniserer filter state med URL (både fra og til URL)
  *  - Gør det muligt for alle blog-komponenter at læse/ændre filter state uden prop-drilling
  *  - Giver actions til at opdatere, nulstille og synkronisere filtre samt at "apply filters" (dvs. opdatere URL)
@@ -78,6 +78,8 @@ export const blogFilterStore = create<BlogFilterState>()((set) => ({
     if (searchParams.has('AuthorFullName')) newFilters.authorFullName = searchParams.get('AuthorFullName') || undefined;
     if (searchParams.has('SearchTerm')) newFilters.searchTerm = searchParams.get('SearchTerm') || undefined;
     if (searchParams.has('TagFilter')) newFilters.tagFilter = searchParams.get('TagFilter') || undefined;
+    if (searchParams.has('CategoryFilter')) newFilters.categoryFilter = searchParams.get('CategoryFilter') || undefined; // TILFØJET
+    if (searchParams.has('BlogSortOption')) newFilters.blogSortOption = searchParams.get('BlogSortOption') || undefined; // TILFØJET
     
     set({ filters: newFilters });
   }
@@ -110,8 +112,12 @@ export function useBlogFilters() {
           params.set('SearchTerm', String(value));
         } else if (key === 'tagFilter') {
           params.set('TagFilter', String(value));
+        } else if (key === 'categoryFilter') { // TILFØJET
+          params.set('CategoryFilter', String(value));
+        } else if (key === 'blogSortOption') { // TILFØJET
+          params.set('BlogSortOption', String(value));
         }
-        // Ignorer page, pageSize, blogSortOption
+        // Ignorer page, pageSize
       }
     });
     

@@ -1,17 +1,11 @@
 /* src/app/globals.css - optimeret version */
 @import url('https://fonts.googleapis.com/css2?family=Raleway:wght@600;700&display=swap');
-@import '../styles/scrollbar.css'; /* Importér scrollbar styling */
+@import '../styles/scrollbar.css';
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #6a818f;
-  --foreground: #e4e4e7;
-  --primary: #4a7ddd; 
-  --secondary: #41daf5;  
-}
 
 /* ===== BASE STYLES ===== */
 @layer base {
@@ -21,10 +15,10 @@
   }
   
   body {
-    color: var(--foreground);
-    background: var(--background);
+    @apply bg-background text-foreground;
     min-height: 100vh;
     font-family: Arial, Helvetica, sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
   
   input[type="date"] {
@@ -34,21 +28,25 @@
   input[type="date"]::-webkit-calendar-picker-indicator {
     filter: invert(0.7);
   }
+  
+  .dark input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.9);
+  }
 }
 
 /* ===== COMPONENT STYLES ===== */
 @layer components {
   /* Text Typography System */
   .app-text {
-    @apply text-sm;  /* Default size for most content */
+    @apply text-sm;
   }
 
   .app-text-lg {
-    @apply text-base;  /* For headers and important content */
+    @apply text-base;
   }
 
   .app-text-xl {
-    @apply text-lg font-semibold;  /* For main titles */
+    @apply text-lg font-semibold;
   }
 
   .nav-text {
@@ -56,7 +54,7 @@
   }
 
   .nav-tooltip {
-    @apply text-zinc-500;
+    @apply text-zinc-500 dark:text-zinc-400;
   }
 
   .card-text {
@@ -73,7 +71,8 @@
 
   .site-title {
     @apply text-4xl font-bold;
-    @apply bg-gradient-to-r from-[#6a818f] via-[#4a7ddd] to-[#41daf5];
+    @apply bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-400;
+    @apply dark:from-blue-400 dark:via-blue-300 dark:to-cyan-300;
     @apply bg-clip-text text-transparent;
     @apply drop-shadow-[0_2px_2px_rgba(0,0,0,0.15)];
     font-family: 'Raleway', sans-serif;
@@ -86,12 +85,15 @@
   
   /* Standardiserede container komponenter */
   .side-nav {
-    @apply p-4 rounded-xl;
-    @apply h-fit w-full;
+    @apply p-4 rounded-xl h-fit w-full;
+    @apply bg-default-50 dark:bg-default-100;
+    @apply border border-default-200 dark:border-default-300;
   }
 
   .content-cell {
-    @apply bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-6;
+    @apply bg-default-50 dark:bg-default-100;
+    @apply border border-default-200 dark:border-default-300;
+    @apply backdrop-blur-md backdrop-saturate-150 rounded-xl p-6 shadow-lg;
   }
   
   /* Container System */
@@ -107,6 +109,6 @@
   }
   
   .content-area {
-    @apply w-full xl:min-h-[calc(100vh-10rem)]; /* Fratrækker header og footer højde */
+    @apply w-full xl:min-h-[calc(100vh-10rem)];
   }
 }

@@ -3,28 +3,23 @@
 import { Input, Button, Divider } from "@heroui/react";
 import { useState, useEffect, memo } from 'react';
 import EnumAutocomplete from '@/components/enumHandlers/enumAutocomplete';
-import { useEnums, RabbitEnum } from '@/contexts/EnumContext';
+import { useEnums, EnumType } from '@/contexts/EnumContext';
 import { useRabbitFilters } from '@/store/saleRabbitsFilterStore';
-// Importer nødvendige ikoner
 import { IoMdClose } from "react-icons/io";
 import { MdOutlineLocationOn } from "react-icons/md";
 import { LuRabbit } from "react-icons/lu";
 import { IoColorPaletteOutline } from "react-icons/io5";
 import { RiGenderlessLine } from "react-icons/ri";
 
-
 // De enum typer der bruges i denne komponent
-const REQUIRED_ENUMS: RabbitEnum[] = ['Race', 'Color', 'Gender'];
+const REQUIRED_ENUMS: EnumType[] = ['Race', 'Color', 'Gender'];
 
-// Konstanter til sektioner
 const FILTER_SECTIONS = {
     BASIC: 'Grundfiltre',
     LOCATION: 'Placering'
 } as const;
 
-// Memoize component to prevent unnecessary re-renders
 export const RabbitSaleNavClient = memo(function RabbitSaleNavClient() {
-    // Brug Zustand store i stedet for useRabbitSearch
     const {
         filters,
         updateFilter,
@@ -37,13 +32,11 @@ export const RabbitSaleNavClient = memo(function RabbitSaleNavClient() {
     const { getMultipleEnumValues } = useEnums();
     const [enumsLoaded, setEnumsLoaded] = useState(false);
 
-    // Synkroniser filtre med URL ved første render - kører kun én gang
     useEffect(() => {
         syncFiltersWithUrl();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    // Load enums when component mounts
     useEffect(() => {
         if (enumsLoaded) return;
 
@@ -59,7 +52,6 @@ export const RabbitSaleNavClient = memo(function RabbitSaleNavClient() {
         loadEnums();
     }, [getMultipleEnumValues, enumsLoaded]);
 
-    // Har filtre?
     const hasActiveFilters = Object.values(filters).some(value =>
         value !== undefined && value !== null && value !== '');
 
@@ -91,8 +83,8 @@ export const RabbitSaleNavClient = memo(function RabbitSaleNavClient() {
                         <div className="flex-1">
                             <EnumAutocomplete
                                 enumType="Race"
-                                value={filters.race ?? null}
-                                onChange={(value) => updateFilter('race', value || null)}
+                                value={filters.race ?? ""}
+                                onChange={value => updateFilter('race', value ?? undefined)}
                                 label="Race"
                             />
                         </div>
@@ -107,8 +99,8 @@ export const RabbitSaleNavClient = memo(function RabbitSaleNavClient() {
                         <div className="flex-1">
                             <EnumAutocomplete
                                 enumType="Color"
-                                value={filters.color ?? null}
-                                onChange={(value) => updateFilter('color', value || null)}
+                                value={filters.color ?? ""}
+                                onChange={value => updateFilter('color', value ?? undefined)}
                                 label="Farve"
                             />
                         </div>
@@ -123,14 +115,12 @@ export const RabbitSaleNavClient = memo(function RabbitSaleNavClient() {
                         <div className="flex-1">
                             <EnumAutocomplete
                                 enumType="Gender"
-                                value={filters.gender ?? null}
-                                onChange={(value) => updateFilter('gender', value || null)}
+                                value={filters.gender ?? ""}
+                                onChange={value => updateFilter('gender', value ?? undefined)}
                                 label="Køn"
                             />
                         </div>
                     </div>
-
-                    {/* Flere filtre kan tilføjes her */}
                 </div>
             </div>
 

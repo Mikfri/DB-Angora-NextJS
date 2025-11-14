@@ -32,6 +32,7 @@ export function NavBaseClient({ actions, variant }: NavBaseClientProps) {
             variant={actionVariant ?? variant}
             onPress={onClick}
             isDisabled={disabled}
+            className="text-zinc-800 dark:text-zinc-100"
           >
             {label}
           </Button>

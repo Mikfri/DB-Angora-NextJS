@@ -3,12 +3,13 @@
 
 import { Autocomplete, AutocompleteItem } from "@heroui/react";
 import { useEffect, useState, useRef } from 'react';
-import { useEnums, RabbitEnum } from '@/contexts/EnumContext';
+import { useEnums } from '@/contexts/EnumContext';
+import type { EnumType } from '@/api/endpoints/enumController';
 
 interface Props {
-    enumType: RabbitEnum;
+    enumType: EnumType;
     value: string | null;
-    onChange: (value: string) => void;
+    onChange: (value: string | null) => void;
     label: string;
     id?: string;
     'aria-labelledby'?: string;
@@ -29,13 +30,10 @@ export default function EnumAutocomplete({
     const isMounted = useRef(true);
 
     useEffect(() => {
-        // Opsæt isMounted flag
         isMounted.current = true;
-        
         const loadOptions = async () => {
             try {
                 const values = await getEnumValues(enumType);
-                // Tjek om komponenten stadig er mounted før state opdateres
                 if (isMounted.current) {
                     setOptions(values);
                 }
@@ -43,10 +41,7 @@ export default function EnumAutocomplete({
                 console.error(`Failed to load ${enumType} options:`, error);
             }
         };
-        
         loadOptions();
-        
-        // Cleanup funktion der kører når komponenten unmounts
         return () => {
             isMounted.current = false;
         };
@@ -55,8 +50,7 @@ export default function EnumAutocomplete({
     const uniqueId = id || `${enumType.toLowerCase()}-select`;
 
     return (
-        <div className="relative">
-            {/* Hidden label for screen readers */}
+        <div className="relative w-full">
             <label 
                 htmlFor={uniqueId}
                 id={`${uniqueId}-label`}
@@ -67,19 +61,18 @@ export default function EnumAutocomplete({
             <Autocomplete
                 size="sm"
                 id={uniqueId}
-                defaultSelectedKey={value || undefined}
-                onSelectionChange={(key) => onChange(key as string)}
+                selectedKey={value || ""}
+                onSelectionChange={(key) => onChange(key ? key.toString() : null)}
                 isLoading={isLoading(enumType)}
                 aria-labelledby={ariaLabelledBy || `${uniqueId}-label`}
                 placeholder={placeholder || `Vælg ${label.toLowerCase()}`}
                 labelPlacement="outside"
                 classNames={{
-                    base: "max-w-xs",
+                    base: "w-full",
                     listbox: "bg-zinc-800/80 text-zinc-100",
                     listboxWrapper: "data-[hover=true]:bg-zinc-700/50",
                     popoverContent: "bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 border border-zinc-700/50",
                     endContentWrapper: "text-zinc-100",
-                    clearButton: "text-zinc-400",
                     selectorButton: "text-zinc-400"
                 }}
             >

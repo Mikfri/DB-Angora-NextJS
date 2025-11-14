@@ -1,104 +1,122 @@
 // src/contexts/EnumContext.tsx
 'use client';
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import { GetEnumValues, RabbitEnum } from '@/api/endpoints/enumController';
+import { GetEnumValues, type EnumType } from '@/api/endpoints/enumController';
 
-// Re-export enum typen så komponenter ikke behøver direkte afhængighed til API laget
-export type { RabbitEnum };
+// Re-export type så komponenter kan bruge den
+export type { EnumType };
 
-// Type definition for our cache
-type EnumCache = {
-    [key in RabbitEnum]?: string[];
-};
+/**
+ * Cache type - mapper enum type til array af værdier
+ */
+type EnumCache = Partial<Record<EnumType, string[]>>;
 
-// Type for the context
+/**
+ * Context interface med alle tilgængelige metoder
+ */
 interface EnumContextType {
-    getEnumValues: (enumType: RabbitEnum) => Promise<string[]>;
-    getMultipleEnumValues: (enumTypes: RabbitEnum[]) => Promise<Record<RabbitEnum, string[]>>;
-    isLoading: (enumType: RabbitEnum) => boolean;
-    resetCache: () => void; // Tilføjet reset funktion
+    getEnumValues: (enumType: EnumType) => Promise<string[]>;
+    getMultipleEnumValues: (enumTypes: EnumType[]) => Promise<Record<EnumType, string[]>>;
+    isLoading: (enumType: EnumType) => boolean;
+    resetCache: () => void;
 }
 
-// Create the context
 const EnumContext = createContext<EnumContextType | null>(null);
 
-// Hyppigt brugte enums for pre-fetching
-const COMMON_ENUMS: RabbitEnum[] = ['Race', 'Color', 'Gender'];
+// Hyppigt brugte enums for pre-fetching (kan tilpasses efter behov)
+const COMMON_ENUMS: EnumType[] = ['Race', 'Color', 'Gender'];
 
-// Cache ekspiration periode - 7 dage
-const CACHE_EXPIRY = 7 * 24 * 60 * 60 * 1000;
+// Cache konfiguration
+const CACHE_EXPIRY = 7 * 24 * 60 * 60 * 1000; // 7 dage
+const CACHE_VERSION = '1.1.0'; // Opdateret version
+const CACHE_KEY = 'db-angora-enum-cache';
+const CACHE_TIMESTAMP_KEY = 'db-angora-enum-cache-timestamp';
+const CACHE_VERSION_KEY = 'db-angora-enum-cache-version';
 
-// Cache version - opdater dette hvis enum struktur ændres
-const CACHE_VERSION = '1.0.2';
-
-// Helper funktion - flyttet ud af komponenten for at undgå cirkulær reference
+/**
+ * Ryd localStorage cache
+ */
 function clearLocalStorageCache() {
     if (typeof window !== 'undefined') {
-        localStorage.removeItem('db-angora-enum-cache');
-        localStorage.removeItem('db-angora-enum-cache-timestamp');
-        localStorage.removeItem('db-angora-enum-cache-version');
+        localStorage.removeItem(CACHE_KEY);
+        localStorage.removeItem(CACHE_TIMESTAMP_KEY);
+        localStorage.removeItem(CACHE_VERSION_KEY);
     }
 }
 
-export function EnumProvider({ children }: { children: ReactNode }) {
-    // Initialiser cache fra localStorage hvis tilgængelig
-    const [cache, setCache] = useState<EnumCache>(() => {
-        if (typeof window !== 'undefined') {
-            const savedCache = localStorage.getItem('db-angora-enum-cache');
-            const cacheTimestamp = localStorage.getItem('db-angora-enum-cache-timestamp');
-            const cacheVersion = localStorage.getItem('db-angora-enum-cache-version');
+/**
+ * Indlæs cache fra localStorage
+ */
+function loadCacheFromStorage(): EnumCache {
+    if (typeof window === 'undefined') return {};
 
-            // Tjek om cache version matcher
-            if (savedCache && cacheTimestamp && cacheVersion === CACHE_VERSION) {
-                const now = Date.now();
-                const timestamp = parseInt(cacheTimestamp, 10);
+    const savedCache = localStorage.getItem(CACHE_KEY);
+    const cacheTimestamp = localStorage.getItem(CACHE_TIMESTAMP_KEY);
+    const cacheVersion = localStorage.getItem(CACHE_VERSION_KEY);
 
-                // Tjek om cachen er mindre end 7 dage gammel
-                if (!isNaN(timestamp) && now - timestamp < CACHE_EXPIRY) {
-                    try {
-                        console.log('📦 Loaded enums from localStorage cache');
-                        return JSON.parse(savedCache);
-                    } catch (e) {
-                        console.error('Failed to parse cached enums:', e);
-                    }
-                } else {
-                    console.log('📦 Enum cache expired, will fetch fresh data');
-                    clearLocalStorageCache();
-                }
-            } else if (cacheVersion !== CACHE_VERSION) {
-                console.log('📦 Enum cache version changed, clearing old cache');
+    // Tjek version
+    if (cacheVersion !== CACHE_VERSION) {
+        console.log('📦 Enum cache version mismatch, clearing...');
+        clearLocalStorageCache();
+        return {};
+    }
+
+    // Tjek timestamp
+    if (savedCache && cacheTimestamp) {
+        const now = Date.now();
+        const timestamp = parseInt(cacheTimestamp, 10);
+
+        if (!isNaN(timestamp) && now - timestamp < CACHE_EXPIRY) {
+            try {
+                console.log('📦 Loaded enums from localStorage cache');
+                return JSON.parse(savedCache);
+            } catch (e) {
+                console.error('Failed to parse cached enums:', e);
                 clearLocalStorageCache();
             }
+        } else {
+            console.log('📦 Enum cache expired');
+            clearLocalStorageCache();
         }
-        return {};
-    });
+    }
 
+    return {};
+}
+
+/**
+ * EnumProvider - håndterer enum caching og fetching
+ */
+export function EnumProvider({ children }: { children: ReactNode }) {
+    const [cache, setCache] = useState<EnumCache>(loadCacheFromStorage);
     const [loadingEnums, setLoadingEnums] = useState<Record<string, boolean>>({});
 
-    // Expose as public method - bruger nu den globale funktion
+    /**
+     * Nulstil cache manuelt
+     */
     const resetCache = useCallback(() => {
         clearLocalStorageCache();
         setCache({});
         console.log('🧹 Enum cache cleared manually');
     }, []);
 
-    // Function to get enum values with caching
-    const getEnumValues = useCallback(async (enumType: RabbitEnum): Promise<string[]> => {
-        // Return from cache if available
+    /**
+     * Hent enum-værdier med caching
+     */
+    const getEnumValues = useCallback(async (enumType: EnumType): Promise<string[]> => {
+        // Return fra cache hvis tilgængelig
         if (cache[enumType]) {
             console.log(`📋 Using cached ${enumType} enum values`);
             return cache[enumType]!;
         }
 
-        // Set loading state
+        // Sæt loading state
         setLoadingEnums(prev => ({ ...prev, [enumType]: true }));
-        
+
         try {
-            // Fetch from API
-            console.log(`🔄 Fetching ${enumType} enum values`);
+            console.log(`🔄 Fetching ${enumType} enum values from API`);
             const values = await GetEnumValues(enumType);
-            
-            // Store in cache
+
+            // Gem i cache
             setCache(prev => ({ ...prev, [enumType]: values }));
             return values;
         } catch (error) {
@@ -109,23 +127,28 @@ export function EnumProvider({ children }: { children: ReactNode }) {
         }
     }, [cache]);
 
-    // Function to get multiple enum values at once
-    const getMultipleEnumValues = useCallback(async (enumTypes: RabbitEnum[]): Promise<Record<RabbitEnum, string[]>> => {
-        const results: Partial<Record<RabbitEnum, string[]>> = {};
-        
-        // Filter only enums we don't have cached
+    /**
+     * Hent flere enum-værdier på én gang
+     */
+    const getMultipleEnumValues = useCallback(async (
+        enumTypes: EnumType[]
+    ): Promise<Record<EnumType, string[]>> => {
+        const results: Partial<Record<EnumType, string[]>> = {};
+
+        // Filtrer enums vi ikke har cached
         const missingEnums = enumTypes.filter(enumType => !cache[enumType]);
-        
-        // Return all from cache if possible
+
+        // Return alt fra cache hvis muligt
         if (missingEnums.length === 0) {
             console.log('📋 Using cached values for all requested enums');
             enumTypes.forEach(enumType => {
                 results[enumType] = cache[enumType]!;
             });
-            return results as Record<RabbitEnum, string[]>;
+            return results as Record<EnumType, string[]>;
         }
-        
-        // Fetch missing enums in parallel
+
+        // Fetch manglende enums parallelt
+        console.log(`🔄 Fetching ${missingEnums.length} missing enums`);
         await Promise.all(
             missingEnums.map(async (enumType) => {
                 try {
@@ -136,34 +159,36 @@ export function EnumProvider({ children }: { children: ReactNode }) {
                 }
             })
         );
-        
-        // Add cached enums to results
+
+        // Tilføj cached enums
         enumTypes.forEach(enumType => {
             if (!results[enumType] && cache[enumType]) {
                 results[enumType] = cache[enumType]!;
             }
         });
-        
-        return results as Record<RabbitEnum, string[]>;
+
+        return results as Record<EnumType, string[]>;
     }, [cache, getEnumValues]);
 
-    // Provide loading status
-    const isLoading = useCallback((enumType: RabbitEnum): boolean => {
+    /**
+     * Tjek om enum er ved at blive loaded
+     */
+    const isLoading = useCallback((enumType: EnumType): boolean => {
         return !!loadingEnums[enumType];
     }, [loadingEnums]);
 
-    // Pre-fetch hyppigt brugte enums ved mount med useCallback
+    /**
+     * Pre-fetch hyppigt brugte enums ved mount
+     */
     const prefetchCommonEnums = useCallback(async () => {
-        console.log('🚀 Pre-fetching common enum values');
-        
-        // Filter kun enums vi ikke allerede har i cache
         const missingEnums = COMMON_ENUMS.filter(enumType => !cache[enumType]);
-        
+
         if (missingEnums.length === 0) {
-            console.log('✅ All common enums already in cache');
+            console.log('✅ All common enums already cached');
             return;
         }
-        
+
+        console.log(`🚀 Pre-fetching ${missingEnums.length} common enums`);
         try {
             await getMultipleEnumValues(missingEnums);
             console.log('✅ Common enum pre-fetching complete');
@@ -172,33 +197,35 @@ export function EnumProvider({ children }: { children: ReactNode }) {
         }
     }, [cache, getMultipleEnumValues]);
 
-    // Kør prefetch ved mount
+    // Pre-fetch ved mount
     useEffect(() => {
         prefetchCommonEnums();
     }, [prefetchCommonEnums]);
 
-    // Gem cache til localStorage når det ændres
+    // Gem cache til localStorage ved ændringer
     useEffect(() => {
         if (typeof window !== 'undefined' && Object.keys(cache).length > 0) {
-            localStorage.setItem('db-angora-enum-cache', JSON.stringify(cache));
-            localStorage.setItem('db-angora-enum-cache-timestamp', Date.now().toString());
-            localStorage.setItem('db-angora-enum-cache-version', CACHE_VERSION);
+            localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
+            localStorage.setItem(CACHE_TIMESTAMP_KEY, Date.now().toString());
+            localStorage.setItem(CACHE_VERSION_KEY, CACHE_VERSION);
         }
     }, [cache]);
 
     return (
-        <EnumContext.Provider value={{ 
-            getEnumValues, 
-            getMultipleEnumValues, 
+        <EnumContext.Provider value={{
+            getEnumValues,
+            getMultipleEnumValues,
             isLoading,
-            resetCache 
+            resetCache
         }}>
             {children}
         </EnumContext.Provider>
     );
 }
 
-// Hook to use the enum context
+/**
+ * Hook til at bruge enum context
+ */
 export function useEnums() {
     const context = useContext(EnumContext);
     if (!context) {

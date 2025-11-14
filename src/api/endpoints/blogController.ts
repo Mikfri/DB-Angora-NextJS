@@ -5,7 +5,8 @@ import type {
     CloudinaryUploadConfigDTO, PhotoPrivateDTO, CloudinaryPhotoRegistryRequestDTO,
     PhotoDeleteDTO,
     Blog_CreateDTO,
-    BlogAuthedCardFilterDTO
+    BlogAuthedCardFilterDTO,
+    BlogsLatestByCategoryDTO
 } from '@/api/types/AngoraDTOs';
 
 //---------------- POST METHODS -----------------
@@ -423,6 +424,51 @@ export async function registerCloudinaryBlogPhoto(
 
 //----------------- GET METHODS -----------------
 // Modtag accessToken som parameter (best practice)
+
+/**
+ * Henter de seneste publicerede blogindlæg for en given kategori,
+ * inkl. ét fremhævet og op til tre yderligere som kort.
+ * @param category - Blogkategori (string, fx "PatchNotes", "Generel" osv.)
+ * @param accessToken - JWT token til adgangskontrol (valgfrit)
+ * @returns DTO med seneste blogs for kategorien
+ */
+export async function getLatestBlogsByCategory(
+    category: string,
+    accessToken?: string
+): Promise<BlogsLatestByCategoryDTO | null> {
+    const url = getApiUrl(`Blog/latest-by-category?category=${encodeURIComponent(category)}`);
+
+    const headers: Record<string, string> = { 'Accept': 'application/json' };
+    if (accessToken) {
+        headers['Authorization'] = `Bearer ${accessToken}`;
+    }
+
+    const res = await fetch(url, {
+        method: 'GET',
+        headers
+    });
+
+    if (res.status === 401 || res.status === 403 || res.status === 404) {
+        // Optionelt: du kan logge eller håndtere fejlbeskeder her
+        return null;
+    }
+
+    if (!res.ok) {
+        let errorMessage = `${res.status} ${res.statusText}`;
+        try {
+            const errorBody = await res.text();
+            if (errorBody) errorMessage = errorBody;
+        } catch { }
+        throw new Error(`Fejl ved hentning af seneste blogs for kategori: ${errorMessage}`);
+    }
+
+    const data = await res.json();
+    // API'en returnerer: { message: string, data: BlogsLatestByCategoryDTO }
+    if (typeof data === "object" && data !== null && "data" in data) {
+        return data.data as BlogsLatestByCategoryDTO;
+    }
+    return null;
+}
 
 /**
  * Henter en liste af blogindlæg baseret på filterkriterier.

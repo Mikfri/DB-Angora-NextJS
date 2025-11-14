@@ -4,7 +4,7 @@ import EnumAutocomplete from "@/components/enumHandlers/enumAutocomplete";
 import { Rabbit_CreateSaleDetailsDTO, Rabbit_UpdateSaleDetailsDTO } from "@/api/types/AngoraDTOs";
 
 // Lav en union type for at håndtere begge typer af form data
-type SaleDetailsFormData = 
+type SaleDetailsFormData =
     | (Rabbit_CreateSaleDetailsDTO)
     | (Omit<Rabbit_UpdateSaleDetailsDTO, 'rabbitId'>);
 
@@ -66,9 +66,9 @@ export default function SaleDetailsForm({
                         id="homeEnvironment"
                         enumType="RabbitHomeEnvironment"
                         value={formData.homeEnvironment}
-                        onChange={(val) => handleChange('homeEnvironment', val)}
-                        placeholder="Vælg boform" 
-                        label={""}
+                        onChange={val => handleChange('homeEnvironment', val ?? "")}
+                        placeholder="Vælg boform"
+                        label=""
                     />
                 </div>
 
@@ -95,7 +95,7 @@ export default function SaleDetailsForm({
                             size="sm"
                         />
                     </div>
-                    
+
                     <div className="flex items-center justify-between bg-zinc-900/50 p-3 rounded-lg">
                         <label htmlFor="isLitterTrained" className="text-sm text-zinc-300">Pottetrænet</label>
                         <Switch
@@ -105,7 +105,7 @@ export default function SaleDetailsForm({
                             size="sm"
                         />
                     </div>
-                    
+
                     <div className="flex items-center justify-between bg-zinc-900/50 p-3 rounded-lg">
                         <label htmlFor="isNeutered" className="text-sm text-zinc-300">Neutraliseret</label>
                         <Switch

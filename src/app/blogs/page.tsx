@@ -27,7 +27,8 @@ export default async function Page({ searchParams }: { searchParams?: Promise<Re
     authorFullName: typeof resolvedSearchParams?.AuthorFullName === 'string' ? resolvedSearchParams.AuthorFullName : null,
     searchTerm: typeof resolvedSearchParams?.SearchTerm === 'string' ? resolvedSearchParams.SearchTerm : null,
     tagFilter: typeof resolvedSearchParams?.TagFilter === 'string' ? resolvedSearchParams.TagFilter : null,
-    blogSortOption: null,
+    categoryFilter: typeof resolvedSearchParams?.CategoryFilter === 'string' ? resolvedSearchParams.CategoryFilter : null, // TILFØJET
+    blogSortOption: typeof resolvedSearchParams?.BlogSortOption === 'string' ? resolvedSearchParams.BlogSortOption : null, // TILFØJET
     page: 1,
     pageSize: 12
   };

@@ -108,6 +108,7 @@ export function BlogWorkspaceProvider({ children }: { children: React.ReactNode 
         content: editedData.content,
         tags: editedData.tags,
         visibilityLevel: editedData.visibilityLevel,
+        category: editedData.category,
         authorId: editedData.authorId
       };
 

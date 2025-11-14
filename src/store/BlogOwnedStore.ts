@@ -1,3 +1,4 @@
+// src/store/BlogOwnedStore.ts
 // NY VERSION: Henter ALLE brugerens blogs én gang (loop over sider) og filtrerer derefter KUN client-side (CSR)
 
 import { create } from 'zustand';
@@ -9,7 +10,8 @@ interface BlogOwnedFilters {
   search: string;
   isPublished: boolean | null;
   visibilityLevel: string | null;
-  createdAfter: string | null;          // Client-side filter (ikke sendt til API)
+  category: string | null;              // TILFØJET: Client-side filter
+  createdAfter: string | null;
 }
 
 interface PaginationState {
@@ -55,6 +57,7 @@ const DEFAULT_FILTERS: BlogOwnedFilters = {
   search: '',
   isPublished: null,
   visibilityLevel: null,
+  category: null,                        // TILFØJET
   createdAfter: null
 };
 
@@ -171,7 +174,7 @@ export const useBlogOwnedStore = create<BlogOwnedStoreState>()(
       // Anvend klient-filtre på allBlogs
       applyFilters: () => {
         const { allBlogs, filters, pagination } = get();
-        const { search, isPublished, visibilityLevel, createdAfter } = filters;
+        const { search, isPublished, visibilityLevel, category, createdAfter } = filters;
 
         let filtered = allBlogs.slice();
 
@@ -180,7 +183,12 @@ export const useBlogOwnedStore = create<BlogOwnedStoreState>()(
         }
 
         if (visibilityLevel) {
-          filtered = filtered.filter(b => b.blogVisibility === visibilityLevel);
+          filtered = filtered.filter(b => b.visibilityLevel === visibilityLevel);
+        }
+
+        // TILFØJET: Filtrer på kategori
+        if (category) {
+          filtered = filtered.filter(b => b.blogCategory === category);
         }
 
         if (search) {
@@ -239,12 +247,13 @@ export const useBlogOwnedStore = create<BlogOwnedStoreState>()(
   )
 );
 
-// Helper
+// Helper - TILFØJET category check
 function computeIsAnyFilterActive(f: BlogOwnedFilters): boolean {
   return Boolean(
     f.search ||
     f.isPublished !== null ||
     f.visibilityLevel ||
+    f.category ||                        // TILFØJET
     f.createdAfter
   );
 }

@@ -616,20 +616,28 @@ export interface TransferRequest_ResponseDTO {
 }
 
 //---------- BLOG SECTION
+/**
+ * DTO til oprettelse af et nyt blogindlæg.
+ */
 export interface Blog_CreateDTO {
     title?: string | null;
     subtitle?: string | null;
     content?: string | null;
     visibilityLevel?: string | null;    // "Public", "PaidContent"
+    blogCategory?: string | null;
     tags?: string | null;
     //metaDescription?: string | null; // Undladt ved oprettelse (metaDescription = title)
 }
 
-
+/**
+ * DTO til at vise en WIP blog. Benyttes under:
+ * ./account/myBlogs/blogWorkspace/[blogId] sektionen.
+ */
 export interface Blog_CardDTO {
     id: number;
     slug: string;
-    blogVisibility: string; // eller evt. en enum-type hvis du ønsker det
+    visibilityLevel: string; // eller evt. en enum-type hvis du ønsker det
+    blogCategory: string;
     title: string;
     subtitle?: string | null;
     contentSummary: string;
@@ -650,18 +658,17 @@ export interface Blog_CardFilterDTO {
     authorFullName?: string | null;
     searchTerm?: string | null;
     tagFilter?: string | null;
+    categoryFilter?: string | null;
     blogSortOption?: string | null;  // "Newest", ...
     page: number;
     pageSize: number;
 }
 
-/** DTO til filtrering af blogindlæg for autentificerede brugere.
- * Benyttes under './account/myBlogs/' sektionen.
- */
-export interface BlogAuthedCardFilterDTO {
-    isPublished?: boolean | null;
-    visibilityLevel?: string | null; // "Public", "PaidContent"
-    searchTitlesAndContent?: string | null;      // .Title, .Subtitle, .Content
+
+export interface BlogsLatestByCategoryDTO {
+    category: string;
+    latest?: BlogPublicDTO | null;
+    next?: Blog_CardDTO[];
 }
 
 /**
@@ -714,6 +721,7 @@ export interface Blog_DTO {
     subtitle?: string | null;
     content: string;
     visibilityLevel: string;  // "Public", "PaidContent"
+    category: string;
     tags?: string | null;  // Comma-separated tags
     authorId: string;
     authorName: string;
@@ -734,6 +742,7 @@ export interface Blog_UpdateDTO {
     subtitle?: string | null;
     content: string;
     visibilityLevel: string;    // "Public", "PaidContent"
+    category: string;
     tags?: string | null;
     authorId?: string | null;    
     metaDescription?: string | null;

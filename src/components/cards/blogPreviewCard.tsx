@@ -132,7 +132,7 @@ const BlogPreviewCard = memo(function BlogPreviewCard({
 							<span>•</span>
 							<span>{formatDate(blog.publishDate ?? undefined)}</span>
 						</div>
-						<div className="text-xs text-zinc-500 italic text-left">Synlighed: {blog.blogVisibility}</div>
+						<div className="text-xs text-zinc-500 italic text-left">Synlighed: {blog.visibilityLevel}</div>
 					</div>
 				</div>
 				{blog.subtitle && (

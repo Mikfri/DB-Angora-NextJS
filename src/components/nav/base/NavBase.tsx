@@ -28,7 +28,11 @@ export default function NavBase({
         {(title || headerActions?.length > 0) && (
           <div className="flex justify-between items-center mb-2 pb-2 border-b border-zinc-700/50">
             {/* Nullish coalescing for title fallback */}
-            {title && <h2 className="text-lg font-semibold text-zinc-100">{title}</h2>}
+            {title && (
+              <h2 className="text-lg font-semibold text-zinc-800 dark:text-zinc-100">
+                {title}
+              </h2>
+            )}
             
             {/* Nullish coalescing og optional chaining */}
             {headerActions?.length > 0 && (

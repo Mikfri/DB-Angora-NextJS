@@ -3,6 +3,7 @@ import React, { ReactNode } from "react";
 import { Input, Textarea, Select, SelectItem } from "@heroui/react";
 import { Blog_DTO, Blog_UpdateDTO } from "@/api/types/AngoraDTOs";
 import BlogLexicalEditor from "./LexicalEditor";
+import EnumAutocomplete from "@/components/enumHandlers/enumAutocomplete";
 
 // Redigerbare felter for blog
 export const editableFieldLabels: Record<keyof Blog_UpdateDTO, string> = {
@@ -10,6 +11,7 @@ export const editableFieldLabels: Record<keyof Blog_UpdateDTO, string> = {
     subtitle: "Undertitel",
     content: "Indhold",
     visibilityLevel: "Synlighed",
+    category: "Kategori",           // <-- TILFØJET
     tags: "Tags",
     metaDescription: "Meta beskrivelse",
     authorId: "Forfatter ID" // Normalt ikke redigerbar
@@ -46,7 +48,7 @@ function renderViewMode(
 ): ReactNode {
     if (key === "content") {
         return (
-            <div 
+            <div
                 className={`${textClassName} prose prose-invert max-w-none`}
                 dangerouslySetInnerHTML={{ __html: value as string || "Intet indhold" }}
             />
@@ -117,6 +119,18 @@ function renderEditMode(
                 placeholder={key === "metaDescription" ? "SEO beskrivelse..." : "Komma-separerede tags..."}
                 minRows={2}
                 maxRows={4}
+            />
+        );
+    }
+
+    if (key === "category") {
+        return (
+            <EnumAutocomplete
+                enumType="BlogCategories"
+                value={editedData.category || ""}
+                onChange={val => setEditedData({ ...editedData, category: val ?? "" })}
+                label="Kategori"
+                placeholder="Vælg kategori"
             />
         );
     }

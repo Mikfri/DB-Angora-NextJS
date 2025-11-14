@@ -3,7 +3,7 @@ import { Input, Switch, Button, Divider, RadioGroup, Radio, Tooltip, Chip } from
 import { useRouter } from 'next/navigation';
 import EnumAutocomplete from '@/components/enumHandlers/enumAutocomplete';
 import { useState, useEffect, useCallback } from 'react';
-import { useEnums, RabbitEnum } from '@/contexts/EnumContext';
+import { useEnums, EnumType } from '@/contexts/EnumContext';
 import { useTransferRequests } from "@/hooks/transferRequests/useTransferRequest";
 import { useRabbitsOwnedStore } from '@/store/rabbitsOwnedStore';
 // Importer de nødvendige ikoner
@@ -19,7 +19,7 @@ import { PiSelectionPlus } from "react-icons/pi";
 import { TbGrave2 } from "react-icons/tb";
 
 // De enum typer der bruges i denne komponent
-const REQUIRED_ENUMS: RabbitEnum[] = ['Race', 'Color', 'Gender'];
+const REQUIRED_ENUMS: EnumType[] = ['Race', 'Color', 'Gender'];
 
 // Konstanter til sektioner
 const FILTER_SECTIONS = {

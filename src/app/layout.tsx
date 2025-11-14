@@ -59,7 +59,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="da" className="h-full">
+    <html lang="da" className="h-full" suppressHydrationWarning>
       <head>
         {/* Tilføj struktureret data for hele organisationen */}
         <script
@@ -161,7 +161,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-full flex flex-col bg-zinc-900">
+      <body className="min-h-full flex flex-col">
         <Providers>
           <AuthGuard>
             <LayoutWrapper>

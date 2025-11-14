@@ -198,8 +198,8 @@ export default function CreateRabbitForm() {
                             <div className="w-2/3">
                                 <EnumAutocomplete
                                     enumType="Race"
-                                    value={formData.race || null}
-                                    onChange={(value) => setFormData({ ...formData, race: value })}
+                                    value={formData.race ?? ""}
+                                    onChange={value => setFormData({ ...formData, race: value ?? undefined })}
                                     label=""
                                 />
                             </div>
@@ -210,8 +210,8 @@ export default function CreateRabbitForm() {
                             <div className="w-2/3">
                                 <EnumAutocomplete
                                     enumType="Color"
-                                    value={formData.color || null}
-                                    onChange={(value) => setFormData({ ...formData, color: value })}
+                                    value={formData.color ?? ""}
+                                    onChange={value => setFormData({ ...formData, color: value ?? undefined })}
                                     label=""
                                 />
                             </div>
@@ -222,8 +222,8 @@ export default function CreateRabbitForm() {
                             <div className="w-2/3">
                                 <EnumAutocomplete
                                     enumType="Gender"
-                                    value={formData.gender || null}
-                                    onChange={(value) => setFormData({ ...formData, gender: value })}
+                                    value={formData.gender ?? ""}
+                                    onChange={value => setFormData({ ...formData, gender: value ?? undefined })}
                                     label=""
                                 />
                             </div>

@@ -1,6 +1,7 @@
 // src/app/page.tsx (Server Component med metadata)
 import { Metadata } from 'next';
 import HomeContent from './HomeContent';
+import { fetchLatestBlogsByCategoryAction } from './actions/blog/blogActions';
 
 export const metadata: Metadata = {
   title: 'Forside | Den Blå Angora',
@@ -18,6 +19,10 @@ export const metadata: Metadata = {
   },
 };
 
-export default function Home() {
-  return <HomeContent />;
+export default async function Home() {
+  // Hent seneste PatchNotes blogs (1 featured + 3 cards)
+  const updatesResult = await fetchLatestBlogsByCategoryAction('PatchNotes');
+  const updatesData = updatesResult.success ? updatesResult.data : null;
+
+  return <HomeContent updatesData={updatesData} />;
 }
