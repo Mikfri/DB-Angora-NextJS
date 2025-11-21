@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import "./globals.css";
 import LayoutWrapper from "./layoutWrapper";
 import Providers from "@/components/providers/Providers";
-import AuthGuard from "@/components/auth/AuthGuard";
 
 export const metadata: Metadata = {
   title: {
@@ -163,11 +162,9 @@ export default function RootLayout({
       </head>
       <body className="min-h-full flex flex-col">
         <Providers>
-          <AuthGuard>
-            <LayoutWrapper>
-              {children}
-            </LayoutWrapper>
-          </AuthGuard>
+          <LayoutWrapper>
+            {children}
+          </LayoutWrapper>
         </Providers>
       </body>
     </html>

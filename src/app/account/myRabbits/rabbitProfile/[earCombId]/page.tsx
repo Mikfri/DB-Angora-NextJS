@@ -16,8 +16,8 @@
 
 import { notFound } from "next/navigation";
 import { Spinner } from "@heroui/react";
-import RabbitProfile from "./rabbitProfile";
 import { useRabbitProfile } from '@/contexts/RabbitProfileContext';
+import RabbitProfile from "./rabbitProfile";
 
 export default function RabbitProfilePage() {
   const { profile, isLoading, error } = useRabbitProfile();

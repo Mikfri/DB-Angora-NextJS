@@ -4,15 +4,15 @@ import NavBase from '../../base/NavBase';
 import { NavAction } from '@/types/navigationTypes';
 
 interface RabbitProfileNavBaseProps {
-  children: ReactNode;
   title: string;
-  footerActions?: NavAction[]; // Ændret type til NavAction[] fra vores shared types
+  children: ReactNode;
+  footerActions?: NavAction[]; // Gør optional
 }
 
-export default function RabbitProfileNavBase({
-  children,
-  title,
-  footerActions
+export default function RabbitProfileNavBase({ 
+  title, 
+  children, 
+  footerActions 
 }: RabbitProfileNavBaseProps) {
   return (
     <NavBase title={title} footerActions={footerActions}>

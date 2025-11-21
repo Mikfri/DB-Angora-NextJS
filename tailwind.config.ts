@@ -23,7 +23,7 @@ export default {
       themes: {
         light: {
           colors: {
-            background: "#f8fafc",
+            background: "#ffffff",
             foreground: "#1e293b",
             primary: {
               DEFAULT: "#3b82f6",
@@ -33,7 +33,6 @@ export default {
               DEFAULT: "#06b6d4",
               foreground: "#ffffff",
             },
-            // Tilføj custom farver til dine komponenter
             default: {
               50: "#fafafa",
               100: "#f4f4f5",
@@ -45,9 +44,13 @@ export default {
               700: "#3f3f46",
               800: "#27272a",
               900: "#18181b",
-              DEFAULT: "#ffffff",
-              foreground: "#1e293b",
+              DEFAULT: "#f4f4f5",
+              foreground: "#18181b",
             },
+            // Tilføj semantic colors for navigation
+            content1: "#ffffff",
+            content2: "#f4f4f5",
+            divider: "#e4e4e7",
           },
           layout: {
             dividerWeight: "1px",
@@ -60,14 +63,14 @@ export default {
         },
         dark: {
           colors: {
-            background: "#0f172a",
-            foreground: "#e2e8f0",
+            background: "#09090b",
+            foreground: "#fafafa",
             primary: {
-              DEFAULT: "#60a5fa",
+              DEFAULT: "#3b82f6",
               foreground: "#ffffff",
             },
             secondary: {
-              DEFAULT: "#22d3ee",
+              DEFAULT: "#06b6d4",
               foreground: "#ffffff",
             },
             default: {
@@ -81,9 +84,13 @@ export default {
               700: "#e4e4e7",
               800: "#f4f4f5",
               900: "#fafafa",
-              DEFAULT: "#1e293b",
-              foreground: "#e2e8f0",
+              DEFAULT: "#27272a",
+              foreground: "#fafafa",
             },
+            // Semantic colors for navigation
+            content1: "#18181b",
+            content2: "#27272a",
+            divider: "#3f3f46",
           },
           layout: {
             dividerWeight: "1px",

@@ -1,6 +1,15 @@
 // src/utils/cookieStore.ts
 import { cookies } from 'next/headers';
 
+/**
+ * HVORFOR BRUGE EN COOKIE STORE WRAPPER?
+
+Next.js har ændret cookies API 2 gange på 2 år (v13 → v14 → v15)
+Ved at have en wrapper beskyttes du mod fremtidige breaking changes
+Det er kun ~30 linjer kode, men sparer dig for potentielt at skulle ændre 10+ filer senere
+
+*/
+
 // Definer typen for cookie options separat så den kan genbruges
 type CookieOptions = {
   domain?: string;

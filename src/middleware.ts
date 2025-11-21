@@ -1,4 +1,22 @@
 // src/middleware.ts
+
+/**
+ * Server-side Middleware - Første forsvarslinje mod uautoriseret adgang
+ * 
+ * Ansvar:
+ * 1. Validerer token VED ROUTE NAVIGATION (før siden loader)
+ * 2. Forhindrer server-side rendering af beskyttet indhold uden valid token
+ * 3. Cleanup af expired auth cookies
+ * 
+ * Forskel fra AuthGuard (client-side):
+ * - Middleware kører på serveren ved route skift
+ * - AuthGuard kører i browseren ved runtime state changes (fx logout)
+ * 
+ * Sammen giver de:
+ * ✅ Server-side beskyttelse (middleware) + Client-side beskyttelse (AuthGuard)
+ * ✅ Forhindrer både direct URL access og runtime unauthorized access
+ */
+
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { isTokenExpired } from '@/utils/tokenUtils';

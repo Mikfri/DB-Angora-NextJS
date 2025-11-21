@@ -15,21 +15,13 @@
 */
 'use client';
 
-import { notFound, useParams } from "next/navigation";
+import { notFound } from "next/navigation";
 import { Spinner } from "@heroui/react";
 import BlogWorkspace from "./blogWorkspace";
 import { useBlogWorkspace } from "@/contexts/BlogWorkspaceContext";
 
-export default function BlogWorkspacePage() {
-  const params = useParams();
-  const blogId = parseInt(params.blogId as string, 10);
-
+function BlogWorkspacePageInner() {
   const { blog, isLoading, error } = useBlogWorkspace();
-
-  // Valider blogId
-  if (isNaN(blogId) || blogId <= 0) {
-    return notFound();
-  }
 
   // Viser loading spinner
   if (isLoading) {
@@ -66,4 +58,8 @@ export default function BlogWorkspacePage() {
   }
 
   return null;
+}
+
+export default function BlogWorkspacePage() {
+  return <BlogWorkspacePageInner />;
 }

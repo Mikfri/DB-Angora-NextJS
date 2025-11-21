@@ -3,9 +3,10 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getSaleDetailsBySlug } from '@/app/actions/sale/saleActions';
 import RabbitSaleProfile from './rabbitSaleProfile';
-import { ROUTES } from '@/constants/navigationConstants';
 import RabbitSaleProfileNav from '@/components/nav/side/index/RabbitSaleProfileNav';
+import { ROUTES } from '@/constants/navigationConstants';
 import MyNav from '@/components/nav/side/index/MyNav';
+import SideNavLayout from '@/components/layouts/SideNavLayout';
 
 // Opdateret type definition for Next.js 15
 type KaninerPageProps = {
@@ -94,23 +95,17 @@ export async function generateMetadata({ params }: KaninerPageProps): Promise<Me
 /**
  * Side komponent der viser en kanin salgsprofil med bredere sideNavs
  */
-export default async function RabbitPage({ params }: KaninerPageProps) {
-  // Await params i Next.js 15
+export default async function RabbitPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  const result = await getSaleDetailsBySlug(slug);
+  if (!result.success || !result.data) return notFound();
+  
+  const profile = result.data;
 
-  try {
-    const result = await getSaleDetailsBySlug(slug);
-
-    if (!result.success || !result.data) {
-      return notFound();
-    }
-
-    const profile = result.data;
-
-    // Product schema for denne specifikke kanin
-    const baseUrl = process.env.NODE_ENV === 'production'
-      ? 'https://db-angora.dk'
-      : 'http://localhost:3000';
+  // Product schema for denne specifikke kanin
+  const baseUrl = process.env.NODE_ENV === 'production'
+    ? 'https://db-angora.dk'
+    : 'http://localhost:3000';
 
     const productSchema = {
       "@context": "https://schema.org",
@@ -159,50 +154,20 @@ export default async function RabbitPage({ params }: KaninerPageProps) {
       ].filter(Boolean)
     };
 
-    return (
-      <>
-        {/* Product schema for Google */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
-        />
+  return (
+    <>
+      {/* Product schema for Google */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
+      />
 
-        <div className="grid grid-cols-1 lg:grid-cols-8 gap-6 mb-6">
-          {/* Venstre sidenav - 2/8 (25%) */}
-          <aside className="lg:col-span-2">
-            <div className="sticky top-24">
-              <div className="bg-zinc-800/90 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 overflow-hidden shadow-lg">
-                <div className="max-h-[calc(100vh-120px)] overflow-y-auto pt-0.5 pr-1.5 pb-2">
-                  <div className="pr-2 pl-0.5 py-1.5">
-                    <MyNav />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </aside>
-
-          {/* Hovedindhold - 4/8 (50%) */}
-          <main className="lg:col-span-4">
-            <RabbitSaleProfile profile={profile} />
-          </main>
-
-          {/* Højre sidenav - 2/8 (25%) */}
-          <aside className="lg:col-span-2">
-            <div className="sticky top-24">
-              <div className="bg-zinc-800/90 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 overflow-hidden shadow-lg">
-                <div className="max-h-[calc(100vh-120px)] overflow-y-auto pt-0.5 pr-1.5 pb-2">
-                  <div className="pr-2 pl-0.5 py-1.5">
-                    <RabbitSaleProfileNav profile={profile} />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </aside>
-        </div>
-      </>
-    );
-  } catch (error) {
-    console.error('Error fetching rabbit profile:', error);
-    return notFound();
-  }
+      <SideNavLayout
+        leftSideNav={<MyNav />}
+        rightSideNav={<RabbitSaleProfileNav profile={profile} />}
+      >
+        <RabbitSaleProfile profile={profile} />
+      </SideNavLayout>
+    </>
+  );
 }

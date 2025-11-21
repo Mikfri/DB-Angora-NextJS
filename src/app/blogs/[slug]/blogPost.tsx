@@ -31,33 +31,36 @@ export default function BlogPost({ blog }: Props) {
     <article className="max-w-4xl mx-auto py-8 px-4">
       {/* Klikbart hovedbillede */}
       {blog.featuredImageUrl && (
-        <>
-          <Image
-            src={blog.featuredImageUrl}
-            alt={blog.title}
-            width={800}
-            height={256}
-            className="w-full h-64 object-cover rounded-lg mb-8 shadow-lg cursor-pointer transition hover:brightness-90"
-            onClick={() => blog.featuredImageUrl && setModalImageUrl(blog.featuredImageUrl)}
-            priority
-          />
-        </>
+        <Image
+          src={blog.featuredImageUrl}
+          alt={blog.title}
+          width={800}
+          height={256}
+          className="w-full h-64 object-cover rounded-lg mb-8 shadow-lg cursor-pointer transition hover:brightness-90"
+          onClick={() => blog.featuredImageUrl && setModalImageUrl(blog.featuredImageUrl)}
+          priority
+        />
       )}
 
-      {/* Modal for ALLE billeder */}
+      {/* Modal for ALLE billeder - NU MED NEXT.JS IMAGE */}
       {modalImageUrl && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
           onClick={() => setModalImageUrl(null)}
         >
-          <img
-            src={modalImageUrl}
-            alt="Fuld størrelse"
-            className="max-w-[90vw] max-h-[90vh] rounded-lg shadow-2xl"
-            onClick={e => e.stopPropagation()}
-          />
+          <div className="relative w-full h-full max-w-[90vw] max-h-[90vh]">
+            <Image
+              src={modalImageUrl}
+              alt="Fuld størrelse"
+              fill
+              sizes="90vw"
+              className="object-contain rounded-lg shadow-2xl"
+              onClick={e => e.stopPropagation()}
+              quality={95}
+            />
+          </div>
           <button
-            className="absolute top-6 right-8 text-white text-3xl font-bold"
+            className="absolute top-6 right-8 text-white text-3xl font-bold hover:text-zinc-300 transition-colors"
             onClick={() => setModalImageUrl(null)}
             aria-label="Luk billede"
           >

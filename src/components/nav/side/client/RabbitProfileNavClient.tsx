@@ -1,33 +1,22 @@
 // src/components/nav/side/client/RabbitProfileNavClient.tsx
 'use client';
 
-import { ReactNode } from 'react';
-import { Divider } from '@heroui/react';
+import { useState, ReactNode } from 'react';
+import { Divider, Button } from '@heroui/react';
 import ProfileImage from '@/components/ui/ProfileImage';
+import { useRabbitProfile } from '@/contexts/RabbitProfileContext';
 import { IoColorPaletteOutline } from "react-icons/io5";
-import { FaInfoCircle, FaPercent, FaUserCircle } from "react-icons/fa";
-import { FaIdCard } from 'react-icons/fa6';
+import { FaInfoCircle, FaPercent, FaUserCircle, FaIdCard, FaTrash, FaExchangeAlt } from "react-icons/fa";
+import DeleteRabbitModal from '@/components/modals/rabbit/deleteRabbitModal';
+import TransferOwnershipModal from '@/components/modals/rabbit/transferRabbitModal';
+import { TransferRequest_CreateDTO } from '@/api/types/AngoraDTOs';
 
-interface RabbitProfileNavClientProps {
-  // Props der præcist matcher Rabbit_ProfileDTO
-  earCombId: string;
-  nickName: string | null;
-  originFullName: string | null;
-  ownerFullName: string | null;
-  approvedRaceColorCombination: boolean | null;
-  isJuvenile: boolean | null;
-  profilePicture: string | null;
-  inbreedingCoefficient: number | null;
-}
-
-// Konstanter til sektioner - matcher samme stil som RabbitOwnNavClient
 const SECTIONS = {
   INFO: 'Kanin information',
   OWNER: 'Ejerforhold',
   FEATURES: 'Egenskaber'
 } as const;
 
-// Standardtekster
 const DEFAULT_TEXTS = {
   BREEDER_NOT_FOUND: 'Findes ikke i systemet',
   OWNER_NOT_FOUND: 'Findes ikke i systemet',
@@ -35,160 +24,206 @@ const DEFAULT_TEXTS = {
   INBREEDING_UNKNOWN: 'Ikke beregnet'
 } as const;
 
-/**
- * Client-side komponent til kaninprofil navigation
- * Harmoniseret med eksisterende navigation styling
- */
-export function RabbitProfileNavClient({
-  earCombId,
-  nickName,
-  originFullName,
-  ownerFullName,
-  approvedRaceColorCombination,
-  isJuvenile,
-  profilePicture,
-  inbreedingCoefficient
-}: RabbitProfileNavClientProps) {
+export function RabbitProfileNavClient() {
+  const { 
+    profile, 
+    isDeleting, 
+    isTransferring, 
+    handleDelete, 
+    handleTransfer 
+  } = useRabbitProfile();
+
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [showTransferModal, setShowTransferModal] = useState(false);
   
-  // Beregn visningsnavn
-  const displayName = nickName || earCombId;
+  if (!profile) return null;
   
-  // Formater værdier til visning med fallbacks til standardtekster
-  const breederText = originFullName || DEFAULT_TEXTS.BREEDER_NOT_FOUND;
-  const ownerText = ownerFullName || DEFAULT_TEXTS.OWNER_NOT_FOUND;
+  const displayName = profile.nickName || profile.earCombId;
+  const breederText = profile.originFullName || DEFAULT_TEXTS.BREEDER_NOT_FOUND;
+  const ownerText = profile.ownerFullName || DEFAULT_TEXTS.OWNER_NOT_FOUND;
   
-  // Formater indavlskoefficient som procent med to decimaler
-  const inbreedingText = inbreedingCoefficient !== null && inbreedingCoefficient !== undefined 
-    ? `${(inbreedingCoefficient * 100).toFixed(2)}%` 
+  const inbreedingText = profile.inbreedingCoefficient !== null && profile.inbreedingCoefficient !== undefined 
+    ? `${(profile.inbreedingCoefficient * 100).toFixed(2)}%` 
     : DEFAULT_TEXTS.INBREEDING_UNKNOWN;
   
-  const approvalText = approvedRaceColorCombination === null ? DEFAULT_TEXTS.UNKNOWN
-    : approvedRaceColorCombination ? 'Ja' : 'Nej';
+  const approvalText = profile.approvedRaceColorCombination === null ? DEFAULT_TEXTS.UNKNOWN
+    : profile.approvedRaceColorCombination ? 'Ja' : 'Nej';
     
-  const statusText = isJuvenile === null ? DEFAULT_TEXTS.UNKNOWN
-    : isJuvenile ? 'Ungdyr' : 'Voksen';
+  const statusText = profile.isJuvenile === null ? DEFAULT_TEXTS.UNKNOWN
+    : profile.isJuvenile ? 'Ungdyr' : 'Voksen';
+
+  // Delete handler
+  const handleDeleteClick = () => {
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    await handleDelete();
+    // Modal lukkes automatisk når kaninen er slettet (redirect)
+  };
+
+  // Transfer handler
+  const handleTransferClick = () => {
+    setShowTransferModal(true);
+  };
+
+  const handleTransferSubmit = async (transferData: TransferRequest_CreateDTO) => {
+    const success = await handleTransfer(transferData);
+    if (success) {
+      setShowTransferModal(false);
+    }
+    return success;
+  };
 
   return (
-    <div className="w-full p-1 space-y-2"> {/* Reduceret yderligere padding og spacing */}
-      {/* Optimeret profilbillede - fylder maksimal plads */}
-      <div className="flex justify-center">
-        <div className="w-full max-w-[300px] aspect-square">
-          <ProfileImage 
-            imageUrl={profilePicture} 
-            alt={displayName}
-            className="w-full h-full"
-            // Fjernet size="custom" for at undgå TypeScript-fejl
-          />
+    <>
+      <div className="w-full p-1 space-y-2">
+        {/* Action buttons section */}
+        <div>
+          <h3 className="text-[13px] font-medium text-zinc-400 mb-1">Handlinger</h3>
+          <div className="flex flex-col gap-2 mb-3">
+            <Button
+              color="primary"
+              variant="bordered"
+              fullWidth
+              size="sm"
+              startContent={<FaExchangeAlt />}
+              onPress={handleTransferClick}
+              isDisabled={isTransferring}
+              isLoading={isTransferring}
+            >
+              Ejerskifte
+            </Button>
+            <Button
+              color="danger"
+              variant="bordered"
+              fullWidth
+              size="sm"
+              startContent={<FaTrash />}
+              onPress={handleDeleteClick}
+              isDisabled={isDeleting}
+              isLoading={isDeleting}
+            >
+              Slet kanin
+            </Button>
+          </div>
+          <Divider className="bg-zinc-200/5 my-0.5" />
+        </div>
+
+        {/* Profile image */}
+        <div className="flex justify-center">
+          <div className="w-full max-w-[300px] aspect-square">
+            <ProfileImage 
+              imageUrl={profile.profilePicture} 
+              alt={displayName}
+              className="w-full h-full"
+            />
+          </div>
+        </div>
+
+        <Divider className="bg-zinc-200/5 my-0.5" />
+
+        {/* Info section */}
+        <div>
+          <h3 className="text-[13px] font-medium text-zinc-400 mb-0.5">
+            {SECTIONS.INFO}
+          </h3>
+          <div className="space-y-1">
+            <InfoRow 
+              icon={<FaIdCard className="text-lg text-default-500" />}
+              label="Øremærke" 
+              value={profile.earCombId} 
+            />
+            <InfoRow 
+              icon={<FaPercent className="text-lg text-default-500" />}
+              label="Indavl" 
+              value={inbreedingText}
+              isDefaultValue={profile.inbreedingCoefficient === undefined || profile.inbreedingCoefficient === null}
+            />
+          </div>
+        </div>
+
+        <Divider className="bg-zinc-200/5 my-0.5" />
+
+        {/* Owner section */}
+        <div>
+          <h3 className="text-[13px] font-medium text-zinc-400 mb-0.5">
+            {SECTIONS.OWNER}
+          </h3>
+          <div className="space-y-1">
+            <InfoRow 
+              icon={<FaUserCircle className="text-lg text-default-500" />}
+              label="Opdrætter" 
+              value={breederText}
+              isDefaultValue={!profile.originFullName}
+            />
+            <InfoRow 
+              icon={<FaUserCircle className="text-lg text-default-500" />}
+              label="Ejer" 
+              value={ownerText}
+              isDefaultValue={!profile.ownerFullName}
+            />
+          </div>
+        </div>
+
+        <Divider className="bg-zinc-200/5 my-0.5" />
+
+        {/* Features section */}
+        <div>
+          <h3 className="text-[13px] font-medium text-zinc-400 mb-0.5">
+            {SECTIONS.FEATURES}
+          </h3>
+          <div className="space-y-1">
+            <InfoRow 
+              icon={<IoColorPaletteOutline className="text-lg text-default-500" />}
+              label="Racegodkendt" 
+              value={approvalText} 
+              isDefaultValue={profile.approvedRaceColorCombination === null}
+            />
+            <InfoRow 
+              icon={<FaInfoCircle className="text-lg text-default-500" />}
+              label="Status" 
+              value={statusText} 
+              isDefaultValue={profile.isJuvenile === null}
+            />
+          </div>
         </div>
       </div>
 
-      {/* Divider med minimal spacing */}
-      <Divider className="bg-zinc-200/5 my-0.5" />
-
-      {/* Kaninformation sektion - mere kompakt */}
-      <div>
-        <h3 className="text-[13px] font-medium text-zinc-400 mb-0.5">
-          {SECTIONS.INFO}
-        </h3>
-
-        <div className="space-y-1"> {/* Yderligere reduceret spacing */}
-          {/* Øremærke vises først */}
-          <InfoRow 
-            icon={<FaIdCard className="text-lg text-default-500" />}
-            label="Øremærke" 
-            value={earCombId} 
-          />
-          
-          {/* Indavlskoefficient */}
-          <InfoRow 
-            icon={<FaPercent className="text-lg text-default-500" />}
-            label="Indavl" 
-            value={inbreedingText}
-            isDefaultValue={inbreedingCoefficient === undefined || inbreedingCoefficient === null}
-          />
-        </div>
-      </div>
-
-      {/* Divider med minimal spacing */}
-      <Divider className="bg-zinc-200/5 my-0.5" />
-
-      {/* Ejerforhold sektion - mere kompakt */}
-      <div>
-        <h3 className="text-[13px] font-medium text-zinc-400 mb-0.5">
-          {SECTIONS.OWNER}
-        </h3>
-
-        <div className="space-y-1"> {/* Yderligere reduceret spacing */}
-          {/* Opdrætter */}
-          <InfoRow 
-            icon={<FaUserCircle className="text-lg text-default-500" />}
-            label="Opdrætter" 
-            value={breederText}
-            isDefaultValue={!originFullName}
-          />
-
-          {/* Ejer */}
-          <InfoRow 
-            icon={<FaUserCircle className="text-lg text-default-500" />}
-            label="Ejer" 
-            value={ownerText}
-            isDefaultValue={!ownerFullName}
-          />
-        </div>
-      </div>
-
-      {/* Divider med minimal spacing */}
-      <Divider className="bg-zinc-200/5 my-0.5" />
-
-      {/* Egenskaber sektion - mere kompakt */}
-      <div>
-        <h3 className="text-[13px] font-medium text-zinc-400 mb-0.5">
-          {SECTIONS.FEATURES}
-        </h3>
-
-        <div className="space-y-1"> {/* Yderligere reduceret spacing */}
-          {/* Racegodkendelse */}
-          <InfoRow 
-            icon={<IoColorPaletteOutline className="text-lg text-default-500" />}
-            label="Racegodkendt" 
-            value={approvalText} 
-            isDefaultValue={approvedRaceColorCombination === null}
-          />
-
-          {/* Alder status */}
-          <InfoRow 
-            icon={<FaInfoCircle className="text-lg text-default-500" />}
-            label="Status" 
-            value={statusText} 
-            isDefaultValue={isJuvenile === null}
-          />
-        </div>
-      </div>
-    </div>
+      {/* Modals */}
+      <DeleteRabbitModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleDeleteConfirm}
+        rabbitName={displayName}
+        isDeleting={isDeleting}
+      />
+      
+      <TransferOwnershipModal
+        isOpen={showTransferModal}
+        onClose={() => setShowTransferModal(false)}
+        rabbitName={displayName}
+        rabbitEarCombId={profile.earCombId}
+        onSubmit={handleTransferSubmit}
+        isSubmitting={isTransferring}
+      />
+    </>
   );
 }
 
-// Optimeret hjælpekomponent med mere kompakt layout
-function InfoRow({ 
-  icon, 
-  label, 
-  value,
-  isDefaultValue = false
-}: { 
+function InfoRow({ icon, label, value, isDefaultValue = false }: { 
   icon: ReactNode; 
   label: string; 
   value: string;
-  isDefaultValue?: boolean
+  isDefaultValue?: boolean;
 }) {
   return (
-    <div className="py-0.5"> {/* Reduceret padding */}
-      {/* Label og værdi på samme linje med mere mellemrum */}
+    <div className="py-0.5">
       <div className="flex items-center">
         <div className="flex items-center gap-1.5 min-w-[110px]">
           {icon}
           <span className="text-xs font-medium text-zinc-300">{label}</span>
         </div>
-        
         <div className={`text-sm ${isDefaultValue ? 'text-zinc-500 italic' : 'text-zinc-100'}`}>
           {value}
         </div>

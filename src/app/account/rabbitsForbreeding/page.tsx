@@ -1,15 +1,12 @@
 // src/app/account/rabbitsForbreeding/page.tsx
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { Spinner } from "@heroui/react";
 import { Rabbit_ForbreedingPreviewDTO } from '@/api/types/AngoraDTOs';
-import { BreedingFilters } from '@/api/types/filterTypes';
 import { getBreedingRabbits } from '@/app/actions/rabbit/forbreeding';
 import RabbitBreedingList from './rabbitBreedingList';
 import { useBreedingRabbits } from '@/hooks/rabbits/useRabbitBreedingFilter';
-import { useNav } from '@/components/providers/Providers';
-import RabbitBreedingNav from '@/components/nav/side/index/RabbitBreedingNav';
 
 /**
  * VIGTIG NOTE OM RENDERING:
@@ -25,20 +22,17 @@ export default function RabbitsForBreedingPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [rabbits, setRabbits] = useState<Rabbit_ForbreedingPreviewDTO[]>([]);
     const [error, setError] = useState<string | null>(null);
-    const { setPrimaryNav } = useNav();
-    
+
     // Load rabbits from API
     useEffect(() => {
         async function loadRabbits() {
             try {
                 setIsLoading(true);
                 const result = await getBreedingRabbits();
-                
                 if (!result.success) {
                     setError(result.error);
                     return;
                 }
-                
                 setRabbits(result.data);
             } catch (err) {
                 console.error("Error loading breeding rabbits:", err);
@@ -47,32 +41,12 @@ export default function RabbitsForBreedingPage() {
                 setIsLoading(false);
             }
         }
-        
         loadRabbits();
     }, []);
-    
-    // Use the useBreedingRabbits hook to handle filtering
-    const { filteredRabbits, filters, setFilters } = useBreedingRabbits(rabbits);
-    
-    // Handler for filter changes with proper typing
-    const handleFilterChange = useCallback((newFilters: Partial<BreedingFilters>) => {
-        setFilters(newFilters);
-    }, [setFilters]);
-    
-    // Set the navigation using useNav hook
-    useEffect(() => {
-        setPrimaryNav(
-            <RabbitBreedingNav 
-                activeFilters={filters} 
-                onFilterChange={handleFilterChange}
-            />
-        );
-        
-        return () => {
-            setPrimaryNav(null);
-        };
-    }, [filters, handleFilterChange, setPrimaryNav]);
-    
+
+    // Brug kun filteredRabbits fra hook
+    const { filteredRabbits } = useBreedingRabbits(rabbits);
+
     // Render content based on loading state
     if (isLoading) {
         return (
@@ -81,7 +55,7 @@ export default function RabbitsForBreedingPage() {
             </div>
         );
     }
-    
+
     if (error) {
         return (
             <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-6">
@@ -89,7 +63,7 @@ export default function RabbitsForBreedingPage() {
             </div>
         );
     }
-    
+
     if (!filteredRabbits || filteredRabbits.length === 0) {
         return (
             <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-6">
@@ -98,6 +72,6 @@ export default function RabbitsForBreedingPage() {
         );
     }
 
-    // Returnerer direkte indholdet uden at wrappe det i SideNavLayout
+    // Returnerer kun hovedindholdet
     return <RabbitBreedingList rabbits={filteredRabbits} />;
 }

@@ -1,6 +1,6 @@
-// src/components/Providers.tsx
+// src/components/providers/Providers.tsx
 'use client'
-import { createContext, useContext, ReactNode, useState, useEffect } from 'react'
+import { ReactNode, useEffect } from 'react'
 import { ThemeProvider as NextThemesProvider, useTheme } from 'next-themes'
 import { HeroUIProvider } from "@heroui/react"
 import { ToastContainer } from "react-toastify";
@@ -8,50 +8,30 @@ import "react-toastify/dist/ReactToastify.css";
 import { useAuthStore } from '@/store/authStore';
 import { EnumProvider } from '@/contexts/EnumContext';
 
-type NavContextType = {
-  setPrimaryNav: (nav: ReactNode) => void;
-  setSecondaryNav: (nav: ReactNode) => void;
-  primaryNav: ReactNode | null;
-  secondaryNav: ReactNode | null;
-  authInitialized: boolean;
-};
-
-const NavContext = createContext<NavContextType>({
-  setPrimaryNav: () => {},
-  setSecondaryNav: () => {},
-  primaryNav: null,
-  secondaryNav: null,
-  authInitialized: false
-});
-
+/**
+ * Providers - Global app providers
+ * 
+ * Ansvar:
+ * - Theme provider (dark/light mode)
+ * - HeroUI provider (component library)
+ * - Enum context (dropdown data)
+ * - Auth initialization (checkAuth ved app start)
+ * - Toast notifications
+ * 
+ * NOTE: NavContext er fjernet - alt sidenav håndteres nu i layoutWrapper.tsx
+ */
 export default function Providers({ children }: { children: ReactNode }) {
-  const [primaryNav, setPrimaryNav] = useState<ReactNode | null>(null);
-  const [secondaryNav, setSecondaryNav] = useState<ReactNode | null>(null);
-  const [authInitialized, setAuthInitialized] = useState(false);
-
-  // Initialize auth
+  // Initialize auth (authInitialized nu i authStore)
   useEffect(() => {
-    const initAuth = async () => {
-      console.log('🔐 Running global auth check in Providers');
-      await useAuthStore.getState().checkAuth();
-      setAuthInitialized(true);
-    };
-    initAuth();
+    console.log('🔐 Running global auth check in Providers');
+    useAuthStore.getState().checkAuth();
   }, []);
 
   return (
     <NextThemesProvider attribute="class" defaultTheme="dark" enableSystem>
       <HeroUIProvider>
         <EnumProvider>
-          <NavContext.Provider value={{
-            primaryNav,
-            setPrimaryNav,
-            secondaryNav,
-            setSecondaryNav,
-            authInitialized
-          }}>
-            {children}
-          </NavContext.Provider>
+          {children}
         </EnumProvider>
 
         <ThemeToastContainer />
@@ -79,5 +59,5 @@ function ThemeToastContainer() {
   );
 }
 
-export const useNav = () => useContext(NavContext);
-export { useTheme } from 'next-themes'; // Brug next-themes' useTheme
+// Eksporter kun relevante hooks (NavContext fjernet)
+export { useTheme } from 'next-themes';

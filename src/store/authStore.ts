@@ -25,7 +25,9 @@ interface AuthState {
   userRole: string;
   userIdentity: UserIdentity | null;
   isLoading: boolean;
+  authInitialized: boolean; // ← NYT: Flyttes fra Providers til authStore
   tokenCache: TokenCache;
+  
   // Rolle-hjælpefunktioner
   hasRole: (role: UserRole) => boolean;
   hasAnyRole: (roles: UserRole[]) => boolean;
@@ -33,15 +35,15 @@ interface AuthState {
   isModerator: () => boolean;
   isBreeder: () => boolean;
   isPremiumUser: () => boolean;
-  hasClaim: (claim: string, value?: unknown) => boolean; // <-- NYT
-  // Funktioner til at hente/opdatere auth status
+  hasClaim: (claim: string, value?: unknown) => boolean;
+  
+  // Auth funktioner
   checkAuth: () => Promise<boolean>;
   getAccessToken: () => Promise<string | null>;
   login: (username: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;
 }
 
-// Hvor længe vi cacher auth status og token (i ms)
 const AUTH_CACHE_DURATION = 5 * 60 * 1000; // 5 minutter
 
 export const useAuthStore = create<AuthState>()(
@@ -52,6 +54,7 @@ export const useAuthStore = create<AuthState>()(
       userRole: '',
       userIdentity: null,
       isLoading: true,
+      authInitialized: false, // ← NYT: Initial state
       tokenCache: {
         lastChecked: 0,
         expiresIn: AUTH_CACHE_DURATION,
@@ -77,8 +80,6 @@ export const useAuthStore = create<AuthState>()(
           // Tjek om token er udløbet
           if (accessToken && tokenExpiry && isTokenExpired(accessToken, tokenExpiry.toString())) {
             console.log('⏰ Token expired at:', new Date(tokenExpiry).toLocaleString());
-
-            // Token er udløbet - hent et nyt
             const newToken = await getTokenAction();
 
             if (!newToken) {
@@ -96,7 +97,6 @@ export const useAuthStore = create<AuthState>()(
 
             // Brug getTokenExpiry utility til at udtrække udløbstidspunkt
             const newExpiry = getTokenExpiry(newToken);
-
             set(state => ({
               ...state,
               tokenCache: {
@@ -140,7 +140,6 @@ export const useAuthStore = create<AuthState>()(
 
           // Brug getTokenExpiry utility til at udtrække udløbstidspunkt
           const newExpiry = getTokenExpiry(newToken);
-
           set(state => ({
             ...state,
             tokenCache: {
@@ -167,9 +166,15 @@ export const useAuthStore = create<AuthState>()(
           const tokenValid = tokenExpiry ? now < tokenExpiry : true;
           const cacheValid = now - lastChecked < expiresIn;
           
-          if (cacheValid && tokenValid) {
+          if (cacheValid && tokenValid && get().isLoggedIn) {
             console.log('🔒 Using cached auth status (valid)');
-            return get().isLoggedIn;
+            
+            // Sæt authInitialized hvis det ikke allerede er sat
+            if (!get().authInitialized) {
+              set({ authInitialized: true });
+            }
+            
+            return true;
           }
       
           console.log('🔄 Refreshing auth status');
@@ -184,6 +189,7 @@ export const useAuthStore = create<AuthState>()(
             userRole: session.userRole || '',
             userIdentity: session.userIdentity || null,
             isLoading: false,
+            authInitialized: true, // ← Sæt til true når checkAuth er færdig
             tokenCache: {
               ...get().tokenCache,
               lastChecked: now,
@@ -195,7 +201,11 @@ export const useAuthStore = create<AuthState>()(
           return session.isAuthenticated;
         } catch (error) {
           console.error('❌ Auth check failed:', error);
-          set({ isLoggedIn: false, isLoading: false });
+          set({ 
+            isLoggedIn: false, 
+            isLoading: false,
+            authInitialized: true // ← Sæt stadig til true selvom fejl (undgå evig loading)
+          });
           return false;
         }
       },
@@ -219,6 +229,7 @@ export const useAuthStore = create<AuthState>()(
             userRole: result.userRole,
             userIdentity: result.userIdentity,
             isLoading: false,
+            authInitialized: true, // ← Sæt til true efter login
             tokenCache: {
               lastChecked: Date.now(),
               expiresIn: AUTH_CACHE_DURATION,
@@ -247,6 +258,7 @@ export const useAuthStore = create<AuthState>()(
               userRole: '',
               userIdentity: null,
               isLoading: false,
+              authInitialized: true, // ← Behold true efter logout
               tokenCache: {
                 lastChecked: Date.now(),
                 expiresIn: AUTH_CACHE_DURATION,
@@ -267,6 +279,7 @@ export const useAuthStore = create<AuthState>()(
         userName: state.userName,
         userRole: state.userRole,
         userIdentity: state.userIdentity
+        // NOTE: authInitialized persistes IKKE - skal initialiseres ved hver page load
       }),
       skipHydration: true
     }

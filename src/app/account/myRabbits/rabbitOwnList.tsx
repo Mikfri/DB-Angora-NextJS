@@ -2,9 +2,7 @@
 'use client';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
-import RabbitOwnNav from '@/components/nav/side/index/RabbitOwnNav';
 import RabbitPreviewCard from '@/components/cards/rabbitOwnPreviewCard';
-import SideNavLayout from '@/components/layouts/SideNavLayout';
 import { useRabbitsOwnedStore } from '@/store/rabbitsOwnedStore';
 import { ROUTES } from '@/constants/navigationConstants';
 import { Tabs, Tab } from "@heroui/react";
@@ -54,11 +52,6 @@ export default function RabbitOwnList({ userId }: { userId: string }) {
         [sortedRabbits]
     );
 
-    // Opret navigation element
-    const navElement = useMemo(() => (
-        <RabbitOwnNav />
-    ), []);
-
     // Sorteringskontrol til UI
     const sortControls = (
         <div className="flex gap-2 mb-4 items-center">
@@ -85,24 +78,20 @@ export default function RabbitOwnList({ userId }: { userId: string }) {
     // Loading og fejl
     if (isLoading && rabbits.length === 0) {
         return (
-            <SideNavLayout sideNav={navElement}>
-                <div className="flex justify-center items-center min-h-[50vh]">
-                    <div className="flex flex-col items-center gap-4">
-                        <span className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
-                        <p className="text-zinc-300">Indlæser dine kaniner...</p>
-                    </div>
+            <div className="flex justify-center items-center min-h-[50vh]">
+                <div className="flex flex-col items-center gap-4">
+                    <span className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
+                    <p className="text-zinc-300">Indlæser dine kaniner...</p>
                 </div>
-            </SideNavLayout>
+            </div>
         );
     }
 
     if (error) {
         return (
-            <SideNavLayout sideNav={navElement}>
-                <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-6">
-                    <p className="text-red-500">{error}</p>
-                </div>
-            </SideNavLayout>
+            <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-6">
+                <p className="text-red-500">{error}</p>
+            </div>
         );
     }
 
@@ -299,55 +288,53 @@ export default function RabbitOwnList({ userId }: { userId: string }) {
     );
 
     return (
-        <SideNavLayout sideNav={navElement}>
-            <Tabs
-                aria-label="Mine kaniner"
-                variant="bordered"
-                color="primary"
-                radius="lg"
-                classNames={{
-                    base: "w-full",
-                    tabList: "gap-2 w-full relative p-2 bg-zinc-900 border border-zinc-700 rounded-xl",
-                    tab: "px-4 py-2 rounded-lg data-[selected=true]:bg-primary data-[selected=true]:text-white data-[hover=true]:bg-zinc-800 text-sm font-medium flex items-center gap-2",
-                    cursor: "",
-                    tabContent: "",
-                    panel: "pt-6"
-                }}
+        <Tabs
+            aria-label="Mine kaniner"
+            variant="bordered"
+            color="primary"
+            radius="lg"
+            classNames={{
+                base: "w-full",
+                tabList: "gap-2 w-full relative p-2 bg-zinc-900 border border-zinc-700 rounded-xl",
+                tab: "px-4 py-2 rounded-lg data-[selected=true]:bg-primary data-[selected=true]:text-white data-[hover=true]:bg-zinc-800 text-sm font-medium flex items-center gap-2",
+                cursor: "",
+                tabContent: "",
+                panel: "pt-6"
+            }}
+        >
+            <Tab
+                key="mine"
+                title={
+                    <span className="flex items-center gap-2">
+                        <TbFolderPin className="text-lg" />
+                        I-folden
+                    </span>
+                }
             >
-                <Tab
-                    key="mine"
-                    title={
-                        <span className="flex items-center gap-2">
-                            <TbFolderPin className="text-lg" />
-                            I-folden
-                        </span>
-                    }
-                >
-                    {mineKaninerTab}
-                </Tab>                
-                <Tab
-                    key="test-mating"
-                    title={
-                        <span className="flex items-center gap-2">
-                            <TbFolderHeart className="text-lg" />
-                            Test parringer
-                        </span>
-                    }
-                >
-                    <TestMatingTab />
-                </Tab>
-                <Tab
-                    key="bestand"
-                    title={
-                        <span className="flex items-center gap-2">
-                            <TbFolderQuestion className="text-lg" />
-                            Udenfor-folden
-                        </span>
-                    }
-                >
-                    {bestandTab}
-                </Tab>
-            </Tabs>
-        </SideNavLayout>
+                {mineKaninerTab}
+            </Tab>                
+            <Tab
+                key="test-mating"
+                title={
+                    <span className="flex items-center gap-2">
+                        <TbFolderHeart className="text-lg" />
+                        Test parringer
+                    </span>
+                }
+            >
+                <TestMatingTab />
+            </Tab>
+            <Tab
+                key="bestand"
+                title={
+                    <span className="flex items-center gap-2">
+                        <TbFolderQuestion className="text-lg" />
+                        Udenfor-folden
+                    </span>
+                }
+            >
+                {bestandTab}
+            </Tab>
+        </Tabs>
     );
 }

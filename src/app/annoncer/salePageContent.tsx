@@ -1,35 +1,9 @@
 // src/app/annoncer/salePageContent.tsx
 'use client'
-import { useNav } from "@/components/providers/Providers";
-import { useEffect, useMemo } from "react";
 import PageNavigationCard from '@/components/cards/pageNavigationCard';
-import MyNav from '@/components/nav/side/index/MyNav';
 import { ROUTES } from '@/constants/navigationConstants';
 
-interface Props {
-    showSecondaryNav?: boolean;
-}
-
-export default function SalePageContent({ showSecondaryNav = false }: Props) {
-    const { setPrimaryNav, setSecondaryNav } = useNav();
-
-    // Memoize nav components
-    const primaryNav = useMemo(() => (
-        <MyNav />
-    ), []);
-
-    // Set up navigation
-    useEffect(() => {
-        setPrimaryNav(primaryNav);
-        if (showSecondaryNav) {
-            setSecondaryNav(primaryNav);
-        }
-        return () => {
-            setPrimaryNav(null);
-            setSecondaryNav(null);
-        };
-    }, [primaryNav, setPrimaryNav, setSecondaryNav, showSecondaryNav]);
-
+export default function SalePageContent() {
     return (
         <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-6">
             <div className="flex flex-col justify-center items-center gap-6">
