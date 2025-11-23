@@ -1,20 +1,33 @@
 // src/app/account/myBlogs/blogWorkspace/[blogId]/blogFormFields.tsx
+
+/**
+ * blogFormFields.tsx
+ * 
+ * Ansvar:
+ * Håndterer rendering af METADATA-felter for en blog (synlighed, kategori, tags, metaDescription).
+ * Titel, undertitel og content håndteres IKKE her - de håndteres i BlogContentEditor.tsx.
+ * 
+ * Funktioner:
+ * - renderBlogField(): Renderer et enkelt metadata-felt (view eller edit mode)
+ * - renderViewMode(): Viser read-only visning af metadata
+ * - renderEditMode(): Viser redigerbare input-felter for metadata
+ * - editableFieldLabels: Definerer danske labels for metadata-felter
+ * 
+ * Bruges af: blogWorkspace.tsx (til metadata-sektionen)
+ */
+
 import React, { ReactNode } from "react";
-import { Input, Textarea, Select, SelectItem } from "@heroui/react";
+import { Textarea, Select, SelectItem } from "@heroui/react";
 import { Blog_DTO, Blog_UpdateDTO } from "@/api/types/AngoraDTOs";
-import BlogLexicalEditor from "./LexicalEditor";
 import EnumAutocomplete from "@/components/enumHandlers/enumAutocomplete";
 
-// Redigerbare felter for blog
-export const editableFieldLabels: Record<keyof Blog_UpdateDTO, string> = {
-    title: "Titel",
-    subtitle: "Undertitel",
-    content: "Indhold",
+// Opdater editableFieldLabels - fjern title, subtitle og content
+export const editableFieldLabels: Record<Exclude<keyof Blog_UpdateDTO, 'title' | 'subtitle' | 'content'>, string> = {
     visibilityLevel: "Synlighed",
-    category: "Kategori",           // <-- TILFØJET
+    category: "Kategori",
     tags: "Tags",
     metaDescription: "Meta beskrivelse",
-    authorId: "Forfatter ID" // Normalt ikke redigerbar
+    authorId: "Forfatter ID"
 };
 
 // Visibility options
@@ -24,7 +37,7 @@ const visibilityOptions = [
 ];
 
 export function renderBlogField(
-    key: keyof Blog_UpdateDTO,
+    key: Exclude<keyof Blog_UpdateDTO, 'title' | 'subtitle' | 'content'>,  // ✅ Ændret her
     value: unknown,
     isEditing: boolean,
     editedData: Blog_DTO,
@@ -32,7 +45,7 @@ export function renderBlogField(
     isChanged?: boolean
 ): ReactNode {
     const inputClassName = `transition-colors duration-200 ${isChanged ? 'border-amber-400' : ''}`;
-    const textClassName = isChanged ? 'text-amber-400' : 'text-zinc-300';
+    const textClassName = isChanged ? 'text-amber-400' : 'text-body';
 
     if (!isEditing) {
         return renderViewMode(key, value, textClassName);
@@ -42,50 +55,30 @@ export function renderBlogField(
 }
 
 function renderViewMode(
-    key: keyof Blog_UpdateDTO,
+    key: Exclude<keyof Blog_UpdateDTO, 'title' | 'subtitle' | 'content'>,  // ✅ Ændret her
     value: unknown,
     textClassName: string
 ): ReactNode {
-    if (key === "content") {
-        return (
-            <div
-                className={`${textClassName} prose prose-invert max-w-none`}
-                dangerouslySetInnerHTML={{ __html: value as string || "Intet indhold" }}
-            />
-        );
-    }
-
     if (key === "visibilityLevel") {
         const option = visibilityOptions.find(opt => opt.value === value);
         return <span className={textClassName}>{option?.label || value?.toString() || "Ikke angivet"}</span>;
     }
 
     if (key === "authorId") {
-        return <span className="text-zinc-500 italic">Ikke redigerbar</span>;
+        return <span className="text-muted italic">Ikke redigerbar</span>;
     }
 
     return <span className={textClassName}>{value?.toString() || "Ikke angivet"}</span>;
 }
 
 function renderEditMode(
-    key: keyof Blog_UpdateDTO,
+    key: Exclude<keyof Blog_UpdateDTO, 'title' | 'subtitle' | 'content'>,
     editedData: Blog_DTO,
     setEditedData: (data: Blog_DTO) => void,
     className: string
 ): ReactNode {
     if (key === "authorId") {
-        return <span className="text-zinc-500 italic">Ikke redigerbar</span>;
-    }
-
-    if (key === "content") {
-        return (
-            <BlogLexicalEditor
-                value={editedData.content || ""}
-                onChange={(html) => setEditedData({ ...editedData, content: html })}
-                blogId={editedData.id} // <-- TILFØJ DETTE
-                existingPhotos={editedData.photos || []} // <-- OG DETTE
-            />
-        );
+        return <span className="text-muted italic">Ikke redigerbar</span>;
     }
 
     if (key === "visibilityLevel") {
@@ -135,14 +128,6 @@ function renderEditMode(
         );
     }
 
-    // Standard tekst input
-    return (
-        <Input
-            id={`${key}-input`}
-            value={editedData[key]?.toString() || ""}
-            onChange={(e) => setEditedData({ ...editedData, [key]: e.target.value })}
-            className={className}
-            placeholder={`Indtast ${editableFieldLabels[key].toLowerCase()}`}
-        />
-    );
+    // Dette skulle aldrig nås, men TypeScript kræver en fallback
+    return null;
 }

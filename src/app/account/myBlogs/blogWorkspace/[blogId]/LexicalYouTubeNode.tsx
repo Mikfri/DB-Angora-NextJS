@@ -36,8 +36,9 @@ function YouTubeNodeComponent({ node }: { node: YouTubeNode }) {
   const updateSize = (newWidth: number) => {
     setWidth(newWidth);
     editor.update(() => {
-      const latestNode = node.getLatest();
-      latestNode.__width = newWidth;
+      // ✅ Brug getWritable() i stedet for getLatest()
+      const writableNode = node.getWritable();
+      writableNode.__width = newWidth;
     });
   };
 

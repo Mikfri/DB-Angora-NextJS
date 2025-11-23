@@ -118,15 +118,14 @@ function ImageSelector({ blogId, isOpen, onClose, onImageSelect, existingPhotos 
               {/* Eksisterende billeder */}
               {existingPhotos.length > 0 && (
                 <div>
-                  <h4 className="text-lg font-semibold mb-3 text-zinc-100">Eksisterende Billeder</h4>
+                  <h4 className="text-lg font-semibold mb-3 text-heading">Eksisterende Billeder</h4>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-h-64 overflow-y-auto">
                     {existingPhotos.map((photo) => (
                       <Card
                         key={photo.id}
-                        className="cursor-pointer hover:ring-2 hover:ring-blue-500 transition-all bg-zinc-800 border-zinc-700"
+                        className="cursor-pointer hover:ring-2 hover:ring-primary transition-all bg-content2 border-divider"
                         isPressable
                         onPress={() => {
-                          // BRUG DIREKTE CLOUDINARY URL
                           const imageUrl = photo.filePath;
                           onImageSelect(imageUrl, photo.fileName || 'Blog billede');
                           onClose();
@@ -141,7 +140,7 @@ function ImageSelector({ blogId, isOpen, onClose, onImageSelect, existingPhotos 
                             className="w-full h-20 object-cover rounded"
                             fallbackSrc={photo.filePath || photo.filePath}
                           />
-                          <p className="text-xs text-zinc-400 mt-1 truncate">
+                          <p className="text-xs text-muted mt-1 truncate">
                             {photo.fileName || 'Unavngivet'}
                           </p>
                         </CardBody>
@@ -366,7 +365,7 @@ export function ToolbarPlugin({
   return (
     <>
       {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-1 p-2 border-b border-zinc-700 bg-zinc-800">
+      <div className="flex flex-wrap items-center gap-1 p-2 border-b border-divider bg-content1">
         {/* Text formatting */}
         <div className="flex items-center gap-1 mr-2">
           <Button

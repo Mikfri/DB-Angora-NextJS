@@ -80,13 +80,13 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
   const leftSideNav = useMemo(() => {
     // Forside
     if (pathname === ROUTES.HOME) return <MyNav />;
-    
+
     // Mine kaniner oversigt
     if (pathname === ROUTES.ACCOUNT.MY_RABBITS) return <RabbitOwnNav />;
-    
+
     // Transfer requests (under mine kaniner)
     if (pathname === ROUTES.ACCOUNT.TRANSFER_REQUESTS) return <RabbitOwnNav />;
-    
+
     // Kanin profil (egen kanin)
     if (pathname.startsWith(ROUTES.ACCOUNT.RABBIT_PROFILE(''))) {
       return <RabbitProfileNav />;
@@ -99,7 +99,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
 
     // Mine blogs (liste-visning)
     if (pathname === ROUTES.ACCOUNT.MY_BLOGS) return <BlogOwnNav />;
-    
+
     // Blog workspace
     if (isBlogWorkspace) {
       return <BlogWorkspaceNav />;
@@ -107,7 +107,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
 
     // Blogs oversigt
     if (pathname === ROUTES.BLOGS.BASE) return <BlogNav />;
-    
+
     // Blog post (fx /blogs/[slug])
     if (pathname.startsWith(ROUTES.BLOGS.BASE + "/")) return <BlogNav />;
 
@@ -119,7 +119,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
 
     // Kaniner til avl (nyt)
     if (pathname === ROUTES.ACCOUNT.RABBITS_FOR_BREEDING) return <RabbitBreedingNav />;
-    
+
 
     // Account-sider uden sidenav
     const noSideNavPaths = [
@@ -133,7 +133,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
     if (pathname.startsWith('/account')) {
       return <MyNav />;
     }
-    
+
     return null;
   }, [pathname, isBlogWorkspace]);
 
@@ -144,20 +144,17 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
 
   return (
     <div className="flex flex-col min-h-screen">
-      {/* TopNav wrapper (altid synlig) - sticky top */}
-      <div className="sticky top-0 z-50 w-full bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800/50 transition-colors">
-        <div className="mx-auto max-w-screen-2xl w-full px-4">
-          <TopNav />
-        </div>
-      </div>
 
       {/* Hovedindhold - FJERN nested wrapper for at sticky virker */}
       <main className="flex-grow w-full px-4">
         <div className="mx-auto max-w-screen-2xl">
+          {/* TopNav wrapper - KUN positioning */}
+          <div className="sticky top-0 z-50">
+            <TopNav />
+          </div>
+
           {shouldShowHeader && (
-            <div className="py-4 bg-white dark:bg-zinc-900 transition-colors rounded-xl shadow-sm mb-2 mt-2">
-              <PageHeader />
-            </div>
+            <PageHeader />
           )}
 
           {/* Content med providers */}
@@ -229,11 +226,10 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
               )}
             </AuthGuard>
           )}
+          {/* Footer (altid synlig) */}
+          <Footer />
         </div>
       </main>
-
-      {/* Footer (altid synlig) */}
-      <Footer />
     </div>
   );
 }

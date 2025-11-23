@@ -6,6 +6,7 @@ import Image from 'next/image';
 import BlogPreviewCard from '@/components/cards/blogPreviewCard';
 import type { BlogsLatestByCategoryDTO } from '@/api/types/AngoraDTOs';
 import ImageModal from '@/components/modals/image/imageModal';
+import { Avatar } from '@heroui/react';
 
 interface Props {
   data: BlogsLatestByCategoryDTO | null;
@@ -27,32 +28,76 @@ export default function PatchNotesSection({ data }: Props) {
     return () => {
       imgs?.forEach(img => (img.onclick = null));
     };
-  }, [data?.latest?.content, modalImageUrl]); // Tilføj modalImageUrl her
+  }, [data?.latest?.content, modalImageUrl]);
 
   if (!data || !data.latest) {
     return (
-      <section id="updates" className="flex flex-col justify-center items-center gap-6 text-zinc-100">
-        <h2 className="text-2xl font-bold text-primary">Opdateringer</h2>
-        <p className="text-zinc-400">Ingen opdateringer tilgængelige.</p>
+      <section id="updates" className="flex flex-col justify-center items-center gap-6">
+        <h2 className="text-heading text-2xl">Opdateringer</h2>
+        <p className="text-muted">Ingen opdateringer tilgængelige.</p>
       </section>
     );
   }
 
   const { latest, next } = data;
 
+  // Dato formattering
+  const formatDate = (dateStr?: string | null) => {
+    if (!dateStr) return '';
+    const d = new Date(dateStr);
+    return d.toLocaleDateString('da-DK', { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
+  };
+
   return (
     <>
-      <section id="updates" className="flex flex-col gap-6 text-zinc-100">
-        <h2 className="text-2xl font-bold text-primary text-center">Opdateringer</h2>
+      <section id="updates" className="flex flex-col gap-6">
+        <h2 className="text-heading text-2xl text-center">Opdateringer</h2>
 
         <article className="max-w-4xl mx-auto w-full">
+          {/* Header med titel, undertitel og forfatter */}
+          <header className="mb-8">
+            <h1 className="text-3xl font-bold text-heading mb-4">
+              {latest.title}
+            </h1>
+            {latest.subtitle && (
+              <p className="text-lg text-muted mb-6">
+                {latest.subtitle}
+              </p>
+            )}
+            <div className="flex items-center gap-4 pb-6 border-b border-divider">
+              <Avatar
+                src={latest.authorProfilePicture ?? undefined}
+                name={latest.authorName}
+                size="lg"
+                className="border-2 border-divider"
+              />
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-lg font-semibold text-heading">
+                    {latest.authorName}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-muted">
+                  <span>{formatDate(latest.publishDate)}</span>
+                  <span>•</span>
+                  <span>{latest.viewCount} visninger</span>
+                </div>
+              </div>
+            </div>
+          </header>
+
+          {/* Klikbart hovedbillede */}
           {latest.featuredImageUrl && (
             <Image
               src={latest.featuredImageUrl}
               alt={latest.title}
               width={800}
-              height={256}
-              className="w-full h-64 object-cover rounded-lg mb-8 shadow-lg cursor-pointer transition hover:brightness-90"
+              height={450}
+              className="w-full h-auto object-cover rounded-lg mb-8 shadow-lg cursor-pointer transition hover:brightness-90"
               onClick={() => latest.featuredImageUrl && setModalImageUrl(latest.featuredImageUrl)}
               priority
             />
@@ -60,21 +105,23 @@ export default function PatchNotesSection({ data }: Props) {
 
           <div
             ref={contentRef}
-            className="prose prose-invert prose-zinc max-w-none mb-8
-            prose-headings:text-zinc-100 
-            prose-h1:text-3xl prose-h1:mb-6 prose-h1:mt-8
-            prose-h2:text-2xl prose-h2:mb-4 prose-h2:mt-6 
-            prose-h3:text-xl prose-h3:mb-3 prose-h3:mt-5
-            prose-p:text-zinc-300 prose-p:leading-relaxed prose-p:mb-4"
+            className="blog-content mb-8"
             dangerouslySetInnerHTML={{ __html: latest.content }}
           />
 
-          <footer className="mt-8 pt-6 border-t border-zinc-700">
-            <div className="flex gap-4 text-sm text-zinc-400">
-              <span>Synlighed: {latest.visibilityLevel}</span>
-              <span>•</span>
-              <span>Visninger: {latest.viewCount}</span>
+          <footer className="mt-8 pt-6 border-t border-divider">
+            <div className="flex gap-4 text-sm text-muted">
+              <span>Synlighed: {latest.visibilityLevel === 'Public' ? 'Offentlig' : 'Betalt indhold'}</span>
             </div>
+            {latest.tags && (
+              <div className="mt-2 flex flex-wrap gap-2">
+                {latest.tags.split(',').map((tag, index) => (
+                  <span key={index} className="px-3 py-1 bg-content2 text-body rounded-full text-sm hover:bg-content3 transition-colors">
+                    #{tag.trim()}
+                  </span>
+                ))}
+              </div>
+            )}
           </footer>
         </article>
 

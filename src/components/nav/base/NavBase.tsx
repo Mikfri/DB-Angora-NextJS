@@ -26,12 +26,10 @@ export default function NavBase({
       <div className="flex flex-col gap-4">
         {/* Forbedret conditional rendering med optional chaining */}
         {(title || headerActions?.length > 0) && (
-          <div className="flex justify-between items-center mb-2 pb-2 border-b border-zinc-700/50">
+          <div className="flex justify-between items-center side-nav-title">
             {/* Nullish coalescing for title fallback */}
             {title && (
-              <h2 className="text-lg font-semibold text-zinc-800 dark:text-zinc-100">
-                {title}
-              </h2>
+              <h2>{title}</h2>
             )}
             
             {/* Nullish coalescing og optional chaining */}
@@ -48,7 +46,7 @@ export default function NavBase({
 
         {/* Footer actions med optional chaining */}
         {footerActions?.length > 0 && (
-          <div className="flex justify-end gap-2 mt-4 pt-2 border-t border-zinc-700/50">
+          <div className="flex justify-end gap-2 mt-4 pt-2 border-t border-divider">
             <NavBaseClient actions={footerActions} variant="light" />
           </div>
         )}

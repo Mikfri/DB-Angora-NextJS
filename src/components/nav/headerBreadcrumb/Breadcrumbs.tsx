@@ -25,18 +25,18 @@ export default function PageHeader() {
   }, [{ path: '/', label: pageTitles['/'] }]);
 
   return (
-    <div className="w-full py-2">
+    <div className="breadcrumb-container">
       <Breadcrumbs
         classNames={{
           list: "gap-2",
-          separator: "text-zinc-400 dark:text-zinc-600"
+          separator: "breadcrumb-separator"
         }}
       >
         {breadcrumbItems.map((item) => (
           <BreadcrumbItem
             key={item.path}
             href={item.path}
-            className="text-zinc-800 dark:text-zinc-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+            className="breadcrumb-link"
           >
             {item.label}
           </BreadcrumbItem>

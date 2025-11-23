@@ -35,7 +35,7 @@ export default function RabbitsPage() {
 
   if (!userIdentity?.id) {
     return (
-      <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-6">
+      <div className="main-content-container">
         <p className="text-red-500">Bruger-ID mangler. Du skal være logget ind.</p>
       </div>
     );

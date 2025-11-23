@@ -36,7 +36,7 @@ export default function AccountPage() {
     const showMyBlogs = userIdentity && isContentCreator(userIdentity);
     
     return (
-        <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-6">
+        <div className="main-content-container">
             <div className="flex flex-col justify-center items-center gap-6">
                 <h1 className="site-title">
                     Min side

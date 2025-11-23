@@ -11,7 +11,7 @@ interface Props {
 
 export default function HomeContent({ updatesData }: Props) {
   return (
-    <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-6">
+    <div className="main-content-container">
       <div className="flex flex-col gap-12">
         <WelcomeSection />
         <NewsSection />

@@ -1,11 +1,33 @@
 // src/app/account/myBlogs/blogWorkspace/[blogId]/blogWorkspace.tsx
+
+/**
+ * blogWorkspace.tsx
+ * 
+ * Ansvar:
+ * Hoved-layout for blog workspace med tab-navigation (Editor, Billeder, Forhåndsvisning, Publicering).
+ * Koordinerer brugerens interaktion med blog editing og gemmer data via BlogWorkspaceContext.
+ * 
+ * Funktioner:
+ * - Tab-navigation mellem forskellige blog workspace sektioner
+ * - Rediger/Gem/Annuller funktionalitet
+ * - Viser blog titel og publicerings-status
+ * - Organiserer indhold i to sektioner: "Indhold" (titel/undertitel/content) og "Metadata"
+ * 
+ * Komponenter:
+ * - BlogContentEditor: Håndterer titel, undertitel og content
+ * - renderBlogField(): Håndterer metadata-felter (synlighed, kategori, tags, etc.)
+ * - BlogImageSection: Håndterer billeder
+ * 
+ * Bruges af: page.tsx
+ */
+
 'use client';
 
 import { Blog_DTO } from '@/api/types/AngoraDTOs';
 import { Tabs, Tab, Button } from "@heroui/react";
 import { useState } from 'react';
 import { editableFieldLabels, renderBlogField } from './blogFormFields';
-import { Blog_UpdateDTO } from '@/api/types/AngoraDTOs';
+import BlogContentEditor from './BlogContentEditor';
 import { FaEdit } from 'react-icons/fa';
 import BlogImageSection from './blogImages';
 import { useBlogWorkspace } from '@/contexts/BlogWorkspaceContext';
@@ -29,7 +51,6 @@ const BlogPublishing = ({ blog }: { blog: Blog_DTO }) => (
 export default function BlogWorkspace() {
     const [activeTab, setActiveTab] = useState("editor");
 
-    // Brug context-hooken
     const {
         blog: currentBlog,
         isEditing,
@@ -45,7 +66,11 @@ export default function BlogWorkspace() {
         return <div>Loading...</div>;
     }
 
-    const displayTitle = currentBlog.title || 'Nyt blogindlæg';
+    // Vis editeret titel hvis man er i edit-mode
+    const displayTitle = (isEditing && editedData?.title) 
+        ? editedData.title 
+        : currentBlog.title || 'Nyt blogindlæg';
+    
     const publishStatus = currentBlog.isPublished ? 'Publiceret' : 'Kladde';
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -54,13 +79,13 @@ export default function BlogWorkspace() {
     };
 
     return (
-        <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-6 shadow-lg">
+        <div className="main-content-container">
             <div className="mb-6 flex justify-between items-center">
                 <div>
-                    <h1 className="text-2xl font-bold text-zinc-100">
+                    <h1 className="text-2xl font-bold text-heading">
                         {displayTitle}
                     </h1>
-                    <p className="text-zinc-400 text-sm mt-1">
+                    <p className="text-muted text-sm mt-1">
                         {publishStatus}
                     </p>
                 </div>
@@ -89,9 +114,10 @@ export default function BlogWorkspace() {
                         </div>
                     }
                 >
-                    <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-lg border border-zinc-700/50 overflow-hidden">
-                        <div className="flex justify-between items-center p-4 border-b border-zinc-700/50">
-                            <h3 className="text-zinc-100 font-medium">Blog Editor</h3>
+                    {/* FJERN outer styling - kun simpel wrapper */}
+                    <div className="overflow-hidden">
+                        <div className="flex justify-between items-center p-4 border-b border-divider">
+                            <h3 className="text-heading">Blog Editor</h3>
                             <div className="flex items-center gap-2">
                                 {!isEditing ? (
                                     <Button
@@ -128,26 +154,43 @@ export default function BlogWorkspace() {
                             </div>
                         </div>
 
-                        <form onSubmit={handleSubmit} className="grid gap-6 p-6">
-                            {(Object.keys(editableFieldLabels) as Array<keyof Blog_UpdateDTO>)
-                                .filter(key => key !== 'authorId')
-                                .map((key) => (
-                                    <div key={key} className="space-y-2">
-                                        <label
-                                            htmlFor={`${key}-input`}
-                                            className="block text-sm font-medium text-zinc-300"
-                                        >
-                                            {editableFieldLabels[key]}
-                                        </label>
-                                        {renderBlogField(
-                                            key,
-                                            currentBlog[key],
-                                            isEditing,
-                                            editedData ?? currentBlog, // <-- FIX: fallback til currentBlog
-                                            setEditedData
-                                        )}
-                                    </div>
-                                ))}
+                        <form onSubmit={handleSubmit} className="p-6 space-y-8">
+                            {/* Indhold sektion (titel, undertitel, content) */}
+                            <section>
+                                <BlogContentEditor
+                                    editedData={editedData ?? currentBlog}
+                                    setEditedData={setEditedData}
+                                    isEditing={isEditing}
+                                />
+                            </section>
+
+                            {/* Metadata sektion (synlighed, kategori, tags, etc.) */}
+                            <section className="space-y-6 pt-6 border-t border-divider">
+                                <div className="flex items-center gap-2 mb-4">
+                                    <div className="w-1 h-6 bg-secondary rounded-full"></div>
+                                    <h3 className="text-lg font-semibold text-heading">Metadata & Indstillinger</h3>
+                                </div>
+                                
+                                {(Object.keys(editableFieldLabels) as Array<keyof typeof editableFieldLabels>)
+                                    .filter(key => key !== 'authorId')
+                                    .map((key) => (
+                                        <div key={key} className="space-y-2">
+                                            <label
+                                                htmlFor={`${key}-input`}
+                                                className="block text-sm font-medium text-body"
+                                            >
+                                                {editableFieldLabels[key]}
+                                            </label>
+                                            {renderBlogField(
+                                                key,
+                                                currentBlog[key],
+                                                isEditing,
+                                                editedData ?? currentBlog,
+                                                setEditedData
+                                            )}
+                                        </div>
+                                    ))}
+                            </section>
                         </form>
                     </div>
                 </Tab>

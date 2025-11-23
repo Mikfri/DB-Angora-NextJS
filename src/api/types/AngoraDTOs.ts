@@ -630,8 +630,8 @@ export interface Blog_CreateDTO {
 }
 
 /**
- * DTO til at vise en WIP blog. Benyttes under:
- * ./account/myBlogs/blogWorkspace/[blogId] sektionen.
+ * DTO til at vise et blog preview som card for en blog-content creator. Benyttes under:
+ * ./account/myBlogs sektionen.
  */
 export interface Blog_CardDTO {
     id: number;
@@ -711,8 +711,9 @@ export interface BlogPublicDTO {
 }
 
 /**
- * DTO til fulde blogindlæg, som kræver autentifikation for at tilgå.
- * Indeholder alle felter, inklusive følsomme oplysninger som authorId.
+ * DTO til som viser alt relevant blog data for en blog-content creator.
+ * Benyttes under:
+ * './account/myBlogs/blogWorkspace/[blogId]' sektionen.
  */
 export interface Blog_DTO {
     id: number;

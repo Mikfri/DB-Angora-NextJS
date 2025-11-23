@@ -5,12 +5,12 @@ import { ROUTES } from '@/constants/navigationConstants';
 
 export default function SalePageContent() {
     return (
-        <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-6">
+        <div className="main-content-container">
             <div className="flex flex-col justify-center items-center gap-6">
                 <h1 className="site-title">
                     Til salg
                 </h1>
-                <p className="text-zinc-100">Se hvad vi har til salg hos DenBlå-Angora. Kaniner, uld og mere.</p>
+                <p className="text-foreground/80">Se hvad vi har til salg hos DenBlå-Angora. Kaniner, uld og mere.</p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl w-full p-4">
                     <PageNavigationCard
                         href={ROUTES.SALE.RABBITS}

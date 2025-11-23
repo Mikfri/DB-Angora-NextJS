@@ -71,7 +71,7 @@ export default function BlogOwnList({ userId }: { userId: string }) {
   }
 
   return (
-    <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-6">
+    <div className="main-content-container">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-2xl font-bold text-zinc-300">Dine blogs</h2>
         <div className="text-sm text-zinc-400">

@@ -45,9 +45,10 @@ function ImageNodeComponent({ node }: { node: ImageNode }) {
   const updateSize = (newWidth: number) => {
     setWidth(newWidth);
     editor.update(() => {
-      const latestNode = node.getLatest();
-      latestNode.__width = newWidth;
-      latestNode.__height = Math.round(newWidth / aspectRatio);
+      // ✅ Brug getWritable() i stedet for getLatest()
+      const writableNode = node.getWritable();
+      writableNode.__width = newWidth;
+      writableNode.__height = Math.round(newWidth / aspectRatio);
     });
   };
 

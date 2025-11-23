@@ -13,10 +13,23 @@
     scroll-padding-top: 80px;
   }
   
+  /* CSS variables for gradient colors - TYDELIGERE farver */
+  :root {
+    --gradient-start: #d4dce8;    /* Lysere blå-grå */
+    --gradient-mid: #b8c4d6;      /* Medium blå-grå */
+    --gradient-end: #9fb0c8;      /* Mørkere blå-grå */
+  }
+  
+  .dark {
+    --gradient-start: #0d0e11;    /* Meget mørk */
+    --gradient-mid: #16181d;      /* Medium mørk */
+    --gradient-end: #1f2229;      /* Lysere mørk */
+  }
+  
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground bg-gradient-light dark:bg-gradient-dark;
     min-height: 100vh;
-    font-family: Arial, Helvetica, sans-serif;
+    transition: background 0.3s ease;
   }
   
   input[type="date"] {
@@ -31,13 +44,20 @@
 
 /* ===== COMPONENT STYLES ===== */
 @layer components {
-  /* ===== NAVIGATION SYSTEM ===== */
+  /* ===== UNIFIED NAVIGATION SYSTEM ===== */
   
-  /* Top Navigation */
+  /* 🎨 BASE NAV CONTAINER (bruges af ALLE nav-typer) */
+  .nav-container {
+    @apply bg-content1 border border-divider;
+    @apply rounded-xl shadow-sm;
+    @apply transition-colors duration-200;
+  }
+  
+  /* 🎨 TOP NAVIGATION */
   .top-nav {
-    @apply sticky top-0 z-50 w-full;
-    @apply bg-content1/95 backdrop-blur-md;
+    @apply w-full bg-content1/75 backdrop-blur-md;
     @apply border-b border-divider;
+    @apply rounded-b-xl;
     @apply transition-colors duration-200;
   }
   
@@ -52,11 +72,12 @@
     @apply text-sm font-medium;
   }
   
-  /* Side Navigation */
+  /* 🎨 SIDE NAVIGATION (NavBase) */
   .side-nav {
-    @apply p-4 rounded-xl h-fit w-full;
-    @apply bg-content1 border border-divider;
-    @apply shadow-sm;
+    @apply bg-content1/75 border border-divider;
+    @apply rounded-xl shadow-sm;
+    @apply transition-colors duration-200;
+    @apply p-4 w-full;
   }
   
   .side-nav-title {
@@ -64,10 +85,35 @@
     @apply mb-2 pb-2 border-b border-divider;
   }
   
-  /* Footer */
+  .side-nav-link {
+    @apply text-foreground/70 hover:text-foreground hover:bg-content2;
+    @apply transition-all duration-200;
+    @apply rounded-lg px-3 py-2;
+  }
+  
+  /* 🎨 BREADCRUMBS */
+  .breadcrumb-container {
+    @apply w-full py-3 px-4;
+    @apply bg-content1/75 border-t border-divider; /* Kun top-border */
+    @apply rounded-xl;
+    @apply transition-colors duration-200;
+    @apply mb-4 mt-2;
+  }
+  
+  .breadcrumb-link {
+    @apply text-foreground/70 hover:text-primary;
+    @apply transition-colors duration-200;
+  }
+  
+  .breadcrumb-separator {
+    @apply text-foreground/40;
+  }
+  
+  /* 🎨 FOOTER */
   .app-footer {
     @apply w-full py-6 px-4 mt-auto;
-    @apply bg-content1/70 border-t border-divider;
+    @apply bg-content1/75 border-t border-divider;
+    @apply rounded-t-xl;
   }
   
   .footer-link {
@@ -75,51 +121,31 @@
     @apply transition-colors duration-200;
   }
   
-  /* Breadcrumbs */
-  .breadcrumb-link {
-    @apply text-foreground/70 hover:text-primary;
+  /* ===== MAIN CONTENT CONTAINER ===== */
+  
+  /* Main content box - KUN layout, INGEN tekst farver */
+  .main-content-container {
+    @apply bg-content1/75 border border-divider;
+    @apply rounded-xl shadow-sm;
+    @apply p-6;
     @apply transition-colors duration-200;
   }
   
   /* ===== CONTENT SYSTEM ===== */
   
   .content-cell {
-    @apply bg-content1 border border-divider;
-    @apply backdrop-blur-md rounded-xl p-6 shadow-lg;
+    @apply nav-container;  /* Samme styling som navigation */
+    @apply p-6;
   }
   
   /* ===== TEXT SYSTEM ===== */
   
-  .app-text {
-    @apply text-sm text-foreground;
-  }
-
-  .app-text-lg {
-    @apply text-base text-foreground;
-  }
-
-  .app-text-xl {
-    @apply text-lg font-semibold text-foreground;
-  }
-
   .nav-text {
-    @apply app-text;
+    @apply text-sm text-foreground;
   }
 
   .nav-tooltip {
     @apply text-foreground/50;
-  }
-
-  .card-text {
-    @apply app-text;
-  }
-
-  .card-title {
-    @apply app-text-lg;
-  }
-
-  .section-title {
-    @apply app-text-xl;
   }
 
   .site-title {
@@ -131,24 +157,70 @@
     font-family: 'Raleway', sans-serif;
   }
   
-  /* ===== LAYOUT ===== */
+    /* ===== BLOG CONTENT SYSTEM ===== */
   
-  .rabbit-card-grid {
-    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4;
+  /* Blog/artikel content container */
+  .blog-content {
+    @apply prose max-w-none;
+    
+    /* Spacing */
+    @apply prose-h1:text-3xl prose-h1:mb-6 prose-h1:mt-8;
+    @apply prose-h2:text-2xl prose-h2:mb-4 prose-h2:mt-6;
+    @apply prose-h3:text-xl prose-h3:mb-3 prose-h3:mt-5;
+    @apply prose-p:leading-relaxed prose-p:mb-4;
+    @apply prose-ul:mb-6 prose-ol:mb-6 prose-li:mb-2;
+    
+    /* Special elements */
+    @apply prose-blockquote:border-l-4 prose-blockquote:border-primary;
+    @apply prose-blockquote:bg-content2/30 prose-blockquote:pl-6 prose-blockquote:py-4;
+    @apply prose-code:bg-content2/50 prose-code:px-2 prose-code:py-1 prose-code:rounded;
+    @apply prose-a:text-primary prose-a:no-underline hover:prose-a:underline;
+    @apply prose-img:rounded-lg prose-img:shadow-lg;
   }
   
-  .container-fluid {
-    @apply w-full px-4 sm:px-6 xl:px-8 2xl:px-10 mx-auto 2xl:max-w-screen-2xl;
+  /* Centrér billeder i blog content */
+  .blog-content img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 100%;
+    height: auto;
   }
-}
+  
+  /* LIGHT & DARK MODE - Bruger HeroUI foreground token */
+  .blog-content,
+  .blog-content * {
+    color: hsl(var(--heroui-foreground) / 0.85) !important;
+  }
+  
+  /* Bullets og numre - samme token */
+  .blog-content ul li::marker,
+  .blog-content ol li::marker {
+    color: hsl(var(--heroui-foreground) / 0.85) !important;
+  }
+  
+  /* Links - brug primary token */
+  .blog-content a,
+  .dark .blog-content a {
+    color: hsl(var(--heroui-primary)) !important;
+  }
 
-/* ===== UTILITY STYLES ===== */
-@layer utilities {
-  .grid-template-columns-responsive {
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+
+/* ===== UNIVERSAL TEXT SYSTEM ===== */
+  
+  /* Standard body text - brug foreground token */
+  .text-body {
+    color: hsl(var(--heroui-foreground) / 0.85);
   }
   
-  .content-area {
-    @apply w-full xl:min-h-[calc(100vh-10rem)];
+  /* Muted text */
+  .text-muted {
+    color: hsl(var(--heroui-foreground) / 0.6);
+  }
+  
+  /* Heading text */
+  .text-heading {
+    color: hsl(var(--heroui-foreground));
+    @apply font-semibold;
   }
 }

@@ -88,7 +88,7 @@ export default function SaleList({
   // Primær UI - grid layout for salgsobjekter
   return (
     <div className="space-y-6">
-      <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-6">
+      <div className="main-content-container">
         {/* Sideinfo og antal */}
         {paging && (
           <div className="text-xs text-zinc-500 mb-4">

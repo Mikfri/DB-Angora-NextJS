@@ -162,7 +162,7 @@ export default function BlogImageSection({
         <div className="space-y-6">
             {/* Header */}
             <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold text-zinc-100">Blog Billeder</h3>
+                <h3 className="text-lg font-semibold text-heading">Blog Billeder</h3>
                 <Button
                     color="primary"
                     onPress={handleUploadClick}
@@ -185,10 +185,10 @@ export default function BlogImageSection({
 
             {/* Upload Widget */}
             {showUpload && uploadConfig && (
-                <Card className="bg-zinc-800 border-zinc-700">
+                <Card className="bg-content2 border-divider">
                     <CardHeader>
                         <div className="flex justify-between items-center w-full">
-                            <h4 className="text-zinc-100">Upload Nyt Billede</h4>
+                            <h4 className="text-heading">Upload Nyt Billede</h4>
                             <Button
                                 size="sm"
                                 variant="light"
@@ -201,7 +201,7 @@ export default function BlogImageSection({
                     </CardHeader>
                     <CardBody>
                         {isRegistering && (
-                            <div className="flex items-center gap-2 mb-4 text-blue-400">
+                            <div className="flex items-center gap-2 mb-4 text-primary">
                                 <Spinner size="sm" color="primary" />
                                 <span>Registrerer billede...</span>
                             </div>
@@ -222,7 +222,7 @@ export default function BlogImageSection({
             {photos.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {photos.map((photo) => (
-                        <Card key={photo.id} className="bg-zinc-800 border-zinc-700">
+                        <Card key={photo.id} className="bg-content2 border-divider">
                             <CardBody className="p-2">
                                 <div className="relative">
                                     <CloudinaryImage
@@ -243,7 +243,7 @@ export default function BlogImageSection({
                                 </div>
                                 
                                 <div className="mt-2 space-y-2">
-                                    <p className="text-sm text-zinc-400 truncate">
+                                    <p className="text-sm text-muted truncate">
                                         {photo.fileName || 'Unavngivet'}
                                     </p>
                                     
@@ -279,9 +279,9 @@ export default function BlogImageSection({
                     ))}
                 </div>
             ) : (
-                <Card className="bg-zinc-800 border-zinc-700">
+                <Card className="bg-content2 border-divider">
                     <CardBody className="text-center py-8">
-                        <p className="text-zinc-400 mb-4">Ingen billeder uploadet endnu</p>
+                        <p className="text-muted mb-4">Ingen billeder uploadet endnu</p>
                         <Button
                             color="primary"
                             onPress={handleUploadClick}
