@@ -6,6 +6,8 @@
 @tailwind components;
 @tailwind utilities;
 
+/* TODO: Undersøg om det vil være fordelagtigt at installere SASS */
+
 /* ===== BASE STYLES ===== */
 @layer base {
   html {
@@ -86,7 +88,7 @@
   }
   
   .side-nav-link {
-    @apply text-foreground/70 hover:text-foreground hover:bg-content2;
+    @apply text-foreground/70 hover:text-primary hover:bg-primary/10;
     @apply transition-all duration-200;
     @apply rounded-lg px-3 py-2;
   }
@@ -178,13 +180,14 @@
     @apply prose-img:rounded-lg prose-img:shadow-lg;
   }
   
-  /* Centrér billeder i blog content */
+  /* Centrér billeder i blog content + sørg for pointer-cursor via CSS (persistent) */
   .blog-content img {
     display: block;
     margin-left: auto;
     margin-right: auto;
     max-width: 100%;
     height: auto;
+    cursor: pointer; /* <-- tilføjet */
   }
   
   /* LIGHT & DARK MODE - Bruger HeroUI foreground token */

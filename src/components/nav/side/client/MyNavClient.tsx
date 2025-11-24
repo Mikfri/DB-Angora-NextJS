@@ -2,7 +2,7 @@
 
 'use client'
 import { usePathname } from 'next/navigation';
-import { useMemo, useCallback } from 'react';
+import { useMemo, useCallback, useEffect, useState } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { Listbox, ListboxItem, ListboxSection } from "@heroui/react";
 import {
@@ -27,6 +27,30 @@ import { hasAnyRole, roleGroups } from '@/types/authTypes';
 export function MyNavClient() {
     const pathname = usePathname();
     const { isLoggedIn, userIdentity } = useAuthStore();
+    
+    // Track hash for anchor links
+    const [hash, setHash] = useState('');
+    
+    useEffect(() => {
+        // Initial hash
+        setHash(window.location.hash);
+        
+        // Listen for hash changes
+        const handleHashChange = () => {
+            setHash(window.location.hash);
+        };
+        
+        window.addEventListener('hashchange', handleHashChange);
+        return () => window.removeEventListener('hashchange', handleHashChange);
+    }, []);
+
+    // Combine pathname + hash for matching
+    const fullPath = useMemo(() => {
+        if (hash) {
+            return pathname === '/' ? `/${hash}` : `${pathname}${hash}`;
+        }
+        return pathname;
+    }, [pathname, hash]);
 
     // Brug icon factory funktion fra navigation.ts
     const ICON_MAP = useMemo(() =>
@@ -88,8 +112,17 @@ export function MyNavClient() {
             aria-label="Navigation menu"
             variant="flat"
             className="p-0 gap-0"
-            disabledKeys={new Set(disabledKeys)} // Brug Set for O(1) lookup
-            classNames={{ base: NAV_STYLES.base }} // Brug centraliserede styles
+            disabledKeys={new Set(disabledKeys)}
+            selectedKeys={[fullPath]} // ✅ Brug fullPath i stedet for pathname
+            classNames={{ 
+                base: NAV_STYLES.base
+            }}
+            itemClasses={{
+                base: [
+                    "data-[hover=true]:bg-primary/100",
+                    "data-[hover=true]:text-white"
+                ]
+            }}
         >
             {currentLinks.map((group, groupIndex) => (
                 <ListboxSection
@@ -101,12 +134,11 @@ export function MyNavClient() {
                     }}
                 >
                     {group.links?.map((link) => {
-                        // Template literal med konditionelle klasser
                         const classNames = `
                             ${(link.href === ROUTES.ACCOUNT.BASE || link.href === ROUTES.SALE.BASE)
                                 ? NAV_STYLES.mainLink
                                 : NAV_STYLES.subLink}
-                            ${pathname === link.href ? NAV_STYLES.active : ''}
+                            ${fullPath === link.href ? NAV_STYLES.active : ''} 
                         `;
 
                         return (
@@ -118,7 +150,6 @@ export function MyNavClient() {
                                 startContent={getIconForLink(link.href)}
                             >
                                 {link.label}
-                                {/* Konditionel rendering med logical AND */}
                                 {link.disabled && (
                                     <span className={NAV_STYLES.disabledText}>
                                         (kommer snart)

@@ -18,17 +18,29 @@ export default function PatchNotesSection({ data }: Props) {
 
   // Gør ALLE billeder i content klikbare (geninitialiseres når modal lukkes)
   useEffect(() => {
-    const imgs = contentRef.current?.querySelectorAll('img');
-    if (imgs) {
-      imgs.forEach(img => {
-        img.style.cursor = 'pointer';
-        img.onclick = () => setModalImageUrl(img.src);
-      });
-    }
-    return () => {
-      imgs?.forEach(img => (img.onclick = null));
+    const container = contentRef.current;
+    if (!container) return;
+
+    // Delegated click handler — finder <img> via event.target
+    const onClickHandler = (e: MouseEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (!target) return;
+      const img = target.closest('img') as HTMLImageElement | null;
+      if (!img) return;
+      // kun hvis img er inde i vores container
+      if (!container.contains(img)) return;
+      setModalImageUrl(img.src);
     };
-  }, [data?.latest?.content, modalImageUrl]);
+
+    container.addEventListener('click', onClickHandler, false);
+
+    // Giv billeder cursor:pointer via class (gør det én gang)
+    container.querySelectorAll('img').forEach(img => (img.style.cursor = 'pointer'));
+
+    return () => {
+      container.removeEventListener('click', onClickHandler, false);
+    };
+  }, [data?.latest?.content]);
 
   if (!data || !data.latest) {
     return (

@@ -15,19 +15,27 @@ export default function BlogPost({ blog }: Props) {
   const [modalImageUrl, setModalImageUrl] = useState<string | null>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
-  // Gør ALLE billeder i content klikbare
+  // Gør ALLE billeder i content klikbare — brug event delegation (robust over re-renders)
   useEffect(() => {
-    const imgs = contentRef.current?.querySelectorAll('img');
-    if (imgs) {
-      imgs.forEach(img => {
-        img.style.cursor = 'pointer';
-        img.onclick = () => setModalImageUrl(img.src);
-      });
-    }
-    return () => {
-      imgs?.forEach(img => (img.onclick = null));
+    const container = contentRef.current;
+    if (!container) return;
+
+    const onClickHandler = (e: MouseEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (!target) return;
+      const img = target.closest('img') as HTMLImageElement | null;
+      if (!img) return;
+      if (!container.contains(img)) return;
+      setModalImageUrl(img.src);
     };
-  }, [blog.content, modalImageUrl]);
+
+    container.addEventListener('click', onClickHandler, false);
+
+    // Cursor styres via CSS (.blog-content img { cursor: pointer; })
+    return () => {
+      container.removeEventListener('click', onClickHandler, false);
+    };
+  }, [blog.content]);
 
   // Dato formattering
   const formatDate = (dateStr?: string | null) => {
