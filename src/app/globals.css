@@ -211,19 +211,48 @@
 
 /* ===== UNIVERSAL TEXT SYSTEM ===== */
   
-  /* Standard body text - brug foreground token */
-  .text-body {
-    color: hsl(var(--heroui-foreground) / 0.85);
-  }
-  
-  /* Muted text */
-  .text-muted {
-    color: hsl(var(--heroui-foreground) / 0.6);
-  }
-  
-  /* Heading text */
-  .text-heading {
-    color: hsl(var(--heroui-foreground));
-    @apply font-semibold;
-  }
+/* Standard body text - brug foreground token */
+.text-body {
+  @apply text-foreground/85;
+}
+
+/* Muted/secondary text */
+.text-muted {
+  @apply text-foreground/60;
+}
+
+/* Subtle text (labels, hints) */
+.text-subtle {
+  @apply text-foreground/50;
+}
+
+/* Heading text */
+.text-heading {
+  @apply text-foreground font-semibold;
+}
+
+/* Label text (for form fields, info rows) */
+.text-label {
+  @apply text-xs font-medium text-foreground/70;
+}
+
+/* Value text (for displaying data) */
+.text-value {
+  @apply text-sm text-foreground;
+}
+
+/* Default/placeholder text */
+.text-default {
+  @apply text-foreground/50 italic;
+}
+
+/* Icon colors */
+.icon-default {
+  @apply text-default-500;
+}
+
+.icon-muted {
+  @apply text-foreground/40;
+}
+
 }

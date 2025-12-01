@@ -1,20 +1,15 @@
-// src/components/nav/side/RabbitBreedingNavClient.tsx
+// src/components/nav/side/RabbitForbreedingNavClient.tsx
 'use client';
 
-import { memo, useEffect, useState, useCallback } from 'react';
+import { memo, useEffect, useState } from 'react';
 import { Input, Divider } from "@heroui/react";
 import { MdFilterList, MdOutlineLocationOn } from "react-icons/md";
 import { LuRabbit } from "react-icons/lu";
 import { IoColorPaletteOutline } from "react-icons/io5";
 import { FaVenusMars } from "react-icons/fa";
-import { BreedingFilters } from "@/api/types/filterTypes";
 import { useEnums, EnumType } from '@/contexts/EnumContext';
 import EnumAutocomplete from '@/components/enumHandlers/enumAutocomplete';
-
-interface RabbitBreedingNavClientProps {
-    activeFilters?: Partial<BreedingFilters>;
-    onFilterChange?: (filters: BreedingFilters) => void;
-}
+import { useRabbitsForbreedingStore } from '@/store/rabbitsForbreedingStore';  // ← RETTET
 
 // De enum typer der bruges i denne komponent
 const REQUIRED_ENUMS: EnumType[] = ['Race', 'Color', 'Gender'];
@@ -26,12 +21,12 @@ const FILTER_SECTIONS = {
 } as const;
 
 // Memoize component to prevent unnecessary re-renders
-export const RabbitBreedingNavClient = memo(function RabbitBreedingNavClient({
-    activeFilters = {},
-    onFilterChange
-}: RabbitBreedingNavClientProps) {
+export const RabbitForbreedingNavClient = memo(function RabbitForbreedingNavClient() {  // ← RETTET funktionsnavn
     const { getMultipleEnumValues } = useEnums();
     const [enumsLoaded, setEnumsLoaded] = useState(false);
+
+    // Hent fra store
+    const { filters, updateFilters } = useRabbitsForbreedingStore();  // ← RETTET
 
     // Load enums when component mounts
     useEffect(() => {
@@ -41,29 +36,6 @@ export const RabbitBreedingNavClient = memo(function RabbitBreedingNavClient({
                 .catch(error => console.error('Error loading BreedingNav enums:', error));
         }
     }, [getMultipleEnumValues, enumsLoaded]);
-
-    // Typestærk handler til filteropdateringer
-    const handleFilterChange = useCallback((updates: Partial<BreedingFilters>) => {
-        console.log("RabbitBreedingNavClient - Sending filter update:", updates);
-        
-        if (onFilterChange) {
-            // Sikrer os at vi har alle eksisterende filtre samt opdateringer
-            const mergedFilters = {...activeFilters, ...updates};
-            onFilterChange(mergedFilters as BreedingFilters);
-        }
-    }, [onFilterChange, activeFilters]);
-
-    // Sikre værdier fra activeFilters
-    const filters = {
-        search: activeFilters?.search || '',
-        Gender: activeFilters?.Gender || '',
-        Race: activeFilters?.Race || '',
-        Color: activeFilters?.Color || '',
-        raceColorApproval: activeFilters?.raceColorApproval || '',
-        minZipCode: activeFilters?.minZipCode || undefined,
-        maxZipCode: activeFilters?.maxZipCode || undefined,
-        bornAfterDate: activeFilters?.bornAfterDate || null
-    };
 
     return (
         <div className="w-full p-1 space-y-2">
@@ -85,7 +57,7 @@ export const RabbitBreedingNavClient = memo(function RabbitBreedingNavClient({
                                 size="sm"
                                 placeholder="Race, farve eller ID"
                                 value={filters.search}
-                                onChange={(e) => handleFilterChange({ search: e.target.value })}
+                                onChange={(e) => updateFilters({ search: e.target.value })}
                                 classNames={{
                                     inputWrapper: "h-7 min-h-unit-7 px-2",
                                     input: "text-xs"
@@ -103,8 +75,8 @@ export const RabbitBreedingNavClient = memo(function RabbitBreedingNavClient({
                         <div className="flex-1">
                             <EnumAutocomplete
                                 enumType="Race"
-                                value={filters.Race ?? ""}
-                                onChange={value => handleFilterChange({ Race: value ?? undefined })}
+                                value={filters.Race}
+                                onChange={value => updateFilters({ Race: value ?? '' })}
                                 label="Race"
                             />
                         </div>
@@ -119,8 +91,8 @@ export const RabbitBreedingNavClient = memo(function RabbitBreedingNavClient({
                         <div className="flex-1">
                             <EnumAutocomplete
                                 enumType="Color"
-                                value={filters.Color ?? ""}
-                                onChange={value => handleFilterChange({ Color: value ?? undefined })}
+                                value={filters.Color}
+                                onChange={value => updateFilters({ Color: value ?? '' })}
                                 label="Farve"
                             />
                         </div>
@@ -135,8 +107,8 @@ export const RabbitBreedingNavClient = memo(function RabbitBreedingNavClient({
                         <div className="flex-1">
                             <EnumAutocomplete
                                 enumType="Gender"
-                                value={filters.Gender ?? ""}
-                                onChange={value => handleFilterChange({ Gender: value ?? undefined })}
+                                value={filters.Gender}
+                                onChange={value => updateFilters({ Gender: value ?? '' })}
                                 label="Køn"
                             />
                         </div>
@@ -168,7 +140,7 @@ export const RabbitBreedingNavClient = memo(function RabbitBreedingNavClient({
                                 onChange={(e) => {
                                     const value = e.target.value;
                                     const numValue = value ? parseInt(value) : undefined;
-                                    handleFilterChange({ minZipCode: numValue });
+                                    updateFilters({ minZipCode: numValue });
                                 }}
                                 classNames={{
                                     inputWrapper: "h-7 min-h-unit-7 px-2",
@@ -193,7 +165,7 @@ export const RabbitBreedingNavClient = memo(function RabbitBreedingNavClient({
                                 onChange={(e) => {
                                     const value = e.target.value;
                                     const numValue = value ? parseInt(value) : undefined;
-                                    handleFilterChange({ maxZipCode: numValue });
+                                    updateFilters({ maxZipCode: numValue });
                                 }}
                                 classNames={{
                                     inputWrapper: "h-7 min-h-unit-7 px-2",

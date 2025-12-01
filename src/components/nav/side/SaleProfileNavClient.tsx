@@ -1,4 +1,4 @@
-// src/components/nav/side/RabbitSaleProfileNavClient.tsx
+// src/components/nav/side/SaleProfileNavClient.tsx
 'use client';
 
 import { ReactNode } from 'react';
@@ -8,7 +8,7 @@ import { IoLocationOutline, IoCallOutline, IoTimeOutline, IoEyeOutline } from "r
 import { MdOutlineLocalShipping } from 'react-icons/md';
 import { FaUserCircle } from "react-icons/fa";
 import { formatDate } from '@/utils/formatters';
-import { useRabbitSaleProfile } from '@/contexts/RabbitSaleProfileContext';
+import { useSaleProfile } from '@/contexts/SaleProfileContext';
 
 const SECTIONS = {
   SELLER: 'Sælger',
@@ -26,8 +26,8 @@ const DEFAULT_TEXTS = {
  * Client-side komponent til kanin salgs profil navigation
  * Viser sælger og kontaktinformation
  */
-export function RabbitSaleProfileNavClient() {
-  const { profile, isLoading, error } = useRabbitSaleProfile();
+export function SaleProfileNavClient() {
+  const { profile, isLoading, error } = useSaleProfile();
 
   if (isLoading) {
     return (
@@ -39,7 +39,7 @@ export function RabbitSaleProfileNavClient() {
 
   if (error || !profile) {
     return (
-      <div className="w-full p-4 text-center text-zinc-500">
+      <div className="w-full p-4 text-center text-muted">
         Kunne ikke hente data
       </div>
     );
@@ -70,21 +70,21 @@ export function RabbitSaleProfileNavClient() {
 
       {/* Salgs information sektion */}
       <div>
-        <h3 className="text-[13px] font-medium text-zinc-400 mb-0.5">
+        <h3 className="text-[13px] font-medium text-muted mb-0.5">
           {SECTIONS.SALE_INFO}
         </h3>
 
         <div className="space-y-1">
           {/* Oprettet dato */}
           <InfoRow 
-            icon={<IoTimeOutline className="text-lg text-default-500" />}
+            icon={<IoTimeOutline className="text-lg icon-default" />}
             label="Oprettet" 
             value={formatDate(profile.dateListed)}
           />
           
           {/* Visninger */}
           <InfoRow 
-            icon={<IoEyeOutline className="text-lg text-default-500" />}
+            icon={<IoEyeOutline className="text-lg icon-default" />}
             label="Visninger" 
             value={`${profile.viewCount || 0} visninger`}
           />
@@ -110,14 +110,14 @@ export function RabbitSaleProfileNavClient() {
 
       {/* Sælger sektion */}
       <div>
-        <h3 className="text-[13px] font-medium text-zinc-400 mb-0.5">
+        <h3 className="text-[13px] font-medium text-muted mb-0.5">
           {SECTIONS.SELLER}
         </h3>
 
         <div className="space-y-1">
           {/* Sælger navn */}
           <InfoRow 
-            icon={<FaUserCircle className="text-lg text-default-500" />}
+            icon={<FaUserCircle className="text-lg icon-default" />}
             label="Navn" 
             value={sellerText}
             isDefaultValue={!profile.sellerName}
@@ -125,7 +125,7 @@ export function RabbitSaleProfileNavClient() {
           
           {/* Lokation */}
           <InfoRow 
-            icon={<IoLocationOutline className="text-lg text-default-500" />}
+            icon={<IoLocationOutline className="text-lg icon-default" />}
             label="Lokation" 
             value={locationText}
             isDefaultValue={!profile.city || !profile.zipCode}
@@ -137,14 +137,14 @@ export function RabbitSaleProfileNavClient() {
 
       {/* Kontakt sektion */}
       <div>
-        <h3 className="text-[13px] font-medium text-zinc-400 mb-0.5">
+        <h3 className="text-[13px] font-medium text-muted mb-0.5">
           {SECTIONS.CONTACT}
         </h3>
 
         <div className="space-y-2">
           {/* Telefonnummer display */}
           <InfoRow 
-            icon={<IoCallOutline className="text-lg text-default-500" />}
+            icon={<IoCallOutline className="text-lg icon-default" />}
             label="Telefon" 
             value={contactText}
             isDefaultValue={!profile.sellerContact}
@@ -174,16 +174,16 @@ function InfoRow({
       <div className="flex items-center">
         <div className="flex items-center gap-1.5 min-w-[80px]">
           {icon}
-          <span className="text-xs font-medium text-zinc-300">{label}</span>
+          <span className="text-label">{label}</span>
         </div>
         
-        <div className={`text-sm ${
+        <div className={
           isHighlighted 
-            ? 'text-amber-400 font-semibold' 
+            ? 'text-amber-400 font-semibold text-sm' 
             : isDefaultValue 
-              ? 'text-zinc-500 italic' 
-              : 'text-zinc-100'
-        }`}>
+              ? 'text-default' 
+              : 'text-value'
+        }>
           {value}
         </div>
       </div>

@@ -1,4 +1,4 @@
-// src/contexts/RabbitSaleProfileContext.tsx
+// src/contexts/SaleProfileContext.tsx
 'use client';
 
 import { createContext, useContext, ReactNode, useState, useEffect } from 'react';
@@ -6,15 +6,14 @@ import { useParams } from 'next/navigation';
 import { SaleDetailsProfileDTO } from '@/api/types/AngoraDTOs';
 import { getSaleDetailsBySlug } from '@/app/actions/sale/saleActions';
 
-interface RabbitSaleProfileContextType {
+interface SaleProfileContextType {
   profile: SaleDetailsProfileDTO | null;
   isLoading: boolean;
   error: string | null;
 }
 
-const RabbitSaleProfileContext = createContext<RabbitSaleProfileContextType | undefined>(undefined);
-
-export function RabbitSaleProfileProvider({ children }: { children: ReactNode }) {
+const SaleProfileContext = createContext<SaleProfileContextType | undefined>(undefined);
+export function SaleProfileProvider({ children }: { children: ReactNode }) {
   const params = useParams();
   const slug = params?.slug as string;
 
@@ -51,16 +50,16 @@ export function RabbitSaleProfileProvider({ children }: { children: ReactNode })
   }, [slug]);
 
   return (
-    <RabbitSaleProfileContext.Provider value={{ profile, isLoading, error }}>
+    <SaleProfileContext.Provider value={{ profile, isLoading, error }}>
       {children}
-    </RabbitSaleProfileContext.Provider>
+    </SaleProfileContext.Provider>
   );
 }
 
-export function useRabbitSaleProfile() {
-  const context = useContext(RabbitSaleProfileContext);
+export function useSaleProfile() {
+  const context = useContext(SaleProfileContext);
   if (!context) {
-    throw new Error('useRabbitSaleProfile must be used within RabbitSaleProfileProvider');
+    throw new Error('useSaleProfile must be used within SaleProfileProvider');
   }
   return context;
 }

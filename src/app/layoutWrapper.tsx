@@ -31,18 +31,18 @@ import { useMemo, Suspense } from "react";
 import { ROUTES } from "@/constants/navigationConstants";
 import { BlogWorkspaceProvider } from "@/contexts/BlogWorkspaceContext";
 import { RabbitProfileProvider } from "@/contexts/RabbitProfileContext";
-import { RabbitSaleProfileProvider } from "@/contexts/RabbitSaleProfileContext";
+import { SaleProfileProvider } from "@/contexts/SaleProfileContext";
 
 // Import alle sidenav-komponenter
 import MyNav from "@/components/nav/side/MyNav";
 import BlogNav from "@/components/nav/side/BlogNav";
 import BlogOwnNav from "@/components/nav/side/BlogOwnNav";
 import BlogWorkspaceNav from "@/components/nav/side/BlogWorkspaceNav";
-import RabbitBreedingNav from "@/components/nav/side/RabbitBreedingNav";
+import RabbitForbreedingNav from "@/components/nav/side/RabbitForbreedingNav";
 import RabbitOwnNav from "@/components/nav/side/RabbitOwnNav";
 import RabbitProfileNav from "@/components/nav/side/RabbitProfileNav";
 import RabbitSaleNav from "@/components/nav/side/RabbitSaleNav";
-import RabbitSaleProfileNav from "@/components/nav/side/RabbitSaleProfileNav";
+import SaleProfileNav from "@/components/nav/side/SaleProfileNav";
 import UserProfileNav from "@/components/nav/side/UserProfileNav";
 
 // Sidenav loading skeleton
@@ -72,9 +72,10 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
   ];
   const shouldShowHeader = !hideHeaderPaths.some(path => pathname.startsWith(path));
 
+  // Brug ROUTES konstanter i stedet for hardcoded paths
   const isBlogWorkspace = pathname.startsWith(ROUTES.ACCOUNT.BLOG_WORKSPACE_BASE);
-  const isRabbitProfile = pathname.startsWith('/account/myRabbits/rabbitProfile/');
-  const isRabbitSaleProfile = pathname.startsWith('/annoncer/kaniner/') && pathname !== ROUTES.SALE.RABBITS;
+  const isRabbitProfile = pathname.startsWith(ROUTES.ACCOUNT.RABBIT_PROFILE(''));
+  const isSaleProfile = pathname.startsWith(ROUTES.SALE.RABBIT('')) && pathname !== ROUTES.SALE.RABBITS;
 
   // Bestem venstre sidenav baseret på pathname
   const leftSideNav = useMemo(() => {
@@ -89,8 +90,8 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
     if (pathname.startsWith(ROUTES.BLOGS.BASE + "/")) return <BlogNav />;
     if (pathname === ROUTES.SALE.BASE) return <MyNav />;
     if (pathname === ROUTES.SALE.RABBITS) return <RabbitSaleNav />;
-    if (isRabbitSaleProfile) return null; // Ingen venstre nav
-    if (pathname === ROUTES.ACCOUNT.RABBITS_FOR_BREEDING) return <RabbitBreedingNav />;
+    if (isSaleProfile) return null;
+    if (pathname === ROUTES.ACCOUNT.RABBITS_FOR_BREEDING) return <RabbitForbreedingNav />;
 
     const noSideNavPaths = [ROUTES.ACCOUNT.PROFILE];
     if (noSideNavPaths.some(path => pathname === path || pathname.startsWith(path))) {
@@ -99,17 +100,17 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
 
     if (pathname.startsWith('/account')) return <MyNav />;
     return null;
-  }, [pathname, isBlogWorkspace, isRabbitSaleProfile]);
+  }, [pathname, isBlogWorkspace, isSaleProfile]);
 
   // Bestem højre sidenav baseret på pathname
   const rightSideNav = useMemo(() => {
-    // RabbitSaleProfileNav henter data fra context (ingen props nødvendige)
-    if (isRabbitSaleProfile) {
-      return <RabbitSaleProfileNav />;
+    // SaleProfileNav henter data fra context (ingen props nødvendige)
+    if (isSaleProfile) {
+      return <SaleProfileNav />;
     }
     
     return null;
-  }, [isRabbitSaleProfile]);
+  }, [isSaleProfile]);
 
   // Helper til at wrappe content med korrekt provider
   const renderContent = () => {
@@ -149,11 +150,11 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
       );
     }
 
-    if (isRabbitSaleProfile) {
+    if (isSaleProfile) {
       return (
-        <RabbitSaleProfileProvider>
+        <SaleProfileProvider>
           <AuthGuard>{content}</AuthGuard>
-        </RabbitSaleProfileProvider>
+        </SaleProfileProvider>
       );
     }
 

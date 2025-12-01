@@ -25,9 +25,9 @@ export const ROUTES = {
     RABBIT_BREEDING_PROFILE: (earCombId: string) => `/account/rabbitsForbreeding/rabbitBreedingProfile/${earCombId}`,
     MY_BLOGS: '/account/myBlogs',
     CREATE_BLOG: '/account/myBlogs/createBlog',
+    BLOG_WORKSPACE_BASE: '/account/myBlogs/blogWorkspace',
     USER_BLOGS: (userId: string) => `/account/myBlogs/${userId}`,
     BLOG_WORKSPACE: (blogId: number) => `/account/myBlogs/blogWorkspace/${blogId}`,
-    BLOG_WORKSPACE_BASE: '/account/myBlogs/blogWorkspace',
 
   },
   SALE: {

@@ -46,20 +46,20 @@ export function UserProfileNavClient() {
 
       {/* Bruger information sektion */}
       <div>
-        <h3 className="text-[13px] font-medium text-zinc-400 mb-0.5">
+        <h3 className="text-[13px] font-medium text-muted mb-0.5">
           {SECTIONS.USER_INFO}
         </h3>
 
         <div className="space-y-1">
           <InfoRow
-            icon={<MdMail className="text-lg text-default-500" />}
+            icon={<MdMail className="text-lg icon-default" />}
             label="Email"
             value={email || DEFAULT_TEXTS.NOT_SPECIFIED}
             isDefaultValue={!email}
           />
           
           <InfoRow
-            icon={<MdPhone className="text-lg text-default-500" />}
+            icon={<MdPhone className="text-lg icon-default" />}
             label="Telefon"
             value={phone || DEFAULT_TEXTS.NOT_SPECIFIED}
             isDefaultValue={!phone}
@@ -71,28 +71,28 @@ export function UserProfileNavClient() {
 
       {/* Avler info sektion */}
       <div>
-        <h3 className="text-[13px] font-medium text-zinc-400 mb-0.5">
+        <h3 className="text-[13px] font-medium text-muted mb-0.5">
           {SECTIONS.BREEDER_INFO}
         </h3>
 
         {breederAccount ? (
           <div className="space-y-1">
             <InfoRow
-              icon={<MdNumbers className="text-lg text-default-500" />}
+              icon={<MdNumbers className="text-lg icon-default" />}
               label="Avlernr."
               value={breederAccount.breederRegNo}
             />
             
             {breederAccount.memberNo && (
               <InfoRow
-                icon={<MdNumbers className="text-lg text-default-500" />}
+                icon={<MdNumbers className="text-lg icon-default" />}
                 label="Medlemsnr."
                 value={breederAccount.memberNo}
               />
             )}
           </div>
         ) : (
-          <div className="text-zinc-500 italic text-sm py-1">
+          <div className="text-default text-sm py-1">
             {DEFAULT_TEXTS.NO_BREEDER}
           </div>
         )}
@@ -117,10 +117,10 @@ function InfoRow({
       <div className="flex items-center">
         <div className="flex items-center gap-1.5 min-w-[80px]">
           {icon}
-          <span className="text-xs font-medium text-zinc-300">{label}</span>
+          <span className="text-label">{label}</span>
         </div>
         
-        <div className={`text-sm ${isDefaultValue ? 'text-zinc-500 italic' : 'text-zinc-100'}`}>
+        <div className={isDefaultValue ? 'text-default' : 'text-value'}>
           {value}
         </div>
       </div>

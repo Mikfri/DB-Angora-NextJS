@@ -1,12 +1,10 @@
 // src/app/account/rabbitsForbreeding/page.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { Spinner } from "@heroui/react";
-import { Rabbit_ForbreedingPreviewDTO } from '@/api/types/AngoraDTOs';
-import { getBreedingRabbits } from '@/app/actions/rabbit/forbreeding';
 import RabbitBreedingList from './rabbitBreedingList';
-import { useBreedingRabbits } from '@/hooks/rabbits/useRabbitBreedingFilter';
+import { useRabbitsForbreedingStore } from '@/store/rabbitsForbreedingStore';
 
 /**
  * VIGTIG NOTE OM RENDERING:
@@ -19,35 +17,18 @@ import { useBreedingRabbits } from '@/hooks/rabbits/useRabbitBreedingFilter';
  */
 
 export default function RabbitsForBreedingPage() {
-    const [isLoading, setIsLoading] = useState(true);
-    const [rabbits, setRabbits] = useState<Rabbit_ForbreedingPreviewDTO[]>([]);
-    const [error, setError] = useState<string | null>(null);
+    const { 
+        filteredRabbits, 
+        isLoading, 
+        error, 
+        fetchRabbits 
+    } = useRabbitsForbreedingStore();
 
-    // Load rabbits from API
+    // Load rabbits from API ved mount
     useEffect(() => {
-        async function loadRabbits() {
-            try {
-                setIsLoading(true);
-                const result = await getBreedingRabbits();
-                if (!result.success) {
-                    setError(result.error);
-                    return;
-                }
-                setRabbits(result.data);
-            } catch (err) {
-                console.error("Error loading breeding rabbits:", err);
-                setError("Der opstod en fejl ved indlæsning af avlskaniner.");
-            } finally {
-                setIsLoading(false);
-            }
-        }
-        loadRabbits();
-    }, []);
+        fetchRabbits();
+    }, [fetchRabbits]);
 
-    // Brug kun filteredRabbits fra hook
-    const { filteredRabbits } = useBreedingRabbits(rabbits);
-
-    // Render content based on loading state
     if (isLoading) {
         return (
             <div className="flex justify-center items-center min-h-[50vh]">
@@ -72,6 +53,5 @@ export default function RabbitsForBreedingPage() {
         );
     }
 
-    // Returnerer kun hovedindholdet
     return <RabbitBreedingList rabbits={filteredRabbits} />;
 }
