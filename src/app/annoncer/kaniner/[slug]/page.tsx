@@ -3,10 +3,7 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getSaleDetailsBySlug } from '@/app/actions/sale/saleActions';
 import RabbitSaleProfile from './rabbitSaleProfile';
-import RabbitSaleProfileNav from '@/components/nav/side/index/RabbitSaleProfileNav';
 import { ROUTES } from '@/constants/navigationConstants';
-import MyNav from '@/components/nav/side/index/MyNav';
-import SideNavLayout from '@/components/layouts/SideNavLayout';
 
 // Opdateret type definition for Next.js 15
 type KaninerPageProps = {
@@ -31,14 +28,7 @@ export async function generateMetadata({ params }: KaninerPageProps): Promise<Me
     }
 
     const profile = result.data;
-
-    // Bestem det bedste billede at vise
-    const profileImage = profile.imageUrl || null;
-    const baseUrl = process.env.NODE_ENV === 'production'
-      ? 'https://db-angora.dk'
-      : 'http://localhost:3000';
-    const defaultImage = `${baseUrl}/images/DB-Angora.png`;
-    const imageUrl = profileImage || defaultImage;
+    const imageUrl = profile.imageUrl || '/images/DB-Angora.png';
 
     // Opret SEO-venlig beskrivelse for kaniner
     const race = profile.entityProperties?.Race || 'Kanin';
@@ -49,7 +39,7 @@ export async function generateMetadata({ params }: KaninerPageProps): Promise<Me
     const description = `${race}${color} til salg for ${price}${location}. ${profile.description?.substring(0, 100) || 'Se flere detaljer på siden.'}`;
 
     // Brug ROUTES konstant for canonical URL
-    const canonicalUrl = `${baseUrl}${ROUTES.SALE.RABBIT(slug)}`;
+    const canonicalUrl = ROUTES.SALE.RABBIT(slug);
 
     return {
       title: `${profile.title || race}`,
@@ -93,7 +83,8 @@ export async function generateMetadata({ params }: KaninerPageProps): Promise<Me
 }
 
 /**
- * Side komponent der viser en kanin salgsprofil med bredere sideNavs
+ * Side komponent der viser en kanin salgsprofil
+ * layoutWrapper.tsx håndterer navs via RabbitSaleProfileProvider
  */
 export default async function RabbitPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -103,71 +94,30 @@ export default async function RabbitPage({ params }: { params: Promise<{ slug: s
   const profile = result.data;
 
   // Product schema for denne specifikke kanin
-  const baseUrl = process.env.NODE_ENV === 'production'
-    ? 'https://db-angora.dk'
-    : 'http://localhost:3000';
-
-    const productSchema = {
-      "@context": "https://schema.org",
-      "@type": "Product",
-      "name": `${profile.title || 'Kanin til salg'}`,
-      "description": profile.description || `${profile.entityProperties?.Race || 'Kanin'} til salg`,
-      "category": "Pet",
-      // Fjern brand - det er ikke DenBlå-Angora der producerer kaninerne
-      "image": profile.imageUrl || `${baseUrl}/images/DB-Angora.png`,
-      "offers": {
-        "@type": "Offer",
-        "price": profile.price || 0,
-        "priceCurrency": "DKK",
-        "availability": "https://schema.org/InStock",
-        "url": `${baseUrl}/annoncer/kaniner/${slug}`,
-        "availableAtOrFrom": {
-          "@type": "SoftwareApplication",
-          "name": "Den Blå Angora"
-        },
-        "seller": {
-          "@type": "Person",
-          "name": profile.sellerName || "Privat sælger"
-        }
-      },
-      "additionalProperty": [
-        ...(profile.entityProperties?.Race ? [{
-          "@type": "PropertyValue",
-          "name": "Race",
-          "value": profile.entityProperties.Race
-        }] : []),
-        ...(profile.entityProperties?.Farve ? [{
-          "@type": "PropertyValue",
-          "name": "Farve",
-          "value": profile.entityProperties.Farve
-        }] : []),
-        ...(profile.entityProperties?.Køn ? [{
-          "@type": "PropertyValue",
-          "name": "Køn",
-          "value": profile.entityProperties.Køn
-        }] : []),
-        ...(profile.city ? [{
-          "@type": "PropertyValue",
-          "name": "Lokation",
-          "value": `${profile.city}, ${profile.zipCode || ''}`
-        }] : [])
-      ].filter(Boolean)
-    };
+  const productSchema = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": profile.title || 'Kanin til salg',
+    "description": profile.description || `${profile.entityProperties?.Race || 'Kanin'} til salg`,
+    "category": "Pet",
+    "image": profile.imageUrl || '/images/DB-Angora.png',
+    "offers": {
+      "@type": "Offer",
+      "price": profile.price || 0,
+      "priceCurrency": "DKK",
+      "availability": "https://schema.org/InStock",
+      "url": `/annoncer/kaniner/${slug}`,
+      "seller": { "@type": "Person", "name": profile.sellerName || "Privat sælger" }
+    }
+  };
 
   return (
     <>
-      {/* Product schema for Google */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
       />
-
-      <SideNavLayout
-        leftSideNav={<MyNav />}
-        rightSideNav={<RabbitSaleProfileNav profile={profile} />}
-      >
-        <RabbitSaleProfile profile={profile} />
-      </SideNavLayout>
+      <RabbitSaleProfile profile={profile} />
     </>
   );
 }

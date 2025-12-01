@@ -1,4 +1,4 @@
-// src/components/nav/side/client/RabbitProfileNavClient.tsx
+// src/components/nav/side/RabbitProfileNavClient.tsx
 'use client';
 
 import { useState, ReactNode } from 'react';

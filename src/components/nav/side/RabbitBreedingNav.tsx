@@ -1,8 +1,6 @@
-// src/components/nav/side/base/RabbitBreedingNavBase.tsx
-'use client';
+// src/components/nav/side/RabbitBreedingNav.tsx
 import { BreedingFilters } from "@/api/types/filterTypes";
-import RabbitBreedingNavBase from '../base/RabbitBreedingNavBase';
-import { RabbitBreedingNavClient } from '../client/RabbitBreedingNavClient';
+import { RabbitBreedingNavClient } from './RabbitBreedingNavClient';
 
 interface RabbitBreedingNavProps {
     activeFilters?: Partial<BreedingFilters>;
@@ -10,19 +8,19 @@ interface RabbitBreedingNavProps {
 }
 
 /**
- * Integrated RabbitBreedingNav component
- * Combines server-side base with client-side content
+ * RabbitBreedingNav - Navigation for breeding rabbits
+ * Server wrapper that imports client logic
  */
 export default function RabbitBreedingNav({
     activeFilters = {},
     onFilterChange
 }: RabbitBreedingNavProps) {
     return (
-        <RabbitBreedingNavBase>
+        <nav className="side-nav">
             <RabbitBreedingNavClient 
                 activeFilters={activeFilters} 
                 onFilterChange={onFilterChange}
             />
-        </RabbitBreedingNavBase>
+        </nav>
     );
 }

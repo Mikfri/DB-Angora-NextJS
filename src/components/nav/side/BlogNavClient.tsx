@@ -1,4 +1,4 @@
-// src/components/nav/side/client/BlogNavClient.tsx
+// src/components/nav/side/BlogNavClient.tsx
 'use client';
 
 import { Button, Input, Select, SelectItem, Divider } from '@heroui/react';

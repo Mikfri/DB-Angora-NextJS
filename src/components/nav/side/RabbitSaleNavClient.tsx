@@ -1,5 +1,6 @@
-// src/components/nav/side/client/RabbitSaleNavClient.tsx
+// src/components/nav/side/RabbitSaleNavClient.tsx
 'use client';
+
 import { Input, Button, Divider } from "@heroui/react";
 import { useState, useEffect, memo } from 'react';
 import EnumAutocomplete from '@/components/enumHandlers/enumAutocomplete';
@@ -124,7 +125,6 @@ export const RabbitSaleNavClient = memo(function RabbitSaleNavClient() {
                 </div>
             </div>
 
-            {/* Divider med minimal spacing */}
             <Divider className="bg-zinc-200/5 my-0.5" />
 
             {/* Lokation sektion */}
@@ -199,7 +199,6 @@ export const RabbitSaleNavClient = memo(function RabbitSaleNavClient() {
                 </div>
             </div>
 
-            {/* Divider med minimal spacing */}
             <Divider className="bg-zinc-200/5 my-0.5" />
 
             {/* Søgeknap */}

@@ -1,5 +1,4 @@
-// src/components/nav/side/client/MyNavClient.tsx
-
+// src/components/nav/side/MyNavClient.tsx
 'use client'
 import { usePathname } from 'next/navigation';
 import { useMemo, useCallback, useEffect, useState } from 'react';
@@ -113,7 +112,7 @@ export function MyNavClient() {
             variant="flat"
             className="p-0 gap-0"
             disabledKeys={new Set(disabledKeys)}
-            selectedKeys={[fullPath]} // ✅ Brug fullPath i stedet for pathname
+            selectedKeys={[fullPath]}
             classNames={{ 
                 base: NAV_STYLES.base
             }}

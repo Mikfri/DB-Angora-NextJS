@@ -1,4 +1,4 @@
-// src/components/nav/side/client/BlogWorkspaceNavClient.tsx
+// src/components/nav/side/BlogWorkspaceNavClient.tsx
 'use client';
 
 import { ReactNode, useState } from 'react';
@@ -136,7 +136,7 @@ export function BlogWorkspaceNavClient() {
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={handleDeleteConfirm}
         blogTitle={title}
-        isDeleting={false} // BlogWorkspaceContext håndterer ikke isDeleting, så sæt til false eller tilføj til context
+        isDeleting={false}
       />
     </>
   );

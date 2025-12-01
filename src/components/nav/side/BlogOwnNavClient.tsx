@@ -1,5 +1,4 @@
-// src/components/nav/side/client/BlogOwnNavClient.tsx
-
+// src/components/nav/side/BlogOwnNavClient.tsx
 'use client';
 
 import { useState, useCallback, useEffect, useTransition } from 'react';

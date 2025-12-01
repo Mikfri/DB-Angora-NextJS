@@ -1,3 +1,4 @@
+// src/app/_components/NewsSection.tsx
 import PageNavigationCard from '@/components/cards/pageNavigationCard';
 import { ROUTES } from '@/constants/navigationConstants';
 

@@ -1,42 +1,21 @@
-// src/components/nav/side/client/RabbitSaleProfileNavClient.tsx
+// src/components/nav/side/RabbitSaleProfileNavClient.tsx
 'use client';
 
 import { ReactNode } from 'react';
-import { Divider, Chip } from '@heroui/react';
+import { Divider, Chip, Spinner } from '@heroui/react';
 import ProfileImage from '@/components/ui/ProfileImage';
 import { IoLocationOutline, IoCallOutline, IoTimeOutline, IoEyeOutline } from "react-icons/io5";
 import { MdOutlineLocalShipping } from 'react-icons/md';
 import { FaUserCircle } from "react-icons/fa";
 import { formatDate } from '@/utils/formatters';
+import { useRabbitSaleProfile } from '@/contexts/RabbitSaleProfileContext';
 
-interface RabbitSaleProfileNavClientProps {
-  // Sælger information
-  sellerName: string | null;
-  sellerContact: string | null;
-  
-  // Lokation
-  city: string | null;
-  zipCode: number | null;
-  
-  // Salgs information
-  price: number;
-  dateListed: string;
-  viewCount: number | null;
-  canBeShipped: boolean;
-  
-  // Kanin billede
-  imageUrl: string | null;
-  title: string | null;
-}
-
-// Konstanter til sektioner
 const SECTIONS = {
   SELLER: 'Sælger',
   SALE_INFO: 'Salgs Information',
   CONTACT: 'Kontakt'
 } as const;
 
-// Standardtekster
 const DEFAULT_TEXTS = {
   SELLER_NOT_FOUND: 'Ikke angivet',
   LOCATION_NOT_FOUND: 'Ikke angivet',
@@ -47,25 +26,31 @@ const DEFAULT_TEXTS = {
  * Client-side komponent til kanin salgs profil navigation
  * Viser sælger og kontaktinformation
  */
-export function RabbitSaleProfileNavClient({
-  sellerName,
-  sellerContact,
-  city,
-  zipCode,
-  //price,
-  dateListed,
-  viewCount,
-  canBeShipped,
-  imageUrl,
-  title
-}: RabbitSaleProfileNavClientProps) {
+export function RabbitSaleProfileNavClient() {
+  const { profile, isLoading, error } = useRabbitSaleProfile();
+
+  if (isLoading) {
+    return (
+      <div className="w-full p-4 flex justify-center">
+        <Spinner size="lg" />
+      </div>
+    );
+  }
+
+  if (error || !profile) {
+    return (
+      <div className="w-full p-4 text-center text-zinc-500">
+        Kunne ikke hente data
+      </div>
+    );
+  }
   
-  // Formater værdier til visning
-  const sellerText = sellerName || DEFAULT_TEXTS.SELLER_NOT_FOUND;
-  const locationText = city && zipCode ? `${city}, ${zipCode}` : DEFAULT_TEXTS.LOCATION_NOT_FOUND;
-  const contactText = sellerContact || DEFAULT_TEXTS.CONTACT_NOT_FOUND;
-  
-  const displayName = title || 'Kanin til salg';
+  const sellerText = profile.sellerName || DEFAULT_TEXTS.SELLER_NOT_FOUND;
+  const locationText = profile.city && profile.zipCode 
+    ? `${profile.city}, ${profile.zipCode}` 
+    : DEFAULT_TEXTS.LOCATION_NOT_FOUND;
+  const contactText = profile.sellerContact || DEFAULT_TEXTS.CONTACT_NOT_FOUND;
+  const displayName = profile.title || 'Kanin til salg';
 
   return (
     <div className="w-full p-1 space-y-2">
@@ -74,7 +59,7 @@ export function RabbitSaleProfileNavClient({
       <div className="flex justify-center">
         <div className="w-full max-w-[300px] aspect-square">
           <ProfileImage 
-            imageUrl={imageUrl} 
+            imageUrl={profile.sellerImageUrl} 
             alt={displayName}
             className="w-full h-full"
           />
@@ -90,31 +75,23 @@ export function RabbitSaleProfileNavClient({
         </h3>
 
         <div className="space-y-1">
-          {/* Pris */}
-          {/* <InfoRow 
-            icon={<FaMoneyBillWave className="text-lg text-amber-500" />}
-            label="Pris" 
-            value={formatCurrency(price)}
-            isHighlighted={true}
-          /> */}
-          
           {/* Oprettet dato */}
           <InfoRow 
             icon={<IoTimeOutline className="text-lg text-default-500" />}
             label="Oprettet" 
-            value={formatDate(dateListed)}
+            value={formatDate(profile.dateListed)}
           />
           
           {/* Visninger */}
           <InfoRow 
             icon={<IoEyeOutline className="text-lg text-default-500" />}
             label="Visninger" 
-            value={`${viewCount || 0} visninger`}
+            value={`${profile.viewCount || 0} visninger`}
           />
         </div>
         
         {/* Forsendelse chip */}
-        {canBeShipped && (
+        {profile.canBeShipped && (
           <div className="mt-2">
             <Chip 
               color="success" 
@@ -143,7 +120,7 @@ export function RabbitSaleProfileNavClient({
             icon={<FaUserCircle className="text-lg text-default-500" />}
             label="Navn" 
             value={sellerText}
-            isDefaultValue={!sellerName}
+            isDefaultValue={!profile.sellerName}
           />
           
           {/* Lokation */}
@@ -151,7 +128,7 @@ export function RabbitSaleProfileNavClient({
             icon={<IoLocationOutline className="text-lg text-default-500" />}
             label="Lokation" 
             value={locationText}
-            isDefaultValue={!city || !zipCode}
+            isDefaultValue={!profile.city || !profile.zipCode}
           />
         </div>
       </div>
@@ -170,22 +147,8 @@ export function RabbitSaleProfileNavClient({
             icon={<IoCallOutline className="text-lg text-default-500" />}
             label="Telefon" 
             value={contactText}
-            isDefaultValue={!sellerContact}
+            isDefaultValue={!profile.sellerContact}
           />
-          
-          {/* Ring til sælger knap */}
-          {/* {sellerContact && (
-            <Button
-              color="primary"
-              size="sm"
-              className="w-full font-semibold"
-              startContent={<IoCallOutline />}
-              as="a"
-              href={`tel:${sellerContact}`}
-            >
-              Ring til sælger
-            </Button>
-          )} */}
         </div>
       </div>
     </div>

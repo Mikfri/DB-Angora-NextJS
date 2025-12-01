@@ -1,3 +1,4 @@
+// src/components/nav/side/RabbitBreedingNavClient.tsx
 'use client';
 
 import { memo, useEffect, useState, useCallback } from 'react';
@@ -18,7 +19,7 @@ interface RabbitBreedingNavClientProps {
 // De enum typer der bruges i denne komponent
 const REQUIRED_ENUMS: EnumType[] = ['Race', 'Color', 'Gender'];
 
-// Konstanter til sektioner - FJERNET ACTIONS herfra!
+// Konstanter til sektioner
 const FILTER_SECTIONS = {
     BASIC: 'Grundfiltre',
     LOCATION: 'Placering'
@@ -66,7 +67,7 @@ export const RabbitBreedingNavClient = memo(function RabbitBreedingNavClient({
 
     return (
         <div className="w-full p-1 space-y-2">
-            {/* Grundfiltre sektion - direkte øverst uden Handlinger sektion */}
+            {/* Grundfiltre sektion */}
             <div>
                 <h3 className="text-[13px] font-medium text-zinc-400 mb-0.5">
                     {FILTER_SECTIONS.BASIC}

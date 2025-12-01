@@ -1,4 +1,6 @@
+// src/components/nav/side/RabbitOwnNavClient.tsx
 'use client';
+
 import { Input, Switch, Button, Divider, RadioGroup, Radio, Tooltip, Chip } from "@heroui/react";
 import { useRouter } from 'next/navigation';
 import EnumAutocomplete from '@/components/enumHandlers/enumAutocomplete';
@@ -6,6 +8,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useEnums, EnumType } from '@/contexts/EnumContext';
 import { useTransferRequests } from "@/hooks/transferRequests/useTransferRequest";
 import { useRabbitsOwnedStore } from '@/store/rabbitsOwnedStore';
+
 // Importer de nødvendige ikoner
 import { MdCalendarMonth } from "react-icons/md";
 import { LuRabbit } from "react-icons/lu";
@@ -30,36 +33,25 @@ const FILTER_SECTIONS = {
     STATUS: 'Status'
 } as const;
 
-// // Definér konstanter til RadioGroup værdier
-// const LIFE_STATUS = {
-//     ALL: 'all',
-//     ALIVE: 'alive',
-//     DECEASED: 'deceased'
-// } as const;
-
 const APPROVAL_STATUS = {
     ALL: 'all',
     APPROVED: 'approved',
     NOT_APPROVED: 'not_approved'
 } as const;
 
-// Ingen props længere - alt hentes fra storen
 export function RabbitOwnNavClient() {
     const router = useRouter();
     const { getMultipleEnumValues } = useEnums();
     const [enumsLoaded, setEnumsLoaded] = useState(false);
 
-    // Hent både received og load fra hooket!
+    // Hent både received og load fra hooket
     const { received, load } = useTransferRequests();
     const pendingCount = received.filter(r => r.status === "Pending").length;
 
-    // Kald load() når komponenten mountes, så received bliver fyldt!
+    // Kald load() når komponenten mountes
     useEffect(() => {
         load();
     }, [load]);
-
-    console.log("received", received, "pendingCount", pendingCount);
-
 
     // Hent alt fra storen
     const {
@@ -76,12 +68,6 @@ export function RabbitOwnNavClient() {
                 .catch(error => console.error('Error loading OwnNav enums:', error));
         }
     }, [getMultipleEnumValues, enumsLoaded]);
-
-    // Hjælpefunktion til at konvertere lifeStatus til string
-    // const getCurrentLifeStatus = useCallback(() => {
-    //     if (filters.lifeStatus === null) return LIFE_STATUS.ALL;
-    //     return filters.lifeStatus === true ? LIFE_STATUS.DECEASED : LIFE_STATUS.ALIVE;
-    // }, [filters.lifeStatus]);
 
     // Hjælpefunktion til at konvertere raceColorApproval til approvalStatus string
     const getCurrentApprovalStatus = useCallback(() => {
@@ -136,7 +122,7 @@ export function RabbitOwnNavClient() {
                         <Chip
                             color="primary"
                             size="sm"
-                            className="ml-auto mr-2 "
+                            className="ml-auto mr-2"
                             variant="solid"
                             radius="full"
                         >
@@ -148,7 +134,7 @@ export function RabbitOwnNavClient() {
 
             <Divider className="bg-zinc-200/5 my-0.5" />
 
-            {/* Livsstatus sektion*/}
+            {/* Livsstatus sektion */}
             <div>
                 <h3 className="text-[13px] font-medium text-zinc-400 mb-0.5">
                     {FILTER_SECTIONS.LIFESTATUS}
@@ -156,10 +142,6 @@ export function RabbitOwnNavClient() {
 
                 {/* Søgefelt */}
                 <div className="flex items-center gap-1">
-                    {/* <div className="flex items-center gap-1.5 min-w-[70px]">
-                        <TbFilterSearch className="text-lg text-default-500" />
-                        <span className="text-xs font-medium">Søg</span>
-                    </div> */}
                     <div className="flex-1">
                         <Input
                             size="sm"
@@ -174,13 +156,8 @@ export function RabbitOwnNavClient() {
                     </div>
                 </div>
 
-                <div className="space-y-1.5 dark">
-                    <div className="flex items-center gap-1.5">
-                        {/* <BsHouseGear className="text-lg text-default-500" /> */}
-                        {/* <span className="text-xs font-medium">Visning</span> */}
-                    </div>
-
-                    <div className="flex gap-2" >
+                <div className="space-y-1.5 dark mt-2">
+                    <div className="flex gap-2">
                         <Tooltip
                             content="Kun levende kaniner"
                             showArrow={true}

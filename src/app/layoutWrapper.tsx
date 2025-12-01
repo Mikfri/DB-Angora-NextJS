@@ -31,17 +31,19 @@ import { useMemo, Suspense } from "react";
 import { ROUTES } from "@/constants/navigationConstants";
 import { BlogWorkspaceProvider } from "@/contexts/BlogWorkspaceContext";
 import { RabbitProfileProvider } from "@/contexts/RabbitProfileContext";
+import { RabbitSaleProfileProvider } from "@/contexts/RabbitSaleProfileContext";
 
 // Import alle sidenav-komponenter
-import MyNav from "@/components/nav/side/index/MyNav";
-import RabbitOwnNav from "@/components/nav/side/index/RabbitOwnNav";
-import BlogOwnNav from "@/components/nav/side/index/BlogOwnNav";
-import BlogWorkspaceNav from "@/components/nav/side/index/BlogWorkspaceNav";
-import RabbitSaleNav from "@/components/nav/side/index/RabbitSaleNav";
-import BlogNav from "@/components/nav/side/index/BlogNav";
-import RabbitProfileNav from "@/components/nav/side/index/RabbitProfileNav";
-import RabbitBreedingNav from "@/components/nav/side/index/RabbitBreedingNav";
-import UserProfileNav from "@/components/nav/side/index/UserProfileNav";
+import MyNav from "@/components/nav/side/MyNav";
+import BlogNav from "@/components/nav/side/BlogNav";
+import BlogOwnNav from "@/components/nav/side/BlogOwnNav";
+import BlogWorkspaceNav from "@/components/nav/side/BlogWorkspaceNav";
+import RabbitBreedingNav from "@/components/nav/side/RabbitBreedingNav";
+import RabbitOwnNav from "@/components/nav/side/RabbitOwnNav";
+import RabbitProfileNav from "@/components/nav/side/RabbitProfileNav";
+import RabbitSaleNav from "@/components/nav/side/RabbitSaleNav";
+import RabbitSaleProfileNav from "@/components/nav/side/RabbitSaleProfileNav";
+import UserProfileNav from "@/components/nav/side/UserProfileNav";
 
 // Sidenav loading skeleton
 function SideNavLoading() {
@@ -70,82 +72,96 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
   ];
   const shouldShowHeader = !hideHeaderPaths.some(path => pathname.startsWith(path));
 
-  // Tjek om vi er på blogWorkspace
   const isBlogWorkspace = pathname.startsWith(ROUTES.ACCOUNT.BLOG_WORKSPACE_BASE);
-
-  // Tjek om vi er på rabbitProfile
   const isRabbitProfile = pathname.startsWith('/account/myRabbits/rabbitProfile/');
+  const isRabbitSaleProfile = pathname.startsWith('/annoncer/kaniner/') && pathname !== ROUTES.SALE.RABBITS;
 
   // Bestem venstre sidenav baseret på pathname
   const leftSideNav = useMemo(() => {
-    // Forside
     if (pathname === ROUTES.HOME) return <MyNav />;
-
-    // Mine kaniner oversigt
     if (pathname === ROUTES.ACCOUNT.MY_RABBITS) return <RabbitOwnNav />;
-
-    // Transfer requests (under mine kaniner)
     if (pathname === ROUTES.ACCOUNT.TRANSFER_REQUESTS) return <RabbitOwnNav />;
-
-    // Kanin profil (egen kanin)
-    if (pathname.startsWith(ROUTES.ACCOUNT.RABBIT_PROFILE(''))) {
-      return <RabbitProfileNav />;
-    }
-
-    // Brugerprofil (user profile)
-    if (pathname.startsWith(ROUTES.ACCOUNT.USER_PROFILE(''))) {
-      return <UserProfileNav />;
-    }
-
-    // Mine blogs (liste-visning)
+    if (pathname.startsWith(ROUTES.ACCOUNT.RABBIT_PROFILE(''))) return <RabbitProfileNav />;
+    if (pathname.startsWith(ROUTES.ACCOUNT.USER_PROFILE(''))) return <UserProfileNav />;
     if (pathname === ROUTES.ACCOUNT.MY_BLOGS) return <BlogOwnNav />;
-
-    // Blog workspace
-    if (isBlogWorkspace) {
-      return <BlogWorkspaceNav />;
-    }
-
-    // Blogs oversigt
+    if (isBlogWorkspace) return <BlogWorkspaceNav />;
     if (pathname === ROUTES.BLOGS.BASE) return <BlogNav />;
-
-    // Blog post (fx /blogs/[slug])
     if (pathname.startsWith(ROUTES.BLOGS.BASE + "/")) return <BlogNav />;
-
-    // Annoncer oversigt
     if (pathname === ROUTES.SALE.BASE) return <MyNav />;
-
-    // Kaniner til salg (liste + profil)
     if (pathname === ROUTES.SALE.RABBITS) return <RabbitSaleNav />;
-
-    // Kaniner til avl (nyt)
+    if (isRabbitSaleProfile) return null; // Ingen venstre nav
     if (pathname === ROUTES.ACCOUNT.RABBITS_FOR_BREEDING) return <RabbitBreedingNav />;
 
-
-    // Account-sider uden sidenav
-    const noSideNavPaths = [
-      ROUTES.ACCOUNT.PROFILE,
-    ];
+    const noSideNavPaths = [ROUTES.ACCOUNT.PROFILE];
     if (noSideNavPaths.some(path => pathname === path || pathname.startsWith(path))) {
       return null;
     }
 
-    // Default account sidenav
-    if (pathname.startsWith('/account')) {
-      return <MyNav />;
+    if (pathname.startsWith('/account')) return <MyNav />;
+    return null;
+  }, [pathname, isBlogWorkspace, isRabbitSaleProfile]);
+
+  // Bestem højre sidenav baseret på pathname
+  const rightSideNav = useMemo(() => {
+    // RabbitSaleProfileNav henter data fra context (ingen props nødvendige)
+    if (isRabbitSaleProfile) {
+      return <RabbitSaleProfileNav />;
+    }
+    
+    return null;
+  }, [isRabbitSaleProfile]);
+
+  // Helper til at wrappe content med korrekt provider
+  const renderContent = () => {
+    const content = leftSideNav || rightSideNav ? (
+      <SideNavLayout
+        leftSideNav={leftSideNav ? (
+          <Suspense fallback={<SideNavLoading />}>
+            {leftSideNav}
+          </Suspense>
+        ) : undefined}
+        rightSideNav={rightSideNav ? (
+          <Suspense fallback={<SideNavLoading />}>
+            {rightSideNav}
+          </Suspense>
+        ) : undefined}
+      >
+        {children}
+      </SideNavLayout>
+    ) : (
+      <div>{children}</div>
+    );
+
+    // Wrap med korrekt provider baseret på route
+    if (isBlogWorkspace) {
+      return (
+        <BlogWorkspaceProvider>
+          <AuthGuard>{content}</AuthGuard>
+        </BlogWorkspaceProvider>
+      );
     }
 
-    return null;
-  }, [pathname, isBlogWorkspace]);
+    if (isRabbitProfile) {
+      return (
+        <RabbitProfileProvider>
+          <AuthGuard>{content}</AuthGuard>
+        </RabbitProfileProvider>
+      );
+    }
 
-  // Bestem højre sidenav baseret på pathname (profil-specifik)
-  // NOTE: Højre sidenav håndteres nu direkte i page-komponenter hvor nødvendigt
-  // Se rabbitSaleProfileClient.tsx for implementation
-  const rightSideNav = null;
+    if (isRabbitSaleProfile) {
+      return (
+        <RabbitSaleProfileProvider>
+          <AuthGuard>{content}</AuthGuard>
+        </RabbitSaleProfileProvider>
+      );
+    }
+
+    return <AuthGuard>{content}</AuthGuard>;
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
-
-      {/* Hovedindhold - FJERN nested wrapper for at sticky virker */}
       <main className="flex-grow w-full px-4">
         <div className="mx-auto max-w-screen-2xl">
           {/* TopNav wrapper - KUN positioning */}
@@ -153,79 +169,10 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
             <TopNav />
           </div>
 
-          {shouldShowHeader && (
-            <PageHeader />
-          )}
+          {shouldShowHeader && <PageHeader />}
 
-          {/* Content med providers */}
-          {isBlogWorkspace ? (
-            <BlogWorkspaceProvider>
-              <AuthGuard>
-                {leftSideNav ? (
-                  <SideNavLayout
-                    leftSideNav={
-                      <Suspense fallback={<SideNavLoading />}>
-                        {leftSideNav}
-                      </Suspense>
-                    }
-                    rightSideNav={rightSideNav ? (
-                      <Suspense fallback={<SideNavLoading />}>
-                        {rightSideNav}
-                      </Suspense>
-                    ) : undefined}
-                  >
-                    {children}
-                  </SideNavLayout>
-                ) : (
-                  <div>{children}</div>
-                )}
-              </AuthGuard>
-            </BlogWorkspaceProvider>
-          ) : isRabbitProfile ? (
-            <RabbitProfileProvider>
-              <AuthGuard>
-                {leftSideNav ? (
-                  <SideNavLayout
-                    leftSideNav={
-                      <Suspense fallback={<SideNavLoading />}>
-                        {leftSideNav}
-                      </Suspense>
-                    }
-                    rightSideNav={rightSideNav ? (
-                      <Suspense fallback={<SideNavLoading />}>
-                        {rightSideNav}
-                      </Suspense>
-                    ) : undefined}
-                  >
-                    {children}
-                  </SideNavLayout>
-                ) : (
-                  <div>{children}</div>
-                )}
-              </AuthGuard>
-            </RabbitProfileProvider>
-          ) : (
-            <AuthGuard>
-              {leftSideNav ? (
-                <SideNavLayout
-                  leftSideNav={
-                    <Suspense fallback={<SideNavLoading />}>
-                      {leftSideNav}
-                    </Suspense>
-                  }
-                  rightSideNav={rightSideNav ? (
-                    <Suspense fallback={<SideNavLoading />}>
-                      {rightSideNav}
-                    </Suspense>
-                  ) : undefined}
-                >
-                  {children}
-                </SideNavLayout>
-              ) : (
-                <div>{children}</div>
-              )}
-            </AuthGuard>
-          )}
+          {renderContent()}
+
           {/* Footer (altid synlig) */}
           <Footer />
         </div>

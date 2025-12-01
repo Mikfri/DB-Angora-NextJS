@@ -13,9 +13,17 @@ export default function HomeContent({ updatesData }: Props) {
   return (
     <div className="main-content-container">
       <div className="flex flex-col gap-12">
-        <WelcomeSection />
-        <NewsSection />
-        <PatchNotesSection data={updatesData} />
+        <section id="welcome">
+          <WelcomeSection />
+        </section>
+        
+        <section id="news">
+          <NewsSection />
+        </section>
+        
+        <section id="updates">
+          <PatchNotesSection data={updatesData} />
+        </section>
       </div>
     </div>
   );
