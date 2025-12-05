@@ -108,12 +108,30 @@ function InitializeContentPlugin({ html }: { html: string }) {
     if (isInitialized.current || !html) return;
 
     editor.update(() => {
-      const parser = new DOMParser();
-      const dom = parser.parseFromString(html, 'text/html');
-      const nodes = $generateNodesFromDOM(editor, dom);
-      const root = $getRoot();
-      root.clear();
-      root.append(...nodes);
+      try {
+        const parser = new DOMParser();
+        const dom = parser.parseFromString(html, 'text/html');
+
+        // FIX: Pre-process DOM for at undgå import-fejl med wrapperen
+        // Vi "unwrapper" billederne, så Lexical kun ser <img> tagget.
+        // Dette løser "Expected node to have a parent" fejlen.
+        const wrappers = dom.querySelectorAll('.blog-image-wrapper');
+        wrappers.forEach(wrapper => {
+          const img = wrapper.querySelector('img');
+          if (img && wrapper.parentNode) {
+            // Erstat wrapper-div med selve billedet
+            wrapper.parentNode.replaceChild(img, wrapper);
+          }
+        });
+
+        const nodes = $generateNodesFromDOM(editor, dom);
+        const root = $getRoot();
+        root.clear();
+        root.append(...nodes);
+      } catch (error) {
+        console.error("Fejl ved indlæsning af blog content:", error);
+        // Ved fejl undgår vi white-screen of death, så brugeren i det mindste kan se editoren
+      }
     });
 
     isInitialized.current = true;
