@@ -237,26 +237,13 @@ export function ToolbarPlugin({
     );
   }, [updateToolbar, editor]);
 
-  const formatParagraph = () => {
-    editor.update(() => {
-      const selection = $getSelection();
-      if ($isRangeSelection(selection)) {
-        const anchorNode = selection.anchor.getNode();
-        const element = anchorNode.getTopLevelElementOrThrow();
-        const paragraph = $createParagraphNode();
-        paragraph.append(...element.getChildren());
-        element.replace(paragraph);
-        paragraph.selectEnd();
-      }
-    });
-  };
-
   const formatHeading = (headingSize: HeadingTagType) => {
     editor.update(() => {
       const selection = $getSelection();
       if ($isRangeSelection(selection)) {
-        // Skift bloktype uden at slette indhold
         const anchorNode = selection.anchor.getNode();
+        // FIX: Hvis anchorNode er root, gør ikke noget
+        if (anchorNode.getKey() === 'root') return;
         const element = anchorNode.getTopLevelElementOrThrow();
         const heading = $createHeadingNode(headingSize);
         heading.append(...element.getChildren());
@@ -266,16 +253,32 @@ export function ToolbarPlugin({
     });
   };
 
+  const formatParagraph = () => {
+    editor.update(() => {
+      const selection = $getSelection();
+      if ($isRangeSelection(selection)) {
+        const anchorNode = selection.anchor.getNode();
+        if (anchorNode.getKey() === 'root') return;
+        const element = anchorNode.getTopLevelElementOrThrow();
+        const paragraph = $createParagraphNode();
+        paragraph.append(...element.getChildren());
+        element.replace(paragraph);
+        paragraph.selectEnd();
+      }
+    });
+  };
+
   const formatQuote = () => {
     editor.update(() => {
       const selection = $getSelection();
       if ($isRangeSelection(selection)) {
         const anchorNode = selection.anchor.getNode();
+        if (anchorNode.getKey() === 'root') return;
         const element = anchorNode.getTopLevelElementOrThrow();
         const quote = $createQuoteNode();
         quote.append(...element.getChildren());
         element.replace(quote);
-        quote.selectEnd(); // <-- Sæt selection til den nye node!
+        quote.selectEnd();
       }
     });
   };

@@ -1,4 +1,4 @@
-/* src/app/globals.css - optimeret version */
+/* src/app/globals.css - optimeret og simplificeret */
 @import url('https://fonts.googleapis.com/css2?family=Raleway:wght@600;700&display=swap');
 @import '../styles/scrollbar.css';
 
@@ -6,30 +6,30 @@
 @tailwind components;
 @tailwind utilities;
 
-/* TODO: Undersøg om det vil være fordelagtigt at installere SASS */
-
 /* ===== BASE STYLES ===== */
 @layer base {
   html {
     scroll-behavior: smooth;
     scroll-padding-top: 80px;
   }
-  
-  /* CSS variables for gradient colors - TYDELIGERE farver */
+
+  /* ===== CONTAINER DESIGN TOKENS ===== */
   :root {
-    --gradient-start: #d4dce8;    /* Lysere blå-grå */
-    --gradient-mid: #b8c4d6;      /* Medium blå-grå */
-    --gradient-end: #9fb0c8;      /* Mørkere blå-grå */
+    --container-bg: rgba(255, 255, 255, 0.8);
+    --container-border: rgba(0, 0, 0, 0.06);
+    --container-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    --container-highlight: rgba(255, 255, 255, 0.95);
   }
-  
+
   .dark {
-    --gradient-start: #0d0e11;    /* Meget mørk */
-    --gradient-mid: #16181d;      /* Medium mørk */
-    --gradient-end: #1f2229;      /* Lysere mørk */
+    --container-bg: rgba(35, 38, 46, 0.8);
+    --container-border: rgba(255, 255, 255, 0.06);
+    --container-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+    --container-highlight: rgba(255, 255, 255, 0.08);
   }
   
   body {
-    @apply text-foreground bg-gradient-light dark:bg-gradient-dark;
+    @apply text-foreground bg-background;
     min-height: 100vh;
     transition: background 0.3s ease;
   }
@@ -46,213 +46,147 @@
 
 /* ===== COMPONENT STYLES ===== */
 @layer components {
-  /* ===== UNIFIED NAVIGATION SYSTEM ===== */
-  
-  /* 🎨 BASE NAV CONTAINER (bruges af ALLE nav-typer) */
-  .nav-container {
-    @apply bg-content1 border border-divider;
-    @apply rounded-xl shadow-sm;
-    @apply transition-colors duration-200;
+
+  /* ===== UNIFIED CONTAINER SYSTEM ===== */
+  .unified-container {
+    background: var(--container-bg);
+    box-shadow: var(--container-shadow);
+    border-top: 1px solid var(--container-highlight);
+    border-left: 1px solid var(--container-border);
+    border-right: 1px solid var(--container-border);
+    border-bottom: 1px solid var(--container-border);
+    @apply rounded-xl transition-colors duration-200;
   }
+
+  /* ===== NAVIGATION COMPONENTS ===== */
+  .nav-container { @apply unified-container; }
   
-  /* 🎨 TOP NAVIGATION */
   .top-nav {
-    @apply w-full bg-content1/75 backdrop-blur-md;
-    @apply border-b border-divider;
-    @apply rounded-b-xl;
-    @apply transition-colors duration-200;
+    @apply unified-container w-full backdrop-blur-md rounded-t-none rounded-b-xl;
+    border-top: none;
   }
   
   .top-nav-container {
-    @apply h-16 max-w-screen-2xl mx-auto w-full px-4;
-    @apply flex items-center justify-between gap-2;
+    @apply h-16 max-w-screen-2xl mx-auto w-full px-4 flex items-center justify-between gap-2;
   }
   
-  .top-nav-link {
-    @apply text-foreground/70 hover:text-foreground;
-    @apply transition-colors duration-200;
-    @apply text-sm font-medium;
-  }
-  
-  /* 🎨 SIDE NAVIGATION (NavBase) */
   .side-nav {
-    @apply bg-content1/75 border border-divider;
-    @apply rounded-xl shadow-sm;
-    @apply transition-colors duration-200;
-    @apply p-4 w-full;
+    @apply unified-container p-4 w-full;
+    max-height: calc(100vh - 6rem);
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-gutter: stable both-edges;
   }
   
-  .side-nav-title {
-    @apply text-lg font-semibold text-foreground;
-    @apply mb-2 pb-2 border-b border-divider;
-  }
-  
-  .side-nav-link {
-    @apply text-foreground/70 hover:text-primary hover:bg-primary/10;
-    @apply transition-all duration-200;
-    @apply rounded-lg px-3 py-2;
-  }
-  
-  /* 🎨 BREADCRUMBS */
   .breadcrumb-container {
-    @apply w-full py-3 px-4;
-    @apply bg-content1/75 border-t border-divider; /* Kun top-border */
-    @apply rounded-xl;
-    @apply transition-colors duration-200;
-    @apply mb-4 mt-2;
+    @apply unified-container w-full py-3 px-4 mb-4 mt-2;
   }
   
-  .breadcrumb-link {
-    @apply text-foreground/70 hover:text-primary;
-    @apply transition-colors duration-200;
-  }
-  
-  .breadcrumb-separator {
-    @apply text-foreground/40;
-  }
-  
-  /* 🎨 FOOTER */
   .app-footer {
-    @apply w-full py-6 px-4 mt-auto;
-    @apply bg-content1/75 border-t border-divider;
-    @apply rounded-t-xl;
+    @apply unified-container w-full py-6 px-4 mt-auto rounded-b-none rounded-t-xl;
+    border-bottom: none;
   }
   
-  .footer-link {
-    @apply text-sm text-foreground/60 hover:text-foreground/90;
-    @apply transition-colors duration-200;
-  }
-  
-  /* ===== MAIN CONTENT CONTAINER ===== */
-  
-  /* Main content box - KUN layout, INGEN tekst farver */
-  .main-content-container {
-    @apply bg-content1/75 border border-divider;
-    @apply rounded-xl shadow-sm;
-    @apply p-6;
-    @apply transition-colors duration-200;
-  }
-  
-  /* ===== CONTENT SYSTEM ===== */
-  
-  .content-cell {
-    @apply nav-container;  /* Samme styling som navigation */
-    @apply p-6;
-  }
-  
-  /* ===== TEXT SYSTEM ===== */
-  
-  .nav-text {
-    @apply text-sm text-foreground;
-  }
+  .main-content-container { @apply unified-container p-6; }
+  .content-cell { @apply unified-container p-6; }
 
-  .nav-tooltip {
-    @apply text-foreground/50;
-  }
+  /* ===== GLOBAL STYLES ===== */
+  .nav-link { @apply text-foreground/70 hover:text-primary transition-colors duration-200; }
+  .nav-link-active { @apply text-primary font-medium; }
+  
+  .text-body { @apply text-foreground/85; }
+  .text-muted { @apply text-foreground/60; }
+  .text-subtle { @apply text-foreground/50; }
+  .text-heading { @apply text-foreground font-semibold; }
+  .text-label { @apply text-xs font-medium text-foreground/70; }
+  .text-value { @apply text-sm text-foreground; }
+  .text-placeholder { @apply text-foreground/50 italic; }
+  
+  .divider { @apply border-divider; }
 
+  /* ===== SITE BRANDING ===== */
   .site-title {
-    @apply text-4xl font-bold;
-    @apply bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-400;
-    @apply dark:from-blue-400 dark:via-blue-300 dark:to-cyan-300;
-    @apply bg-clip-text text-transparent;
-    @apply drop-shadow-[0_2px_2px_rgba(0,0,0,0.15)];
+    @apply text-4xl font-bold bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-400 dark:from-blue-400 dark:via-blue-300 dark:to-cyan-300 bg-clip-text text-transparent drop-shadow-[0_2px_2px_rgba(0,0,0,0.15)];
     font-family: 'Raleway', sans-serif;
   }
   
-    /* ===== BLOG CONTENT SYSTEM ===== */
-  
-  /* Blog/artikel content container */
+  /* ===== BLOG CONTENT ===== */
   .blog-content {
     @apply prose max-w-none;
-    
-    /* Spacing */
-    @apply prose-h1:text-3xl prose-h1:mb-6 prose-h1:mt-8;
-    @apply prose-h2:text-2xl prose-h2:mb-4 prose-h2:mt-6;
-    @apply prose-h3:text-xl prose-h3:mb-3 prose-h3:mt-5;
-    @apply prose-p:leading-relaxed prose-p:mb-4;
-    @apply prose-ul:mb-6 prose-ol:mb-6 prose-li:mb-2;
-    
-    /* Special elements */
-    @apply prose-blockquote:border-l-4 prose-blockquote:border-primary;
-    @apply prose-blockquote:bg-content2/30 prose-blockquote:pl-6 prose-blockquote:py-4;
-    @apply prose-code:bg-content2/50 prose-code:px-2 prose-code:py-1 prose-code:rounded;
-    @apply prose-a:text-primary prose-a:no-underline hover:prose-a:underline;
-    @apply prose-img:rounded-lg prose-img:shadow-lg;
+    color: hsl(var(--heroui-foreground) / 0.85);
   }
   
-  /* Centrér billeder i blog content + sørg for pointer-cursor via CSS (persistent) */
-  .blog-content img {
+  .blog-content p,
+  .blog-content li,
+  .blog-content span,
+  .blog-content div {
+    color: hsl(var(--heroui-foreground) / 0.85) !important;
+  }
+  
+  .blog-content em,
+  .blog-content i {
+    color: hsl(var(--heroui-foreground) / 0.85) !important;
+    font-style: italic;
+  }
+  
+  .blog-content h1,
+  .blog-content h2,
+  .blog-content h3,
+  .blog-content h4,
+  .blog-content h5,
+  .blog-content h6,
+  .blog-content strong,
+  .blog-content b {
+    color: hsl(var(--heroui-foreground)) !important;
+  }
+  
+  .blog-content a { color: hsl(var(--heroui-primary)) !important; }
+  
+  .blog-content blockquote {
+    color: hsl(var(--heroui-foreground) / 0.9) !important;
+    border-left-color: hsl(var(--heroui-primary)) !important;
+    @apply bg-content2/30 pl-6 py-4;
+  }
+  
+  .blog-content code {
+    color: hsl(var(--heroui-foreground)) !important;
+    @apply bg-content2/50 px-2 py-1 rounded;
+  }
+  
+  .blog-content pre { @apply bg-content2 p-4 rounded; }
+  
+  .blog-content ul,
+  .blog-content ol { color: hsl(var(--heroui-foreground) / 0.85) !important; }
+  
+  .blog-content li { color: hsl(var(--heroui-foreground) / 0.85) !important; }
+  
+  .blog-content ul li::marker,
+  .blog-content ol li::marker { color: hsl(var(--heroui-foreground) / 0.6) !important; }
+  
+  /* Blog content sizing */
+  .blog-content h1 { @apply text-2xl font-bold mb-4 mt-8; }
+  .blog-content h2 { @apply text-xl font-semibold mb-3 mt-6; }
+  .blog-content h3 { @apply text-lg font-medium mb-3 mt-5; }
+  .blog-content p { @apply text-base leading-relaxed mb-4; max-width: 70ch; }
+  .blog-content ul { @apply mb-6 ml-6 list-disc; }
+  .blog-content ol { @apply mb-6 ml-6 list-decimal; }
+  .blog-content li { @apply mb-2; }
+  .blog-content a { @apply no-underline hover:underline; }
+  
+  /* Blog billeder - centreret */
+  .blog-image-wrapper {
+    display: flex;
+    justify-content: center;
+    margin: 1.5rem 0;
+  }
+  
+  .blog-content img,
+  img.blog-image {
     display: block;
-    margin-left: auto;
-    margin-right: auto;
     max-width: 100%;
     height: auto;
-    cursor: pointer; /* <-- tilføjet */
+    cursor: pointer;
+    @apply rounded-lg shadow-lg;
   }
-  
-  /* LIGHT & DARK MODE - Bruger HeroUI foreground token */
-  .blog-content,
-  .blog-content * {
-    color: hsl(var(--heroui-foreground) / 0.85) !important;
-  }
-  
-  /* Bullets og numre - samme token */
-  .blog-content ul li::marker,
-  .blog-content ol li::marker {
-    color: hsl(var(--heroui-foreground) / 0.85) !important;
-  }
-  
-  /* Links - brug primary token */
-  .blog-content a,
-  .dark .blog-content a {
-    color: hsl(var(--heroui-primary)) !important;
-  }
-
-
-/* ===== UNIVERSAL TEXT SYSTEM ===== */
-  
-/* Standard body text - brug foreground token */
-.text-body {
-  @apply text-foreground/85;
-}
-
-/* Muted/secondary text */
-.text-muted {
-  @apply text-foreground/60;
-}
-
-/* Subtle text (labels, hints) */
-.text-subtle {
-  @apply text-foreground/50;
-}
-
-/* Heading text */
-.text-heading {
-  @apply text-foreground font-semibold;
-}
-
-/* Label text (for form fields, info rows) */
-.text-label {
-  @apply text-xs font-medium text-foreground/70;
-}
-
-/* Value text (for displaying data) */
-.text-value {
-  @apply text-sm text-foreground;
-}
-
-/* Default/placeholder text */
-.text-default {
-  @apply text-foreground/50 italic;
-}
-
-/* Icon colors */
-.icon-default {
-  @apply text-default-500;
-}
-
-.icon-muted {
-  @apply text-foreground/40;
-}
-
 }

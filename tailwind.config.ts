@@ -3,11 +3,12 @@ import type { Config } from "tailwindcss";
 
 /**
  * Arkitektur: Hvordan next-themes + HeroUI samarbejder
-Package	----- Ansvar ------	Eksempel
-next-themes ---	Håndterer theme state (light/dark toggle)	--- Sætter .dark class på <html>
-HeroUI ---	Leverer design tokens (farver, spacing) ---	content1, divider, primary
-tailwind.config.ts ---	Definerer farver per theme ---	light: { content1: "#fff" }, dark: { content1: "#1a1d24" }
-globals.css ---	Bruger tokens fra HeroUI ---	@apply bg-content1 border-divider
+ * 
+ * Package          Ansvar                                      Eksempel
+ * next-themes      Håndterer theme state (light/dark toggle)   Sætter .dark class på <html>
+ * HeroUI           Leverer design tokens (farver, spacing)     content1, divider, primary
+ * tailwind.config  Definerer farver per theme                  light: { content1: "#fff" }
+ * globals.css      Bruger tokens fra HeroUI                    @apply bg-content1 border-divider
  */
 
 export default {
@@ -20,13 +21,9 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Disse peger på HeroUI's auto-genererede CSS-variabler
+        // Peger på HeroUI's auto-genererede CSS-variabler
         background: "hsl(var(--heroui-background))",
         foreground: "hsl(var(--heroui-foreground))",
-      },
-      backgroundImage: {
-        'gradient-light': 'linear-gradient(to bottom, #d4dce8 0%, #b8c4d6 50%, #9fb0c8 100%)',
-        'gradient-dark': 'linear-gradient(to bottom, #0d0e11 0%, #16181d 50%, #1f2229 100%)',
       },
     },
   },
@@ -36,7 +33,7 @@ export default {
       themes: {
         light: {
           colors: {
-            background: "#e8eef7", // Base farve for light mode gradient
+            background: "#c8d4e0",     // Ændret: En smule mørkere end "#dde5ef" for bedre kontrast
             foreground: "#1e293b",
             primary: {
               DEFAULT: "#3b82f6",
@@ -76,7 +73,7 @@ export default {
         },
         dark: {
           colors: {
-            background: "#181a20", // Base farve for dark mode gradient
+            background: "#181a20",     // Solid dark background
             foreground: "#fafafa",
             primary: {
               DEFAULT: "#3b82f6",

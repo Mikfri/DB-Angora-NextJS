@@ -60,13 +60,13 @@ export const RabbitSaleNavClient = memo(function RabbitSaleNavClient() {
         <div className="w-full p-1 space-y-2">
             {/* Grundfiltre sektion */}
             <div>
-                <h3 className="text-[13px] font-medium text-zinc-400 mb-0.5 flex justify-between">
+                <h3 className="text-label mb-0.5 flex justify-between">
                     {FILTER_SECTIONS.BASIC}
                     {hasActiveFilters && (
                         <Button
                             size="sm"
                             variant="light"
-                            className="h-5 text-xs text-zinc-400 hover:text-zinc-200"
+                            className="h-5 text-xs text-muted hover:text-foreground"
                             onPress={clearAllFilters}
                         >
                             Nulstil alle
@@ -78,8 +78,8 @@ export const RabbitSaleNavClient = memo(function RabbitSaleNavClient() {
                     {/* Race filter */}
                     <div className="flex items-center gap-1">
                         <div className="flex items-center gap-1.5 min-w-[70px]">
-                            <LuRabbit className="text-lg text-default-500" />
-                            <span className="text-xs font-medium">Race</span>
+                            <LuRabbit className="text-lg text-muted" />
+                            <span className="text-label">Race</span>
                         </div>
                         <div className="flex-1">
                             <EnumAutocomplete
@@ -94,8 +94,8 @@ export const RabbitSaleNavClient = memo(function RabbitSaleNavClient() {
                     {/* Farve filter */}
                     <div className="flex items-center gap-1">
                         <div className="flex items-center gap-1.5 min-w-[70px]">
-                            <IoColorPaletteOutline className="text-lg text-default-500" />
-                            <span className="text-xs font-medium">Farve</span>
+                            <IoColorPaletteOutline className="text-lg text-muted" />
+                            <span className="text-label">Farve</span>
                         </div>
                         <div className="flex-1">
                             <EnumAutocomplete
@@ -110,8 +110,8 @@ export const RabbitSaleNavClient = memo(function RabbitSaleNavClient() {
                     {/* Køn filter */}
                     <div className="flex items-center gap-1">
                         <div className="flex items-center gap-1.5 min-w-[70px]">
-                            <RiGenderlessLine className="text-lg text-default-500" />
-                            <span className="text-xs font-medium">Køn</span>
+                            <RiGenderlessLine className="text-lg text-muted" />
+                            <span className="text-label">Køn</span>
                         </div>
                         <div className="flex-1">
                             <EnumAutocomplete
@@ -125,11 +125,11 @@ export const RabbitSaleNavClient = memo(function RabbitSaleNavClient() {
                 </div>
             </div>
 
-            <Divider className="bg-zinc-200/5 my-0.5" />
+            <Divider className="divider my-0.5" />
 
             {/* Lokation sektion */}
             <div>
-                <h3 className="text-[13px] font-medium text-zinc-400 mb-0.5">
+                <h3 className="text-label mb-0.5">
                     {FILTER_SECTIONS.LOCATION}
                 </h3>
 
@@ -138,7 +138,7 @@ export const RabbitSaleNavClient = memo(function RabbitSaleNavClient() {
                     <div className="flex-1">
                         <div className="flex items-center gap-1">
                             <div className="flex items-center">
-                                <MdOutlineLocationOn className="text-lg text-default-500" />
+                                <MdOutlineLocationOn className="text-lg text-muted" />
                             </div>
                             <div className="flex-1">
                                 <Input
@@ -153,6 +153,7 @@ export const RabbitSaleNavClient = memo(function RabbitSaleNavClient() {
                                             isIconOnly
                                             size="sm"
                                             variant="light"
+                                            className="text-muted"
                                             onPress={() => clearFilter('minZipCode')}
                                         >
                                             <IoMdClose />
@@ -199,7 +200,7 @@ export const RabbitSaleNavClient = memo(function RabbitSaleNavClient() {
                 </div>
             </div>
 
-            <Divider className="bg-zinc-200/5 my-0.5" />
+            <Divider className="divider my-0.5" />
 
             {/* Søgeknap */}
             <div className="pt-0.5">

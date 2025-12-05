@@ -1,3 +1,4 @@
+// src/components/ui/ProfileImage.tsx
 'use client';
 
 interface ProfileImageProps {

@@ -6,214 +6,129 @@
  * Ansvar:
  * Hoved-layout for blog workspace med tab-navigation (Editor, Billeder, Forhåndsvisning, Publicering).
  * Koordinerer brugerens interaktion med blog editing og gemmer data via BlogWorkspaceContext.
- * 
- * Funktioner:
- * - Tab-navigation mellem forskellige blog workspace sektioner
- * - Rediger/Gem/Annuller funktionalitet
- * - Viser blog titel og publicerings-status
- * - Organiserer indhold i to sektioner: "Indhold" (titel/undertitel/content) og "Metadata"
- * 
- * Komponenter:
- * - BlogContentEditor: Håndterer titel, undertitel og content
- * - renderBlogField(): Håndterer metadata-felter (synlighed, kategori, tags, etc.)
- * - BlogImageSection: Håndterer billeder
- * 
- * Bruges af: page.tsx
  */
 
 'use client';
 
-import { Blog_DTO } from '@/api/types/AngoraDTOs';
-import { Tabs, Tab, Button } from "@heroui/react";
-import { useState } from 'react';
-import { editableFieldLabels, renderBlogField } from './blogFormFields';
-import BlogContentEditor from './BlogContentEditor';
-import { FaEdit } from 'react-icons/fa';
-import BlogImageSection from './blogImages';
+import { Divider, Button, Card, CardBody, CardHeader } from '@heroui/react';
+import { useRouter } from 'next/navigation';
 import { useBlogWorkspace } from '@/contexts/BlogWorkspaceContext';
-
-import { RiEditLine, RiEyeLine, RiImageLine, RiSendPlaneLine } from "react-icons/ri";
-
-const BlogPreview = ({ blog }: { blog: Blog_DTO }) => (
-    <div className="p-4 bg-zinc-700/50 rounded-lg">
-        <h3 className="text-lg font-semibold mb-2">Blog Forhåndsvisning</h3>
-        <p className="text-zinc-300">Preview kommer her... Blog ID: {blog.id}</p>
-    </div>
-);
-
-const BlogPublishing = ({ blog }: { blog: Blog_DTO }) => (
-    <div className="p-4 bg-zinc-700/50 rounded-lg">
-        <h3 className="text-lg font-semibold mb-2">Blog Publicering</h3>
-        <p className="text-zinc-300">Publicering kommer her... Blog ID: {blog.id}</p>
-    </div>
-);
+import BlogImageSection from './blogImages';
+import BlogContentEditor from './BlogContentEditor';
+import { AutoSaveIndicator } from '@/components/ui/AutoSaveIndicator';
+import { FaSave, FaEye, FaArrowLeft, FaEdit, FaTimes } from 'react-icons/fa';
 
 export default function BlogWorkspace() {
-    const [activeTab, setActiveTab] = useState("editor");
+  const router = useRouter();
+  const { 
+    blog, 
+    isLoading, 
+    error, 
+    editedData,
+    isEditing,
+    setIsEditing,
+    autoSaveStatus,
+    lastSaved,
+    hasUnsavedChanges,
+    handleSave,
+    handleCancelEdit,
+    isSaving
+  } = useBlogWorkspace();
 
-    const {
-        blog: currentBlog,
-        isEditing,
-        isSaving,
-        editedData,
-        setEditedData,
-        setIsEditing,
-        handleSave,
-        handleCancelEdit
-    } = useBlogWorkspace();
+  if (isLoading) {
+    return <div className="p-8 text-center">Indlæser...</div>;
+  }
 
-    if (!currentBlog) {
-        return <div>Loading...</div>;
-    }
+  if (error || !blog || !editedData) {
+    return <div className="p-8 text-center text-danger">{error?.message || 'Blog ikke fundet'}</div>;
+  }
 
-    // Vis editeret titel hvis man er i edit-mode
-    const displayTitle = (isEditing && editedData?.title) 
-        ? editedData.title 
-        : currentBlog.title || 'Nyt blogindlæg';
-    
-    const publishStatus = currentBlog.isPublished ? 'Publiceret' : 'Kladde';
-
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        handleSave();
-    };
-
-    return (
-        <div className="main-content-container">
-            <div className="mb-6 flex justify-between items-center">
-                <div>
-                    <h1 className="text-2xl font-bold text-heading">
-                        {displayTitle}
-                    </h1>
-                    <p className="text-muted text-sm mt-1">
-                        {publishStatus}
-                    </p>
-                </div>
-            </div>
-
-            <Tabs
-                selectedKey={activeTab}
-                onSelectionChange={(key) => setActiveTab(key as string)}
-                aria-label="Blog workspace"
-                variant="underlined"
-                color="primary"
-                classNames={{
-                    tabList: "gap-6 w-full relative p-0 border-b border-zinc-700/50",
-                    cursor: "w-full bg-blue-500",
-                    tab: "max-w-fit px-0 h-12",
-                    tabContent: "group-data-[selected=true]:text-blue-500",
-                    panel: "pt-5"
-                }}
-            >
-                <Tab
-                    key="editor"
-                    title={
-                        <div className="flex items-center space-x-2">
-                            <RiEditLine className="text-xl" />
-                            <span>Editor</span>
-                        </div>
-                    }
-                >
-                    {/* FJERN outer styling - kun simpel wrapper */}
-                    <div className="overflow-hidden">
-                        <div className="flex justify-between items-center p-4 border-b border-divider">
-                            <h3 className="text-heading">Blog Editor</h3>
-                            <div className="flex items-center gap-2">
-                                {!isEditing ? (
-                                    <Button
-                                        size="sm"
-                                        color="warning"
-                                        variant="light"
-                                        onPress={() => setIsEditing(true)}
-                                        startContent={<FaEdit size={16} />}
-                                    >
-                                        Rediger
-                                    </Button>
-                                ) : (
-                                    <>
-                                        <Button
-                                            size="sm"
-                                            color="success"
-                                            onPress={handleSave}
-                                            isDisabled={isSaving}
-                                            className="text-white"
-                                        >
-                                            {isSaving ? 'Gemmer...' : 'Gem'}
-                                        </Button>
-                                        <Button
-                                            size="sm"
-                                            color="secondary"
-                                            variant="ghost"
-                                            onPress={handleCancelEdit}
-                                            isDisabled={isSaving}
-                                        >
-                                            Annuller
-                                        </Button>
-                                    </>
-                                )}
-                            </div>
-                        </div>
-
-                        <form onSubmit={handleSubmit} className="p-6 space-y-8">
-                            {/* Indhold sektion (titel, undertitel, content) */}
-                            <section>
-                                <BlogContentEditor
-                                    editedData={editedData ?? currentBlog}
-                                    setEditedData={setEditedData}
-                                    isEditing={isEditing}
-                                />
-                            </section>
-
-                            {/* Metadata sektion (synlighed, kategori, tags, etc.) */}
-                            <section className="space-y-6 pt-6 border-t border-divider">
-                                <div className="flex items-center gap-2 mb-4">
-                                    <div className="w-1 h-6 bg-secondary rounded-full"></div>
-                                    <h3 className="text-lg font-semibold text-heading">Metadata & Indstillinger</h3>
-                                </div>
-                                
-                                {(Object.keys(editableFieldLabels) as Array<keyof typeof editableFieldLabels>)
-                                    .filter(key => key !== 'authorId')
-                                    .map((key) => (
-                                        <div key={key} className="space-y-2">
-                                            <label
-                                                htmlFor={`${key}-input`}
-                                                className="block text-sm font-medium text-body"
-                                            >
-                                                {editableFieldLabels[key]}
-                                            </label>
-                                            {renderBlogField(
-                                                key,
-                                                currentBlog[key],
-                                                isEditing,
-                                                editedData ?? currentBlog,
-                                                setEditedData
-                                            )}
-                                        </div>
-                                    ))}
-                            </section>
-                        </form>
-                    </div>
-                </Tab>
-
-                <Tab key="images" title={<div className="flex items-center space-x-2"><RiImageLine className="text-xl" /><span>Billeder</span></div>}>
-                    <BlogImageSection
-                        blogId={currentBlog.id}
-                        currentPhotos={currentBlog.photos || []}
-                        featuredImageId={undefined}
-                        onPhotosUpdated={() => {
-                            window.location.reload();
-                        }}
-                    />
-                </Tab>
-
-                <Tab key="preview" title={<div className="flex items-center space-x-2"><RiEyeLine className="text-xl" /><span>Forhåndsvisning</span></div>}>
-                    <BlogPreview blog={currentBlog} />
-                </Tab>
-
-                <Tab key="publishing" title={<div className="flex items-center space-x-2"><RiSendPlaneLine className="text-xl" /><span>Publicering</span></div>}>
-                    <BlogPublishing blog={currentBlog} />
-                </Tab>
-            </Tabs>
+  return (
+    <div className="space-y-6">
+      {/* Header med auto-save indikator */}
+      <div className="flex items-center justify-between flex-wrap gap-4">
+        <div className="flex items-center gap-4">
+          <Button 
+            variant="ghost" 
+            startContent={<FaArrowLeft />} 
+            onPress={() => router.back()}
+          >
+            Tilbage
+          </Button>
+          <h1 className="text-2xl font-bold">Rediger blog</h1>
         </div>
-    );
+
+        <div className="flex items-center gap-3 flex-wrap">
+          <AutoSaveIndicator status={autoSaveStatus} lastSaved={lastSaved} />
+          
+          {!isEditing ? (
+            <Button
+              color="primary"
+              startContent={<FaEdit />}
+              onPress={() => setIsEditing(true)}
+            >
+              Rediger
+            </Button>
+          ) : (
+            <>
+              <Button
+                variant="bordered"
+                startContent={<FaTimes />}
+                onPress={handleCancelEdit}
+              >
+                Annuller
+              </Button>
+              <Button
+                color="primary"
+                startContent={<FaSave />}
+                onPress={handleSave}
+                isLoading={isSaving}
+                isDisabled={!hasUnsavedChanges}
+              >
+                Gem nu
+              </Button>
+            </>
+          )}
+
+          <Button
+            variant="bordered"
+            startContent={<FaEye />}
+            onPress={() => window.open(`/blogs/${blog.slug}`, '_blank')}
+          >
+            Preview
+          </Button>
+        </div>
+      </div>
+
+      <Divider />
+
+      {/* Content Editor - fuld bredde */}
+      <Card>
+        <CardHeader>
+          <h2 className="text-lg font-semibold">Indhold</h2>
+        </CardHeader>
+        <CardBody>
+          <BlogContentEditor
+            editedData={editedData}
+            isEditing={isEditing}
+          />
+        </CardBody>
+      </Card>
+
+      {/* Billeder sektion */}
+      <Card>
+        <CardHeader>
+          <h2 className="text-lg font-semibold">Billeder</h2>
+        </CardHeader>
+        <CardBody>
+          <BlogImageSection
+            blogId={blog.id}
+            currentPhotos={editedData.photos || []}
+            featuredImageId={undefined}
+            onPhotosUpdated={() => {}}
+          />
+        </CardBody>
+      </Card>
+    </div>
+  );
 }

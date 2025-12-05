@@ -36,24 +36,6 @@ const visibilityOptions = [
     { value: "PaidContent", label: "Betalt indhold" }
 ];
 
-export function renderBlogField(
-    key: Exclude<keyof Blog_UpdateDTO, 'title' | 'subtitle' | 'content'>,  // ✅ Ændret her
-    value: unknown,
-    isEditing: boolean,
-    editedData: Blog_DTO,
-    setEditedData: (data: Blog_DTO) => void,
-    isChanged?: boolean
-): ReactNode {
-    const inputClassName = `transition-colors duration-200 ${isChanged ? 'border-amber-400' : ''}`;
-    const textClassName = isChanged ? 'text-amber-400' : 'text-body';
-
-    if (!isEditing) {
-        return renderViewMode(key, value, textClassName);
-    }
-
-    return renderEditMode(key, editedData, setEditedData, inputClassName);
-}
-
 function renderViewMode(
     key: Exclude<keyof Blog_UpdateDTO, 'title' | 'subtitle' | 'content'>,  // ✅ Ændret her
     value: unknown,
@@ -71,63 +53,82 @@ function renderViewMode(
     return <span className={textClassName}>{value?.toString() || "Ikke angivet"}</span>;
 }
 
+// Opdater signaturen til at tage updateField
 function renderEditMode(
-    key: Exclude<keyof Blog_UpdateDTO, 'title' | 'subtitle' | 'content'>,
-    editedData: Blog_DTO,
-    setEditedData: (data: Blog_DTO) => void,
-    className: string
+  key: Exclude<keyof Blog_UpdateDTO, 'title' | 'subtitle' | 'content'>,
+  value: unknown,
+  isEditing: boolean,
+  updateField: (key: any, value: any) => void,
+  className: string
 ): ReactNode {
-    if (key === "authorId") {
-        return <span className="text-muted italic">Ikke redigerbar</span>;
-    }
+  if (key === "authorId") {
+    return <span className="text-muted italic">Ikke redigerbar</span>;
+  }
 
-    if (key === "visibilityLevel") {
-        return (
-            <Select
-                id={`${key}-input`}
-                selectedKeys={editedData[key] ? [editedData[key]] : []}
-                onSelectionChange={(keys) => {
-                    const selectedKey = Array.from(keys)[0] as string;
-                    setEditedData({ ...editedData, [key]: selectedKey });
-                }}
-                className={className}
-                placeholder="Vælg synlighed"
-            >
-                {visibilityOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                    </SelectItem>
-                ))}
-            </Select>
-        );
-    }
+  if (key === "visibilityLevel") {
+    return (
+      <Select
+        id={`${key}-input`}
+        selectedKeys={value ? [value as string] : []}
+        onSelectionChange={(keys) => {
+          const selectedKey = Array.from(keys)[0] as string;
+          updateField(key, selectedKey);
+        }}
+        className={className}
+        placeholder="Vælg synlighed"
+      >
+        {visibilityOptions.map((option) => (
+          <SelectItem key={option.value} value={option.value}>
+            {option.label}
+          </SelectItem>
+        ))}
+      </Select>
+    );
+  }
 
-    if (key === "metaDescription" || key === "tags") {
-        return (
-            <Textarea
-                id={`${key}-input`}
-                value={editedData[key]?.toString() || ""}
-                onChange={(e) => setEditedData({ ...editedData, [key]: e.target.value })}
-                className={className}
-                placeholder={key === "metaDescription" ? "SEO beskrivelse..." : "Komma-separerede tags..."}
-                minRows={2}
-                maxRows={4}
-            />
-        );
-    }
+  if (key === "metaDescription" || key === "tags") {
+    return (
+      <Textarea
+        id={`${key}-input`}
+        value={value?.toString() || ""}
+        onChange={(e) => updateField(key, e.target.value)}
+        className={className}
+        placeholder={key === "metaDescription" ? "SEO beskrivelse..." : "Komma-separerede tags..."}
+        minRows={2}
+        maxRows={4}
+      />
+    );
+  }
 
-    if (key === "category") {
-        return (
-            <EnumAutocomplete
-                enumType="BlogCategories"
-                value={editedData.category || ""}
-                onChange={val => setEditedData({ ...editedData, category: val ?? "" })}
-                label="Kategori"
-                placeholder="Vælg kategori"
-            />
-        );
-    }
+  if (key === "category") {
+    return (
+      <EnumAutocomplete
+        enumType="BlogCategories"
+        value={typeof value === 'string' ? value : null}  // <-- Fix: sikrer string | null
+        onChange={val => updateField(key, val ?? "")}
+        label="Kategori"
+        placeholder="Vælg kategori"
+      />
+    );
+  }
 
-    // Dette skulle aldrig nås, men TypeScript kræver en fallback
-    return null;
+  return null;
+}
+
+// Opdater renderBlogField til at sende updateField
+export function renderBlogField(
+  key: Exclude<keyof Blog_UpdateDTO, 'title' | 'subtitle' | 'content'>,
+  value: unknown,
+  isEditing: boolean,
+  updateField: (key: any, value: any) => void,
+  isChanged?: boolean
+): ReactNode {
+  const inputClassName = `transition-colors duration-200 ${isChanged ? 'border-amber-400' : ''}`;
+  const textClassName = isChanged ? 'text-amber-400' : 'text-body';
+
+  if (!isEditing) {
+    return renderViewMode(key, value, textClassName);
+  }
+
+  return renderEditMode(key, value, isEditing, updateField, inputClassName);
 }

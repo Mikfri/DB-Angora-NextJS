@@ -92,7 +92,7 @@ export function RabbitOwnNavClient() {
         <div className="w-full p-1 space-y-2">
             {/* Handlinger sektion */}
             <div>
-                <h3 className="text-[13px] font-medium text-zinc-400 mb-0.5">
+                <h3 className="text-label mb-0.5">
                     {FILTER_SECTIONS.ACTIONS}
                 </h3>
 
@@ -132,11 +132,11 @@ export function RabbitOwnNavClient() {
                 </Button>
             </div>
 
-            <Divider className="bg-zinc-200/5 my-0.5" />
+            <Divider className="divider my-0.5" />
 
             {/* Livsstatus sektion */}
             <div>
-                <h3 className="text-[13px] font-medium text-zinc-400 mb-0.5">
+                <h3 className="text-label mb-0.5">
                     {FILTER_SECTIONS.LIFESTATUS}
                 </h3>
 
@@ -156,13 +156,12 @@ export function RabbitOwnNavClient() {
                     </div>
                 </div>
 
-                <div className="space-y-1.5 dark mt-2">
+                <div className="space-y-1.5 mt-2">
                     <div className="flex gap-2">
                         <Tooltip
                             content="Kun levende kaniner"
                             showArrow={true}
                             placement="bottom"
-                            className="dark"
                         >
                             <Button
                                 size="sm"
@@ -180,7 +179,6 @@ export function RabbitOwnNavClient() {
                             content="Kun afdøde kaniner"
                             showArrow={true}
                             placement="bottom"
-                            className="dark"
                         >
                             <Button
                                 size="sm"
@@ -198,7 +196,6 @@ export function RabbitOwnNavClient() {
                             content="Vis alle kaniner"
                             showArrow={true}
                             placement="bottom"
-                            className="dark"
                         >
                             <Button
                                 size="sm"
@@ -215,11 +212,11 @@ export function RabbitOwnNavClient() {
                 </div>
             </div>
 
-            <Divider className="bg-zinc-200/5 my-0.5" />
+            <Divider className="divider my-0.5" />
 
             {/* Grundfiltre sektion */}
             <div>
-                <h3 className="text-[13px] font-medium text-zinc-400 mb-0.5">
+                <h3 className="text-label mb-0.5">
                     {FILTER_SECTIONS.BASIC}
                 </h3>
 
@@ -227,8 +224,8 @@ export function RabbitOwnNavClient() {
                     {/* Fødselsdag filter */}
                     <div className="flex items-center gap-1">
                         <div className="flex items-center gap-1.5 min-w-[70px]">
-                            <MdCalendarMonth className="text-lg text-default-500" />
-                            <span className="text-xs font-medium">Efter</span>
+                            <MdCalendarMonth className="text-lg text-muted" />
+                            <span className="text-label">Efter</span>
                         </div>
                         <div className="flex-1">
                             <Input
@@ -247,8 +244,8 @@ export function RabbitOwnNavClient() {
                     {/* Køn filter */}
                     <div className="flex items-center gap-1">
                         <div className="flex items-center gap-1.5 min-w-[70px]">
-                            <RiGenderlessLine className="text-lg text-default-500" />
-                            <span className="text-xs font-medium">Køn</span>
+                            <RiGenderlessLine className="text-lg text-muted" />
+                            <span className="text-label">Køn</span>
                         </div>
                         <div className="flex-1">
                             <EnumAutocomplete
@@ -263,8 +260,8 @@ export function RabbitOwnNavClient() {
                     {/* Race filter */}
                     <div className="flex items-center gap-1">
                         <div className="flex items-center gap-1.5 min-w-[70px]">
-                            <LuRabbit className="text-lg text-default-500" />
-                            <span className="text-xs font-medium">Race</span>
+                            <LuRabbit className="text-lg text-muted" />
+                            <span className="text-label">Race</span>
                         </div>
                         <div className="flex-1">
                             <EnumAutocomplete
@@ -279,8 +276,8 @@ export function RabbitOwnNavClient() {
                     {/* Farve filter */}
                     <div className="flex items-center gap-1">
                         <div className="flex items-center gap-1.5 min-w-[70px]">
-                            <IoColorPaletteOutline className="text-lg text-default-500" />
-                            <span className="text-xs font-medium">Farve</span>
+                            <IoColorPaletteOutline className="text-lg text-muted" />
+                            <span className="text-label">Farve</span>
                         </div>
                         <div className="flex-1">
                             <EnumAutocomplete
@@ -294,11 +291,11 @@ export function RabbitOwnNavClient() {
                 </div>
             </div>
 
-            <Divider className="bg-zinc-200/5 my-0.5" />
+            <Divider className="divider my-0.5" />
 
             {/* Egenskaber sektion */}
             <div>
-                <h3 className="text-[13px] font-medium text-zinc-400 mb-0.5">
+                <h3 className="text-label mb-0.5">
                     {FILTER_SECTIONS.ATTRIBUTES}
                 </h3>
 
@@ -306,8 +303,8 @@ export function RabbitOwnNavClient() {
                     {/* Race/farve godkendelse */}
                     <div className="space-y-1">
                         <div className="flex items-center gap-1.5">
-                            <SiMicrogenetics className="text-lg text-default-500" />
-                            <span className="text-xs font-medium">Race/farve godkendelse</span>
+                            <SiMicrogenetics className="text-lg text-muted" />
+                            <span className="text-label">Race/farve godkendelse</span>
                         </div>
 
                         <RadioGroup
@@ -320,13 +317,13 @@ export function RabbitOwnNavClient() {
                             }}
                         >
                             <Radio value={APPROVAL_STATUS.ALL}>
-                                <span className="text-xs">Alle</span>
+                                <span className="text-body text-xs">Alle</span>
                             </Radio>
                             <Radio value={APPROVAL_STATUS.APPROVED}>
-                                <span className="text-xs">Godkendte</span>
+                                <span className="text-body text-xs">Godkendte</span>
                             </Radio>
                             <Radio value={APPROVAL_STATUS.NOT_APPROVED}>
-                                <span className="text-xs">Ikke godkendte</span>
+                                <span className="text-body text-xs">Ikke godkendte</span>
                             </Radio>
                         </RadioGroup>
                     </div>
@@ -334,8 +331,8 @@ export function RabbitOwnNavClient() {
                     {/* Ungdyr switch */}
                     <div className="flex items-center gap-1">
                         <div className="flex items-center gap-1.5 min-w-[70px]">
-                            <FaInfoCircle className="text-lg text-default-500" />
-                            <span className="text-xs font-medium">Alder</span>
+                            <FaInfoCircle className="text-lg text-muted" />
+                            <span className="text-label">Alder</span>
                         </div>
                         <div className="flex-1 flex items-center">
                             <Switch
@@ -344,18 +341,18 @@ export function RabbitOwnNavClient() {
                                 onValueChange={(checked) => updateFilters({ showJuveniles: checked })}
                                 aria-label="Vis kun ungdyr"
                             >
-                                <span className="text-xs">Kun ungdyr</span>
+                                <span className="text-body text-xs">Kun ungdyr</span>
                             </Switch>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <Divider className="bg-zinc-200/5 my-0.5" />
+            <Divider className="divider my-0.5" />
 
             {/* Status sektion */}
             <div>
-                <h3 className="text-[13px] font-medium text-zinc-400 mb-0.5">
+                <h3 className="text-label mb-0.5">
                     {FILTER_SECTIONS.STATUS}
                 </h3>
 
@@ -363,8 +360,8 @@ export function RabbitOwnNavClient() {
                     {/* Til salg filter */}
                     <div className="flex items-center gap-1">
                         <div className="flex items-center gap-1.5 min-w-[70px]">
-                            <BiPurchaseTagAlt className="text-lg text-default-500" />
-                            <span className="text-xs font-medium">Til salg</span>
+                            <BiPurchaseTagAlt className="text-lg text-muted" />
+                            <span className="text-label">Til salg</span>
                         </div>
                         <div className="flex-1 flex items-center">
                             <Switch
@@ -373,7 +370,7 @@ export function RabbitOwnNavClient() {
                                 onValueChange={(checked) => updateFilters({ forSale: checked })}
                                 aria-label="Vis kun til salg"
                             >
-                                <span className="text-xs">Ja</span>
+                                <span className="text-body text-xs">Ja</span>
                             </Switch>
                         </div>
                     </div>
@@ -381,8 +378,8 @@ export function RabbitOwnNavClient() {
                     {/* Til avl filter */}
                     <div className="flex items-center gap-1">
                         <div className="flex items-center gap-1.5 min-w-[70px]">
-                            <BiPurchaseTagAlt className="text-lg text-default-500" />
-                            <span className="text-xs font-medium">Til avl</span>
+                            <BiPurchaseTagAlt className="text-lg text-muted" />
+                            <span className="text-label">Til avl</span>
                         </div>
                         <div className="flex-1 flex items-center">
                             <Switch
@@ -391,7 +388,7 @@ export function RabbitOwnNavClient() {
                                 onValueChange={(checked) => updateFilters({ isForBreeding: checked })}
                                 aria-label="Vis kun til avl"
                             >
-                                <span className="text-xs">Ja</span>
+                                <span className="text-body text-xs">Ja</span>
                             </Switch>
                         </div>
                     </div>

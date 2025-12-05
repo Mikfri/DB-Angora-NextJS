@@ -16,7 +16,7 @@
 
 'use client';
 
-import { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import { Blog_DTO, Blog_UpdateDTO } from '@/api/types/AngoraDTOs';
 import { deleteBlogAction, fetchBlogByIdAction, publishBlogAction, unpublishBlogAction, updateBlogAction } from '@/app/actions/blog/blogActions';
@@ -30,8 +30,13 @@ interface BlogWorkspaceContextType {
   isSaving: boolean;
   editedData: Blog_DTO | null;
   error: { message: string; status?: number } | null;
+  // Auto-save status
+  autoSaveStatus: 'idle' | 'saving' | 'saved' | 'error';
+  lastSaved: Date | null;
+  hasUnsavedChanges: boolean;
   setIsEditing: (editing: boolean) => void;
   setEditedData: (data: Blog_DTO) => void;
+  updateField: <K extends keyof Blog_DTO>(key: K, value: Blog_DTO[K]) => void;
   refreshBlog: () => Promise<void>;
   handlePublish: () => Promise<void>;
   handleUnpublish: () => Promise<void>;
@@ -41,6 +46,8 @@ interface BlogWorkspaceContextType {
 }
 
 const BlogWorkspaceContext = createContext<BlogWorkspaceContextType | undefined>(undefined);
+
+const AUTO_SAVE_DELAY = 3000; // 3 sekunder
 
 export function BlogWorkspaceProvider({ children }: { children: React.ReactNode }) {
   const params = useParams();
@@ -53,6 +60,13 @@ export function BlogWorkspaceProvider({ children }: { children: React.ReactNode 
   const [isSaving, setIsSaving] = useState(false);
   const [editedData, setEditedData] = useState<Blog_DTO | null>(null);
   const [error, setError] = useState<{ message: string; status?: number } | null>(null);
+  
+  // Auto-save state
+  const [autoSaveStatus, setAutoSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isSavingRef = useRef(false);
 
   // Load blog data
   const loadBlog = useCallback(async () => {
@@ -91,14 +105,103 @@ export function BlogWorkspaceProvider({ children }: { children: React.ReactNode 
     loadBlog();
   }, [loadBlog]);
 
+  // Auto-save funktion
+  const performAutoSave = useCallback(async () => {
+    if (!blog || !editedData || isSavingRef.current) return;
+
+    isSavingRef.current = true;
+    setAutoSaveStatus('saving');
+
+    try {
+      const updateData: Blog_UpdateDTO = {
+        title: editedData.title,
+        subtitle: editedData.subtitle,
+        content: editedData.content,
+        tags: editedData.tags,
+        visibilityLevel: editedData.visibilityLevel,
+        category: editedData.category,
+        authorId: editedData.authorId
+      };
+
+      const result = await updateBlogAction(blog.id, updateData);
+      
+      if (result.success) {
+        setBlog(result.data);
+        setHasUnsavedChanges(false);
+        setAutoSaveStatus('saved');
+        setLastSaved(new Date());
+        
+        // Reset til idle efter 2 sek
+        setTimeout(() => {
+          setAutoSaveStatus(prev => prev === 'saved' ? 'idle' : prev);
+        }, 2000);
+      } else {
+        setAutoSaveStatus('error');
+      }
+    } catch {
+      setAutoSaveStatus('error');
+    } finally {
+      isSavingRef.current = false;
+    }
+  }, [blog, editedData]);
+
+  // Trigger auto-save med debounce
+  const triggerAutoSave = useCallback(() => {
+    if (autoSaveTimeoutRef.current) {
+      clearTimeout(autoSaveTimeoutRef.current);
+    }
+    
+    setHasUnsavedChanges(true);
+    
+    autoSaveTimeoutRef.current = setTimeout(() => {
+      performAutoSave();
+    }, AUTO_SAVE_DELAY);
+  }, [performAutoSave]);
+
+  // Cleanup timeout
+  useEffect(() => {
+    return () => {
+      if (autoSaveTimeoutRef.current) {
+        clearTimeout(autoSaveTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // Advarsel ved lukning med ugemte ændringer
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [hasUnsavedChanges]);
+
+  // Opdater et enkelt felt og trigger auto-save
+  const updateField = useCallback(<K extends keyof Blog_DTO>(key: K, value: Blog_DTO[K]) => {
+    setEditedData(prev => {
+      if (!prev) return prev;
+      return { ...prev, [key]: value };
+    });
+    triggerAutoSave();
+  }, [triggerAutoSave]);
+
   // Refresh blog data
   const refreshBlog = useCallback(async () => {
     await loadBlog();
   }, [loadBlog]);
 
-  // Handle save
+  // Handle manual save
   const handleSave = useCallback(async () => {
     if (!blog || !editedData) return;
+
+    // Clear auto-save timeout
+    if (autoSaveTimeoutRef.current) {
+      clearTimeout(autoSaveTimeoutRef.current);
+    }
 
     setIsSaving(true);
     try {
@@ -117,6 +220,8 @@ export function BlogWorkspaceProvider({ children }: { children: React.ReactNode 
         setBlog(result.data);
         setEditedData(result.data);
         setIsEditing(false);
+        setHasUnsavedChanges(false);
+        setLastSaved(new Date());
         toast.success('Blog gemt!');
       } else {
         toast.error(result.error || 'Fejl ved gemning');
@@ -135,6 +240,7 @@ export function BlogWorkspaceProvider({ children }: { children: React.ReactNode 
       setEditedData(blog);
     }
     setIsEditing(false);
+    setHasUnsavedChanges(false);
   }, [blog]);
 
   // Handle publish
@@ -203,8 +309,12 @@ export function BlogWorkspaceProvider({ children }: { children: React.ReactNode 
       isSaving,
       editedData,
       error,
+      autoSaveStatus,
+      lastSaved,
+      hasUnsavedChanges,
       setIsEditing,
       setEditedData,
+      updateField,
       refreshBlog,
       handlePublish,
       handleUnpublish,

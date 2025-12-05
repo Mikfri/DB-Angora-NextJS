@@ -9,7 +9,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { topNavigationLinks } from '@/constants/navigationConstants';
-import { filterLink } from '@/navigation';
+import { filterLink } from '@/navigation/filterLink'; // Ændret fra '@/navigation'
 import { roleDisplayNames } from '@/types/authTypes';
 import { useTheme } from "@/components/providers/Providers";
 import LoginModal from '@/components/modals/login/loginModal';

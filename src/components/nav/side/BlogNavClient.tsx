@@ -53,12 +53,12 @@ export const BlogNavClient = memo(function BlogNavClient() {
     <div className="w-full p-1 space-y-4">
       {/* Header med reset knap */}
       <div className="flex justify-between items-center">
-        <h3 className="text-[13px] font-medium text-zinc-400">Filtre</h3>
+        <h3 className="text-label">Filtre</h3>
         {hasActiveFilters && (
           <Button
             size="sm"
             variant="light"
-            className="h-5 text-xs text-zinc-400 hover:text-zinc-200"
+            className="h-5 text-xs text-muted hover:text-foreground"
             onPress={clearAllFilters}
           >
             Nulstil alle
@@ -66,13 +66,13 @@ export const BlogNavClient = memo(function BlogNavClient() {
         )}
       </div>
 
-      <Divider className="bg-zinc-200/5 my-0.5" />
+      <Divider className="divider my-0.5" />
 
       {/* Søgeterm */}
       <div className="flex items-center gap-1">
         <div className="flex items-center gap-1.5 min-w-[70px]">
-          <TbFilterSearch className="text-lg text-default-500" />
-          <span className="text-xs font-medium">Søgeterm</span>
+          <TbFilterSearch className="text-lg text-muted" />
+          <span className="text-label">Søgeterm</span>
         </div>
         <div className="flex-1 flex items-center gap-1">
           <Input
@@ -86,6 +86,7 @@ export const BlogNavClient = memo(function BlogNavClient() {
                 isIconOnly
                 size="sm"
                 variant="light"
+                className="text-muted"
                 onPress={() => clearFilter('searchTerm')}
               >
                 <IoMdClose />
@@ -93,7 +94,7 @@ export const BlogNavClient = memo(function BlogNavClient() {
             )}
             classNames={{
               inputWrapper: "h-7 min-h-unit-7 px-2",
-              input: "text-xs"
+              input: "text-xs text-body"
             }}
           />
         </div>
@@ -102,8 +103,8 @@ export const BlogNavClient = memo(function BlogNavClient() {
       {/* Kategori Filter */}
       <div className="flex items-center gap-1">
         <div className="flex items-center gap-1.5 min-w-[70px]">
-          <MdCategory className="text-lg text-default-500" />
-          <span className="text-xs font-medium">Kategori</span>
+          <MdCategory className="text-lg text-muted" />
+          <span className="text-label">Kategori</span>
         </div>
         <div className="flex-1">
           <EnumAutocomplete
@@ -119,8 +120,8 @@ export const BlogNavClient = memo(function BlogNavClient() {
       {/* Forfatter */}
       <div className="flex items-center gap-1">
         <div className="flex items-center gap-1.5 min-w-[70px]">
-          <MdPerson className="text-lg text-default-500" />
-          <span className="text-xs font-medium">Forfatter</span>
+          <MdPerson className="text-lg text-muted" />
+          <span className="text-label">Forfatter</span>
         </div>
         <div className="flex-1 flex items-center gap-1">
           <Input
@@ -134,6 +135,7 @@ export const BlogNavClient = memo(function BlogNavClient() {
                 isIconOnly
                 size="sm"
                 variant="light"
+                className="text-muted"
                 onPress={() => clearFilter('authorFullName')}
               >
                 <IoMdClose />
@@ -141,7 +143,7 @@ export const BlogNavClient = memo(function BlogNavClient() {
             )}
             classNames={{
               inputWrapper: "h-7 min-h-unit-7 px-2",
-              input: "text-xs"
+              input: "text-xs text-body"
             }}
           />
         </div>
@@ -150,8 +152,8 @@ export const BlogNavClient = memo(function BlogNavClient() {
       {/* Tag Filter */}
       <div className="flex items-center gap-1">
         <div className="flex items-center gap-1.5 min-w-[70px]">
-          <MdTag className="text-lg text-default-500" />
-          <span className="text-xs font-medium">Tag</span>
+          <MdTag className="text-lg text-muted" />
+          <span className="text-label">Tag</span>
         </div>
         <div className="flex-1 flex items-center gap-1">
           <Input
@@ -165,6 +167,7 @@ export const BlogNavClient = memo(function BlogNavClient() {
                 isIconOnly
                 size="sm"
                 variant="light"
+                className="text-muted"
                 onPress={() => clearFilter('tagFilter')}
               >
                 <IoMdClose />
@@ -172,7 +175,7 @@ export const BlogNavClient = memo(function BlogNavClient() {
             )}
             classNames={{
               inputWrapper: "h-7 min-h-unit-7 px-2",
-              input: "text-xs"
+              input: "text-xs text-body"
             }}
           />
         </div>
@@ -181,8 +184,8 @@ export const BlogNavClient = memo(function BlogNavClient() {
       {/* Sortering */}
       <div className="flex items-center gap-1">
         <div className="flex items-center gap-1.5 min-w-[70px]">
-          <MdSort className="text-lg text-default-500" />
-          <span className="text-xs font-medium">Sortér efter</span>
+          <MdSort className="text-lg text-muted" />
+          <span className="text-label">Sortér efter</span>
         </div>
         <div className="flex-1">
           <Select
@@ -196,7 +199,7 @@ export const BlogNavClient = memo(function BlogNavClient() {
             isDisabled={isLoading('BlogSortOptions')}
             classNames={{
               trigger: "h-7 min-h-unit-7 px-2",
-              value: "text-xs"
+              value: "text-xs text-body"
             }}
           >
             {blogSortOptions.map((option) => (
@@ -208,7 +211,7 @@ export const BlogNavClient = memo(function BlogNavClient() {
         </div>
       </div>
 
-      <Divider className="bg-zinc-200/5 my-0.5" />
+      <Divider className="divider my-0.5" />
 
       {/* Action button */}
       <div className="pt-2">

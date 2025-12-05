@@ -67,6 +67,8 @@ export const NAV_STYLES = {
   mainLink: "font-semibold",
   subLink: "pl-4",
   active: "text-primary",
+  // Match hover: blue pill with white text so active looks the same as hover
+  //active: "bg-primary/100 text-white rounded-full px-3 py-1",
   divider: "bg-zinc-700/50 my-1",
   icon: "text-xl text-default-500",
   disabledText: "ml-2 text-xs text-default-400"

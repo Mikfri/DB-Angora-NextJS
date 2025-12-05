@@ -26,19 +26,19 @@ export default function EnumLocalAutocomplete({ enumType, value, onChange, label
             onSelectionChange={(key) => onChange(key as string)}
             classNames={{
                 base: "max-w-xs",
-                listbox: "bg-zinc-800/80 text-zinc-100",
-                listboxWrapper: "data-[hover=true]:bg-zinc-700/50",
-                popoverContent: "bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 border border-zinc-700/50",
-                endContentWrapper: "text-zinc-100",
-                clearButton: "text-zinc-400",
-                selectorButton: "text-zinc-400"
+                listbox: "unified-container text-body p-1", // Bruger unified-container + text-body
+                listboxWrapper: "data-[hover=true]:bg-content2/50", // Bruger content2 fra tailwind.config
+                popoverContent: "unified-container backdrop-blur-md", // Bruger unified-container
+                endContentWrapper: "text-body", // Bruger text-body
+                clearButton: "text-muted", // Bruger text-muted
+                selectorButton: "text-muted" // Bruger text-muted
             }}
         >
             {Object.entries(enumType).map(([key, label]) => (
                 <AutocompleteItem 
                     key={key} 
                     textValue={label}
-                    className="text-zinc-100 data-[selected=true]:bg-zinc-700/50"
+                    className="text-body data-[selected=true]:bg-primary/10 hover:bg-content2/30 data-[hover=true]:bg-primary/100 data-[hover=true]:text-white" // Tilføjet: Hover styling som i MyNavClient (blå baggrund + hvid tekst)
                 >
                     {label}
                 </AutocompleteItem>

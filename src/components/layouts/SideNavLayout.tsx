@@ -51,8 +51,8 @@ export default function SideNavLayout({ leftSideNav, rightSideNav, children }: S
       {/* Venstre sidenav (kun hvis defineret) */}
       {hasLeft && (
         <aside className={hasBoth ? 'lg:col-span-2' : 'lg:col-span-1'}>
-          <div className="sticky top-20 h-fit">
-            <div className="max-h-[calc(100vh-6rem)] overflow-y-auto">
+          <div className="sticky top-20 h-fit"> {/* Ændret tilbage til top-20 (80px) - matcher TopNav højde + lidt spacing */}
+            <div className="max-h-[calc(100vh-6rem)] overflow-hidden">
               {leftSideNav}
             </div>
           </div>
@@ -67,7 +67,7 @@ export default function SideNavLayout({ leftSideNav, rightSideNav, children }: S
       {/* Højre sidenav (kun hvis defineret) */}
       {hasRight && (
         <aside className={hasBoth ? 'lg:col-span-2' : 'lg:col-span-1'}>
-          <div className="sticky top-20 h-fit">
+          <div className="sticky top-20 h-fit"> {/* Ændret tilbage til top-20 */}
             <div className="max-h-[calc(100vh-6rem)] overflow-y-auto">
               {rightSideNav}
             </div>

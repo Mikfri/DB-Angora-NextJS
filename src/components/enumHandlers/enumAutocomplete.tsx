@@ -69,18 +69,18 @@ export default function EnumAutocomplete({
                 labelPlacement="outside"
                 classNames={{
                     base: "w-full",
-                    listbox: "bg-zinc-800/80 text-zinc-100",
-                    listboxWrapper: "data-[hover=true]:bg-zinc-700/50",
-                    popoverContent: "bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 border border-zinc-700/50",
-                    endContentWrapper: "text-zinc-100",
-                    selectorButton: "text-zinc-400"
+                    listbox: "unified-container text-body p-1", // Bruger unified-container + text-body
+                    listboxWrapper: "data-[hover=true]:bg-content2/50", // Bruger content2 fra tailwind.config
+                    popoverContent: "unified-container backdrop-blur-md", // Bruger unified-container
+                    endContentWrapper: "text-body", // Bruger text-body
+                    selectorButton: "text-muted" // Bruger text-muted
                 }}
             >
                 {options.map((option) => (
                     <AutocompleteItem
                         key={option}
                         textValue={option}
-                        className="text-zinc-100 data-[selected=true]:bg-zinc-700/50"
+                        className="text-body data-[selected=true]:bg-primary/10 hover:bg-content2/30 data-[hover=true]:bg-primary/100 data-[hover=true]:text-white" // Tilføjet: Hover styling som i MyNavClient (blå baggrund + hvid tekst)
                     >
                         {option.replace(/_/g, ' ')}
                     </AutocompleteItem>

@@ -25,14 +25,15 @@ import { Input } from "@heroui/react";
 import { Blog_DTO } from "@/api/types/AngoraDTOs";
 import BlogLexicalEditor from "./LexicalEditor";
 import { useRef, useEffect } from "react";
+import { useBlogWorkspace } from '@/contexts/BlogWorkspaceContext';
 
 interface Props {
   editedData: Blog_DTO;
-  setEditedData: (data: Blog_DTO) => void;
   isEditing: boolean;
 }
 
-export default function BlogContentEditor({ editedData, setEditedData, isEditing }: Props) {
+export default function BlogContentEditor({ editedData, isEditing }: Props) {
+  const { updateField } = useBlogWorkspace();
   const inputClassName = "transition-colors duration-200";
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -142,7 +143,7 @@ export default function BlogContentEditor({ editedData, setEditedData, isEditing
             </label>
             <Input
               value={editedData.title || ""}
-              onChange={(e) => setEditedData({ ...editedData, title: e.target.value })}
+              onChange={(e) => updateField('title', e.target.value)}
               className={inputClassName}
               placeholder="Indtast en fængende titel..."
               maxLength={160}
@@ -163,7 +164,7 @@ export default function BlogContentEditor({ editedData, setEditedData, isEditing
             </label>
             <Input
               value={editedData.subtitle || ""}
-              onChange={(e) => setEditedData({ ...editedData, subtitle: e.target.value })}
+              onChange={(e) => updateField('subtitle', e.target.value)}
               className={inputClassName}
               placeholder="Tilføj en kort beskrivelse..."
               maxLength={160}
@@ -187,7 +188,7 @@ export default function BlogContentEditor({ editedData, setEditedData, isEditing
         
         <BlogLexicalEditor
           value={editedData.content || ""}
-          onChange={(html) => setEditedData({ ...editedData, content: html })}
+          onChange={(html) => updateField('content', html)}
           blogId={editedData.id}
           existingPhotos={editedData.photos || []}
         />

@@ -80,7 +80,7 @@ export function RabbitProfileNavClient() {
       <div className="w-full p-1 space-y-2">
         {/* Action buttons section */}
         <div>
-          <h3 className="text-[13px] font-medium text-zinc-400 mb-1">Handlinger</h3>
+          <h3 className="text-label mb-1">Handlinger</h3>
           <div className="flex flex-col gap-2 mb-3">
             <Button
               color="primary"
@@ -107,7 +107,7 @@ export function RabbitProfileNavClient() {
               Slet kanin
             </Button>
           </div>
-          <Divider className="bg-zinc-200/5 my-0.5" />
+          <Divider className="divider my-0.5" />
         </div>
 
         {/* Profile image */}
@@ -121,21 +121,21 @@ export function RabbitProfileNavClient() {
           </div>
         </div>
 
-        <Divider className="bg-zinc-200/5 my-0.5" />
+        <Divider className="divider my-0.5" />
 
         {/* Info section */}
         <div>
-          <h3 className="text-[13px] font-medium text-zinc-400 mb-0.5">
+          <h3 className="text-label mb-0.5">
             {SECTIONS.INFO}
           </h3>
           <div className="space-y-1">
             <InfoRow 
-              icon={<FaIdCard className="text-lg text-default-500" />}
+              icon={<FaIdCard className="text-lg text-muted" />}
               label="Øremærke" 
               value={profile.earCombId} 
             />
             <InfoRow 
-              icon={<FaPercent className="text-lg text-default-500" />}
+              icon={<FaPercent className="text-lg text-muted" />}
               label="Indavl" 
               value={inbreedingText}
               isDefaultValue={profile.inbreedingCoefficient === undefined || profile.inbreedingCoefficient === null}
@@ -143,22 +143,22 @@ export function RabbitProfileNavClient() {
           </div>
         </div>
 
-        <Divider className="bg-zinc-200/5 my-0.5" />
+        <Divider className="divider my-0.5" />
 
         {/* Owner section */}
         <div>
-          <h3 className="text-[13px] font-medium text-zinc-400 mb-0.5">
+          <h3 className="text-label mb-0.5">
             {SECTIONS.OWNER}
           </h3>
           <div className="space-y-1">
             <InfoRow 
-              icon={<FaUserCircle className="text-lg text-default-500" />}
+              icon={<FaUserCircle className="text-lg text-muted" />}
               label="Opdrætter" 
               value={breederText}
               isDefaultValue={!profile.originFullName}
             />
             <InfoRow 
-              icon={<FaUserCircle className="text-lg text-default-500" />}
+              icon={<FaUserCircle className="text-lg text-muted" />}
               label="Ejer" 
               value={ownerText}
               isDefaultValue={!profile.ownerFullName}
@@ -166,22 +166,22 @@ export function RabbitProfileNavClient() {
           </div>
         </div>
 
-        <Divider className="bg-zinc-200/5 my-0.5" />
+        <Divider className="divider my-0.5" />
 
         {/* Features section */}
         <div>
-          <h3 className="text-[13px] font-medium text-zinc-400 mb-0.5">
+          <h3 className="text-label mb-0.5">
             {SECTIONS.FEATURES}
           </h3>
           <div className="space-y-1">
             <InfoRow 
-              icon={<IoColorPaletteOutline className="text-lg text-default-500" />}
+              icon={<IoColorPaletteOutline className="text-lg text-muted" />}
               label="Racegodkendt" 
               value={approvalText} 
               isDefaultValue={profile.approvedRaceColorCombination === null}
             />
             <InfoRow 
-              icon={<FaInfoCircle className="text-lg text-default-500" />}
+              icon={<FaInfoCircle className="text-lg text-muted" />}
               label="Status" 
               value={statusText} 
               isDefaultValue={profile.isJuvenile === null}
@@ -222,9 +222,9 @@ function InfoRow({ icon, label, value, isDefaultValue = false }: {
       <div className="flex items-center">
         <div className="flex items-center gap-1.5 min-w-[110px]">
           {icon}
-          <span className="text-xs font-medium text-zinc-300">{label}</span>
+          <span className="text-label">{label}</span>
         </div>
-        <div className={`text-sm ${isDefaultValue ? 'text-zinc-500 italic' : 'text-zinc-100'}`}>
+        <div className={`text-value ${isDefaultValue ? 'text-muted italic' : ''}`}>
           {value}
         </div>
       </div>

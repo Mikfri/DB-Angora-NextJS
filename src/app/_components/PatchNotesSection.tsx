@@ -21,6 +21,20 @@ export default function PatchNotesSection({ data }: Props) {
     const container = contentRef.current;
     if (!container) return;
 
+    // Centrér billeder ved at wrappe dem i flex container
+    container.querySelectorAll('img').forEach(img => {
+      // Skip hvis allerede wrapped
+      if (img.parentElement?.classList.contains('image-center-wrapper')) return;
+      
+      const wrapper = document.createElement('div');
+      wrapper.className = 'image-center-wrapper not-prose flex justify-center my-6';
+      img.parentNode?.insertBefore(wrapper, img);
+      wrapper.appendChild(img);
+      img.style.cursor = 'pointer';
+      img.style.maxWidth = '100%';
+      img.style.height = 'auto';
+    });
+
     // Delegated click handler — finder <img> via event.target
     const onClickHandler = (e: MouseEvent) => {
       const target = e.target as HTMLElement | null;
@@ -33,9 +47,6 @@ export default function PatchNotesSection({ data }: Props) {
     };
 
     container.addEventListener('click', onClickHandler, false);
-
-    // Giv billeder cursor:pointer via class (gør det én gang)
-    container.querySelectorAll('img').forEach(img => (img.style.cursor = 'pointer'));
 
     return () => {
       container.removeEventListener('click', onClickHandler, false);
@@ -102,22 +113,25 @@ export default function PatchNotesSection({ data }: Props) {
             </div>
           </header>
 
-          {/* Klikbart hovedbillede */}
+          {/* Klikbart hovedbillede - centreret med not-prose for at undgå prose styling */}
           {latest.featuredImageUrl && (
-            <Image
-              src={latest.featuredImageUrl}
-              alt={latest.title}
-              width={800}
-              height={450}
-              className="w-full h-auto object-cover rounded-lg mb-8 shadow-lg cursor-pointer transition hover:brightness-90"
-              onClick={() => latest.featuredImageUrl && setModalImageUrl(latest.featuredImageUrl)}
-              priority
-            />
+            <div className="not-prose flex justify-center mb-8">
+              <Image
+                src={latest.featuredImageUrl}
+                alt={latest.title}
+                width={800}
+                height={450}
+                className="max-w-full h-auto object-cover rounded-lg shadow-lg cursor-pointer transition hover:brightness-90"
+                onClick={() => latest.featuredImageUrl && setModalImageUrl(latest.featuredImageUrl)}
+                priority
+              />
+            </div>
           )}
 
+          {/* Blog content - bruger prose fra Tailwind Typography */}
           <div
             ref={contentRef}
-            className="blog-content mb-8"
+            className="prose blog-content mb-8"
             dangerouslySetInnerHTML={{ __html: latest.content }}
           />
 

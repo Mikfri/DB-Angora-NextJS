@@ -30,6 +30,9 @@ export function MyNavClient() {
     // Track hash for anchor links
     const [hash, setHash] = useState('');
     
+    // Ny state for active section på forsiden (scroll spying)
+    const [activeSection, setActiveSection] = useState<string | null>(null);
+    
     useEffect(() => {
         // Initial hash
         setHash(window.location.hash);
@@ -43,18 +46,53 @@ export function MyNavClient() {
         return () => window.removeEventListener('hashchange', handleHashChange);
     }, []);
 
-    // Combine pathname + hash for matching
+    // Scroll spying for forsiden sektioner
+    useEffect(() => {
+        if (pathname !== ROUTES.HOME) return; // Kun på forsiden
+
+        const sections = ['welcome', 'news', 'updates']; // Matcher section id'er fra HomeContent.tsx
+        const observers: IntersectionObserver[] = [];
+
+        sections.forEach(sectionId => {
+            const element = document.getElementById(sectionId);
+            if (!element) return;
+
+            const observer = new IntersectionObserver(
+                ([entry]) => {
+                    if (entry.isIntersecting) {
+                        setActiveSection(`/#${sectionId}`); // Matcher ROUTES.ANCHORS format
+                    }
+                },
+                {
+                    rootMargin: '-50% 0px -50% 0px', // Aktiver når sektionen er 50% i view
+                    threshold: 0
+                }
+            );
+
+            observer.observe(element);
+            observers.push(observer);
+        });
+
+        return () => {
+            observers.forEach(observer => observer.disconnect());
+        };
+    }, [pathname]);
+
+    // Combine pathname + hash for matching (fallback til activeSection på forsiden)
     const fullPath = useMemo(() => {
+        if (pathname === ROUTES.HOME && activeSection) {
+            return activeSection; // Brug scroll-detekteret sektion på forsiden
+        }
         if (hash) {
             return pathname === '/' ? `/${hash}` : `${pathname}${hash}`;
         }
         return pathname;
-    }, [pathname, hash]);
+    }, [pathname, hash, activeSection]);
 
-    // Brug icon factory funktion fra navigation.ts
+    // Brug icon factory funktion fra navigation.ts - ikoner med text-current så de arver farve
     const ICON_MAP = useMemo(() =>
-        new Map(Object.entries(createIconMap(NAV_STYLES.icon)))
-        , []);
+        new Map(Object.entries(createIconMap("text-lg text-current")))
+    , []);
 
     // Forenklet getIconForLink funktion med ICON_MAP
     const getIconForLink = useCallback((href: string) => {
@@ -113,14 +151,24 @@ export function MyNavClient() {
             className="p-0 gap-0"
             disabledKeys={new Set(disabledKeys)}
             selectedKeys={[fullPath]}
-            classNames={{ 
-                base: NAV_STYLES.base
+            selectionMode="single"
+            //selectionIcon= // <--- Ændret: Fjerner fluebens ikonet helt (i stedet for showSelectionIcon)
+            classNames={{
+                base: "px-1 py-0"
             }}
             itemClasses={{
                 base: [
+                    "group", // add group so icons can react to hover/selected via group- classes
+                    // Hover: blue pill + white text
                     "data-[hover=true]:bg-primary/100",
-                    "data-[hover=true]:text-white"
-                ]
+                    "data-[hover=true]:text-white",
+                    "data-[hover=true]:rounded-md",
+                    // Selected: identical to hover
+                    "data-[selected=true]:bg-primary/100",
+                    "data-[selected=true]:text-white",
+                    "data-[selected=true]:rounded-md",
+                ],
+                // Fjernet endContent - ikke tilladt i slot-typen
             }}
         >
             {currentLinks.map((group, groupIndex) => (
@@ -128,31 +176,29 @@ export function MyNavClient() {
                     key={`nav-group-${groupIndex}`}
                     title={getSectionTitle(group)}
                     showDivider={groupIndex < currentLinks.length - 1}
+                    hideSelectedIcon={true} // <--- Tilføjet: Fjerner fluebens ikonet i hele sektionen
                     classNames={{
-                        divider: "bg-zinc-200/50 mt-1"
+                        divider: "divider mt-1"
                     }}
                 >
                     {group.links?.map((link) => {
-                        const classNames = `
-                            ${(link.href === ROUTES.ACCOUNT.BASE || link.href === ROUTES.SALE.BASE)
-                                ? NAV_STYLES.mainLink
-                                : NAV_STYLES.subLink}
-                            ${fullPath === link.href ? NAV_STYLES.active : ''} 
-                        `;
+                        const classNames = (link.href === ROUTES.ACCOUNT.BASE || link.href === ROUTES.SALE.BASE)
+                            ? "font-semibold"
+                            : "pl-4";
 
                         return (
                             <ListboxItem
                                 key={link.href}
+                                value={link.href}
                                 href={link.href}
                                 textValue={link.label}
                                 className={classNames}
                                 startContent={getIconForLink(link.href)}
+                                selectedIcon={null} // <--- Tilføjet: Fjerner fluebens ikonet på dette item
                             >
                                 {link.label}
                                 {link.disabled && (
-                                    <span className={NAV_STYLES.disabledText}>
-                                        (kommer snart)
-                                    </span>
+                                    <span className="ml-2 text-xs text-muted">(kommer snart)</span>
                                 )}
                             </ListboxItem>
                         );
