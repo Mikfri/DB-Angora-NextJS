@@ -54,13 +54,11 @@ export default function BlogContentEditor({ editedData, isEditing }: Props) {
 
       // Opret wrapper
       const wrapper = document.createElement('div');
-      wrapper.className = 'photo-wrapper';
+      wrapper.className = 'photo-wrapper blog-image-wrapper';
       wrapper.style.cssText = `
         display: flex;
         align-items: center;
         gap: 1rem;
-        justify-content: center;
-        margin: 1rem 0;
       `;
 
       // Flyt img ind i wrapper

@@ -15,16 +15,7 @@ export default function Footer() {
                         <div>
                             <h3 className="text-lg font-semibold mb-4 text-foreground">Sociale medier</h3>
                             <div className="flex gap-3 mb-4">
-                                <a
-                                    href="https://facebook.com"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    aria-label="Facebook"
-                                    className="w-9 h-9 rounded-full bg-content1/90 flex items-center justify-center shadow-sm text-foreground/90 hover:bg-primary/10 hover:text-primary transition-colors"
-                                >
-                                    <FaFacebookF size={18} />
-                                </a>
-
+                               
                                 <a
                                     href="https://www.instagram.com/denblaaangora"
                                     target="_blank"

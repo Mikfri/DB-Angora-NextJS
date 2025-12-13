@@ -168,7 +168,7 @@
   .blog-content h1 { @apply text-2xl font-bold mb-4 mt-8; }
   .blog-content h2 { @apply text-xl font-semibold mb-3 mt-6; }
   .blog-content h3 { @apply text-lg font-medium mb-3 mt-5; }
-  .blog-content p { @apply text-base leading-relaxed mb-4; max-width: 70ch; }
+  .blog-content p { @apply text-base leading-relaxed mb-1; max-width: 70ch; }
   .blog-content ul { @apply mb-6 ml-6 list-disc; }
   .blog-content ol { @apply mb-6 ml-6 list-decimal; }
   .blog-content li { @apply mb-2; }
@@ -178,7 +178,7 @@
   .blog-image-wrapper {
     display: flex;
     justify-content: center;
-    margin: 1.5rem 0;
+    margin: 0.25rem 0;
   }
   
   .blog-content img,

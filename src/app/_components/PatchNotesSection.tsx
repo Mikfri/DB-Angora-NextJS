@@ -27,7 +27,7 @@ export default function PatchNotesSection({ data }: Props) {
       if (img.parentElement?.classList.contains('image-center-wrapper')) return;
       
       const wrapper = document.createElement('div');
-      wrapper.className = 'image-center-wrapper not-prose flex justify-center my-6';
+      wrapper.className = 'image-center-wrapper blog-image-wrapper not-prose flex justify-center';
       img.parentNode?.insertBefore(wrapper, img);
       wrapper.appendChild(img);
       img.style.cursor = 'pointer';

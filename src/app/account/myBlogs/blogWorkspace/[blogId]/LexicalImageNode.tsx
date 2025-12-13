@@ -124,7 +124,7 @@ function ImageNodeComponent({ node, nodeKey }: { node: ImageNode; nodeKey: NodeK
   return (
     <div 
       data-image-key={nodeKey}
-      className={`blog-image-container my-4 flex flex-col items-center relative group ${
+        className={`blog-image-container flex flex-col items-center relative group ${
         isSelected ? 'ring-2 ring-primary ring-offset-2 ring-offset-background rounded-lg' : ''
       }`}
       onMouseEnter={() => setShowControls(true)}
@@ -255,7 +255,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
   exportDOM(): DOMExportOutput {
     // Opret wrapper div til centrering (matcher editor-mode styling)
     const wrapper = document.createElement('div');
-    wrapper.className = 'blog-image-wrapper flex justify-center my-6';
+    wrapper.className = 'blog-image-wrapper flex justify-center';
     
     // Opret img element
     const img = document.createElement('img');
