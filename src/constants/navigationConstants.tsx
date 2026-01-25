@@ -150,8 +150,8 @@ export const homeNavigationLinks: NavGroup[] = [
       { href: ROUTES.ANCHORS.WELCOME, label: 'Velkommen til' },
       { href: ROUTES.ANCHORS.NEWS, label: 'Nyheder' },
       { href: ROUTES.ANCHORS.FEATURED, label: 'Opdateringer' },
-      { href: ROUTES.ANCHORS.SALE, label: 'Salg' },
-      { href: ROUTES.ANCHORS.BLOGS, label: 'Blogs' }
+      // { href: ROUTES.ANCHORS.SALE, label: 'Salg' },
+      // { href: ROUTES.ANCHORS.BLOGS, label: 'Blogs' }
     ]
   }
 ];

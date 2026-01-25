@@ -49,7 +49,7 @@ export default function BlogPost({ blog }: Props) {
   };
 
   return (
-    <article className="max-w-4xl mx-auto py-8 px-4">
+    <article className="max-w-6xl mx-auto w-full py-8 px-6">
       {/* Header med titel, undertitel og forfatter */}
       <header className="mb-8">
         {/* Titel - bruger text-heading fra globals.css */}
@@ -91,15 +91,17 @@ export default function BlogPost({ blog }: Props) {
 
       {/* Featured image */}
       {blog.featuredImageUrl && (
-        <Image
-          src={blog.featuredImageUrl}
-          alt={blog.title}
-          width={800}
-          height={450}
-          className="w-full h-auto object-cover rounded-lg mb-8 shadow-lg cursor-pointer transition hover:brightness-90"
-          onClick={() => blog.featuredImageUrl && setModalImageUrl(blog.featuredImageUrl)}
-          priority
-        />
+        <div className="not-prose flex justify-center mb-8">
+          <Image
+            src={blog.featuredImageUrl}
+            alt={blog.title}
+            width={800}
+            height={450}
+            className="max-w-full h-auto object-cover rounded-lg shadow-lg cursor-pointer transition hover:brightness-90"
+            onClick={() => blog.featuredImageUrl && setModalImageUrl(blog.featuredImageUrl)}
+            priority
+          />
+        </div>
       )}
 
       {/* Genbrug ImageModal */}
@@ -113,7 +115,7 @@ export default function BlogPost({ blog }: Props) {
       {/* Blog content - BRUGER blog-content class fra globals.css */}
       <div
         ref={contentRef}
-        className="blog-content"
+        className="prose blog-content mb-8"
         dangerouslySetInnerHTML={{ __html: blog.content }}
       />
 

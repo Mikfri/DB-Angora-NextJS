@@ -52,7 +52,11 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
       />
-      <BlogPost blog={blog} />
+      <div className="main-content-container">
+        <main className="max-w-6xl mx-auto">
+          <BlogPost blog={blog} />
+        </main>
+      </div>
     </>
   );
 }
