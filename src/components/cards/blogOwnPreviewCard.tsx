@@ -5,10 +5,10 @@ import { Card, CardHeader, CardBody, Avatar } from '@heroui/react';
 import Image from 'next/image';
 import { MdOutlineArticle } from 'react-icons/md';
 import { ROUTES } from '@/constants/navigationConstants';
-import type { Blog_CardDTO } from '@/api/types/AngoraDTOs';
+import type { BlogCardPreviewDTO } from '@/api/types/AngoraDTOs';
 
 interface Props {
-  blog: Blog_CardDTO;
+  blog: BlogCardPreviewDTO;
   onClick?: () => void;
 }
 

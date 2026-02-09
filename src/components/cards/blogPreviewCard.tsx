@@ -1,15 +1,21 @@
 // src/components/cards/blogPreviewCard.tsx
+
+/*
+Dette card er for den almene besøgende af siden/læseren.
+IKKE BLOG CONTENT-CREATOREN*/
+
 'use client';
 import { useState, memo } from 'react';
 import { Card, CardHeader, CardBody, Tooltip, Avatar } from '@heroui/react';
 import Image from 'next/image';
 import { FaRegHeart, FaHeart } from 'react-icons/fa';
-import { MdOutlineArticle } from 'react-icons/md';
+import { MdOutlineArticle, MdRemoveRedEye, MdTouchApp } from 'react-icons/md';
 import { ROUTES } from '@/constants/navigationConstants';
-import type { Blog_CardDTO } from '@/api/types/AngoraDTOs';
+import type { BlogCardPreviewDTO } from '@/api/types/AngoraDTOs';
+import { formatBlogDate } from '@/utils/formatters';
 
 interface Props {
-	blog: Blog_CardDTO;
+	blog: BlogCardPreviewDTO;
 	onClick?: () => void;
 	onFavoriteToggle?: (id: string, isFavorite: boolean) => void;
 	initialFavorite?: boolean;
@@ -28,7 +34,7 @@ const BlogPreviewCard = memo(function BlogPreviewCard({
 	const defaultImage = '/images/DB-Angora.png';
 	const featuredImage = (!imageError && blog.featuredImageUrl) || defaultImage;
 
-	// Handler til favorit knap (samme som SaleDetailsCard)
+	// Handler til favorit knap
 	const handleFavoriteClick = (event: React.MouseEvent) => {
 		event.stopPropagation();
 		event.preventDefault();
@@ -52,8 +58,8 @@ const BlogPreviewCard = memo(function BlogPreviewCard({
 
 	// Blog type chip
 	const typeChip = (
-		<div className="inline-flex items-center gap-1 bg-black/40 backdrop-blur-sm text-white text-sm font-medium px-2 py-1 rounded-full shadow-sm">
-			<MdOutlineArticle size={16} />
+		<div className="inline-flex items-center gap-1.5 bg-gradient-to-r from-blue-600/90 to-blue-500/90 backdrop-blur-md text-white text-xs font-semibold px-3 py-1.5 rounded-full shadow-lg border border-blue-400/20">
+			<MdOutlineArticle size={14} />
 			<span className="truncate max-w-[120px]">Blog</span>
 		</div>
 	);
@@ -62,17 +68,46 @@ const BlogPreviewCard = memo(function BlogPreviewCard({
 	const formatDate = (dateStr?: string | null) => {
 		if (!dateStr) return '';
 		const d = new Date(dateStr);
-		return d.toLocaleDateString('da-DK', { year: 'numeric', month: 'short', day: 'numeric' });
+		const currentYear = new Date().getFullYear();
+		const dateYear = d.getFullYear();
+
+		if (dateYear === currentYear) {
+			// Samme år: "Jan 5"
+			return d.toLocaleDateString('da-DK', { month: 'short', day: 'numeric' });
+		} else {
+			// Andet år: "Jan 5, 2025"
+			return d.toLocaleDateString('da-DK', { month: 'short', day: 'numeric', year: 'numeric' });
+		}
+	};
+
+	// Synlighed display mapper
+	const visibilityDisplay = (level: string) => {
+		switch (level) {
+			case 'Public': return 'Offentlig';
+			case 'Paid': return 'Betalt';
+			default: return level;
+		}
 	};
 
 	return (
 		<Card
 			isPressable
 			onPress={handleCardPress}
-			className="max-w-sm hover:shadow-lg transition-shadow bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 border border-zinc-700/50 select-none"
+			className="max-w-sm transition-all duration-300 backdrop-blur-md backdrop-saturate-150 border select-none group overflow-hidden hover:-translate-y-1"
+			style={{
+				background: 'var(--card-bg-gradient)',
+				borderColor: 'var(--card-border)',
+				boxShadow: 'var(--card-shadow)',
+			}}
+			onMouseEnter={(e) => {
+				e.currentTarget.style.boxShadow = 'var(--card-shadow-hover)';
+			}}
+			onMouseLeave={(e) => {
+				e.currentTarget.style.boxShadow = 'var(--card-shadow)';
+			}}
 		>
 			{/* Billede container */}
-			<div className="relative w-full h-64">
+			<div className="relative w-full h-64 overflow-hidden">
 				<Image
 					src={featuredImage}
 					alt={blog.title}
@@ -82,14 +117,18 @@ const BlogPreviewCard = memo(function BlogPreviewCard({
 					onError={() => setImageError(true)}
 					draggable={false}
 				/>
-				{/* Favorit knap - overlay, samme tilgang som SaleDetailsCard */}
+
+				{/* Gradient overlay */}
+				<div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+
+				{/* Favorit knap - overlay */}
 				<div
-					className="absolute top-2 right-2 z-20 favorite-button select-none"
+					className="absolute top-3 right-3 z-20 favorite-button select-none transition-transform duration-200 hover:scale-110"
 					aria-label={isFavorite ? "Fjern fra favoritter" : "Tilføj til favoritter"}
 				>
 					<Tooltip content={isFavorite ? "Fjern fra favoritter" : "Tilføj til favoritter"}>
 						<div
-							className="p-1.5 rounded-full bg-black/30 backdrop-blur-sm hover:bg-white/10 cursor-pointer"
+							className="p-2 rounded-full bg-black/40 backdrop-blur-md hover:bg-white/20 cursor-pointer transition-all duration-200 border border-white/10 hover:border-white/30 shadow-lg"
 							onClick={handleFavoriteClick}
 							onMouseDown={e => { e.stopPropagation(); e.preventDefault(); }}
 							onMouseUp={e => e.stopPropagation()}
@@ -101,55 +140,73 @@ const BlogPreviewCard = memo(function BlogPreviewCard({
 							tabIndex={0}
 						>
 							{isFavorite ? (
-								<FaHeart className="text-red-500" size={16} />
+								<FaHeart className="text-red-500 drop-shadow-lg" size={18} />
 							) : (
-								<FaRegHeart className="text-white/80 hover:text-red-400" size={16} />
+								<FaRegHeart className="text-white/90 hover:text-red-400" size={18} />
 							)}
 						</div>
 					</Tooltip>
 				</div>
-				{/* Bund gradient for type chip */}
-				<div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-black/80 to-transparent" />
+
 				{/* Type chip - nederst til venstre */}
-				<div className="absolute bottom-2 left-2 z-10 select-none">
+				<div className="absolute bottom-3 left-3 z-10 select-none">
 					{typeChip}
 				</div>
 			</div>
 
 			{/* Header sektion med titel og forfatter */}
-			<CardHeader className="flex flex-col items-start gap-1 py-2.5 px-4">
-				<h3 className="text-md font-bold text-zinc-100 line-clamp-2 text-left w-full">{blog.title}</h3>
-				<div className="flex flex-row items-start gap-2 w-full">
+			<CardHeader className="flex flex-col items-start gap-2.5 py-4 px-5">
+				<h3 className="text-lg font-bold line-clamp-2 text-left w-full leading-snug group-hover:text-primary transition-colors duration-300">
+					{blog.title}
+				</h3>
+
+				<div className="flex flex-row items-center gap-2.5 w-full">
 					<Avatar
 						src={blog.authorProfilePicture ?? undefined}
 						name={blog.authorName ?? 'Ukendt forfatter'}
 						size="sm"
-						className="border border-zinc-700 mt-0.5"
+						className="border-2 border-primary/20 ring-2 ring-primary/5"
 					/>
-					<div className="flex flex-col">
-						<div className="flex items-center gap-2 text-xs text-zinc-400">
-							<span>{blog.authorName ?? 'Ukendt forfatter'}</span>
-							<span>•</span>
-							<span>{formatDate(blog.publishDate ?? undefined)}</span>
-						</div>
-						<div className="text-xs text-zinc-500 italic text-left">Synlighed: {blog.visibilityLevel}</div>
+					<div className="flex flex-col justify-center">
+						<span className="text-sm font-medium text-body">
+							{blog.authorName ?? 'Ukendt forfatter'}
+						</span>
 					</div>
 				</div>
+
 				{blog.subtitle && (
-					<div className="text-xs text-zinc-400 italic line-clamp-1 text-left w-full">{blog.subtitle}</div>
+					<div className="text-sm text-primary/70 italic line-clamp-2 text-left w-full leading-relaxed">
+						{blog.subtitle}
+					</div>
 				)}
 			</CardHeader>
 
 			{/* Body sektion med summary */}
-			<CardBody className="text-zinc-300 py-2 px-4">
+			<CardBody className="py-0 px-5 pb-4">
 				<div
-					className="line-clamp-3 text-sm mb-2"
+					className="line-clamp-3 text-sm mb-4 leading-relaxed text-muted"
 					dangerouslySetInnerHTML={{ __html: blog.contentSummary }}
 				/>
+
+				{/* Stats footer - enhanced design */}
+				<div className="flex items-center gap-3 text-xs border-t pt-3 mt-2 divider">
+					<span className="flex items-center gap-1.5 bg-content2/50 px-2.5 py-1 rounded-full">
+						<MdRemoveRedEye size={14} className="text-primary" />
+						<span className="text-muted">{visibilityDisplay(blog.visibilityLevel)}</span>
+					</span>
+
+					<span className="flex items-center gap-1 text-muted">
+						{formatBlogDate(blog.publishDate ?? undefined)}
+					</span>
+
+					<span className="flex items-center gap-1.5 bg-content2/50 px-2.5 py-1 rounded-full ml-auto">
+						<MdTouchApp size={14} className="text-primary" />
+						<span className="text-muted">{blog.viewCount || 0}</span>
+					</span>
+				</div>
 			</CardBody>
 		</Card>
 	);
 });
 
 export default BlogPreviewCard;
-// src/components/cards/blogPreviewCard.tsx

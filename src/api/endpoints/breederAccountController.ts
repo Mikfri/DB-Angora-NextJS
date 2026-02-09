@@ -26,8 +26,8 @@ export async function GetReceivedTransferRequests(
     if (filter.rabbit_NickName !== undefined && filter.rabbit_NickName !== null) queryParams.append('rabbit_NickName', filter.rabbit_NickName);
     if (filter.issuer_BreederRegNo !== undefined && filter.issuer_BreederRegNo !== null) queryParams.append('issuer_BreederRegNo', filter.issuer_BreederRegNo);
     if (filter.issuer_FirstName !== undefined && filter.issuer_FirstName !== null) queryParams.append('issuer_FirstName', filter.issuer_FirstName);
-    //if (filter.recipent_BreederRegNo !== undefined && filter.recipent_BreederRegNo !== null) queryParams.append('recipent_BreederRegNo', filter.recipent_BreederRegNo);
-    //if (filter.recipent_FirstName !== undefined && filter.recipent_FirstName !== null) queryParams.append('recipent_FirstName', filter.recipent_FirstName);
+    //if (filter.recipient_BreederRegNo !== undefined && filter.recipient_BreederRegNo !== null) queryParams.append('recipient_BreederRegNo', filter.recipient_BreederRegNo);
+    //if (filter.recipient_FirstName !== undefined && filter.recipient_FirstName !== null) queryParams.append('recipient_FirstName', filter.recipient_FirstName);
     if (filter.from_dateAccepted !== undefined && filter.from_dateAccepted !== null) queryParams.append('from_dateAccepted', filter.from_dateAccepted);
   }
 
@@ -73,8 +73,8 @@ export async function GetSentTransferRequests(
     if (filter.rabbit_NickName !== undefined && filter.rabbit_NickName !== null) queryParams.append('rabbit_NickName', filter.rabbit_NickName);
     //if (filter.issuer_BreederRegNo !== undefined && filter.issuer_BreederRegNo !== null) queryParams.append('issuer_BreederRegNo', filter.issuer_BreederRegNo);
     //if (filter.issuer_FirstName !== undefined && filter.issuer_FirstName !== null) queryParams.append('issuer_FirstName', filter.issuer_FirstName);
-    if (filter.recipent_BreederRegNo !== undefined && filter.recipent_BreederRegNo !== null) queryParams.append('recipent_BreederRegNo', filter.recipent_BreederRegNo);
-    if (filter.recipent_FirstName !== undefined && filter.recipent_FirstName !== null) queryParams.append('recipent_FirstName', filter.recipent_FirstName);
+    if (filter.recipient_BreederRegNo !== undefined && filter.recipient_BreederRegNo !== null) queryParams.append('recipient_BreederRegNo', filter.recipient_BreederRegNo);
+    if (filter.recipient_FirstName !== undefined && filter.recipient_FirstName !== null) queryParams.append('recipient_FirstName', filter.recipient_FirstName);
     if (filter.from_dateAccepted !== undefined && filter.from_dateAccepted !== null) queryParams.append('from_dateAccepted', filter.from_dateAccepted);
   }
 

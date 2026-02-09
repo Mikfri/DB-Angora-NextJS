@@ -15,7 +15,7 @@ export interface IdentityError {
  * Generisk DTO til paginerede resultater.
  * @template T Typen af data i resultatet
  */
-export interface PagedResultDTO<T> {
+export interface ResultPagedDTO<T> {
     /** Array af data af typen T */
     data: T[];
     /** Totalt antal elementer på tværs af alle sider */
@@ -116,12 +116,12 @@ export interface CloudinaryUploadConfigDTO {
 export interface Rabbit_CreateDTO {
     rightEarId: string;
     leftEarId: string;
-    nickName: string;
-    race: string;
-    color: string;
-    dateOfBirth: string;
+    nickName?: string | null;
+    race: string;  // Required, men ikke nullable
+    color: string;  // Required, men ikke nullable
+    dateOfBirth: string; // string($date)
     dateOfDeath?: string | null;
-    gender: string;
+    gender: string;  // Required, men ikke nullable
     isForBreeding: boolean;
     fatherId_Placeholder?: string | null;
     motherId_Placeholder?: string | null;
@@ -259,7 +259,7 @@ export interface Rabbit_ForbreedingPreviewDTO {    // Preview for avlerer
     approvedRaceColorCombination: boolean | null;
     dateOfBirth: string | null;
     //dateOfDeath: string | null;
-    isJuvenile: boolean | null;
+    ungdyrGruppe_M: boolean | null;
     gender: string | null;
     //isForBreeding: boolean | null;
     zipCode: number;
@@ -287,7 +287,7 @@ export interface Rabbit_OwnedPreviewDTO {
     approvedRaceColorCombination: boolean;
     dateOfBirth: string  // DateOnly i C#, string i TS
     dateOfDeath: string | null;  // DateOnly i C#, string i TS
-    isJuvenile: boolean;
+    ungdyrGruppe_M: boolean;
     gender: string;
     isForBreeding: boolean | null;
     isOwnedByTargetedUser: boolean;
@@ -313,7 +313,7 @@ export interface Rabbit_OwnedFilterDTO {
   deathAfter?: string | null;
   fatherId_Placeholder?: string | null;
   motherId_Placeholder?: string | null;
-  isJuvenile?: boolean | null;
+  ungdyrGruppe_M?: boolean | null;
   approvedRaceColorCombination?: boolean | null;
   isForBreeding?: boolean | null;
   includeLinkedRabbits?: boolean | null;
@@ -338,7 +338,7 @@ export interface Rabbit_ProfileDTO {
     approvedRaceColorCombination: boolean;
     dateOfBirth: string;  // API: string($date) format, nullable
     dateOfDeath: string | null;
-    isJuvenile: boolean;
+    ungdyrGruppe_M: boolean;
     gender: string;
     isForBreeding: boolean | null;
     fatherId_Placeholder: string | null;
@@ -369,7 +369,7 @@ export interface Rabbit_ForbreedingProfileDTO {
     approvedRaceColorCombination: boolean;
     dateOfBirth: string;  // API: string($date) format, nullable
     //dateOfDeath: string | null; // Ikke relevant for avls-profil
-    isJuvenile: boolean;
+    ungdyrGruppe_M: boolean;
     gender: string;
     //isForBreeding: boolean | null;    // Ikke relevant for avls-profil
     fatherId_Placeholder: string | null;
@@ -553,13 +553,13 @@ export interface TransferRequest_ContractDTO {
     issuer_RoadNameAndNo: string;
     issuer_ZipCode: number;
     issuer_City: string;
-    //--- Recipent
-    recipent_BreederRegNo: string;
-    recipent_FullName: string;
-    recipent_Email: string;
-    recipent_RoadNameAndNo: string;
-    recipent_ZipCode: number;
-    recipent_City: string;
+    //--- Recipient
+    recipient_BreederRegNo: string;
+    recipient_FullName: string;
+    recipient_Email: string;
+    recipient_RoadNameAndNo: string;
+    recipient_ZipCode: number;
+    recipient_City: string;
     //--- Rabbit
     rabbit_EarCombId: string;
     rabbit_NickName: string | null;
@@ -571,7 +571,7 @@ export interface TransferRequest_ContractDTO {
 
 export interface TransferRequest_CreateDTO {
     rabbit_EarCombId: string;
-    recipent_BreederRegNo: string;
+    recipient_BreederRegNo: string;
     price: number | null;
     saleConditions: string | null;
 }
@@ -588,8 +588,8 @@ export interface TransferRequestPreviewDTO {
     issuer_BreederRegNo: string;
     issuer_FirstName: string;
     //--- Modtager properties
-    recipent_BreederRegNo: string;
-    recipent_FirstName: string | null;
+    recipient_BreederRegNo: string;
+    recipient_FirstName: string | null;
     //--- Salgs properties
     price: number | null;
     saleConditions: string | null;
@@ -607,8 +607,8 @@ export interface TransferRequestPreviewFilterDTO {
     issuer_BreederRegNo?: string;
     issuer_FirstName?: string | null;
     //--- Modtager properties
-    recipent_BreederRegNo?: string | null;
-    recipent_FirstName?: string | null;
+    recipient_BreederRegNo?: string | null;
+    recipient_FirstName?: string | null;
 }
 
 export interface TransferRequest_ResponseDTO {
@@ -633,7 +633,7 @@ export interface Blog_CreateDTO {
  * DTO til at vise et blog preview som card for en blog-content creator. Benyttes under:
  * ./account/myBlogs sektionen.
  */
-export interface Blog_CardDTO {
+export interface BlogCardPreviewDTO {
     id: number;
     slug: string;
     visibilityLevel: string; // eller evt. en enum-type hvis du ønsker det
@@ -654,7 +654,7 @@ export interface Blog_CardDTO {
  * DTO til filtrering af blogindlæg for alle besøgende af sitet.
  * Benyttes under './blogs' sektionen.
  */
-export interface Blog_CardFilterDTO {
+export interface BlogCardPreviewFilterDTO {
     authorFullName?: string | null;
     searchTerm?: string | null;
     tagFilter?: string | null;
@@ -667,8 +667,8 @@ export interface Blog_CardFilterDTO {
 
 export interface BlogsLatestByCategoryDTO {
     category: string;
-    latest?: BlogPublicDTO | null;
-    next?: Blog_CardDTO[];
+    featured?: BlogCardPreviewDTO | null;
+    next?: BlogCardPreviewDTO[];
 }
 
 /**

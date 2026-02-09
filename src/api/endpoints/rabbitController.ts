@@ -1,4 +1,5 @@
 // src/api/endpoints/rabbitController.ts
+import { parseApiError } from "../client/errorHandlers";
 import { getApiUrl } from "../config/apiConfig";
 import {
     Rabbit_CreateDTO, Rabbit_ProfileDTO,
@@ -10,7 +11,7 @@ import {
     PhotoDeleteDTO,
     CloudinaryPhotoRegistryRequestDTO,
     Rabbit_ParentValidationResultDTO,
-    PagedResultDTO,
+    ResultPagedDTO,
     Rabbit_OwnedFilterDTO,
     Rabbit_ForbreedingProfileDTO,
     PedigreeResultDTO,
@@ -20,37 +21,42 @@ import {
 
 
 //-------------------- CREATE
-export async function CreateRabbit(rabbitData: Rabbit_CreateDTO, accessToken: string): Promise<Rabbit_ProfileDTO> {
-    const response = await fetch(getApiUrl('Rabbit/Create'), {
+/**
+ * Opretter en ny kanin for en specifik bruger (targetedUserId).
+ * Almene brugere af endpointet isender deres eget bruger-id som targetedUserId fra siden: "../myRabbits/create/page.tsx"
+ * Mods og admins kan isende andre bruger-id'er via fremtidig side "../myRabbits/create/[targetedUserId]/page.tsx."
+ * @param targetedUserId Bruger-id for den bruger kaninen skal oprettes for
+ * @param rabbitData Data for den kanin der skal oprettes
+ * @param accessToken Brugerens JWT token
+ * @returns 
+ */
+export async function CreateRabbit(
+    targetedUserId: string,
+    rabbitData: Rabbit_CreateDTO,
+    accessToken: string
+): Promise<Rabbit_ProfileDTO> {
+    if (!accessToken || accessToken.trim() === "") {
+        throw new Error("Access token is required for this endpoint.");
+    }
+    if (!targetedUserId || targetedUserId.trim() === "") {
+        throw new Error("targetedUserId er påkrævet.");
+    }
+
+    const response = await fetch(getApiUrl(`Rabbit/CreateForUser/${encodeURIComponent(targetedUserId)}`), {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json',
-            'accept': 'text/plain'
+            'Accept': 'application/json'
         },
         body: JSON.stringify(rabbitData)
     });
 
-    if (!response.ok) {
-        const errorText = await response.text();
-        let apiMessage = '';
-        try {
-            const parsed = JSON.parse(errorText);
-            apiMessage = parsed.message || errorText;
-        } catch {
-            apiMessage = errorText;
-        }
-        console.error('API Error:', {
-            status: response.status,
-            statusText: response.statusText,
-            body: errorText,
-            sentData: rabbitData
-        });
-        // Send API-beskeden videre!
-        throw new Error(apiMessage || `Failed to create rabbit: ${response.status} ${response.statusText}`);
+    if (response.status === 201) {
+        return response.json();
     }
 
-    return response.json();
+    throw await parseApiError(response);
 }
 
 /**
@@ -71,9 +77,6 @@ export async function CreateSaleDetails(
     if (!earCombId || earCombId.trim() === "") {
         throw new Error("earCombId er påkrævet.");
     }
-    if (!saleDetails) {
-        throw new Error("Salgsdetaljer er påkrævet.");
-    }
 
     const response = await fetch(getApiUrl(`Rabbit/CreateSaleDetails/${earCombId}`), {
         method: 'POST',
@@ -85,68 +88,11 @@ export async function CreateSaleDetails(
         body: JSON.stringify(saleDetails)
     });
 
-    // 401 Unauthorized
-    if (response.status === 401) {
-        const errorText = await response.text();
-        let message = "Ikke autoriseret.";
-        try {
-            const errorData = JSON.parse(errorText) as { message?: string };
-            if (errorData.message) message = errorData.message;
-        } catch {}
-        throw new Error(message);
+    if (response.status === 201) {
+        return response.json();
     }
 
-    // 403 Forbidden
-    if (response.status === 403) {
-        const errorText = await response.text();
-        let message = "Adgang nægtet.";
-        try {
-            const errorData = JSON.parse(errorText) as { message?: string };
-            if (errorData.message) message = errorData.message;
-        } catch {}
-        throw new Error(message);
-    }
-
-    // 404 Not Found
-    if (response.status === 404) {
-        const errorText = await response.text();
-        let message = "Kaninen blev ikke fundet.";
-        try {
-            const errorData = JSON.parse(errorText) as { message?: string };
-            if (errorData.message) message = errorData.message;
-        } catch {}
-        throw new Error(message);
-    }
-
-    // 400 Bad Request
-    if (response.status === 400) {
-        const errorText = await response.text();
-        let message = "Ugyldig anmodning.";
-        try {
-            const errorData = JSON.parse(errorText) as { message?: string };
-            if (errorData.message) message = errorData.message;
-        } catch {}
-        throw new Error(message);
-    }
-
-    // Andre fejl
-    if (!response.ok && response.status !== 201) {
-        let errorMessage = `${response.status} ${response.statusText}`;
-        try {
-            const errorText = await response.text();
-            const errorData = JSON.parse(errorText) as { message?: string };
-            if (errorData.message) errorMessage = errorData.message;
-        } catch {}
-        throw new Error(`Fejl ved oprettelse af salgsdetaljer: ${errorMessage}`);
-    }
-
-    // 201 Created
-    const data: unknown = await response.json();
-    // Forventet: SaleDetailsProfileDTO
-    if (typeof data === "object" && data !== null) {
-        return data as SaleDetailsProfileDTO;
-    }
-    throw new Error("API svarede ikke med salgsdetaljer-data.");
+    throw await parseApiError(response, 'Fejl ved oprettelse af salgsdetaljer');
 }
 
 /**
@@ -172,8 +118,7 @@ export async function RegisterRabbitPhoto(
   });
 
   if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(errorText || `Fejl: ${response.status} ${response.statusText}`);
+    throw await parseApiError(response);
   }
 
   return response.json();
@@ -200,9 +145,7 @@ export async function GetRabbitPhotoUploadPermission(
     });
 
     if (!response.ok) {
-        // Fejlbeskeder fra API'en stoles på og sendes videre
-        const errorText = await response.text();
-        throw new Error(errorText || `Fejl: ${response.status} ${response.statusText}`);
+        throw await parseApiError(response);
     }
 
     return response.json();
@@ -218,7 +161,7 @@ export async function GetRabbitPhotoUploadPermission(
 export async function ValidateParentReference(
   accessToken: string,
   parentId: string,
-  expectedGender: string // Typisk 'Han' eller 'Hun'
+  expectedGender: string
 ): Promise<Rabbit_ParentValidationResultDTO> {
   const url = getApiUrl(`Rabbit/Validate-parent?parentId=${encodeURIComponent(parentId)}&expectedGender=${encodeURIComponent(expectedGender)}`);
   const response = await fetch(url, {
@@ -230,8 +173,7 @@ export async function ValidateParentReference(
   });
 
   if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(errorText || `Fejl: ${response.status} ${response.statusText}`);
+    throw await parseApiError(response);
   }
 
   return response.json();
@@ -242,9 +184,12 @@ export async function GetRabbitsForBreeding(accessToken: string): Promise<Rabbit
     const data = await fetch(getApiUrl('Rabbit/Forbreeding'), {
         headers: { Authorization: `Bearer ${accessToken}` }
     });
-    const forbreedingRabbits = await data.json();
-    //console.log('API Response:', forbreedingRabbits); // Debug log
-    return forbreedingRabbits;
+    
+    if (!data.ok) {
+        throw await parseApiError(data);
+    }
+    
+    return data.json();
 }
 
 /**
@@ -263,9 +208,8 @@ export async function GetRabbitsOwnedByUser(
   accessToken: string,
   page: number = 1,
   pageSize: number = 12
-): Promise<PagedResultDTO<Rabbit_OwnedPreviewDTO>> {
+): Promise<ResultPagedDTO<Rabbit_OwnedPreviewDTO>> {
   const params = new URLSearchParams();
-  // Tilføj filter-parametre til query
   if (filter) {
     Object.entries(filter).forEach(([key, value]) => {
       if (value !== undefined && value !== null && value !== "") {
@@ -287,9 +231,7 @@ export async function GetRabbitsOwnedByUser(
   });
 
   if (!response.ok) {
-    // Fejlbeskeder fra API'en stoles på og sendes videre
-    const errorText = await response.text();
-    throw new Error(errorText || `Fejl: ${response.status} ${response.statusText}`);
+    throw await parseApiError(response);
   }
 
   return response.json();
@@ -304,21 +246,7 @@ export async function GetRabbitProfile(accessToken: string, earCombId: string): 
     });
 
     if (!response.ok) {
-        let errorMessage = `Fejl: ${response.status} ${response.statusText}`;
-        try {
-            const errorJson = await response.json();
-            if (errorJson?.message) errorMessage = errorJson.message;
-        } catch {
-            // fallback hvis ikke JSON
-            const errorText = await response.text();
-            if (errorText) errorMessage = errorText;
-        }
-
-
-        if (response.status === 401) throw new Error(errorMessage);
-        if (response.status === 403) throw new Error(errorMessage);
-        if (response.status === 404) throw new Error(errorMessage);
-        throw new Error(errorMessage);
+        throw await parseApiError(response);
     }
 
     return response.json();
@@ -343,19 +271,7 @@ export async function GetRabbitForbreedingProfile(
   });
 
   if (!response.ok) {
-    let errorMessage = `Fejl: ${response.status} ${response.statusText}`;
-    try {
-      const errorJson = await response.json();
-      if (errorJson?.message) errorMessage = errorJson.message;
-    } catch {
-      const errorText = await response.text();
-      if (errorText) errorMessage = errorText;
-    }
-
-    if (response.status === 401) throw new Error(errorMessage);
-    if (response.status === 403) throw new Error(errorMessage);
-    if (response.status === 404) throw new Error(errorMessage);
-    throw new Error(errorMessage);
+    throw await parseApiError(response);
   }
 
   return response.json();
@@ -384,24 +300,12 @@ export async function GetRabbitPedigree(
     });
 
     if (!response.ok) {
-        let errorMessage = `Fejl: ${response.status} ${response.statusText}`;
-        try {
-            const errorJson = await response.json();
-            if (errorJson?.message) errorMessage = errorJson.message;
-        } catch {
-            const errorText = await response.text();
-            if (errorText) errorMessage = errorText;
-        }
-
-        if (response.status === 401) throw new Error(errorMessage);
-        if (response.status === 403) throw new Error(errorMessage);
-        if (response.status === 404) throw new Error(errorMessage);
-        throw new Error(errorMessage);
+        throw await parseApiError(response);
     }
 
     const rawData: unknown = await response.json();
     
-    // Type guard helper ('any' alternative for NextJS 15+)
+    // Type guard helper
     function unwrapArray<T>(data: unknown): T[] {
         if (data && typeof data === 'object' && '$values' in data) {
             return (data as { $values: T[] }).$values;
@@ -409,7 +313,6 @@ export async function GetRabbitPedigree(
         return Array.isArray(data) ? data : [];
     }
 
-    // Safe cast med unwrap af arrays
     const result = rawData as Record<string, unknown>;
     
     return {
@@ -448,25 +351,11 @@ export async function GetTestMatingPedigree(
     });
 
     if (!response.ok) {
-        let errorMessage = `Fejl: ${response.status} ${response.statusText}`;
-        try {
-            const errorJson = await response.json();
-            if (errorJson?.message) errorMessage = errorJson.message;
-        } catch {
-            const errorText = await response.text();
-            if (errorText) errorMessage = errorText;
-        }
-
-        if (response.status === 400) throw new Error(errorMessage);
-        if (response.status === 401) throw new Error(errorMessage);
-        if (response.status === 403) throw new Error(errorMessage);
-        if (response.status === 404) throw new Error(errorMessage);
-        throw new Error(errorMessage);
+        throw await parseApiError(response);
     }
 
     const rawData: unknown = await response.json();
 
-    // Type guard helper (samme som GetRabbitPedigree)
     function unwrapArray<T>(data: unknown): T[] {
         if (data && typeof data === 'object' && '$values' in data) {
             return (data as { $values: T[] }).$values;
@@ -509,14 +398,7 @@ export async function EditRabbit(earCombId: string,
     });
 
     if (!response.ok) {
-        const errorText = await response.text();
-        console.error('API Error:', {
-            status: response.status,
-            statusText: response.statusText,
-            body: errorText,
-            sentData: formattedData
-        });
-        throw new Error(`Failed to update rabbit: ${response.status} ${response.statusText}`);
+        throw await parseApiError(response, 'Failed to update rabbit');
     }
 
     return response.json();
@@ -545,31 +427,18 @@ export async function UpdateSaleDetails(
     });
 
     if (!response.ok) {
-        // Hent fejlbesked fra API'en
-        const errorData = await response.json().catch(() => ({ message: `Fejl: ${response.status} ${response.statusText}` }));
-        const errorMessage = errorData.message || `Kunne ikke opdatere salgsdetaljer: ${response.status} ${response.statusText}`;
-
-        console.error('API Error:', {
-            status: response.status,
-            statusText: response.statusText,
-            errorData,
-            sentData: updateSaleDetailsDTO
-        });
-
-        throw new Error(errorMessage);
+        throw await parseApiError(response, 'Kunne ikke opdatere salgsdetaljer');
     }
 
-    // Hvis response body er tom eller ikke valid JSON, returner true baseret på success status
+    // Hvis response body er tom, returner true
     if (response.headers.get('content-length') === '0') {
         return true;
     }
 
     try {
-        // Prøv at parse response som JSON
         const result = await response.json();
-        return result === true || Boolean(result); // Konverter til boolean
+        return result === true || Boolean(result);
     } catch {
-        // Hvis parsing fejler, antages det at operationen lykkedes
         return true;
     }
 }
@@ -595,8 +464,7 @@ export async function SetRabbitProfilePhoto(
     });
 
     if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || `Fejl: ${response.status} ${response.statusText}`);
+        throw await parseApiError(response);
     }
 
     return response.json();
@@ -622,8 +490,7 @@ export async function DeleteRabbit(
   });
 
   if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(errorText || `Fejl: ${response.status} ${response.statusText}`);
+    throw await parseApiError(response);
   }
 
   return response.json();
@@ -643,18 +510,7 @@ export async function DeleteSaleDetails(
     });
 
     if (!response.ok) {
-        const errorText = await response.text();
-        console.error('API Error:', {
-            status: response.status,
-            statusText: response.statusText,
-            body: errorText
-        });
-
-        if (response.status === 404) {
-            throw new Error('Sale details not found or you do not have permission to delete them.');
-        }
-
-        throw new Error(`Failed to delete sale details: ${response.status} ${response.statusText}`);
+        throw await parseApiError(response, 'Failed to delete sale details');
     }
 
     return response.json();
@@ -681,10 +537,8 @@ export async function DeleteRabbitPhoto(
   });
 
   if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(errorText || `Fejl: ${response.status} ${response.statusText}`);
+    throw await parseApiError(response);
   }
 
-  // API returnerer bool i body
   return response.json();
 }

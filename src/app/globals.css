@@ -19,6 +19,13 @@
     --container-border: rgba(0, 0, 0, 0.06);
     --container-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
     --container-highlight: rgba(255, 255, 255, 0.95);
+    
+    /* Card specific tokens */
+    --card-bg: rgba(255, 255, 255, 0.95);
+    --card-bg-gradient: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(249, 250, 251, 0.95));
+    --card-border: rgba(0, 0, 0, 0.1);
+    --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    --card-shadow-hover: 0 12px 32px rgba(59, 130, 246, 0.25);
   }
 
   .dark {
@@ -26,6 +33,13 @@
     --container-border: rgba(255, 255, 255, 0.06);
     --container-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
     --container-highlight: rgba(255, 255, 255, 0.08);
+    
+    /* Card specific tokens */
+    --card-bg: rgba(35, 38, 46, 0.9);
+    --card-bg-gradient: linear-gradient(135deg, rgba(39, 39, 42, 0.9), rgba(24, 24, 27, 0.9));
+    --card-border: rgba(255, 255, 255, 0.06);
+    --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    --card-shadow-hover: 0 12px 32px rgba(59, 130, 246, 0.3);
   }
   
   body {

@@ -38,18 +38,18 @@
  */
 import { create } from 'zustand';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import type { Blog_CardFilterDTO } from '@/api/types/AngoraDTOs';
+import type { BlogCardPreviewFilterDTO } from '@/api/types/AngoraDTOs';
 
 // Lav en type for værdier der kan bruges i filters
 type FilterValue = string | number | boolean | null | undefined;
 
 interface BlogFilterState {
   // Filter state
-  filters: Partial<Blog_CardFilterDTO>;
+  filters: Partial<BlogCardPreviewFilterDTO>;
   
   // Actions
-  updateFilter: (key: keyof Blog_CardFilterDTO, value: FilterValue) => void;
-  clearFilter: (key: keyof Blog_CardFilterDTO) => void;
+  updateFilter: (key: keyof BlogCardPreviewFilterDTO, value: FilterValue) => void;
+  clearFilter: (key: keyof BlogCardPreviewFilterDTO) => void;
   clearAllFilters: () => void;
   syncWithUrl: (searchParams: URLSearchParams) => void;
 }
@@ -72,7 +72,7 @@ export const blogFilterStore = create<BlogFilterState>()((set) => ({
   clearAllFilters: () => set({ filters: {} }),
   
   syncWithUrl: (searchParams) => {
-    const newFilters: Partial<Blog_CardFilterDTO> = {};
+    const newFilters: Partial<BlogCardPreviewFilterDTO> = {};
     
     // Parse URL parameters to filter object using camelCase keys
     if (searchParams.has('AuthorFullName')) newFilters.authorFullName = searchParams.get('AuthorFullName') || undefined;

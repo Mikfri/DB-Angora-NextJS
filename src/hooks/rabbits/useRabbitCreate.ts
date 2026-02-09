@@ -4,69 +4,68 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
 import { Rabbit_CreateDTO } from '@/api/types/AngoraDTOs';
 import { createRabbit, validateParentReference } from '@/app/actions/rabbit/rabbitCrudActions';
-import { ROUTES } from '@/constants/navigationConstants'; // <-- Tilføjet import
+import { ROUTES } from '@/constants/navigationConstants';
 
-export function useCreateRabbit() {
+export function useCreateRabbit(targetedUserId?: string) {
     const router = useRouter();
+
+    const today = new Date().toISOString().split("T")[0];
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formData, setFormData] = useState<Partial<Rabbit_CreateDTO>>({
-        isForBreeding: false
+        isForBreeding: false,
+        dateOfBirth: today,   // ← DEFAULT DATO
     });
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
 
+        if (!targetedUserId || targetedUserId.trim() === '') {
+            toast.error('targetedUserId er påkrævet');
+            setIsSubmitting(false);
+            return;
+        }
+
         try {
-            // Validér data på klientsiden først
-            if (!formData.rightEarId || !formData.leftEarId || !formData.nickName) {
-                toast.error('Udfyld venligst alle påkrævede felter');
-                setIsSubmitting(false);
-                return;
-            }
-
-            // Valider far (Han)
+            // Advisory parent validation (warnings only)
             if (formData.fatherId_Placeholder) {
-                const fatherValidation = await validateParentReference(formData.fatherId_Placeholder, 'Han');
-                if (!fatherValidation.success) {
-                    toast.error(fatherValidation.error || 'Far-øremærke er ugyldigt');
-                    setIsSubmitting(false);
-                    return;
-                }
-                if (!fatherValidation.result.isValid) {
-                    toast.error(fatherValidation.result.message || 'Far-øremærke er ugyldigt');
-                    setIsSubmitting(false);
-                    return;
+                try {
+                    const fatherValidation = await validateParentReference(formData.fatherId_Placeholder, 'Han');
+                    if (!fatherValidation.success) {
+                        toast.warning(fatherValidation.error || 'Kunne ikke validere far; kaninen gemmes alligevel');
+                    } else if (!fatherValidation.result.isValid) {
+                        toast.warning(fatherValidation.result.message || 'Far-øremærke ser ud til at være ugyldigt; kaninen gemmes alligevel');
+                    }
+                } catch (err) {
+                    console.error('Father validation error', err);
                 }
             }
 
-            // Valider mor (Hun)
             if (formData.motherId_Placeholder) {
-                const motherValidation = await validateParentReference(formData.motherId_Placeholder, 'Hun');
-                if (!motherValidation.success) {
-                    toast.error(motherValidation.error || 'Mor-øremærke er ugyldigt');
-                    setIsSubmitting(false);
-                    return;
-                }
-                if (!motherValidation.result.isValid) {
-                    toast.error(motherValidation.result.message || 'Mor-øremærke er ugyldigt');
-                    setIsSubmitting(false);
-                    return;
+                try {
+                    const motherValidation = await validateParentReference(formData.motherId_Placeholder, 'Hun');
+                    if (!motherValidation.success) {
+                        toast.warning(motherValidation.error || 'Kunne ikke validere mor; kaninen gemmes alligevel');
+                    } else if (!motherValidation.result.isValid) {
+                        toast.warning(motherValidation.result.message || 'Mor-øremærke ser ud til at være ugyldigt; kaninen gemmes alligevel');
+                    }
+                } catch (err) {
+                    console.error('Mother validation error', err);
                 }
             }
 
-            // Kald Server Action
-            const result = await createRabbit(formData as Rabbit_CreateDTO);
+            // Kald server action
+            const result = await createRabbit(formData as Rabbit_CreateDTO, targetedUserId);
 
             if (result.success) {
                 toast.success('Kanin oprettet');
                 router.push(ROUTES.ACCOUNT.RABBIT_PROFILE(result.earCombId));
             } else {
-                toast.error(`Fejl: ${result.error}`);
+                toast.error(result.error);
             }
         } catch (error) {
             console.error('Create failed:', error);
-            toast.error('Der skete en fejl ved oprettelse af kaninen');
+            toast.error(error instanceof Error ? error.message : 'Der skete en uventet fejl');
         } finally {
             setIsSubmitting(false);
         }

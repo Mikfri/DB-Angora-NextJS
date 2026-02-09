@@ -1,11 +1,11 @@
 // src/app/blogs/blogList.tsx
 
-import type { Blog_CardDTO, PagedResultDTO } from '@/api/types/AngoraDTOs';
+import type { BlogCardPreviewDTO, ResultPagedDTO } from '@/api/types/AngoraDTOs';
 import BlogPreviewCard from '@/components/cards/blogPreviewCard';
 
 interface Props {
-  blogs: Blog_CardDTO[];
-  paging?: PagedResultDTO<Blog_CardDTO>;
+  blogs: BlogCardPreviewDTO[];
+  paging?: ResultPagedDTO<BlogCardPreviewDTO>;
 }
 
 export default function BlogList({ blogs, paging }: Props) {

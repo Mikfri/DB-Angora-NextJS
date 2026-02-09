@@ -1,5 +1,5 @@
 // src/api/endpoints/saleController.ts
-import { SaleDetailsCardDTO, SaleDetailsProfileDTO, PagedResultDTO, SaleDetails_FilterDTO } from '../types/AngoraDTOs';
+import { SaleDetailsCardDTO, SaleDetailsProfileDTO, ResultPagedDTO, SaleDetails_FilterDTO } from '../types/AngoraDTOs';
 import { Rabbit_ForSaleFilterDTO } from "../types/filterTypes";
 import { getApiUrl } from "../config/apiConfig";
 
@@ -12,7 +12,7 @@ import { getApiUrl } from "../config/apiConfig";
 export async function GetLatestSaleItems(
     page: number,
     pageSize: number
-): Promise<PagedResultDTO<SaleDetailsCardDTO>> {
+): Promise<ResultPagedDTO<SaleDetailsCardDTO>> {
     const response = await fetch(getApiUrl(`Sale/Latest?page=${page}&pageSize=${pageSize}`), {
         method: 'GET',
         headers: {
@@ -40,7 +40,7 @@ export async function GetLatestSaleItems(
  */
 export async function GetAllSaleItemsFiltered(
     filter: SaleDetails_FilterDTO
-): Promise<PagedResultDTO<SaleDetailsCardDTO>> {
+): Promise<ResultPagedDTO<SaleDetailsCardDTO>> {
     // Konverter filter objekt til query params
     const queryParams = new URLSearchParams();
 
@@ -81,7 +81,7 @@ export async function GetAllSaleItemsFiltered(
  */
 export async function GetRabbitSaleItemsFiltered(
     filter?: Rabbit_ForSaleFilterDTO
-): Promise<PagedResultDTO<SaleDetailsCardDTO>> {
+): Promise<ResultPagedDTO<SaleDetailsCardDTO>> {
     // Konverter filter objekt til query params
     const queryParams = new URLSearchParams();
 

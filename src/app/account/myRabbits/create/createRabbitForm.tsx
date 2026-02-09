@@ -8,9 +8,9 @@ import { useCallback, useState } from 'react';
 import { validateParentReference } from '@/app/actions/rabbit/rabbitCrudActions';
 import { FaCheckCircle, FaSpinner, FaTimesCircle } from 'react-icons/fa';
 
-export default function CreateRabbitForm() {
+export default function CreateRabbitForm({ targetedUserId }: { targetedUserId?: string }) {
     const router = useRouter();
-    const { formData, isSubmitting, setFormData, handleSubmit } = useCreateRabbit();
+    const { formData, isSubmitting, setFormData, handleSubmit } = useCreateRabbit(targetedUserId);
 
     // State til valideringsbeskeder
     const [fatherValidation, setFatherValidation] = useState<string | null>(null);
@@ -76,7 +76,7 @@ export default function CreateRabbitForm() {
                 <h1 className="text-2xl font-bold text-zinc-100">Opret ny kanin</h1>
             </div>
 
-            <form onSubmit={handleSubmit}>
+            <form noValidate onSubmit={handleSubmit}>
                 <div className="w-full bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-lg border border-zinc-700/50">
                     {/* Header */}
                     <div className="p-2 bg-zinc-900/50 text-zinc-300 border-b border-zinc-700/50 rounded-t-lg">
@@ -113,13 +113,12 @@ export default function CreateRabbitForm() {
                                 <Input
                                     size="sm"
                                     value={formData.rightEarId || ''}
-                                    onChange={e => handleEarIdChange('rightEarId', e.target.value)}
+                                    onChange={e => setFormData({ ...formData, rightEarId: e.target.value })}
                                     onPaste={e => {
                                         e.preventDefault();
                                         const text = e.clipboardData.getData('text').replace(/\s/g, '');
                                         handleEarIdChange('rightEarId', text);
                                     }}
-                                    required
                                     classNames={{
                                         input: "bg-zinc-800/50 text-zinc-100 text-sm py-0",
                                         inputWrapper: "h-7 min-h-unit-7",
@@ -134,13 +133,12 @@ export default function CreateRabbitForm() {
                                 <Input
                                     size="sm"
                                     value={formData.leftEarId || ''}
-                                    onChange={e => handleEarIdChange('leftEarId', e.target.value)}
+                                    onChange={e => setFormData({ ...formData, leftEarId: e.target.value })}
                                     onPaste={e => {
                                         e.preventDefault();
                                         const text = e.clipboardData.getData('text').replace(/\s/g, '');
                                         handleEarIdChange('leftEarId', text);
                                     }}
-                                    required
                                     classNames={{
                                         input: "bg-zinc-800/50 text-zinc-100 text-sm py-0",
                                         inputWrapper: "h-7 min-h-unit-7",
@@ -184,7 +182,6 @@ export default function CreateRabbitForm() {
 
                                         setFormData({ ...formData, nickName: text });
                                     }}
-                                    required
                                     classNames={{
                                         input: "bg-zinc-800/50 text-zinc-100 text-sm py-0",
                                         inputWrapper: "h-7 min-h-unit-7",
@@ -198,9 +195,10 @@ export default function CreateRabbitForm() {
                             <div className="w-2/3">
                                 <EnumAutocomplete
                                     enumType="Race"
-                                    value={formData.race ?? ""}
+                                    value={formData.race ?? null}
                                     onChange={value => setFormData({ ...formData, race: value ?? undefined })}
                                     label=""
+                                    placeholder="Vælg race"
                                 />
                             </div>
                         </div>
@@ -210,9 +208,10 @@ export default function CreateRabbitForm() {
                             <div className="w-2/3">
                                 <EnumAutocomplete
                                     enumType="Color"
-                                    value={formData.color ?? ""}
+                                    value={formData.color ?? null}
                                     onChange={value => setFormData({ ...formData, color: value ?? undefined })}
                                     label=""
+                                    placeholder="Vælg farve"
                                 />
                             </div>
                         </div>
@@ -222,9 +221,10 @@ export default function CreateRabbitForm() {
                             <div className="w-2/3">
                                 <EnumAutocomplete
                                     enumType="Gender"
-                                    value={formData.gender ?? ""}
+                                    value={formData.gender ?? null}
                                     onChange={value => setFormData({ ...formData, gender: value ?? undefined })}
                                     label=""
+                                    placeholder="Vælg køn"
                                 />
                             </div>
                         </div>
@@ -235,9 +235,9 @@ export default function CreateRabbitForm() {
                                 <Input
                                     size="sm"
                                     type="date"
-                                    value={formData.dateOfBirth || ''}
-                                    onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
-                                    required
+                                    value={formData.dateOfBirth ?? ''}
+                                    onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value || undefined })}
+                                    placeholder="Vælg fødselsdato"
                                     classNames={{
                                         input: "bg-zinc-800/50 text-zinc-100 text-sm py-0",
                                         inputWrapper: "h-7 min-h-unit-7",

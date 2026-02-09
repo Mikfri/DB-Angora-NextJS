@@ -20,9 +20,13 @@ export const metadata: Metadata = {
 };
 
 export default async function Home() {
+  // Hent seneste News blogs (1 featured + 3 cards)
+  const newsResult = await fetchLatestBlogsByCategoryAction('News');
+  const newsData = newsResult.success ? newsResult.data : null;
+
   // Hent seneste PatchNotes blogs (1 featured + 3 cards)
   const updatesResult = await fetchLatestBlogsByCategoryAction('PatchNotes');
   const updatesData = updatesResult.success ? updatesResult.data : null;
 
-  return <HomeContent updatesData={updatesData} />;
+  return <HomeContent newsData={newsData} updatesData={updatesData} />;
 }

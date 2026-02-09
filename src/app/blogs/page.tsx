@@ -4,7 +4,7 @@ import { Metadata } from 'next';
 import { fetchBlogsAction } from '../actions/blog/blogActions';
 import { Suspense } from 'react';
 import BlogList from './blogList';
-import type { Blog_CardFilterDTO } from '@/api/types/AngoraDTOs';
+import type { BlogCardPreviewFilterDTO } from '@/api/types/AngoraDTOs';
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
@@ -23,7 +23,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function Page({ searchParams }: { searchParams?: Promise<Record<string, string | string[]>> }) {
   const resolvedSearchParams = await searchParams;
   
-  const filter: Blog_CardFilterDTO = {
+  const filter: BlogCardPreviewFilterDTO = {
     authorFullName: typeof resolvedSearchParams?.AuthorFullName === 'string' ? resolvedSearchParams.AuthorFullName : null,
     searchTerm: typeof resolvedSearchParams?.SearchTerm === 'string' ? resolvedSearchParams.SearchTerm : null,
     tagFilter: typeof resolvedSearchParams?.TagFilter === 'string' ? resolvedSearchParams.TagFilter : null,

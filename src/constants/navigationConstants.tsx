@@ -147,8 +147,8 @@ export const homeNavigationLinks: NavGroup[] = [
   {
     title: "DenBlå-Angora",
     links: [
-      { href: ROUTES.ANCHORS.WELCOME, label: 'Velkommen til' },
-      { href: ROUTES.ANCHORS.NEWS, label: 'Nyheder' },
+      { href: ROUTES.ANCHORS.WELCOME, label: 'Velkommen' },
+      { href: ROUTES.ANCHORS.NEWS, label: 'Bagom DenBlå-Angora' },
       { href: ROUTES.ANCHORS.FEATURED, label: 'Opdateringer' },
       // { href: ROUTES.ANCHORS.SALE, label: 'Salg' },
       // { href: ROUTES.ANCHORS.BLOGS, label: 'Blogs' }

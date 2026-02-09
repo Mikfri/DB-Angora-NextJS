@@ -5,7 +5,7 @@ import { getAccessToken } from '@/app/actions/auth/session';
 import {
   CloudinaryPhotoRegistryRequestDTO,
   CloudinaryUploadConfigDTO,
-  PagedResultDTO,
+  ResultPagedDTO,
   PhotoDeleteDTO,
   PhotoPrivateDTO,
   Rabbit_CreateDTO,
@@ -43,12 +43,16 @@ export type RegisterRabbitPhotoResult =
   | { success: false; error: string; status?: number };
 
 export type RabbitsOwnedResult =
-  | { success: true; data: PagedResultDTO<Rabbit_OwnedPreviewDTO> }
+  | { success: true; data: ResultPagedDTO<Rabbit_OwnedPreviewDTO> }
   | { success: false; error: string; status?: number };
 
 export type ProfileResult =
   | { success: true; data: Rabbit_ProfileDTO }
   | { success: false; error: string; status: number };
+
+export type ParentValidationResult =
+  | { success: true; result: Rabbit_ParentValidationResultDTO }
+  | { success: false; error: string };
 
 export type UpdateRabbitResult =
   | { success: true; message: string }
@@ -68,9 +72,10 @@ export type DeleteRabbitResult =
 /**
  * Server Action: Opretter en ny kanin
  * @param rabbitData Data for den nye kanin
+ * @param targetedUserId Bruger-id som kaninen skal oprettes for (påkrævet)
  * @returns Resultat af oprettelsen med earCombId ved succes
  */
-export async function createRabbit(rabbitData: Rabbit_CreateDTO): Promise<CreateRabbitResult> {
+export async function createRabbit(rabbitData: Rabbit_CreateDTO, targetedUserId?: string): Promise<CreateRabbitResult> {
   try {
     const accessToken = await getAccessToken();
 
@@ -81,16 +86,18 @@ export async function createRabbit(rabbitData: Rabbit_CreateDTO): Promise<Create
       };
     }
 
-    // Validér data på server-siden
-    if (!rabbitData.rightEarId || !rabbitData.leftEarId || !rabbitData.nickName) {
+    if (!targetedUserId || targetedUserId.trim() === '') {
       return {
         success: false,
-        error: 'Manglende påkrævede felter'
+        error: 'targetedUserId er påkrævet'
       };
     }
 
-    // Kald API endpoint
-    const newRabbit = await CreateRabbit(rabbitData, accessToken);
+    // NOTE: Hold denne action "dumb" — overlade feltniveau-validering til API'en.
+    // Vi tjekker kun auth & targetedUserId; API'en leverer konkrete fejlbeskeder.
+
+    // Kald API endpoint (nyt signature: targetedUserId, rabbitData, accessToken)
+    const newRabbit = await CreateRabbit(targetedUserId, rabbitData, accessToken);
 
     // Returner et success objekt med det nye ID
     return {
@@ -335,9 +342,7 @@ export async function getRabbitPhotoUploadPermission(
   }
 }
 
-export type ParentValidationResult =
-  | { success: true; result: Rabbit_ParentValidationResultDTO }
-  | { success: false; error: string };
+
 
 /**
  * Server Action: Validerer om en kanin eksisterer og har det forventede køn (forældrevalidering)

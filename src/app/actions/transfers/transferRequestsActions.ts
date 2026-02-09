@@ -54,7 +54,7 @@ export async function createRabbitTransferRequest(
       };
     }
 
-    if (!transferRequest.recipent_BreederRegNo || transferRequest.recipent_BreederRegNo.trim() === '') {
+    if (!transferRequest.recipient_BreederRegNo || transferRequest.recipient_BreederRegNo.trim() === '') {
       return {
         success: false,
         error: 'Modtagerens avlernummer er påkrævet'

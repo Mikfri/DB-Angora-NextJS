@@ -3,7 +3,7 @@
 'use server';
 import { getAccessToken } from '@/app/actions/auth/session';
 import { getBlogs, getBlogBySlug, getBlogsAuthoredByUser, getBlogById, updateBlog, getBlogImageUploadConfig, registerCloudinaryBlogPhoto, deleteBlogPhoto, updateBlogFeaturedImage, createBlog, publishBlog, unpublishBlog, schedulePublishBlog, deleteBlog, getLatestBlogsByCategory } from '@/api/endpoints/blogController';
-import type { Blog_CardFilterDTO, PagedResultDTO, Blog_CardDTO, Blog_DTO, Blog_UpdateDTO, BlogPublicDTO, CloudinaryUploadConfigDTO, PhotoPrivateDTO, CloudinaryPhotoRegistryRequestDTO, PhotoDeleteDTO, Blog_CreateDTO, BlogsLatestByCategoryDTO } from '@/api/types/AngoraDTOs';
+import type { BlogCardPreviewFilterDTO, ResultPagedDTO, BlogCardPreviewDTO, Blog_DTO, Blog_UpdateDTO, BlogPublicDTO, CloudinaryUploadConfigDTO, PhotoPrivateDTO, CloudinaryPhotoRegistryRequestDTO, PhotoDeleteDTO, Blog_CreateDTO, BlogsLatestByCategoryDTO } from '@/api/types/AngoraDTOs';
 
 // ====================== TYPES ======================
 export type BlogCreateResult =
@@ -31,7 +31,7 @@ export type BlogLatestByCategoryResult =
     | { success: false; error: string; status?: number };
 
 export type BlogListResult =
-    | { success: true; data: PagedResultDTO<Blog_CardDTO> }
+    | { success: true; data: ResultPagedDTO<BlogCardPreviewDTO> }
     | { success: false; error: string; status?: number };
 
 export type BlogPublicResult =
@@ -345,7 +345,7 @@ export async function fetchLatestBlogsByCategoryAction(
  * @returns Pagineret liste af blogs
  */
 export async function fetchBlogsAction(
-    filter?: Blog_CardFilterDTO
+    filter?: BlogCardPreviewFilterDTO
 ): Promise<BlogListResult> {
     try {
         // Initialiser filter hvis det ikke er angivet
@@ -401,7 +401,7 @@ export async function fetchBlogsAction(
  */
 export async function fetchBlogsAuthoredByUserAction(
     userId: string
-): Promise<{ success: true; data: Blog_CardDTO[] } | { success: false; error: string; status?: number }> {
+): Promise<{ success: true; data: BlogCardPreviewDTO[] } | { success: false; error: string; status?: number }> {
     try {
         if (!userId || userId.trim() === "") {
             return {
@@ -420,7 +420,7 @@ export async function fetchBlogsAuthoredByUserAction(
         }
 
         // Loop over alle sider
-        const allBlogs: Blog_CardDTO[] = [];
+        const allBlogs: BlogCardPreviewDTO[] = [];
         let page = 1;
         const pageSize = 50; // Intern page size til loop (ikke eksponeret til klient)
 

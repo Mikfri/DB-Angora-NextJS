@@ -21,7 +21,7 @@
 import { 
   SaleDetailsCardDTO,
   SaleDetailsProfileDTO,
-  PagedResultDTO,
+  ResultPagedDTO,
   SaleDetails_FilterDTO
 } from '@/api/types/AngoraDTOs';
 import { 
@@ -36,7 +36,7 @@ import { Rabbit_ForSaleFilterDTO } from '@/api/types/filterTypes';
 // ====================== TYPES ======================
 
 export type SaleListResult = 
-  | { success: true; data: PagedResultDTO<SaleDetailsCardDTO> }
+  | { success: true; data: ResultPagedDTO<SaleDetailsCardDTO> }
   | { success: false; error: string };
 
 export type SaleDetailsResult = 

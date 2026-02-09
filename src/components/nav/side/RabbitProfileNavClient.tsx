@@ -49,8 +49,8 @@ export function RabbitProfileNavClient() {
   const approvalText = profile.approvedRaceColorCombination === null ? DEFAULT_TEXTS.UNKNOWN
     : profile.approvedRaceColorCombination ? 'Ja' : 'Nej';
     
-  const statusText = profile.isJuvenile === null ? DEFAULT_TEXTS.UNKNOWN
-    : profile.isJuvenile ? 'Ungdyr' : 'Voksen';
+  const statusText = profile.ungdyrGruppe_M === null ? DEFAULT_TEXTS.UNKNOWN
+    : profile.ungdyrGruppe_M ? 'Ungdyr' : 'Voksen';
 
   // Delete handler
   const handleDeleteClick = () => {
@@ -184,7 +184,7 @@ export function RabbitProfileNavClient() {
               icon={<FaInfoCircle className="text-lg text-muted" />}
               label="Status" 
               value={statusText} 
-              isDefaultValue={profile.isJuvenile === null}
+              isDefaultValue={profile.ungdyrGruppe_M === null}
             />
           </div>
         </div>

@@ -1,59 +1,16 @@
 // src/app/_components/PatchNotesSection.tsx
 
-'use client';
-import { useRef, useEffect, useState } from 'react';
-import Image from 'next/image';
-import BlogPreviewCard from '@/components/cards/blogPreviewCard';
+//'use client'; // grundet hydration skal siden være SSR
 import type { BlogsLatestByCategoryDTO } from '@/api/types/AngoraDTOs';
-import ImageModal from '@/components/modals/image/imageModal';
-import { Avatar } from '@heroui/react';
+import BlogCompactCard from '@/components/cards/blogCompactCard';
+import BlogFeaturedCard from '@/components/cards/blogFeaturedCard';
 
 interface Props {
   data: BlogsLatestByCategoryDTO | null;
 }
 
 export default function PatchNotesSection({ data }: Props) {
-  const [modalImageUrl, setModalImageUrl] = useState<string | null>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
-
-  // Gør ALLE billeder i content klikbare (geninitialiseres når modal lukkes)
-  useEffect(() => {
-    const container = contentRef.current;
-    if (!container) return;
-
-    // Centrér billeder ved at wrappe dem i flex container
-    container.querySelectorAll('img').forEach(img => {
-      // Skip hvis allerede wrapped
-      if (img.parentElement?.classList.contains('image-center-wrapper')) return;
-      
-      const wrapper = document.createElement('div');
-      wrapper.className = 'image-center-wrapper blog-image-wrapper not-prose flex justify-center';
-      img.parentNode?.insertBefore(wrapper, img);
-      wrapper.appendChild(img);
-      img.style.cursor = 'pointer';
-      img.style.maxWidth = '100%';
-      img.style.height = 'auto';
-    });
-
-    // Delegated click handler — finder <img> via event.target
-    const onClickHandler = (e: MouseEvent) => {
-      const target = e.target as HTMLElement | null;
-      if (!target) return;
-      const img = target.closest('img') as HTMLImageElement | null;
-      if (!img) return;
-      // kun hvis img er inde i vores container
-      if (!container.contains(img)) return;
-      setModalImageUrl(img.src);
-    };
-
-    container.addEventListener('click', onClickHandler, false);
-
-    return () => {
-      container.removeEventListener('click', onClickHandler, false);
-    };
-  }, [data?.latest?.content]);
-
-  if (!data || !data.latest) {
+  if (!data || !data.featured) {
     return (
       <section id="updates" className="flex flex-col justify-center items-center gap-6">
         <h2 className="text-heading text-2xl">Opdateringer</h2>
@@ -62,111 +19,35 @@ export default function PatchNotesSection({ data }: Props) {
     );
   }
 
-  const { latest, next } = data;
-
-  // Dato formattering
-  const formatDate = (dateStr?: string | null) => {
-    if (!dateStr) return '';
-    const d = new Date(dateStr);
-    return d.toLocaleDateString('da-DK', { 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
-    });
-  };
+  const { featured, next } = data;
 
   return (
-    <>
-      <section id="updates" className="flex flex-col gap-6">
-        <h2 className="text-heading text-2xl text-center">Opdateringer</h2>
-
-        <article className="max-w-4xl mx-auto w-full">
-          {/* Header med titel, undertitel og forfatter */}
-          <header className="mb-8">
-            <h1 className="text-3xl font-bold text-heading mb-4">
-              {latest.title}
-            </h1>
-            {latest.subtitle && (
-              <p className="text-lg text-muted mb-6">
-                {latest.subtitle}
-              </p>
-            )}
-            <div className="flex items-center gap-4 pb-6 border-b border-divider">
-              <Avatar
-                src={latest.authorProfilePicture ?? undefined}
-                name={latest.authorName}
-                size="lg"
-                className="border-2 border-divider"
-              />
-              <div className="flex flex-col gap-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-lg font-semibold text-heading">
-                    {latest.authorName}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-muted">
-                  <span>{formatDate(latest.publishDate)}</span>
-                  <span>•</span>
-                  <span>{latest.viewCount} visninger</span>
-                </div>
-              </div>
-            </div>
-          </header>
-
-          {/* Klikbart hovedbillede - centreret med not-prose for at undgå prose styling */}
-          {latest.featuredImageUrl && (
-            <div className="not-prose flex justify-center mb-8">
-              <Image
-                src={latest.featuredImageUrl}
-                alt={latest.title}
-                width={800}
-                height={450}
-                className="max-w-full h-auto object-cover rounded-lg shadow-lg cursor-pointer transition hover:brightness-90"
-                onClick={() => latest.featuredImageUrl && setModalImageUrl(latest.featuredImageUrl)}
-                priority
-              />
+    <section id="updates" className="flex flex-col gap-6">
+      <div className="max-w-7xl w-full mx-auto px-4 sm:px-6">
+        <div className="mb-4">
+          <h2 className="text-heading text-2xl">Opdateringer</h2>
+          <p className="text-muted max-w-3xl">
+            Opdateringer indeholder release‑noter om nye funktioner, fejlrettelser og forbedringer — hurtigt overblik så brugere kan se hvad der er ændret.
+          </p>
+        </div>
+ 
+        {/* 2-kolonne layout (spejlvendt): 'next' til venstre, 'featured' til højre på md+ */}
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_1.6fr] gap-6 w-full items-stretch">
+          {/* Venstre kolonne: Kompakte cards stablede */}
+          {next && next.length > 0 && (
+            <div className="grid gap-5">
+              {next.map(blog => (
+                <BlogCompactCard key={blog.id} blog={blog} />
+              ))}
             </div>
           )}
-
-          {/* Blog content - bruger prose fra Tailwind Typography */}
-          <div
-            ref={contentRef}
-            className="prose blog-content mb-8"
-            dangerouslySetInnerHTML={{ __html: latest.content }}
-          />
-
-          <footer className="mt-8 pt-6 border-t border-divider">
-            <div className="flex gap-4 text-sm text-muted">
-              <span>Synlighed: {latest.visibilityLevel === 'Public' ? 'Offentlig' : 'Betalt indhold'}</span>
-            </div>
-            {latest.tags && (
-              <div className="mt-2 flex flex-wrap gap-2">
-                {latest.tags.split(',').map((tag, index) => (
-                  <span key={index} className="px-3 py-1 bg-content2 text-body rounded-full text-sm hover:bg-content3 transition-colors">
-                    #{tag.trim()}
-                  </span>
-                ))}
-              </div>
-            )}
-          </footer>
-        </article>
-
-        {next && next.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl w-full mx-auto">
-            {next.map(blog => (
-              <BlogPreviewCard key={blog.id} blog={blog} />
-            ))}
+ 
+          {/* Højre kolonne: Featured card med stort billede */}
+          <div className="h-full">
+            <BlogFeaturedCard blog={featured} />
           </div>
-        )}
-      </section>
-
-      {/* Brug ImageModal til fuld størrelse visning */}
-      <ImageModal
-        isOpen={!!modalImageUrl}
-        onClose={() => setModalImageUrl(null)}
-        imageUrl={modalImageUrl}
-        alt={latest.title}
-      />
-    </>
+        </div>
+      </div>
+    </section>
   );
 }

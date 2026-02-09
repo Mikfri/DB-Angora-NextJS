@@ -33,8 +33,8 @@ const receivedColumns = [
 
 const sentColumns = [
     ...baseColumns,
-    { name: "Modtager (regnr)", uid: "recipent_BreederRegNo" },
-    { name: "Modtager (navn)", uid: "recipent_FirstName" },
+    { name: "Modtager (regnr)", uid: "recipient_BreederRegNo" },
+    { name: "Modtager (navn)", uid: "recipient_FirstName" },
     { name: "Handling", uid: "actions" },
 ];
 

@@ -24,7 +24,7 @@ export default function TransferOwnershipModal({
 }: TransferOwnershipModalProps) {
   const [formData, setFormData] = useState<TransferRequest_CreateDTO>({
     rabbit_EarCombId: rabbitEarCombId,
-    recipent_BreederRegNo: '',
+    recipient_BreederRegNo: '',
     price: 0,
     saleConditions: ''
   });
@@ -39,7 +39,7 @@ export default function TransferOwnershipModal({
 
   const handleSubmit = useCallback(async () => {
     // Validér data
-    if (!formData.recipent_BreederRegNo.trim()) {
+    if (!formData.recipient_BreederRegNo.trim()) {
       return; // Validering håndteres i server action
     }
     
@@ -55,7 +55,7 @@ export default function TransferOwnershipModal({
     if (success) {
       setFormData({
         rabbit_EarCombId: rabbitEarCombId,
-        recipent_BreederRegNo: '',
+        recipient_BreederRegNo: '',
         price: 0,
         saleConditions: ''
       });
@@ -79,13 +79,13 @@ export default function TransferOwnershipModal({
             </div>
             
             <div>
-              <label htmlFor="recipent_BreederRegNo" className="block text-sm font-medium mb-1">
+              <label htmlFor="recipient_BreederRegNo" className="block text-sm font-medium mb-1">
                 Modtagers avlernummer *
               </label>
               <Input
-                id="recipent_BreederRegNo"
-                name="recipent_BreederRegNo"
-                value={formData.recipent_BreederRegNo}
+                id="recipient_BreederRegNo"
+                name="recipient_BreederRegNo"
+                value={formData.recipient_BreederRegNo}
                 onChange={handleChange}
                 placeholder="f.eks. 3X12"
                 isDisabled={isSubmitting}

@@ -100,7 +100,7 @@ const filterRabbits = (rabbits: Rabbit_OwnedPreviewDTO[], filters: Required<OwnF
                 return false;
             }
         }
-        if (filters.showJuveniles && !rabbit.isJuvenile) return false;
+        if (filters.showJuveniles && !rabbit.ungdyrGruppe_M) return false;
 
         const matchesSearch = !searchLower || (
             (rabbit.nickName?.toLowerCase()?.includes(searchLower) || false) ||
@@ -157,7 +157,7 @@ function mapOwnFiltersToDTO(filters: OwnFilters, page: number, pageSize: number)
         dto.isForBreeding = true;
     }
     if (filters.showJuveniles === true) {
-        dto.isJuvenile = true;
+        dto.ungdyrGruppe_M = true;
     }
     if (filters.lifeStatus === true) {
         dto.onlyDeceased = true;

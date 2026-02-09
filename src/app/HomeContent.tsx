@@ -6,10 +6,11 @@ import PatchNotesSection from './_components/PatchNotesSection';
 import type { BlogsLatestByCategoryDTO } from '@/api/types/AngoraDTOs';
 
 interface Props {
+  newsData: BlogsLatestByCategoryDTO | null;
   updatesData: BlogsLatestByCategoryDTO | null;
 }
 
-export default function HomeContent({ updatesData }: Props) {
+export default function HomeContent({ newsData, updatesData }: Props) {
   return (
     <div className="main-content-container">
       <div className="flex flex-col gap-12">
@@ -18,7 +19,7 @@ export default function HomeContent({ updatesData }: Props) {
         </section>
         
         <section id="news">
-          <NewsSection />
+          <NewsSection data={newsData} />
         </section>
         
         <section id="updates">

@@ -4,7 +4,7 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import { fetchBlogsAuthoredByUserAction } from '@/app/actions/blog/blogActions';
-import type { Blog_CardDTO } from '@/api/types/AngoraDTOs';
+import type { BlogCardPreviewDTO } from '@/api/types/AngoraDTOs';
 
 interface BlogOwnedFilters {
   search: string;
@@ -24,9 +24,9 @@ interface PaginationState {
 interface BlogOwnedStoreState {
   userId: string | null;
 
-  allBlogs: Blog_CardDTO[];    // RAW (u-filtreret) data fra API
-  blogs: Blog_CardDTO[];       // Aktuel “page slice” efter client filtering + pagination
-  filteredBlogs: Blog_CardDTO[]; // Hele den filtrerede mængde (uden slice)
+  allBlogs: BlogCardPreviewDTO[];       // RAW (u-filtreret) data fra API
+  blogs: BlogCardPreviewDTO[];          // Aktuel “page slice” efter client filtering + pagination
+  filteredBlogs: BlogCardPreviewDTO[];  // Hele den filtrerede mængde (uden slice)
 
   loading: boolean;
   error: string | null;
