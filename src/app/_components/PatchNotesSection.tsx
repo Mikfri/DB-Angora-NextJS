@@ -1,6 +1,4 @@
-// src/app/_components/PatchNotesSection.tsx
-
-//'use client'; // grundet hydration skal siden være SSR
+'use client';
 import type { BlogsLatestByCategoryDTO } from '@/api/types/AngoraDTOs';
 import BlogCompactCard from '@/components/cards/blogCompactCard';
 import BlogFeaturedCard from '@/components/cards/blogFeaturedCard';
@@ -24,9 +22,10 @@ export default function PatchNotesSection({ data }: Props) {
   return (
     <section id="updates" className="flex flex-col gap-6">
       <div className="max-w-7xl w-full mx-auto px-4 sm:px-6">
-        <div className="mb-4">
-          <h2 className="text-heading text-2xl">Opdateringer</h2>
-          <p className="text-muted max-w-3xl">
+        {/* Section header med CRAP principper */}
+        <div className="section-header">
+          <h2 className="section-title">Opdateringer</h2>
+          <p className="section-description">
             Opdateringer indeholder release‑noter om nye funktioner, fejlrettelser og forbedringer — hurtigt overblik så brugere kan se hvad der er ændret.
           </p>
         </div>

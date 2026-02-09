@@ -12,8 +12,8 @@ export default function NewsSection({ data }: Props) {
   if (!data || !data.featured) {
     return (
       <section id="news" className="flex flex-col justify-center items-center gap-6">
-        <h2 className="text-heading text-2xl">Bagom "DenBlå-Angora"</h2>
-        <p className="text-muted">Ingen backstage content er tilgængelig.</p>
+        <h2 className="text-heading text-2xl">Nyheder</h2>
+        <p className="text-muted">Ingen nyheder tilgængelige.</p>
       </section>
     );
   }
@@ -23,9 +23,10 @@ export default function NewsSection({ data }: Props) {
   return (
     <section id="news" className="flex flex-col gap-6">
       <div className="max-w-7xl w-full mx-auto px-4 sm:px-6">
-        <div className="mb-4">
-          <h2 className="text-heading text-2xl">Bagom DenBlå-Angora</h2>
-          <p className="text-muted max-w-3xl">
+        {/* Section header med CRAP principper */}
+        <div className="section-header">
+          <h2 className="section-title">Bagom DenBlå-Angora</h2>
+          <p className="section-description">
             Bagom DenBlå-Angora deler historier, interviews og indblik i projektet — bag scenen, samarbejdspartnere og kommende initiativer.
           </p>
         </div>
