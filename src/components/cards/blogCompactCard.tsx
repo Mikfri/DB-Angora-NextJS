@@ -41,22 +41,23 @@ const BlogCompactCard = memo(function BlogCompactCard({ blog, onClick }: Props) 
 			}}
 		>
 			{/* Horizontal layout: billede til venstre, indhold til højre */}
-			<div className="grid grid-cols-10 items-center p-0">
+			<div className="grid grid-cols-10 items-stretch p-0">
 				{/* Billede sektion - 30% bredde på mobile, 20% på desktop */}
-				<div className="col-span-3 lg:col-span-2 h-full min-h-[120px] lg:min-h-[140px] relative overflow-hidden">
+				<div className="col-span-3 lg:col-span-3 h-full min-h-[120px] lg:min-h-[160px] relative overflow-hidden">
 					<Image
 						src={featuredImage}
 						alt={blog.title}
 						fill
-						sizes="(max-width: 768px) 30vw, 20vw"
-						className="object-cover transition-transform duration-500 group-hover:scale-110"
+						sizes="(max-width: 1024px) 30vw, 25vw"
+						className="object-cover object-center transition-transform duration-500 group-hover:scale-110"
+						//style={{ transform: 'scale(1.3)' }}
 						onError={() => setImageError(true)}
 						draggable={false}
 					/>
 				</div>
 
 				{/* Tekst sektion - 70% bredde på mobile, resterende på desktop */}
-				<div className="col-span-7 lg:col-span-7 py-3 pl-4 lg:pl-8 pr-3">
+				<div className="col-span-7 lg:col-span-6 py-3 pl-4 lg:pl-6 pr-3 flex flex-col justify-center">
 					<h3 className="text-base lg:text-xl font-bold line-clamp-2 mb-2 group-hover:text-primary transition-colors duration-300">
 						{blog.title}
 					</h3>

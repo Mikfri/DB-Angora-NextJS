@@ -59,7 +59,10 @@ export const BlogNavClient = memo(function BlogNavClient() {
             size="sm"
             variant="light"
             className="h-5 text-xs text-muted hover:text-foreground"
-            onPress={clearAllFilters}
+            onPress={() => {
+              clearAllFilters();
+              applyFilters();
+            }}
           >
             Nulstil alle
           </Button>
@@ -110,7 +113,10 @@ export const BlogNavClient = memo(function BlogNavClient() {
           <EnumAutocomplete
             enumType="BlogCategories"
             value={filters.categoryFilter ?? ""}
-            onChange={val => updateFilter('categoryFilter', val ?? null)}
+            onChange={val => {
+              updateFilter('categoryFilter', val ?? null);
+              applyFilters({ categoryFilter: val ?? null });
+            }}
             label="Kategori"
             placeholder={isLoading('BlogCategories') ? "Indlæser..." : "Vælg kategori"}
           />
@@ -182,7 +188,7 @@ export const BlogNavClient = memo(function BlogNavClient() {
       </div>
 
       {/* Sortering */}
-      <div className="flex items-center gap-1">
+      {/* <div className="flex items-center gap-1">
         <div className="flex items-center gap-1.5 min-w-[70px]">
           <MdSort className="text-lg text-muted" />
           <span className="text-label">Sortér efter</span>
@@ -190,16 +196,13 @@ export const BlogNavClient = memo(function BlogNavClient() {
         <div className="flex-1">
           <Select
             size="sm"
+            //isClearable  // 👈 Tilføj denne for at få clear-knap // virker ikke!
             placeholder={isLoading('BlogSortOptions') ? "Indlæser..." : "Vælg sortering..."}
             selectedKeys={filters.blogSortOption ? [filters.blogSortOption] : []}
             onSelectionChange={(keys) => {
               const selected = Array.from(keys)[0] as string | undefined;
               updateFilter('blogSortOption', selected || null);
-            }}
-            isDisabled={isLoading('BlogSortOptions')}
-            classNames={{
-              trigger: "h-7 min-h-unit-7 px-2",
-              value: "text-xs text-body"
+              applyFilters({ blogSortOption: selected || null });
             }}
           >
             {blogSortOptions.map((option) => (
@@ -209,22 +212,13 @@ export const BlogNavClient = memo(function BlogNavClient() {
             ))}
           </Select>
         </div>
-      </div>
+      </div> */}
 
       <Divider className="divider my-0.5" />
 
-      {/* Action button */}
-      <div className="pt-2">
-        <Button
-          size="sm"
-          variant="solid"
-          color="primary"
-          className="w-full"
-          onPress={applyFilters}
-        >
-          Anvend filtre
-        </Button>
-      </div>
+      {/* Action button - FJERN DENNE SEKTION */}
+      {/* Dropdowns søger nu automatisk, så knappen er ikke længere nødvendig */}
+      {/* Tekstfelter søger stadig ved Enter */}
     </div>
   );
 });

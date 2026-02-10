@@ -95,7 +95,6 @@ Genbrugelige utility komponenter
 • Højt abstraktionsniveau
 • Cross-cutting concerns
 
-Hvorfor Shared?
 EnumSelect/EnumAutocomplete er:
 • Generiske input komponenter
 • Genbruges på tværs af features
