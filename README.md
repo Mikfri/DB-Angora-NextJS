@@ -1,36 +1,206 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Den Blå Angora 🐰
 
-## Getting Started
+En moderne webapplikation til avl og administration af angorakaniner, bygget med Next.js og tilknyttet Dansk Angora Klub.
 
-First, run the development server:
+## 📋 Om Projektet
 
+Den Blå Angora er en omfattende platform der gør det nemt for kaninavlere at:
+- **Registrere og administrere** deres kaniner med detaljerede stamtavler
+- **Købe og sælge** kaniner, uld, garn, skind og andre kanin-relaterede produkter
+- **Finde parringsparate kaniner** fra andre avlere
+- **Holde styr på** klipninger, vægtmålinger og andre vigtige data
+- **Dele nyheder og opdateringer** gennem blogfunktionen
+
+Platformen er udviklet specifikt til det danske marked og Dansk Angora Klubs medlemmer.
+
+## ✨ Funktioner
+
+### Kaninregister
+- **Stamtavle-visning**: Interaktiv stamtavle med ReactFlow til overblik over slægtskab
+- **Detaljeret registrering**: Registrér farve, vægt, klipdata og meget mere
+- **Søgning og filtrering**: Find præcis de kaniner du leder efter
+
+### Markedsplads (Annoncer)
+- **Kaniner til salg**: Køb og sælg kaniner med detaljerede beskrivelser
+- **Produkter**: Handl med uld, garn, skind og andre kanin-relaterede varer
+- **Parringssøgning**: Find egnede parringspartnere til dine kaniner
+
+### Brugerprofil
+- **Min profil**: Administrér dine personlige oplysninger
+- **Mine kaniner**: Overblik over hele din kaninstald
+- **Mine annoncer**: Administrér dine salgsopslag
+- **Mine blogs**: Del viden og erfaringer med andre avlere
+
+### Blog-system
+- **Nyheder**: Hold dig opdateret med de seneste nyheder fra klubben
+- **Patch Notes**: Se hvad der er nyt på platformen
+- **Brugerblogs**: Del dine egne historier og erfaringer
+
+## 🛠️ Teknologier
+
+Dette projekt er bygget med moderne web-teknologier:
+
+- **Framework**: [Next.js 16](https://nextjs.org/) med App Router
+- **Sprog**: TypeScript
+- **UI-bibliotek**: React 19
+- **Styling**: 
+  - Tailwind CSS
+  - Hero UI (komponenter)
+  - Framer Motion (animationer)
+- **Formularhåndtering**: React Hook Form + Zod validering
+- **State Management**: Zustand
+- **Rich Text Editor**: Lexical
+- **Billede-upload**: Cloudinary
+- **Ikoner**: React Icons
+- **SEO**: Next Sitemap
+
+## 🚀 Kom i Gang
+
+### Forudsætninger
+
+- Node.js 22.x eller nyere
+- npm, yarn, pnpm eller bun
+
+### Installation
+
+1. **Klon repository'et**
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/Mikfri/DB-Angora-NextJS.git
+cd DB-Angora-NextJS
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. **Installér dependencies**
+```bash
+npm install
+# eller
+yarn install
+# eller
+pnpm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. **Kør udviklingsserveren**
+```bash
+npm run dev
+# eller med Turbopack (hurtigere)
+npm run dev --turbo
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. **Åbn i browseren**
 
-## Learn More
+Naviger til [http://localhost:3000](http://localhost:3000) for at se applikationen.
 
-To learn more about Next.js, take a look at the following resources:
+## 📜 Tilgængelige Scripts
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+# Start udviklingsserver med Turbopack (anbefalet)
+npm run dev
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# Start udviklingsserver med Webpack
+npm run dev:webpack
 
-## Deploy on Vercel
+# Byg til produktion
+npm run build
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+# Start produktionsserver
+npm start
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+# Kør linting
+npm run lint
+
+# Ryd op i projekt (slet .next, node_modules, package-lock.json)
+npm run clean
+```
+
+## 📁 Projektstruktur
+
+```
+DB-Angora-NextJS/
+├── public/              # Statiske filer (billeder, favicon, etc.)
+├── src/
+│   ├── app/            # Next.js App Router sider
+│   │   ├── about/      # Om-siden
+│   │   ├── account/    # Brugerkonti og profiler
+│   │   ├── actions/    # Server Actions
+│   │   ├── annoncer/   # Markedsplads for salg
+│   │   └── blogs/      # Blog-system
+│   ├── components/     # Genanvendelige React-komponenter
+│   │   ├── auth/       # Autentificering
+│   │   ├── cards/      # Kortkomponenter
+│   │   ├── header/     # Header og navigation
+│   │   ├── footer/     # Footer
+│   │   ├── pedigree/   # Stamtavle-visning
+│   │   └── ...
+│   ├── api/            # API-typer og kald
+│   ├── constants/      # Konstanter og konfiguration
+│   ├── contexts/       # React Contexts
+│   ├── hooks/          # Custom React Hooks
+│   ├── store/          # Zustand state management
+│   ├── types/          # TypeScript type-definitioner
+│   └── utils/          # Hjælpefunktioner
+├── next.config.ts      # Next.js konfiguration
+├── tailwind.config.ts  # Tailwind CSS konfiguration
+└── tsconfig.json       # TypeScript konfiguration
+```
+
+## 🌐 Backend Integration
+
+Applikationen kommunikerer med en backend API på `api.db-angora.dk` og benytter:
+- Cloudinary til billede-upload og -håndtering
+- Metadata og struktureret data (Schema.org) til SEO
+
+## 🔧 Udvikling
+
+### Kodestil
+
+Projektet benytter:
+- ESLint til code linting
+- TypeScript til type-sikkerhed
+- Tailwind CSS til konsistent styling
+
+### Redigering
+
+Du kan begynde at redigere siden ved at modificere `src/app/page.tsx`. Siden opdateres automatisk når du gemmer filen.
+
+## 📦 Deployment
+
+Applikationen er klar til deployment på:
+- [Vercel](https://vercel.com) (anbefalet)
+- Enhver Node.js hosting platform
+
+### Build til produktion
+
+```bash
+npm run build
+npm start
+```
+
+Dette genererer en optimeret produktions-build og starter serveren.
+
+## 🤝 Bidrag
+
+Dette projekt er udviklet til Dansk Angora Klub. Kontakt projektejeren for information om bidrag.
+
+## 📄 Licens
+
+Dette projekt er privat og ejes af Mikkel Friborg.
+
+## 👤 Udvikler
+
+**Mikkel Friborg**
+- Fynsvej 14, 4060 Kirke Såby
+
+## 🔗 Links
+
+- **Live site**: [https://db-angora.dk](https://db-angora.dk)
+- **Dansk Angora Klub**: Information findes på platformen
+
+## 📚 Lær Mere om Next.js
+
+For at lære mere om Next.js, tjek følgende ressourcer:
+
+- [Next.js Dokumentation](https://nextjs.org/docs) - lær om Next.js features og API
+- [Learn Next.js](https://nextjs.org/learn) - en interaktiv Next.js tutorial
+
+---
+
+**Version**: 0.1.0 | **Sidste opdatering**: Februar 2026
