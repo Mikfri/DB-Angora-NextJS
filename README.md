@@ -144,7 +144,7 @@ DB-Angora-NextJS/
 
 ## 🌐 Backend Integration
 
-Applikationen kommunikerer med en backend API på `api.db-angora.dk` og benytter:
+Applikationen kommunikerer med en backend REST API på `api.db-angora.dk` og benytter:
 - Cloudinary til billede-upload og -håndtering
 - Metadata og struktureret data (Schema.org) til SEO
 
@@ -157,28 +157,9 @@ Projektet benytter:
 - TypeScript til type-sikkerhed
 - Tailwind CSS til konsistent styling
 
-### Redigering
-
-Du kan begynde at redigere siden ved at modificere `src/app/page.tsx`. Siden opdateres automatisk når du gemmer filen.
-
-## 📦 Deployment
-
-Applikationen er klar til deployment på:
-- [Vercel](https://vercel.com) (anbefalet)
-- Enhver Node.js hosting platform
-
-### Build til produktion
-
-```bash
-npm run build
-npm start
-```
-
-Dette genererer en optimeret produktions-build og starter serveren.
-
 ## 🤝 Bidrag
 
-Dette projekt er udviklet til Dansk Angora Klub. Kontakt projektejeren for information om bidrag.
+Dette projekt er udviklet til Dansk Angora Klub, som målgruppe. Kontakt projektejeren for information om bidrag.
 
 ## 📄 Licens
 
@@ -193,13 +174,6 @@ Dette projekt er privat og ejes af Mikkel Friborg.
 
 - **Live site**: [https://db-angora.dk](https://db-angora.dk)
 - **Dansk Angora Klub**: Information findes på platformen
-
-## 📚 Lær Mere om Next.js
-
-For at lære mere om Next.js, tjek følgende ressourcer:
-
-- [Next.js Dokumentation](https://nextjs.org/docs) - lær om Next.js features og API
-- [Learn Next.js](https://nextjs.org/learn) - en interaktiv Next.js tutorial
 
 ---
 
