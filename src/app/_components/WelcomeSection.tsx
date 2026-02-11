@@ -12,7 +12,7 @@ export default function WelcomeSection() {
               </h1>
               
               <p className="section-description mb-8">
-                Dette er en tidlig alpha version af et kanin-register, hvor det er muligt at oprette, slette og redigere kaniner af forskellige racer. Vi udruller løbende opdateringer ud så hold øje med siden.
+                Dette er en tidlig version af et kanin-register, hvor en lille håndfuld brugere er istand til at holde styr på deres kaniner ved let at kunne se dens relationer - børn og forældre - og evt indavlskoefficient. Vi udruller løbende opdateringer, så hold øje med siden.
               </p>
               
               {/* Video container med forbedret spacing */}
