@@ -15,7 +15,7 @@ interface Props {
 export default function RabbitChildPreviewCard({ child, compact = false }: Props) {
     const [imageError, setImageError] = useState(false);
     const defaultImage = '/images/default-rabbit.jpg';
-    const profileImage = (!imageError && child.profilePicture) || defaultImage;
+    const profileImage = (!imageError && child.profilePhotoUrl) || defaultImage;
 
     // Forbered formaterede tekster
     const displayName = child.nickName || 'Unavngivet';

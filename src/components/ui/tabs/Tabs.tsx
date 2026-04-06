@@ -1,9 +1,15 @@
 // src/components/ui/tabs/Tabs.tsx
+
+/**
+ * Tabs wrapper for app (desk+mobil).
+ * - Desktop: bruger HeroUI <Tabs> med children/props
+ * - Mobil: rendrer aktuel panel content direkte
+ */
+
 'use client';
 
 import React from 'react';
 import { Tabs as HeroTabs, Tab as HeroTab } from '@heroui/react';
-import CarouselTabs from './CarouselTabs';
 import useMediaQuery from '@/hooks/useMediaQuery';
 
 export interface TabItem {

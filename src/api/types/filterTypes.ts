@@ -4,22 +4,7 @@
 håndteres i browseren og ikke på serveren. Dvs at disse parametre ikke når ud til API'en,
 modsat DTO'erne i ../types/AngoraDTOs.ts */
 
-/**
- * Filter interface for kaniner til salg
- * Alle felter er valgfrie da søgning kan udføres på hvilken som helst kombination
- */
-export interface Rabbit_ForSaleFilterDTO {
-    rightEarId?: string | null;
-    bornAfter?: string | null;
-    minZipCode?: number | null;
-    maxZipCode?: number | null;
-    city?: string | null;
-    race?: string | null;
-    color?: string | null;
-    gender?: string | null;
-    page?: number;
-    pageSize?: number;
-}
+
 
 /**
  * Filter interface for brugerens egne kaniner

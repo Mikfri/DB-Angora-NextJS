@@ -4,6 +4,7 @@
 import { useState } from 'react';
 import { Rabbit_PedigreeDTO } from '@/api/types/AngoraDTOs';
 import Image from 'next/image';
+
 import { IoColorPaletteOutline } from "react-icons/io5";
 import { LuRabbit } from "react-icons/lu";
 import { HiUser, HiUserGroup } from "react-icons/hi";
@@ -25,7 +26,7 @@ export default function RabbitPedigreeCard({ rabbit }: Props) {
     Color,
     UserOriginName,
     UserOwnerName,
-    ProfilePicture,
+    ProfilePhotoUrl,
     InbreedingCoefficient,
     // Generation
     Relation,
@@ -38,7 +39,7 @@ export default function RabbitPedigreeCard({ rabbit }: Props) {
   // Vis maks 7 tegn i kortet, men behold fuldt navn i tooltip/title
   const truncate = (s: string, n = 7) => s.length > n ? `${s.slice(0, n)}…` : s;
   const displayName = truncate(displayNameFull, 7);
-  const profileImage = ProfilePicture || '/images/default-rabbit.jpg';
+  const profileImage = ProfilePhotoUrl || '/images/default-rabbit.jpg';
 
   const genderIcon = Gender && Gender.toLowerCase().includes('han')
     ? <BsGenderMale className="text-blue-400" size={14} aria-label="han" />

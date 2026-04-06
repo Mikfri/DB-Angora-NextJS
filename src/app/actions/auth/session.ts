@@ -1,126 +1,92 @@
 // src/app/actions/auth/session.ts
+/**
+ * Session Server Actions - Bro mellem next-auth og server components
+ * 
+ * Bruger next-auth's auth() helper til at hente session data.
+ * Erstatter den tidligere cookie-baserede implementering.
+ */
 'use server';
 
-import { getCookieStore } from '@/utils/cookieStore';
-import { isTokenExpired, extractUserIdentity } from '@/utils/tokenUtils';
-import { UserIdentity, formatRoles } from '@/types/authTypes';
-import { cache } from 'react';
+import { auth } from '@/auth';
+import { UserIdentity } from '@/types/authTypes';
 
 export type SessionStatus = {
   isAuthenticated: boolean;
   userName?: string | null;
   userRole?: string | null;
   userIdentity?: UserIdentity | null;
-  tokenExpiry?: number | null;
+  error?: string;
 };
 
-export const getSessionStatus = cache(async (): Promise<SessionStatus> => {
+/**
+ * Henter session status via next-auth
+ * Til brug i server components og server actions
+ */
+export async function getSessionStatus(): Promise<SessionStatus> {
   try {
-    const cookieStore = getCookieStore();
-    
-    const accessToken = await cookieStore.get('accessToken');
-    const tokenExpiry = await cookieStore.get('tokenExpiry');
-    const userIdentityCookie = await cookieStore.get('userIdentity');
-    
-    if (!accessToken || isTokenExpired(accessToken.value, tokenExpiry?.value)) {
+    const session = await auth();
+
+    if (!session?.user) {
       return { isAuthenticated: false };
     }
-    
-    // Hent brugeridentitet fra cookie eller udtræk fra token hvis nødvendigt
-    let userIdentity: UserIdentity | null = null;
-    
-    try {
-      if (userIdentityCookie?.value) {
-        userIdentity = JSON.parse(userIdentityCookie.value);
-      } else if (accessToken.value) {
-        // Fallback: Udtræk fra token
-        userIdentity = extractUserIdentity(accessToken.value);
-        
-        // Hvis vi har udtrukket userIdentity, gem det i cookie for fremtidige kald
-        if (userIdentity) {
-          await cookieStore.set('userIdentity', JSON.stringify(userIdentity), {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax' as const,
-            path: '/'
-          });
-        }
-      }
-    } catch (e) {
-      console.error('Failed to parse userIdentity cookie:', e);
-    }
-    
-    // Hvis vi ikke kan få brugeridentitet, men har et gyldigt token,
-    // returnér stadig som authenticated med begrænsede detaljer
-    if (!userIdentity) {
+
+    // Tjek om token refresh fejlede
+    if (session.error === 'RefreshTokenError') {
       return { 
-        isAuthenticated: true,
-        tokenExpiry: tokenExpiry ? parseInt(tokenExpiry.value, 10) : null
+        isAuthenticated: false,
+        error: 'Session udløbet, log venligst ind igen'
       };
     }
-    
-    // Formater roller til visning
-    const displayRole = formatRoles(userIdentity.roles);
-    
+
     return {
       isAuthenticated: true,
-      userName: userIdentity.username,
-      userRole: displayRole,
-      userIdentity,
-      tokenExpiry: tokenExpiry ? parseInt(tokenExpiry.value, 10) : null
+      userName: session.user.name,
+      userIdentity: session.userIdentity,
     };
   } catch (error) {
     console.error('Session check error:', error);
-    return {
-      isAuthenticated: false
-    };
+    return { isAuthenticated: false };
   }
-});
-
-/**
- * Henter access token fra cookie store (lib/utils/cookieStore.ts)
- * @returns Access token || null hvis ikke logget ind eller token udløbet
- */
-export async function getAccessToken(): Promise<string | null> {
-  const cookieStore = getCookieStore();
-  const accessToken = await cookieStore.get('accessToken');
-  const tokenExpiry = await cookieStore.get('tokenExpiry');
-  
-  if (!accessToken || isTokenExpired(accessToken.value, tokenExpiry?.value)) {
-    return null;
-  }
-  
-  return accessToken.value;
 }
 
 /**
- * Henter brugerens userIdentity fra cookies - TIL BRUG I SERVER COMPONENTS
- * For client components, brug useAuthStore() for bedre caching.
- * @returns UserIdentity eller null hvis ikke logget ind
+ * Henter access token fra next-auth session
+ * @returns Access token eller null hvis ikke logget ind
+ */
+export async function getAccessToken(): Promise<string | null> {
+  try {
+    const session = await auth();
+
+    if (!session?.accessToken) {
+      return null;
+    }
+
+    // Hvis refresh token fejlede, returner null
+    if (session.error === 'RefreshTokenError') {
+      return null;
+    }
+
+    return session.accessToken;
+  } catch (error) {
+    console.error('Error getting access token:', error);
+    return null;
+  }
+}
+
+/**
+ * Henter brugerens userIdentity fra next-auth session
+ * TIL BRUG I SERVER COMPONENTS
+ * For client components, brug useSession() hook
  */
 export async function getUserIdentity(): Promise<UserIdentity | null> {
   try {
-    const cookieStore = getCookieStore();
-    const userIdentityCookie = await cookieStore.get('userIdentity');
-    const accessToken = await cookieStore.get('accessToken');
-    const tokenExpiry = await cookieStore.get('tokenExpiry');
-    
-    // Kontroller først om vi har en gyldig session
-    if (!accessToken || isTokenExpired(accessToken.value, tokenExpiry?.value)) {
+    const session = await auth();
+
+    if (!session?.userIdentity || session.error === 'RefreshTokenError') {
       return null;
     }
-    
-    // Forsøg at hente userIdentity fra cookies
-    if (userIdentityCookie?.value) {
-      return JSON.parse(userIdentityCookie.value);
-    }
-    
-    // Fallback: Udtræk fra token
-    if (accessToken?.value) {
-      return extractUserIdentity(accessToken.value);
-    }
-    
-    return null;
+
+    return session.userIdentity;
   } catch (error) {
     console.error('Error getting user identity:', error);
     return null;

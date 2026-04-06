@@ -2,7 +2,7 @@
 'use client';
 
 import Image from 'next/image';
-import { SaleDetailsCardDTO } from '@/api/types/AngoraDTOs';
+import { SaleDetailsPublicCardDTO } from '@/api/types/AngoraDTOs';
 import { Card, CardHeader, CardBody, Tooltip, Divider } from "@heroui/react";
 import { useState, memo } from 'react';
 import { FaRegHeart, FaHeart } from "react-icons/fa";
@@ -13,7 +13,7 @@ import { GiWool } from "react-icons/gi";
 import { BsClock } from "react-icons/bs";
 
 interface Props {
-    item: SaleDetailsCardDTO;
+    item: SaleDetailsPublicCardDTO;
     onClick?: () => void;
     onFavoriteToggle?: (id: string, isFavorite: boolean) => void;
     initialFavorite?: boolean;
@@ -31,7 +31,7 @@ const SaleDetailsCard = memo(function SaleDetailsCard({
 
     // Ændr dette til at bruge det eksisterende default billede
     const defaultImage = '/images/default-rabbit.jpg';
-    const profileImage = (!imageError && item.imageUrl) || defaultImage;
+    const profileImage = (!imageError && item.profilePhotoUrl) || defaultImage;
 
     // Resten af komponenten forbliver uændret...
 
@@ -53,7 +53,7 @@ const SaleDetailsCard = memo(function SaleDetailsCard({
         setIsFavorite(newState);
 
         if (onFavoriteToggle) {
-            onFavoriteToggle(item.entityId, newState);
+            onFavoriteToggle(item.slug, newState);
         }
 
         // Returnér false for at forhindre videre event propagation
@@ -190,7 +190,7 @@ const SaleDetailsCard = memo(function SaleDetailsCard({
             <CardHeader className="flex gap-3 py-2.5">
                 <div className="flex flex-col w-full">
                     <div className="flex items-center justify-between">
-                        <p className="text-small text-zinc-300">ID: {item.entityId}</p>
+                        <p className="text-small text-zinc-300">ID: {item.slug}</p>
                     </div>
                 </div>
             </CardHeader>

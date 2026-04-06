@@ -1,14 +1,14 @@
 // src/components/nav/side/SaleProfileNavClient.tsx
 'use client';
 
+import { formatDate } from '@/utils/formatters';
+import { useSaleProfile } from '@/contexts/SaleProfileContext';
 import { ReactNode } from 'react';
+import ProfileImage from '@/components/ui/images/ProfileImage';
 import { Divider, Chip, Spinner } from '@heroui/react';
-import ProfileImage from '@/components/ui/ProfileImage';
 import { IoLocationOutline, IoCallOutline, IoTimeOutline, IoEyeOutline } from "react-icons/io5";
 import { MdOutlineLocalShipping } from 'react-icons/md';
 import { FaUserCircle } from "react-icons/fa";
-import { formatDate } from '@/utils/formatters';
-import { useSaleProfile } from '@/contexts/SaleProfileContext';
 
 const SECTIONS = {
   SELLER: 'Sælger',
@@ -45,12 +45,13 @@ export function SaleProfileNavClient() {
     );
   }
   
+  const saleDetails = profile.saleDetails;
   const sellerText = profile.sellerName || DEFAULT_TEXTS.SELLER_NOT_FOUND;
   const locationText = profile.city && profile.zipCode 
     ? `${profile.city}, ${profile.zipCode}` 
     : DEFAULT_TEXTS.LOCATION_NOT_FOUND;
   const contactText = profile.sellerContact || DEFAULT_TEXTS.CONTACT_NOT_FOUND;
-  const displayName = profile.title || 'Kanin til salg';
+  const displayName = saleDetails?.title || 'Kanin til salg';
 
   return (
     <div className="w-full p-1 space-y-2">
@@ -59,7 +60,7 @@ export function SaleProfileNavClient() {
       <div className="flex justify-center">
         <div className="w-full max-w-[300px] aspect-square">
           <ProfileImage 
-            imageUrl={profile.sellerImageUrl} 
+            imageUrl={profile.sellerPhotoUrl || profile.profilePhotoUrl}
             alt={displayName}
             className="w-full h-full"
           />
@@ -79,19 +80,19 @@ export function SaleProfileNavClient() {
           <InfoRow 
             icon={<IoTimeOutline className="text-lg icon-default" />}
             label="Oprettet" 
-            value={formatDate(profile.dateListed)}
+            value={saleDetails?.dateListed ? formatDate(saleDetails.dateListed) : DEFAULT_TEXTS.SELLER_NOT_FOUND}
           />
           
           {/* Visninger */}
           <InfoRow 
             icon={<IoEyeOutline className="text-lg icon-default" />}
             label="Visninger" 
-            value={`${profile.viewCount || 0} visninger`}
+            value={`${saleDetails?.viewCount || 0} visninger`}
           />
         </div>
         
         {/* Forsendelse chip */}
-        {profile.canBeShipped && (
+        {saleDetails?.canBeShipped && (
           <div className="mt-2">
             <Chip 
               color="success" 

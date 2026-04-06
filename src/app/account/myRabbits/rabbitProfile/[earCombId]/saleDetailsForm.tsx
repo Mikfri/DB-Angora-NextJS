@@ -1,16 +1,11 @@
 // src/app/account/myRabbits/rabbitProfile/[earCombId]/saleDetailsForm.tsx
 import { Button, Input, Textarea, Switch } from "@heroui/react";
 import EnumAutocomplete from "@/components/enumHandlers/enumAutocomplete";
-import { Rabbit_CreateSaleDetailsDTO, Rabbit_UpdateSaleDetailsDTO } from "@/api/types/AngoraDTOs";
-
-// Lav en union type for at håndtere begge typer af form data
-type SaleDetailsFormData =
-    | (Rabbit_CreateSaleDetailsDTO)
-    | (Omit<Rabbit_UpdateSaleDetailsDTO, 'rabbitId'>);
+import { RabbitPostPutSaleDetailsDTO } from "@/api/types/AngoraDTOs";
 
 interface SaleDetailsFormProps {
-    formData: SaleDetailsFormData;
-    setFormData: (data: SaleDetailsFormData) => void;
+    formData: RabbitPostPutSaleDetailsDTO;
+    setFormData: (data: RabbitPostPutSaleDetailsDTO) => void;
     onSubmit: () => void;
     onCancel: () => void;
     isSaving: boolean;
@@ -25,7 +20,17 @@ export default function SaleDetailsForm({
     isSaving,
     isEditing
 }: SaleDetailsFormProps) {
-    const handleChange = <K extends keyof SaleDetailsFormData>(key: K, value: SaleDetailsFormData[K]) => {
+    const handleBaseChange = <K extends keyof RabbitPostPutSaleDetailsDTO['baseProperties']>(
+        key: K,
+        value: RabbitPostPutSaleDetailsDTO['baseProperties'][K]
+    ) => {
+        setFormData({ ...formData, baseProperties: { ...formData.baseProperties, [key]: value } });
+    };
+
+    const handleChange = <K extends Exclude<keyof RabbitPostPutSaleDetailsDTO, 'baseProperties'>>(
+        key: K,
+        value: RabbitPostPutSaleDetailsDTO[K]
+    ) => {
         setFormData({ ...formData, [key]: value });
     };
 
@@ -37,8 +42,8 @@ export default function SaleDetailsForm({
                     <label htmlFor="title" className="text-sm text-zinc-300">Titel</label>
                     <Input
                         id="title"
-                        value={formData.title || ''}
-                        onChange={(e) => handleChange('title', e.target.value)}
+                        value={formData.baseProperties.title || ''}
+                        onChange={(e) => handleBaseChange('title', e.target.value)}
                         placeholder="Salgstitel..."
                         required
                         maxLength={200}
@@ -51,8 +56,8 @@ export default function SaleDetailsForm({
                     <Input
                         id="price"
                         type="number"
-                        value={formData.price.toString()}
-                        onChange={(e) => handleChange('price', Number(e.target.value))}
+                        value={formData.baseProperties.price.toString()}
+                        onChange={(e) => handleBaseChange('price', Number(e.target.value))}
                         placeholder="Pris i DKK"
                         min="0"
                         required
@@ -77,8 +82,8 @@ export default function SaleDetailsForm({
                     <label htmlFor="description" className="text-sm text-zinc-300">Beskrivelse</label>
                     <Textarea
                         id="description"
-                        value={formData.description || ''}
-                        onChange={(e) => handleChange('description', e.target.value)}
+                        value={formData.baseProperties.description || ''}
+                        onChange={(e) => handleBaseChange('description', e.target.value)}
                         placeholder="Beskriv kaninen..."
                         minRows={4}
                     />
@@ -90,8 +95,8 @@ export default function SaleDetailsForm({
                         <label htmlFor="canBeShipped" className="text-sm text-zinc-300">Kan leveres</label>
                         <Switch
                             id="canBeShipped"
-                            isSelected={formData.canBeShipped}
-                            onValueChange={(checked) => handleChange('canBeShipped', checked)}
+                            isSelected={formData.baseProperties.canBeShipped}
+                            onValueChange={(checked) => handleBaseChange('canBeShipped', checked)}
                             size="sm"
                         />
                     </div>

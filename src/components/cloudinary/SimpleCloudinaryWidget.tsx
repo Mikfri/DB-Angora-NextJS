@@ -195,7 +195,7 @@ export default function SimpleCloudinaryWidget({
 
             // Create DTO for registration
             const photoData: CloudinaryPhotoRegistryRequestDTO = {
-              publicId: public_id,
+              cloudinaryPublicId: public_id,
               cloudinaryUrl: secure_url,
               fileName: original_filename,
               entityStringId: uploadConfig.entityId, // <-- brug entityId

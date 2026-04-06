@@ -22,18 +22,19 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function Page({ searchParams }: { searchParams?: Promise<Record<string, string | string[]>> }) {
   const resolvedSearchParams = await searchParams;
-  
+
+  const page = typeof resolvedSearchParams?.Page === 'string' ? parseInt(resolvedSearchParams.Page, 10) || 1 : 1;
+  const pageSize = typeof resolvedSearchParams?.PageSize === 'string' ? parseInt(resolvedSearchParams.PageSize, 10) || 12 : 12;
+
   const filter: BlogCardPreviewFilterDTO = {
     authorFullName: typeof resolvedSearchParams?.AuthorFullName === 'string' ? resolvedSearchParams.AuthorFullName : null,
     searchTerm: typeof resolvedSearchParams?.SearchTerm === 'string' ? resolvedSearchParams.SearchTerm : null,
     tagFilter: typeof resolvedSearchParams?.TagFilter === 'string' ? resolvedSearchParams.TagFilter : null,
-    categoryFilter: typeof resolvedSearchParams?.CategoryFilter === 'string' ? resolvedSearchParams.CategoryFilter : null, // TILFØJET
-    blogSortOption: typeof resolvedSearchParams?.BlogSortOption === 'string' ? resolvedSearchParams.BlogSortOption : null, // TILFØJET
-    page: 1,
-    pageSize: 12
+    categoryFilter: typeof resolvedSearchParams?.CategoryFilter === 'string' ? resolvedSearchParams.CategoryFilter : null,
+    sortBy: typeof resolvedSearchParams?.SortBy === 'string' ? resolvedSearchParams.SortBy : null,
   };
 
-  const result = await fetchBlogsAction(filter);
+  const result = await fetchBlogsAction(filter, page, pageSize);
 
   // Tilføj blog-specifik struktureret data
   const blogSchema = {

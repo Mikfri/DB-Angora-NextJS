@@ -1,23 +1,28 @@
 // src/hooks/useSaleDetailsHandler.ts
+
+/**
+ * Custom hook til håndtering af logik for rabbit sale details (Create, Edit, Delete).
+ * - Centraliserer API-kald og state management for sale details i rabbit profile.
+ * - Returnerer tilstand og handlers som kan bruges i RabbitSaleSection komponenten.
+ */
+
 import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import {
     Rabbit_ProfileDTO,
-    RabbitSaleDetailsEmbeddedDTO,
-    Rabbit_CreateSaleDetailsDTO,
-    Rabbit_UpdateSaleDetailsDTO
 } from '@/api/types/AngoraDTOs';
 import {
     createRabbitSaleDetails,
     updateRabbitSaleDetails,
     deleteRabbitSaleDetails
-} from '@/app/actions/rabbit/rabbitSaleDetailsCrudAction';
+} from '@/app/actions/sales/salesRabbitActions';
 import { getRabbitProfile } from '@/app/actions/rabbit/rabbitCrudActions';
 import { invalidateForsalePages } from '@/app/actions/cache/invalidateCache';
+import { RabbitPostPutSaleDetailsDTO, RabbitSaleProfilePrivateDTO } from '@/api/types/RabbitSaleDTOs';
 
 interface UseSaleDetailsHandlerProps {
     rabbitProfile: Rabbit_ProfileDTO;
-    onSaleDetailsChange: (saleDetails: RabbitSaleDetailsEmbeddedDTO | null) => void;
+    onSaleDetailsChange: (saleDetails: RabbitSaleProfilePrivateDTO | null) => void;
 }
 
 export function useSaleDetailsHandler({
@@ -30,19 +35,19 @@ export function useSaleDetailsHandler({
     const [isDeleting, setIsDeleting] = useState(false);
 
     // State for saleDetails - nu af typen RabbitSaleDetailsEmbeddedDTO
-    const [localSaleDetails, setLocalSaleDetails] = useState<RabbitSaleDetailsEmbeddedDTO | null>(
-        rabbitProfile.saleDetailsEmbedded
+    const [localSaleDetails, setLocalSaleDetails] = useState<RabbitSaleProfilePrivateDTO | null>(
+        rabbitProfile.saleDetailsEmbedded ?? null
     );
 
     // Form data for create/edit operations
-    const [formData, setFormData] = useState<Rabbit_CreateSaleDetailsDTO | Rabbit_UpdateSaleDetailsDTO>(
+    const [formData, setFormData] = useState<RabbitPostPutSaleDetailsDTO>(
         createInitialFormData(rabbitProfile)
     );
 
     // Sync local state med props når profilen ændres og ikke er i redigeringstilstand
     useEffect(() => {
         if (!isCreating && !isEditing) {
-            setLocalSaleDetails(rabbitProfile.saleDetailsEmbedded);
+            setLocalSaleDetails(rabbitProfile.saleDetailsEmbedded ?? null);
         }
     }, [rabbitProfile.saleDetailsEmbedded, isCreating, isEditing]);
 
@@ -61,15 +66,9 @@ export function useSaleDetailsHandler({
             console.log('Refreshed profile from API:', updatedProfile);
 
             if (updatedProfile.saleDetailsEmbedded) {
-                // Opdater lokal state med den nye værdi
                 setLocalSaleDetails(updatedProfile.saleDetailsEmbedded);
-
-                // Informer parent component med den nye saleDetailsEmbedded
                 onSaleDetailsChange(updatedProfile.saleDetailsEmbedded);
-
-                toast.success('Salgsoplysninger opdateret');
-            } 
-            else {
+            } else {
                 setLocalSaleDetails(null);
                 onSaleDetailsChange(null);
             }
@@ -88,17 +87,9 @@ export function useSaleDetailsHandler({
             setIsSaving(true);
 
             if (rabbitProfile.saleDetailsEmbedded && isEditing) {
-                // Update existing sale details
-                const updateDetails = {
-                    ...formData as Rabbit_UpdateSaleDetailsDTO,
-                } as Rabbit_UpdateSaleDetailsDTO;
-
-                console.log('Updating sale details:', updateDetails);
-
-                // Bemærk: Vi bruger nu earCombId i stedet for saleDetailsId
                 const result = await updateRabbitSaleDetails(
-                    rabbitProfile.earCombId,
-                    updateDetails
+                    rabbitProfile.saleDetailsEmbedded.id,
+                    formData
                 );
 
                 if (result.success) {
@@ -118,17 +109,9 @@ export function useSaleDetailsHandler({
                     toast.error(result.error);
                 }
             } else {
-                // Create new sale details
-                const createDetails = {
-                    ...formData as Rabbit_CreateSaleDetailsDTO
-                } as Rabbit_CreateSaleDetailsDTO;
-
-                console.log('Creating sale details:', createDetails);
-
-                // Send earCombId som første parameter
                 const result = await createRabbitSaleDetails(
-                    rabbitProfile.earCombId, 
-                    createDetails
+                    rabbitProfile.earCombId,
+                    formData
                 );
 
                 if (result.success) {
@@ -157,12 +140,12 @@ export function useSaleDetailsHandler({
 
     // Delete handler
     const handleDelete = async () => {
-        if (!rabbitProfile.saleDetailsEmbedded) return;
+        if (!rabbitProfile.saleDetailsEmbedded?.id) return;
 
         try {
             setIsDeleting(true);
             // Bemærk: Vi bruger nu earCombId i stedet for saleDetailsId
-            const result = await deleteRabbitSaleDetails(rabbitProfile.earCombId);
+            const result = await deleteRabbitSaleDetails(rabbitProfile.saleDetailsEmbedded.id);
 
             if (result.success) {
                 console.log('Delete successful, refreshing profile');
@@ -188,22 +171,22 @@ export function useSaleDetailsHandler({
     // Start editing mode
     const startEditing = () => {
         if (!rabbitProfile.saleDetailsEmbedded) return;
-
-        // Sæt formData baseret på de nuværende værdier
-        setFormData(createFormDataFromEmbedded(localSaleDetails));
+        setFormData(createFormDataFromEmbedded(rabbitProfile.saleDetailsEmbedded));
         setIsEditing(true);
     };
 
     // Start creating mode
     const startCreating = () => {
         setFormData({
-            title: `${rabbitProfile.nickName || rabbitProfile.earCombId} til salg`, // Default titlen
-            price: 0,
-            canBeShipped: false,
+            baseProperties: {
+                title: `${rabbitProfile.nickName || rabbitProfile.earCombId} til salg`,
+                price: 0,
+                canBeShipped: false,
+                description: ''
+            },
             isLitterTrained: false,
             isNeutered: false,
             homeEnvironment: 'Indendørs',
-            description: '' // Ændret fra saleDescription til description
         });
         setIsCreating(true);
     };
@@ -231,43 +214,44 @@ export function useSaleDetailsHandler({
 }
 
 // Helper function to create initial form data
-function createInitialFormData(rabbitProfile: Rabbit_ProfileDTO): Rabbit_CreateSaleDetailsDTO | Rabbit_UpdateSaleDetailsDTO {
+function createInitialFormData(rabbitProfile: Rabbit_ProfileDTO): RabbitPostPutSaleDetailsDTO {
     return rabbitProfile.saleDetailsEmbedded ?
         createFormDataFromEmbedded(rabbitProfile.saleDetailsEmbedded) :
         {
-            title: `${rabbitProfile.nickName || rabbitProfile.earCombId} til salg`,
-            price: 0,
-            canBeShipped: false,
+            baseProperties: {
+                title: `${rabbitProfile.nickName || rabbitProfile.earCombId} til salg`,
+                price: 0,
+                canBeShipped: false,
+                description: ''
+            },
             isLitterTrained: false,
             isNeutered: false,
             homeEnvironment: 'Indendørs',
-            description: '' // Ændret fra saleDescription til description
         };
 }
 
-// Opdateret helper function til at skabe form data fra RabbitSaleDetailsEmbeddedDTO
+// Helper function to map RabbitSaleDetailsEmbeddedDTO → RabbitPostPutSaleDetailsDTO
 function createFormDataFromEmbedded(
-    saleDetails: RabbitSaleDetailsEmbeddedDTO | null
-): Rabbit_UpdateSaleDetailsDTO {
+    saleDetails: RabbitSaleProfilePrivateDTO | null
+): RabbitPostPutSaleDetailsDTO {
     if (!saleDetails) {
         return {
-            title: '',
-            price: 0,
-            canBeShipped: false,
+            baseProperties: { title: '', price: 0, canBeShipped: false, description: '' },
             isLitterTrained: false,
             isNeutered: false,
             homeEnvironment: 'Indendørs',
-            description: '' 
         };
     }
 
     return {
-        title: saleDetails.title || ``, 
-        price: saleDetails.price || 0,
-        canBeShipped: saleDetails.canBeShipped || false,
+        baseProperties: {
+            title: saleDetails.title || '',
+            price: saleDetails.price || 0,
+            canBeShipped: saleDetails.canBeShipped || false,
+            description: saleDetails.description || ''
+        },
         isLitterTrained: saleDetails.isLitterTrained || false,
         isNeutered: saleDetails.isNeutered || false,
         homeEnvironment: saleDetails.homeEnvironment || 'Indendørs',
-        description: saleDetails.description || ''
     };
 }

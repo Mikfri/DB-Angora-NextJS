@@ -32,7 +32,7 @@
 
 import { create } from 'zustand';
 import { Rabbit_ForbreedingPreviewDTO } from '@/api/types/AngoraDTOs';
-import { getBreedingRabbits } from '@/app/actions/rabbit/forbreeding';
+import { getRabbitsForBreeding } from '@/app/actions/rabbit/rabbitCrudActions';
 
 // Lokal filter type der tillader undefined for optional felter
 interface ForbreedingFilters {
@@ -135,7 +135,7 @@ export const useRabbitsForbreedingStore = create<RabbitsForbreedingStore>((set, 
         set({ isLoading: true, error: null });
 
         try {
-            const result = await getBreedingRabbits();
+            const result = await getRabbitsForBreeding();
 
             if (!result.success) {
                 set({
@@ -146,7 +146,7 @@ export const useRabbitsForbreedingStore = create<RabbitsForbreedingStore>((set, 
             }
 
             const { filters } = get();
-            const newRabbits = result.data || [];
+            const newRabbits = result.data?.data || [];
 
             set({
                 rabbits: newRabbits,

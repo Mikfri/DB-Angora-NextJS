@@ -1,55 +1,23 @@
 // src/middleware.ts
-
 /**
- * Server-side Middleware - Første forsvarslinje mod uautoriseret adgang
+ * Next-Auth v5 Middleware
  * 
- * Ansvar:
- * 1. Validerer token VED ROUTE NAVIGATION (før siden loader)
- * 2. Forhindrer server-side rendering af beskyttet indhold uden valid token
- * 3. Cleanup af expired auth cookies
+ * Bruger next-auth's auth() som middleware til route protection.
+ * authorized() callback i auth.ts håndterer logikken.
  * 
- * Forskel fra AuthGuard (client-side):
- * - Middleware kører på serveren ved route skift
- * - AuthGuard kører i browseren ved runtime state changes (fx logout)
- * 
- * Sammen giver de:
- * ✅ Server-side beskyttelse (middleware) + Client-side beskyttelse (AuthGuard)
- * ✅ Forhindrer både direct URL access og runtime unauthorized access
+ * Beskytter:
+ * - /account/* routes
+ * - /admin/* routes
  */
 
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
-import { isTokenExpired } from '@/utils/tokenUtils';
-
-export function middleware(request: NextRequest) {
-  const token = request.cookies.get('accessToken');
-  const tokenExpiry = request.cookies.get('tokenExpiry');
-
-  // Brug utility function til token validering
-  if (!token || isTokenExpired(token.value, tokenExpiry?.value)) {
-    const returnUrl = encodeURIComponent(request.nextUrl.pathname);
-    const loginUrl = new URL(`/?returnUrl=${returnUrl}`, request.url);
-    const response = NextResponse.redirect(loginUrl);
-    
-    // Clear all auth-related cookies
-    response.cookies.delete('accessToken');
-    response.cookies.delete('tokenExpiry');
-    response.cookies.delete('userName');
-    response.cookies.delete('userRole');
-    response.cookies.delete('userProfileId');
-    response.cookies.delete('userIdentity');
-    
-    return response;
-  }
-
-  return NextResponse.next();
-}
+export { auth as middleware } from '@/auth';
 
 export const config = {
   matcher: [
-    '/account/:path*'  // Protects all routes under /account
+    '/account/:path*',
+    '/admin/:path*',
   ]
-}
+};
 
 /*
 Funktioner og Fordele:

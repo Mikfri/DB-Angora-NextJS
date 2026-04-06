@@ -1,7 +1,7 @@
 // src/app/account/myRabbits/rabbitProfile/[earCombId]/rabbitPhotoCarousel.tsx
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import CloudinaryImage from '@/components/cloudinary/CloudinaryImage';
 import { Button, Spinner } from '@heroui/react';
 import { PhotoPrivateDTO } from '@/api/types/AngoraDTOs';
@@ -17,6 +17,7 @@ interface RabbitPhotoCarouselProps {
   onSetAsProfile: (photoId: number) => Promise<void>;
   onDelete: (photoId: number) => Promise<void>;
   cloudName?: string;
+  profilePhotoId?: string | null;  // add this
 }
 
 export default function RabbitPhotoCarousel({
@@ -28,13 +29,17 @@ export default function RabbitPhotoCarousel({
   isLoadingDeleteAction,
   onSetAsProfile,
   onDelete,
-  cloudName
+  cloudName,
+  profilePhotoId
 }: RabbitPhotoCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [fullscreen, setFullscreen] = useState(false);
   
   // Find profilbilledeindeks (hvis det findes)
-  const profilePhotoIndex = photos.findIndex(photo => photo.isProfilePicture);
+  const isProfilePhoto = (photo: PhotoPrivateDTO) => 
+    profilePhotoId != null && photo.id === Number(profilePhotoId);
+
+  const profilePhotoIndex = photos.findIndex(p => isProfilePhoto(p));
   
   // Start med profilbilledet, hvis det findes
   useEffect(() => {
@@ -142,7 +147,7 @@ export default function RabbitPhotoCarousel({
         />
         
         {/* Profilbillede indikator */}
-        {currentPhoto.isProfilePicture && (
+        {isProfilePhoto(currentPhoto) && (
           <div className="absolute top-2 left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full">
             Profilbillede
           </div>
@@ -199,7 +204,7 @@ export default function RabbitPhotoCarousel({
       
       {/* Handlingsknapper */}
       <div className="flex gap-2 mt-4">
-        {!currentPhoto.isProfilePicture && (
+        {!isProfilePhoto(currentPhoto) && (
           <Button
             size="sm"
             color="primary"

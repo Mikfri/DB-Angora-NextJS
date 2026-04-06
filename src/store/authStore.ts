@@ -1,23 +1,18 @@
 // src/store/authStore.ts
 /**
- * Auth Store - TIL BRUG I CLIENT COMPONENTS
- * Håndterer bruger-autentifikation, session-styring og token caching.
- * For server components, brug getUserIdentity() fra session.ts.
+ * Auth Store - Kompatibilitetslag mellem next-auth og eksisterende client components
+ * 
+ * Denne store giver en konsistent API til client components mens vi bruger
+ * next-auth under motorhjelmen. Den synkroniserer state fra next-auth session.
+ * 
+ * For nye components: Brug useSession() direkte fra next-auth/react
+ * For server components: Brug auth() fra @/auth eller getUserIdentity() fra session.ts
  */
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 import { login as loginAction } from '@/app/actions/auth/login';
 import { logout as logoutAction } from '@/app/actions/auth/logout';
-import { getSessionStatus, getAccessToken as getTokenAction } from '@/app/actions/auth/session';
-import { getTokenExpiry, getTokenTimeRemaining, hasClaim, isTokenExpired } from '@/utils/tokenUtils';
-import { UserIdentity, UserRole, hasRole, hasAnyRole, roleGroups } from '@/types/authTypes';
-
-interface TokenCache {
-  lastChecked: number;
-  expiresIn: number;
-  accessToken: string | null;
-  tokenExpiry: number | null;
-}
+import { UserIdentity, UserRole, hasRole, hasAnyRole, roleGroups, formatRoles } from '@/types/authTypes';
+import { hasClaim } from '@/utils/tokenUtils';
 
 interface AuthState {
   isLoggedIn: boolean;
@@ -25,8 +20,7 @@ interface AuthState {
   userRole: string;
   userIdentity: UserIdentity | null;
   isLoading: boolean;
-  authInitialized: boolean; // ← NYT: Flyttes fra Providers til authStore
-  tokenCache: TokenCache;
+  authInitialized: boolean;
   
   // Rolle-hjælpefunktioner
   hasRole: (role: UserRole) => boolean;
@@ -38,250 +32,89 @@ interface AuthState {
   hasClaim: (claim: string, value?: unknown) => boolean;
   
   // Auth funktioner
-  checkAuth: () => Promise<boolean>;
-  getAccessToken: () => Promise<string | null>;
   login: (username: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;
+  
+  // Synkronisering med next-auth session
+  syncFromSession: (session: {
+    isAuthenticated: boolean;
+    userName?: string;
+    userIdentity?: UserIdentity | null;
+  }) => void;
 }
 
-const AUTH_CACHE_DURATION = 5 * 60 * 1000; // 5 minutter
-
 export const useAuthStore = create<AuthState>()(
-  persist(
-    (set, get) => ({
-      isLoggedIn: false,
-      userName: '',
-      userRole: '',
-      userIdentity: null,
-      isLoading: true,
-      authInitialized: false, // ← NYT: Initial state
-      tokenCache: {
-        lastChecked: 0,
-        expiresIn: AUTH_CACHE_DURATION,
-        accessToken: null,
-        tokenExpiry: null
-      },
+  (set, get) => ({
+    isLoggedIn: false,
+    userName: '',
+    userRole: '',
+    userIdentity: null,
+    isLoading: true,
+    authInitialized: false,
 
-      // Rolle-hjælpefunktioner
-      hasRole: (role: UserRole) => hasRole(get().userIdentity, role),
-      hasAnyRole: (roles: UserRole[]) => hasAnyRole(get().userIdentity, roles),
-      isAdmin: () => hasRole(get().userIdentity, 'Admin'),
-      isModerator: () => get().isAdmin() || hasAnyRole(get().userIdentity, roleGroups.moderators),
-      isBreeder: () => hasAnyRole(get().userIdentity, roleGroups.breeders),
-      isPremiumUser: () => hasAnyRole(get().userIdentity, roleGroups.premiumUsers),
-      hasClaim: (claim: string, value?: unknown) => hasClaim(get().userIdentity, claim, value),
+    // Rolle-hjælpefunktioner
+    hasRole: (role: UserRole) => hasRole(get().userIdentity, role),
+    hasAnyRole: (roles: UserRole[]) => hasAnyRole(get().userIdentity, roles),
+    isAdmin: () => hasRole(get().userIdentity, 'Admin'),
+    isModerator: () => get().isAdmin() || hasAnyRole(get().userIdentity, roleGroups.moderators),
+    isBreeder: () => hasAnyRole(get().userIdentity, roleGroups.breeders),
+    isPremiumUser: () => hasAnyRole(get().userIdentity, roleGroups.premiumUsers),
+    hasClaim: (claim: string, value?: unknown) => hasClaim(get().userIdentity, claim, value),
 
-      // Access token hentning med cache
-      getAccessToken: async () => {
-        try {
-          const now = Date.now();
-          const { lastChecked, expiresIn, accessToken, tokenExpiry } = get().tokenCache;
+    /**
+     * Synkroniser state fra next-auth session
+     * Kaldes af AuthSyncProvider når session ændrer sig
+     */
+    syncFromSession: (session) => {
+      set({
+        isLoggedIn: session.isAuthenticated,
+        userName: session.userName || '',
+        userRole: session.userIdentity ? formatRoles(session.userIdentity.roles) : '',
+        userIdentity: session.userIdentity || null,
+        isLoading: false,
+        authInitialized: true,
+      });
+    },
 
-          // Tjek om token er udløbet
-          if (accessToken && tokenExpiry && isTokenExpired(accessToken, tokenExpiry.toString())) {
-            console.log('⏰ Token expired at:', new Date(tokenExpiry).toLocaleString());
-            const newToken = await getTokenAction();
+    // Login via Server Action (kalder next-auth signIn)
+    login: async (username, password) => {
+      try {
+        set({ isLoading: true });
 
-            if (!newToken) {
-              // Hvis vi ikke kan få et nyt token, nulstil cache
-              set(state => ({
-                ...state,
-                tokenCache: {
-                  ...state.tokenCache,
-                  accessToken: null,
-                  tokenExpiry: null
-                }
-              }));
-              return null;
-            }
+        const result = await loginAction(username, password);
 
-            // Brug getTokenExpiry utility til at udtrække udløbstidspunkt
-            const newExpiry = getTokenExpiry(newToken);
-            set(state => ({
-              ...state,
-              tokenCache: {
-                lastChecked: now,
-                expiresIn: AUTH_CACHE_DURATION,
-                accessToken: newToken,
-                tokenExpiry: newExpiry
-              }
-            }));
-
-            return newToken;
-          }
-
-          // Returner cached token hvis gyldig
-          if (accessToken && now - lastChecked < expiresIn &&
-            (!tokenExpiry || !isTokenExpired(accessToken, tokenExpiry.toString()))) {
-
-            // Brug getTokenTimeRemaining til bedre logging
-            const timeRemaining = accessToken ? getTokenTimeRemaining(accessToken) : null;
-            const minutesLeft = timeRemaining ? Math.floor(timeRemaining / 60000) : '?';
-
-            console.log(`🔑 Using cached token (expires in ~${minutesLeft} minutes)`);
-            return accessToken;
-          }
-
-          console.log('🔄 Fetching fresh token');
-          const newToken = await getTokenAction();
-
-          if (!newToken) {
-            // Hvis vi ikke kan få et token, nulstil cache
-            set(state => ({
-              ...state,
-              tokenCache: {
-                ...state.tokenCache,
-                accessToken: null,
-                tokenExpiry: null
-              }
-            }));
-            return null;
-          }
-
-          // Brug getTokenExpiry utility til at udtrække udløbstidspunkt
-          const newExpiry = getTokenExpiry(newToken);
-          set(state => ({
-            ...state,
-            tokenCache: {
-              lastChecked: now,
-              expiresIn: AUTH_CACHE_DURATION,
-              accessToken: newToken,
-              tokenExpiry: newExpiry
-            }
-          }));
-
-          return newToken;
-        } catch (error) {
-          console.error('❌ Token fetch failed:', error);
-          return null;
-        }
-      },
-
-      checkAuth: async () => {
-        try {
-          const now = Date.now();
-          const { lastChecked, expiresIn, tokenExpiry } = get().tokenCache;
-      
-          // Brug cache hvis gyldig
-          const tokenValid = tokenExpiry ? now < tokenExpiry : true;
-          const cacheValid = now - lastChecked < expiresIn;
-          
-          if (cacheValid && tokenValid && get().isLoggedIn) {
-            console.log('🔒 Using cached auth status (valid)');
-            
-            // Sæt authInitialized hvis det ikke allerede er sat
-            if (!get().authInitialized) {
-              set({ authInitialized: true });
-            }
-            
-            return true;
-          }
-      
-          console.log('🔄 Refreshing auth status');
-          set({ isLoading: true });
-          
-          // Brug Server Action til at tjekke session
-          const session = await getSessionStatus();
-      
-          set({
-            isLoggedIn: session.isAuthenticated,
-            userName: session.userName || '',
-            userRole: session.userRole || '',
-            userIdentity: session.userIdentity || null,
-            isLoading: false,
-            authInitialized: true, // ← Sæt til true når checkAuth er færdig
-            tokenCache: {
-              ...get().tokenCache,
-              lastChecked: now,
-              expiresIn: AUTH_CACHE_DURATION,
-              tokenExpiry: session.tokenExpiry || null
-            }
-          });
-      
-          return session.isAuthenticated;
-        } catch (error) {
-          console.error('❌ Auth check failed:', error);
-          set({ 
-            isLoggedIn: false, 
-            isLoading: false,
-            authInitialized: true // ← Sæt stadig til true selvom fejl (undgå evig loading)
-          });
-          return false;
-        }
-      },
-      
-      // Login med Server Action
-      login: async (username, password) => {
-        try {
-          set({ isLoading: true });
-
-          const result = await loginAction(username, password);
-
-          if (!result.success) {
-            set({ isLoading: false });
-            return false;
-          }
-
-          // Efter login, opdater state med brugeridentitet
-          set({
-            isLoggedIn: true,
-            userName: result.userName,
-            userRole: result.userRole,
-            userIdentity: result.userIdentity,
-            isLoading: false,
-            authInitialized: true, // ← Sæt til true efter login
-            tokenCache: {
-              lastChecked: Date.now(),
-              expiresIn: AUTH_CACHE_DURATION,
-              accessToken: null, // Nulstil accessToken så det hentes friskt næste gang
-              tokenExpiry: result.tokenExpiry // Gem token udløbstidspunkt
-            }
-          });
-
-          return true;
-        } catch (error) {
-          console.error('❌ Login failed:', error);
+        if (!result.success) {
           set({ isLoading: false });
           return false;
         }
-      },
 
-      // Logout med Server Action
-      logout: async () => {
-        try {
-          const result = await logoutAction();
-
-          if (result.success) {
-            set({
-              isLoggedIn: false,
-              userName: '',
-              userRole: '',
-              userIdentity: null,
-              isLoading: false,
-              authInitialized: true, // ← Behold true efter logout
-              tokenCache: {
-                lastChecked: Date.now(),
-                expiresIn: AUTH_CACHE_DURATION,
-                accessToken: null,
-                tokenExpiry: null
-              }
-            });
-          }
-        } catch (error) {
-          console.error('❌ Logout failed:', error);
-        }
+        // State opdateres automatisk via session sync
+        // Men sæt isLoading til false umiddelbart
+        set({ isLoading: false });
+        return true;
+      } catch (error) {
+        console.error('❌ Login failed:', error);
+        set({ isLoading: false });
+        return false;
       }
-    }),
-    {
-      name: 'auth-storage',
-      partialize: (state) => ({
-        isLoggedIn: state.isLoggedIn,
-        userName: state.userName,
-        userRole: state.userRole,
-        userIdentity: state.userIdentity
-        // NOTE: authInitialized persistes IKKE - skal initialiseres ved hver page load
-      }),
-      skipHydration: true
-    }
-  )
+    },
+
+    // Logout via Server Action (kalder next-auth signOut + API logout)
+    logout: async () => {
+      try {
+        await logoutAction();
+
+        set({
+          isLoggedIn: false,
+          userName: '',
+          userRole: '',
+          userIdentity: null,
+          isLoading: false,
+          authInitialized: true,
+        });
+      } catch (error) {
+        console.error('❌ Logout failed:', error);
+      }
+    },
+  })
 );

@@ -3,7 +3,7 @@
 import { useCallback } from "react";
 import { useRouter, useSearchParams } from 'next/navigation';
 import SaleDetailsCard from '@/components/cards/saleDetailsCard';
-import { SaleDetailsCardDTO } from '@/api/types/AngoraDTOs';
+import { SaleDetailsPublicCardDTO } from '@/api/types/AngoraDTOs';
 import { Button, Pagination } from "@heroui/react";
 import { ROUTES } from '@/constants/navigationConstants';
 
@@ -18,7 +18,7 @@ interface PagingInfo {
 }
 
 interface Props {
-  items: SaleDetailsCardDTO[];
+  items: SaleDetailsPublicCardDTO[];
   paging?: PagingInfo;
 }
 
@@ -30,31 +30,17 @@ export default function SaleList({
   const searchParams = useSearchParams();
 
   // Opdateret klik-handler til kort - bruger korrekte ROUTES konstanter
-  const handleCardClick = useCallback((item: SaleDetailsCardDTO) => {
-    if (item.slug) {
-      switch (item.entityType.toLowerCase()) {
-        case 'rabbit':
-          router.push(ROUTES.SALE.RABBIT(item.slug));
-          break;
-        case 'wool':
-          router.push(ROUTES.SALE.WOOL(item.slug));
-          break;
-        default:
-          router.push(`${ROUTES.SALE.BASE}/${item.entityType.toLowerCase()}/${item.slug}`);
-          break;
-      }
-    } else {
-      switch (item.entityType.toLowerCase()) {
-        case 'rabbit':
-          router.push(ROUTES.SALE.RABBIT_PROFILE(item.entityId));
-          break;
-        case 'wool':
-          router.push(ROUTES.SALE.WOOL_PROFILE(item.entityId));
-          break;
-        default:
-          router.push(`${ROUTES.SALE.BASE}/${item.entityType.toLowerCase()}/profile/${item.entityId}`);
-          break;
-      }
+  const handleCardClick = useCallback((item: SaleDetailsPublicCardDTO) => {
+    switch (item.entityType.toLowerCase()) {
+      case 'rabbit':
+        router.push(ROUTES.SALE.RABBIT(item.slug));
+        break;
+      case 'wool':
+        router.push(ROUTES.SALE.WOOL(item.slug));
+        break;
+      default:
+        router.push(`${ROUTES.SALE.BASE}/${item.entityType.toLowerCase()}/${item.slug}`);
+        break;
     }
   }, [router]);
 
@@ -99,7 +85,7 @@ export default function SaleList({
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {items.map((item) => (
             <SaleDetailsCard
-              key={`${item.entityType}-${item.entityId}`}
+              key={`${item.entityType}-${item.slug}`}
               item={item}
               onClick={() => handleCardClick(item)}
             />

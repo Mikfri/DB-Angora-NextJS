@@ -16,7 +16,7 @@ const BlogCompactCard = memo(function BlogCompactCard({ blog, onClick }: Props) 
 	const [imageError, setImageError] = useState(false);
 
 	const defaultImage = '/images/DB-Angora.png';
-	const featuredImage = (!imageError && blog.featuredImageUrl) || defaultImage;
+	const featuredImage = (!imageError && blog.profilePhotoUrl) || defaultImage;
 
 	const handleCardPress = () => {
 		if (onClick) onClick();

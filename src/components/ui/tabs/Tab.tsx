@@ -2,6 +2,12 @@
 
 'use client';
 
+/**
+ * Simpel tab-knap (kan f.eks. bruges til custom tab strips uden HeroUI).
+ * 
+ * OBS: Benyttes pt. ikke nogen steder!.
+ */
+
 import React from 'react';
 
 interface Props extends React.ButtonHTMLAttributes<HTMLButtonElement> {

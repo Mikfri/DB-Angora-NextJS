@@ -4,7 +4,7 @@
 import { createContext, useContext, ReactNode, useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { SaleDetailsProfileDTO } from '@/api/types/AngoraDTOs';
-import { getSaleDetailsBySlug } from '@/app/actions/sale/saleActions';
+import { getSaleDetailsBySlug } from '@/app/actions/sales/salesActions';
 
 interface SaleProfileContextType {
   profile: SaleDetailsProfileDTO | null;

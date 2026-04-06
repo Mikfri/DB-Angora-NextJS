@@ -4,7 +4,7 @@
 import { ReactNode } from 'react';
 import { Divider } from "@heroui/react";
 import { MdMail, MdNumbers, MdPhone } from 'react-icons/md';
-import ProfileImage from '@/components/ui/ProfileImage';
+import ProfileImage from '@/components/ui/images/ProfileImage';
 import { useUserAccountProfileStore } from '@/store/userAccountProfileStore';
 
 const SECTIONS = {
@@ -25,7 +25,7 @@ export function UserProfileNavClient() {
   const lastName = user?.lastName ?? '';
   const email = user?.email ?? '';
   const phone = user?.phone ?? '';
-  const profilePicture = user?.profilePicture ?? null;
+  const profilePhotoUrl = user?.profilePhotoUrl ?? null;
   const fullName = `${firstName} ${lastName}`.trim() || 'Bruger';
 
   return (
@@ -35,7 +35,7 @@ export function UserProfileNavClient() {
       <div className="flex justify-center">
         <div className="w-full max-w-[300px] aspect-square">
           <ProfileImage
-            imageUrl={profilePicture}
+            imageUrl={profilePhotoUrl}
             alt={fullName}
             className="w-full h-full"
           />

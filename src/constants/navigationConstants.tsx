@@ -18,6 +18,7 @@ export const ROUTES = {
     BASE: '/account',
     PROFILE: '/account/profile',
     USER_PROFILE: (userProfileId: string) => `/account/profile/${userProfileId}`,
+    MY_SALES: '/account/mySales',
     MY_RABBITS: '/account/myRabbits',
     TRANSFER_REQUESTS: '/account/myRabbits/transferRequests',
     RABBIT_PROFILE: (earCombId: string) => `/account/myRabbits/rabbitProfile/${earCombId}`,
@@ -108,6 +109,12 @@ export const breederNavigationLinks: NavGroup[] = [
     title: "Avler funktioner",
     links: [
       {
+        href: ROUTES.ACCOUNT.MY_SALES,
+        label: 'Mine annoncer',
+        requiresAuth: true,
+        requiredRoles: roleGroups.breeders
+      },
+      {        
         href: ROUTES.ACCOUNT.MY_RABBITS,
         label: 'Mine kaniner',
         requiresAuth: true,

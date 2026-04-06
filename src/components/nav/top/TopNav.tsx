@@ -37,13 +37,8 @@ export default function TopNav() {
       userRole, 
       userIdentity, 
       logout, 
-      checkAuth,
       isLoading 
   } = useAuthStore();
-
-  useEffect(() => {
-      checkAuth();
-  }, [checkAuth]);
 
   useEffect(() => {
       if (isLoggedIn) {

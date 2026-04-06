@@ -1,22 +1,22 @@
 // src/contexts/EnumContext.tsx
 'use client';
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import { GetEnumValues, type EnumType } from '@/api/endpoints/enumController';
+import { GetEnumValues, type EnumType, type EnumOption } from '@/api/endpoints/enumController';
 
-// Re-export type så komponenter kan bruge den
-export type { EnumType };
+// Re-export types så komponenter kan bruge dem
+export type { EnumType, EnumOption };
 
 /**
- * Cache type - mapper enum type til array af værdier
+ * Cache type - mapper enum type til array af { Name, Value } objekter
  */
-type EnumCache = Partial<Record<EnumType, string[]>>;
+type EnumCache = Partial<Record<EnumType, EnumOption[]>>;
 
 /**
  * Context interface med alle tilgængelige metoder
  */
 interface EnumContextType {
-    getEnumValues: (enumType: EnumType) => Promise<string[]>;
-    getMultipleEnumValues: (enumTypes: EnumType[]) => Promise<Record<EnumType, string[]>>;
+    getEnumValues: (enumType: EnumType) => Promise<EnumOption[]>;
+    getMultipleEnumValues: (enumTypes: EnumType[]) => Promise<Record<EnumType, EnumOption[]>>;
     isLoading: (enumType: EnumType) => boolean;
     resetCache: () => void;
 }
@@ -28,7 +28,7 @@ const COMMON_ENUMS: EnumType[] = ['Race', 'Color', 'Gender'];
 
 // Cache konfiguration
 const CACHE_EXPIRY = 7 * 24 * 60 * 60 * 1000; // 7 dage
-const CACHE_VERSION = '1.1.0'; // Opdateret version
+const CACHE_VERSION = '2.0.0'; // { Name, Value } format
 const CACHE_KEY = 'db-angora-enum-cache';
 const CACHE_TIMESTAMP_KEY = 'db-angora-enum-cache-timestamp';
 const CACHE_VERSION_KEY = 'db-angora-enum-cache-version';
@@ -102,7 +102,7 @@ export function EnumProvider({ children }: { children: ReactNode }) {
     /**
      * Hent enum-værdier med caching
      */
-    const getEnumValues = useCallback(async (enumType: EnumType): Promise<string[]> => {
+    const getEnumValues = useCallback(async (enumType: EnumType): Promise<EnumOption[]> => {
         // Return fra cache hvis tilgængelig
         if (cache[enumType]) {
             console.log(`📋 Using cached ${enumType} enum values`);
@@ -132,8 +132,8 @@ export function EnumProvider({ children }: { children: ReactNode }) {
      */
     const getMultipleEnumValues = useCallback(async (
         enumTypes: EnumType[]
-    ): Promise<Record<EnumType, string[]>> => {
-        const results: Partial<Record<EnumType, string[]>> = {};
+    ): Promise<Record<EnumType, EnumOption[]>> => {
+        const results: Partial<Record<EnumType, EnumOption[]>> = {};
 
         // Filtrer enums vi ikke har cached
         const missingEnums = enumTypes.filter(enumType => !cache[enumType]);
@@ -144,7 +144,7 @@ export function EnumProvider({ children }: { children: ReactNode }) {
             enumTypes.forEach(enumType => {
                 results[enumType] = cache[enumType]!;
             });
-            return results as Record<EnumType, string[]>;
+            return results as Record<EnumType, EnumOption[]>;
         }
 
         // Fetch manglende enums parallelt
@@ -167,7 +167,7 @@ export function EnumProvider({ children }: { children: ReactNode }) {
             }
         });
 
-        return results as Record<EnumType, string[]>;
+        return results as Record<EnumType, EnumOption[]>;
     }, [cache, getEnumValues]);
 
     /**

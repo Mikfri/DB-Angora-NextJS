@@ -2,7 +2,9 @@
 import { cookies } from 'next/headers';
 
 /**
- * HVORFOR BRUGE EN COOKIE STORE WRAPPER?
+* NB! Denne fil benyttes PT ikke efter setup af "next-auth"!
+* 
+* HVORFOR (ellers) BRUGE EN COOKIE STORE WRAPPER?
 
 Next.js har ændret cookies API 2 gange på 2 år (v13 → v14 → v15)
 Ved at have en wrapper beskyttes du mod fremtidige breaking changes

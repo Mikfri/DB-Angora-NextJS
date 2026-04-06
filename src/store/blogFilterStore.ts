@@ -79,7 +79,7 @@ export const blogFilterStore = create<BlogFilterState>()((set) => ({
     if (searchParams.has('SearchTerm')) newFilters.searchTerm = searchParams.get('SearchTerm') || undefined;
     if (searchParams.has('TagFilter')) newFilters.tagFilter = searchParams.get('TagFilter') || undefined;
     if (searchParams.has('CategoryFilter')) newFilters.categoryFilter = searchParams.get('CategoryFilter') || undefined; // TILFØJET
-    //if (searchParams.has('BlogSortOption')) newFilters.blogSortOption = searchParams.get('BlogSortOption') || undefined; // TILFØJET
+    if (searchParams.has('SortBy')) newFilters.sortBy = searchParams.get('SortBy') || undefined; // TILFØJET
     
     set({ filters: newFilters });
   }
@@ -110,7 +110,7 @@ export function useBlogFilters() {
     if (merged.searchTerm) params.set('SearchTerm', String(merged.searchTerm));
     if (merged.tagFilter) params.set('TagFilter', String(merged.tagFilter));
     if (merged.categoryFilter) params.set('CategoryFilter', String(merged.categoryFilter));
-    //if (merged.blogSortOption) params.set('BlogSortOption', String(merged.blogSortOption));
+    if (merged.sortBy) params.set('SortBy', String(merged.sortBy));
     
     // Reset page on new filters (hvis vi senere tilføjer pagination)
     params.delete('Page');

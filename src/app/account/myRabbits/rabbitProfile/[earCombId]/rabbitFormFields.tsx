@@ -1,5 +1,5 @@
 // src/app/account/myRabbits/rabbitProfile/[earCombId]/rabbitFormFields.tsx
-import React, { ReactNode } from "react";
+import { ReactNode } from "react";
 import { PiRabbitFill, PiRabbit } from "react-icons/pi";
 import { Input, Switch } from "@heroui/react";
 import { Rabbit_ProfileDTO, Rabbit_UpdateDTO } from "@/api/types/AngoraDTOs";

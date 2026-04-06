@@ -1,4 +1,11 @@
 // src/components/ui/tabs/CarouselTabs.tsx
+
+/**
+ * Horizontalt scrollende tab-strip med left/right knapper.
+ * - Ingen steder brugt i nuværende kodebase (optimerings/reserve-komponent).
+ * - Kan erstatte eller bruges sammen med Tabs-komponenten i future.
+ */
+
 'use client';
 
 import React, { useRef } from 'react';

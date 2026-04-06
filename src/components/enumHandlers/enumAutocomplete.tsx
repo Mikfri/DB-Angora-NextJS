@@ -1,10 +1,18 @@
 // src/components/enumHandlers/enumAutocomplete.tsx
+
+/**
+ * Bemærk at .NET default serialiserer enum værdier som strings.
+ * Format messigt vidergives de pr. defualt som camelCase i JSON.
+ * 
+ * Eksempel: "YarnWeightCategory" bliver til "yarnWeightCategory".
+ */
+
 "use client"
 
 import { Autocomplete, AutocompleteItem } from "@heroui/react";
 import { useEffect, useState, useRef } from 'react';
 import { useEnums } from '@/contexts/EnumContext';
-import type { EnumType } from '@/api/endpoints/enumController';
+import type { EnumType, EnumOption } from '@/contexts/EnumContext';
 
 interface Props {
     enumType: EnumType;
@@ -25,7 +33,7 @@ export default function EnumAutocomplete({
     'aria-labelledby': ariaLabelledBy,
     placeholder 
 }: Props) {
-    const [options, setOptions] = useState<string[]>([]);
+    const [options, setOptions] = useState<EnumOption[]>([]);
     const { getEnumValues, isLoading } = useEnums();
     const isMounted = useRef(true);
 
@@ -78,11 +86,11 @@ export default function EnumAutocomplete({
             >
                 {options.map((option) => (
                     <AutocompleteItem
-                        key={option}
-                        textValue={option}
+                        key={option.name}
+                        textValue={option.name}
                         className="text-body data-[selected=true]:bg-primary/10 hover:bg-content2/30 data-[hover=true]:bg-primary/100 data-[hover=true]:text-white" // Tilføjet: Hover styling som i MyNavClient (blå baggrund + hvid tekst)
                     >
-                        {option.replace(/_/g, ' ')}
+                        {option.name.replace(/_/g, ' ')}
                     </AutocompleteItem>
                 ))}
             </Autocomplete>

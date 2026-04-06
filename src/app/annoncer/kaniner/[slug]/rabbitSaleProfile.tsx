@@ -1,9 +1,9 @@
 // src/app/annoncer/kaniner/[slug]/rabbitSaleProfile.tsx
 'use client'
 import { SaleDetailsProfileDTO } from '@/api/types/AngoraDTOs';
+import { formatCurrency, formatDate } from '@/utils/formatters';
 import { Card, CardBody, Divider } from "@heroui/react";
 import Image from 'next/image';
-import { formatCurrency, formatDate } from '@/utils/formatters';
 import { useState } from 'react';
 import { IoEyeOutline, IoLocationOutline } from 'react-icons/io5';
 
@@ -17,13 +17,12 @@ interface Props {
  */
 export default function RabbitSaleProfile({ profile }: Props) {
   // State til at håndtere valgt billede
-  const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number>(
-    profile.photos?.findIndex(p => p.isProfilePicture) || 0
-  );
+  const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number>(0);
 
   // Hent egenskaber fra objekterne for nemmere adgang
+  const saleDetails = profile.saleDetails;
   const entityProperties = profile.entityProperties || {};
-  const entityTypeSaleProperties = profile.entityTypeSaleProperties || {};
+  const entityTypeSaleProperties = saleDetails?.entityTypeSaleProperties || {};
 
   // Håndter valg af foto i galleriet
   const handlePhotoSelect = (index: number) => {
@@ -35,7 +34,9 @@ export default function RabbitSaleProfile({ profile }: Props) {
     ? profile.photos[selectedPhotoIndex]
     : null;
 
-  const mainImageUrl = activePhoto?.filePath || profile.imageUrl || '/images/default-product.jpg';
+  const mainImageUrl = activePhoto?.filePath
+  || profile.profilePhotoUrl
+  || '/images/DB-Angora.png';
 
   return (
     <div className="w-full space-y-6">
@@ -48,7 +49,7 @@ export default function RabbitSaleProfile({ profile }: Props) {
           <div className="relative w-full aspect-[16/10] overflow-hidden">
             <Image
               src={mainImageUrl}
-              alt={profile.title || 'Kanin til salg'}
+              alt={saleDetails?.title || 'Kanin til salg'}
               className="object-cover transition-transform duration-300 hover:scale-105"
               fill
               sizes="(max-width: 1024px) 100vw, 60vw"
@@ -67,7 +68,7 @@ export default function RabbitSaleProfile({ profile }: Props) {
               <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
                 <div>
                   <h1 className="text-xl lg:text-3xl font-bold text-white leading-tight mb-2">
-                    {profile.title || 'Kanin til salg'}
+                    {saleDetails?.title || 'Kanin til salg'}
                   </h1>
                   <div className="flex items-center gap-4 text-white/80 text-sm">
                     <div className="flex items-center gap-2">
@@ -76,16 +77,16 @@ export default function RabbitSaleProfile({ profile }: Props) {
                     </div>
                     <div className="flex items-center gap-2">
                       <IoEyeOutline />
-                      <span>{profile.viewCount || 0} visninger</span>
+                      <span>{saleDetails?.viewCount || 0} visninger</span>
                     </div>
                   </div>
                 </div>
                 <div className="text-right">
                   <div className="text-2xl lg:text-4xl font-bold text-amber-400">
-                    {formatCurrency(profile.price)}
+                    {formatCurrency(saleDetails?.price || 0)}
                   </div>
                   <div className="text-white/60 text-xs">
-                    Oprettet {formatDate(profile.dateListed)}
+                    Oprettet {saleDetails?.dateListed ? formatDate(saleDetails.dateListed) : 'ukendt'}
                   </div>
                 </div>
               </div>
@@ -129,7 +130,7 @@ export default function RabbitSaleProfile({ profile }: Props) {
             <h2 className="text-xl font-semibold mb-4 text-zinc-100">Beskrivelse</h2>
             <div className="bg-zinc-900/50 p-4 rounded-lg">
               <p className="text-zinc-300 leading-relaxed whitespace-pre-wrap">
-                {profile.description || 'Ingen beskrivelse tilgængelig.'}
+                {saleDetails?.description || 'Ingen beskrivelse tilgængelig.'}
               </p>
             </div>
           </CardBody>

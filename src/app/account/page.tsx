@@ -9,13 +9,12 @@ import { isBreeder, isContentCreator, isModerator, isPremiumUser } from '@/types
 import { Spinner } from '@heroui/react';
 
 export default function AccountPage() {
-    const { userIdentity, isLoading, checkAuth } = useAuthStore();
+    const { userIdentity, isLoading } = useAuthStore();
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
         setMounted(true);
-        checkAuth();
-    }, [checkAuth]);
+    }, []);
 
     // Viser loading spinner indtil siden er mounted og auth er tjekket
     if (!mounted || isLoading) {
@@ -34,6 +33,7 @@ export default function AccountPage() {
     const showBreeding = userIdentity && isBreeder(userIdentity);
     const showTransfers = userIdentity && (isBreeder(userIdentity) || isModerator(userIdentity) || isPremiumUser(userIdentity));
     const showMyBlogs = userIdentity && isContentCreator(userIdentity);
+    const showMySales = userIdentity && isBreeder(userIdentity);
     
     return (
         <div className="main-content-container">
@@ -42,7 +42,7 @@ export default function AccountPage() {
                     Min side
                 </h1>
                 {/* Grid med 3 kolonner på desktop */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl w-full">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl w-full">
                     {showProfile && (
                         <PageNavigationCard
                             href={ROUTES.ACCOUNT.PROFILE}
@@ -81,6 +81,14 @@ export default function AccountPage() {
                             imageSrc="/images/sideNavigationCard_MyBlogs.jpeg"
                             title="Mine blogs"
                             description={<span className="text-md">Se og administrer dine blogindlæg og kladder</span>}
+                        />
+                    )}
+                    {showMySales && (
+                        <PageNavigationCard
+                            href={ROUTES.ACCOUNT.MY_SALES}
+                            imageSrc="/images/sideNavigationCard_MySales.png"
+                            title="Mine annoncer"
+                            description={<span className="text-md">Se og administrer dine salgsannoncer </span>}
                         />
                     )}
                 </div>

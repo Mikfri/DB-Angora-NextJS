@@ -74,10 +74,7 @@ const handleDeletePhoto = async (photoId: number) => {
   setIsLoadingDeleteAction(photoId);
   setError(null);
   try {
-    const result = await deleteUserProfilePhoto({
-      entityStringId: userProfileId,
-      photoId
-    });
+    const result = await deleteUserProfilePhoto(userProfileId, photoId);
     if (!result.success) setError(result.error || 'Der opstod en fejl ved sletning af billede');
     await refreshProfile();
   } catch {

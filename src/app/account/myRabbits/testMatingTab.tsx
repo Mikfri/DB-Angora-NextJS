@@ -1,4 +1,5 @@
 // src/app/account/myRabbits/TestMatingTab.tsx
+
 'use client';
 import { useEffect, useState, useMemo } from "react";
 import { useRabbitsOwnedStore } from "@/store/rabbitsOwnedStore";
@@ -19,7 +20,7 @@ function mapOwnedPreviewToPedigree(r: Rabbit_OwnedPreviewDTO): Rabbit_PedigreeDT
     Color: r.color ?? null,
     UserOriginName: r.originFullName ?? null,
     UserOwnerName: r.ownerFullName ?? null,
-    ProfilePicture: r.profilePicture ?? null,
+    ProfilePhotoUrl: r.profilePhotoUrl ?? null,
     InbreedingCoefficient: r.inbreedingCoefficient ?? null,
     Relation: "",
     Generation: 0,

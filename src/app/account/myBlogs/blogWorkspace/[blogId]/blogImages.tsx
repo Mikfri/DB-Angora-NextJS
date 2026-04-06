@@ -12,7 +12,7 @@ import {
     deleteBlogPhotoAction,
     updateBlogFeaturedImageAction 
 } from '@/app/actions/blog/blogActions';
-import type { CloudinaryUploadConfigDTO, PhotoPrivateDTO, CloudinaryPhotoRegistryRequestDTO, PhotoDeleteDTO } from '@/api/types/AngoraDTOs';
+import type { CloudinaryUploadConfigDTO, PhotoPrivateDTO, CloudinaryPhotoRegistryRequestDTO } from '@/api/types/AngoraDTOs';
 import { toast } from 'react-toastify';
 
 interface BlogImageSectionProps {
@@ -103,12 +103,7 @@ export default function BlogImageSection({
         setError(null);
         
         try {
-            const deletionDTO: PhotoDeleteDTO = {
-                photoId: photoId,
-                entityIntId: blogId
-            };
-
-            const result = await deleteBlogPhotoAction(deletionDTO);
+            const result = await deleteBlogPhotoAction(blogId, photoId);
             if (result.success) {
                 setPhotos(prev => prev.filter(p => p.id !== photoId));
                 if (onPhotosUpdated) onPhotosUpdated();

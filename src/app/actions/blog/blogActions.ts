@@ -2,24 +2,30 @@
 
 'use server';
 import { getAccessToken } from '@/app/actions/auth/session';
-import { getBlogs, getBlogBySlug, getBlogsAuthoredByUser, getBlogById, updateBlog, getBlogImageUploadConfig, registerCloudinaryBlogPhoto, deleteBlogPhoto, updateBlogFeaturedImage, createBlog, publishBlog, unpublishBlog, schedulePublishBlog, deleteBlog, getLatestBlogsByCategory } from '@/api/endpoints/blogController';
-import type { BlogCardPreviewFilterDTO, ResultPagedDTO, BlogCardPreviewDTO, Blog_DTO, Blog_UpdateDTO, BlogPublicDTO, CloudinaryUploadConfigDTO, PhotoPrivateDTO, CloudinaryPhotoRegistryRequestDTO, PhotoDeleteDTO, Blog_CreateDTO, BlogsLatestByCategoryDTO } from '@/api/types/AngoraDTOs';
+import { getBlogs, getBlogBySlug, getBlogsAuthoredByUser, getBlogById, 
+    updateBlog, getBlogImageUploadConfig, registerCloudinaryBlogPhoto, 
+    deleteBlogPhoto, updateBlogFeaturedImage, createBlog, publishBlog, 
+    unpublishBlog, schedulePublishBlog, deleteBlog, getLatestBlogsByCategory } from '@/api/endpoints/blogController';
+import type { BlogCardPreviewFilterDTO, ResultPagedDTO, BlogCardPreviewDTO,
+    Blog_UpdateDTO, BlogPublicDTO, CloudinaryUploadConfigDTO, PhotoPrivateDTO,
+    CloudinaryPhotoRegistryRequestDTO, Blog_CreateDTO, BlogsLatestByCategoryDTO,
+    BlogPrivateDTO } from '@/api/types/AngoraDTOs';
 
 // ====================== TYPES ======================
 export type BlogCreateResult =
-    | { success: true; data: Blog_DTO }
+    | { success: true; data: BlogPrivateDTO }
     | { success: false; error: string; status?: number };
 
 export type BlogPublishResult =
-    | { success: true; data: Blog_DTO }
+    | { success: true; data: BlogPrivateDTO }
     | { success: false; error: string; status?: number };
 
 export type BlogSchedulePublishResult =
-    | { success: true; data: Blog_DTO }
+    | { success: true; data: BlogPrivateDTO }
     | { success: false; error: string; status?: number };
 
 export type BlogUnpublishResult =
-    | { success: true; data: Blog_DTO }
+    | { success: true; data: BlogPrivateDTO }
     | { success: false; error: string; status?: number };
 
 export type BlogPhotoRegistryResult =
@@ -39,7 +45,7 @@ export type BlogPublicResult =
     | { success: false; error: string; status?: number };
 
 export type BlogResult =
-    | { success: true; data: Blog_DTO }
+    | { success: true; data: BlogPrivateDTO }
     | { success: false; error: string; status?: number };
 
 export type BlogImageUploadConfigResult =
@@ -345,32 +351,24 @@ export async function fetchLatestBlogsByCategoryAction(
  * @returns Pagineret liste af blogs
  */
 export async function fetchBlogsAction(
-    filter?: BlogCardPreviewFilterDTO
+    filter?: BlogCardPreviewFilterDTO,
+    page: number = 1,
+    pageSize: number = 12
 ): Promise<BlogListResult> {
     try {
-        // Initialiser filter hvis det ikke er angivet
-        if (!filter) {
-            filter = {
-                authorFullName: null,
-                searchTerm: null,
-                tagFilter: null,
-                blogSortOption: null,
-                page: 1,
-                pageSize: 12
-            };
-        }
+        const normalizedFilter: BlogCardPreviewFilterDTO = {
+            authorFullName: filter?.authorFullName ?? null,
+            searchTerm: filter?.searchTerm ?? null,
+            tagFilter: filter?.tagFilter ?? null,
+            categoryFilter: filter?.categoryFilter ?? null,
+            sortBy: filter?.sortBy ?? null,
+        };
 
-        // Sikrer at page og pageSize er gyldige
-        if (!filter.page || filter.page < 1) {
-            filter.page = 1;
-        }
-
-        if (!filter.pageSize || filter.pageSize < 1) {
-            filter.pageSize = 12;
-        }
+        const normalizedPage = page >= 1 ? page : 1;
+        const normalizedPageSize = pageSize >= 1 ? pageSize : 12;
 
         const accessToken = await getAccessToken();
-        const blogs = await getBlogs(filter, accessToken ?? undefined);
+        const blogs = await getBlogs(normalizedFilter, normalizedPage, normalizedPageSize, accessToken ?? undefined);
 
         if (!blogs) {
             return {
@@ -763,13 +761,21 @@ export async function deleteBlogAction(
  * @returns Bekræftelse på sletning eller fejlbesked
  */
 export async function deleteBlogPhotoAction(
-    deletionDTO: PhotoDeleteDTO
+    blogId: number,
+    photoId: number
 ): Promise<BlogPhotoDeleteResult> {
     try {
-        if (!deletionDTO || !deletionDTO.photoId || !deletionDTO.entityIntId) {
+        if (!blogId || blogId <= 0) {
             return {
                 success: false,
-                error: 'PhotoId og BlogId skal angives',
+                error: 'Ugyldigt blog ID',
+                status: 400
+            };
+        }
+        if (!photoId || photoId <= 0) {
+            return {
+                success: false,
+                error: 'Ugyldigt billede ID',
                 status: 400
             };
         }
@@ -783,7 +789,7 @@ export async function deleteBlogPhotoAction(
             };
         }
 
-        const result = await deleteBlogPhoto(deletionDTO, accessToken);
+        const result = await deleteBlogPhoto(blogId, photoId, accessToken);
 
         return {
             success: true,

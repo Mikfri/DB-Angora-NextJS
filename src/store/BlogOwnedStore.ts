@@ -188,7 +188,7 @@ export const useBlogOwnedStore = create<BlogOwnedStoreState>()(
 
         // TILFØJET: Filtrer på kategori
         if (category) {
-          filtered = filtered.filter(b => b.blogCategory === category);
+          filtered = filtered.filter(b => b.category === category);
         }
 
         if (search) {

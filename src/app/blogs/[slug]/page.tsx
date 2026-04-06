@@ -24,7 +24,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
     "@type": "Article",
     "headline": blog.title,
     "alternativeHeadline": blog.subtitle || undefined,
-    "image": blog.featuredImageUrl || undefined,
+    "image": blog.profilePhotoUrl || undefined,
     "author": {
       "@type": "Person",
       "name": blog.authorName

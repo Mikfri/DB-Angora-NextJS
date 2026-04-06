@@ -2,11 +2,12 @@
 'use client';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
-import RabbitPreviewCard from '@/components/cards/rabbitOwnPreviewCard';
 import { useRabbitsOwnedStore } from '@/store/rabbitsOwnedStore';
-import { ROUTES } from '@/constants/navigationConstants';
-import { Tabs, Tab } from "@heroui/react";
 import TestMatingTab from './testMatingTab';
+import { ROUTES } from '@/constants/navigationConstants';
+// Ikoner og UI
+import RabbitPreviewCard from '@/components/cards/rabbitOwnPreviewCard';
+import { Tabs, Tab } from "@heroui/react";
 import { TbFolderHeart, TbFolderPin, TbFolderQuestion } from 'react-icons/tb';
 
 export default function RabbitOwnList({ userId }: { userId: string }) {
@@ -42,14 +43,20 @@ export default function RabbitOwnList({ userId }: { userId: string }) {
         return rabbitsCopy;
     }, [filteredRabbits, sortBy, sortOrder]);
 
+    const pagedRabbits = useMemo(() => {
+        const start = (pagination.page - 1) * pagination.pageSize;
+        const end = start + pagination.pageSize;
+        return sortedRabbits.slice(start, end);
+    }, [sortedRabbits, pagination.page, pagination.pageSize]);
+
     // Flyt disse to hooks OP før alle returns!
     const mineKaniner = useMemo(
-        () => sortedRabbits.filter(r => r.isOwnedByTargetedUser),
-        [sortedRabbits]
+        () => pagedRabbits.filter(r => r.isOwnedByTargetedUser),
+        [pagedRabbits]
     );
     const bestandKaniner = useMemo(
-        () => sortedRabbits.filter(r => !r.isOwnedByTargetedUser),
-        [sortedRabbits]
+        () => pagedRabbits.filter(r => !r.isOwnedByTargetedUser),
+        [pagedRabbits]
     );
 
     // Sorteringskontrol til UI
@@ -99,7 +106,7 @@ export default function RabbitOwnList({ userId }: { userId: string }) {
     const mineKaninerTab = (
         <div>
             <div className="text-xs text-zinc-500 mb-4">
-                Side {pagination.page} • Viser {mineKaniner.length} ud af {rabbits.length} kaniner
+                Side {pagination.page} • Viser {mineKaniner.length} ud af {pagination.totalCount} kaniner
             </div>
             {sortControls}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -195,7 +202,7 @@ export default function RabbitOwnList({ userId }: { userId: string }) {
     const bestandTab = (
         <div>
             <div className="text-xs text-zinc-500 mb-4">
-                Side {pagination.page} • Viser {bestandKaniner.length} ud af {rabbits.length} kaniner
+                Side {pagination.page} • Viser {bestandKaniner.length} ud af {pagination.totalCount} kaniner
             </div>
             {sortControls}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

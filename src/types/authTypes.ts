@@ -35,7 +35,7 @@ export const roleDisplayNames: Record<UserRole, string> = {
 
 export const roleGroups = {
   admins: ['Admin'] as UserRole[],
-  moderators: ['Moderator', 'RabbitModerator', 'UserModerator', 'ModeratorBreeder'] as UserRole[],
+  moderators: ['Admin','Moderator', 'RabbitModerator', 'UserModerator', 'ModeratorBreeder'] as UserRole[],
   contentCreators: ['Editor', 'BlogPoster'] as UserRole[],
   breeders: ['Admin', 'BreederPremium', 'BreederBasic', 'ModeratorBreeder'] as UserRole[],
   premiumUsers: ['Admin', 'BreederPremium', 'ModeratorBreeder'] as UserRole[],

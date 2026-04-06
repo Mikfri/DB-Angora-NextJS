@@ -107,11 +107,7 @@ export default function PhotoSection({ earCombId }: PhotoSectionProps) {
   const handleDeletePhoto = async (photoId: number) => {
     try {
       setIsLoadingDeleteAction(photoId);
-      const result = await deleteRabbitPhoto({
-        photoId,
-        entityIntId: 0,
-        entityStringId: earCombId,
-      });
+      const result = await deleteRabbitPhoto(earCombId, photoId);
       if (!result.success) {
         setError(result.error || 'Der opstod en fejl ved sletning af billedet');
       }
@@ -179,6 +175,7 @@ export default function PhotoSection({ earCombId }: PhotoSectionProps) {
           isLoadingDeleteAction={isLoadingDeleteAction}
           onSetAsProfile={handleSetAsProfile}
           onDelete={handleDeletePhoto}
+          profilePhotoId={profile?.profilePhotoId}  // ← tilføj denne
         />
       </div>
 

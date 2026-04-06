@@ -7,22 +7,15 @@ import { useAuthStore } from '@/store/authStore';
 
 export default function ProfileRedirectPage() {
   const router = useRouter();
-  const { userIdentity, isLoggedIn, checkAuth } = useAuthStore();
+  const { userIdentity, isLoggedIn } = useAuthStore();
 
   useEffect(() => {
-    const redirect = async () => {
-      await checkAuth();
-      
-      if (!isLoggedIn || !userIdentity?.id) {
-        router.push('/auth/login');
-        return;
-      }
-      
-      router.push(`/account/profile/${userIdentity.id}`);
-    };
-
-    redirect();
-  }, [isLoggedIn, userIdentity, router, checkAuth]);
+    if (!isLoggedIn || !userIdentity?.id) {
+      return;
+    }
+    
+    router.push(`/account/profile/${userIdentity.id}`);
+  }, [isLoggedIn, userIdentity, router]);
 
   return (
     <div className="flex items-center justify-center min-h-screen">

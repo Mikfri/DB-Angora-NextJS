@@ -22,13 +22,13 @@
 'use client';
 
 import { Input } from "@heroui/react";
-import { Blog_DTO } from "@/api/types/AngoraDTOs";
+import { BlogPrivateDTO } from "@/api/types/AngoraDTOs";
 import BlogLexicalEditor from "./LexicalEditor";
 import { useRef, useEffect } from "react";
 import { useBlogWorkspace } from '@/contexts/BlogWorkspaceContext';
 
 interface Props {
-  editedData: Blog_DTO;
+  editedData: BlogPrivateDTO;
   isEditing: boolean;
 }
 

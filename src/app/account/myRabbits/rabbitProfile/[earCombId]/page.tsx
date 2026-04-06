@@ -46,7 +46,7 @@ export default function RabbitProfilePage() {
   
   // Viser kaninprofilen når den er indlæst
   if (profile) {
-    return <RabbitProfile rabbitProfile={profile} />;
+    return <RabbitProfile />;
   }
   
   return null;

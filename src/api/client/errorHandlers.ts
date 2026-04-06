@@ -11,7 +11,7 @@ export type ApiValidationError = {
 
 /**
  * Parser API-fejl fra en Response, forsøger at udtrække meningsfulde fejlbeskeder,
- *  fra både standardiserede og ikke-standardiserede svar.
+ * fra både standardiserede og ikke-standardiserede svar.
  * @param response 
  * @param customPrefix 
  * @returns 

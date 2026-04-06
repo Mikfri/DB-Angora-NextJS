@@ -1,237 +1,175 @@
 // src/api/endpoints/accountController.ts
+import { parseApiError } from "../client/errorHandlers";  
 import { getApiUrl } from "../config/apiConfig";
 import {
   CloudinaryPhotoRegistryRequestDTO,
   CloudinaryUploadConfigDTO,
   IdentityResult,
-  PhotoDeleteDTO,
-  PhotoPrivateDTO,
   User_ProfileDTO,
   User_UpdateProfileDTO,
+  PhotoPrivateDTO,
 } from "../types/AngoraDTOs";
 
 //-------------------- POST
+
 /**
- * Skifter adgangskode for den aktuelle bruger via POST /Account/ChangePassword
- * @param accessToken JWT token med brugerens auth information
- * @param currentPassword Det nuværende password
- * @param newPassword Det nye password
- * @returns IdentityResult fra API'en
+ * Registrerer et billede fra Cloudinary for en bruger
+ * POST /Account/photo/{targetUserId}
+ */
+export async function RegisterUserProfilePhoto(
+  accessToken: string,
+  targetUserId: string,
+  requestDTO: CloudinaryPhotoRegistryRequestDTO
+): Promise<PhotoPrivateDTO> {
+  const response = await fetch(getApiUrl(`Account/photo/${encodeURIComponent(targetUserId)}`), {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+      "Accept": "application/json"
+    },
+    body: JSON.stringify(requestDTO)
+  });
+
+  if (!response.ok) throw await parseApiError(response, "Fejl ved registrering af profilbillede");
+  return response.json();
+}
+
+/**
+ * Ændrer den aktuelle brugers adgangskode
+ * POST /Account/change-password
  */
 export async function ChangePassword(
   accessToken: string,
   currentPassword: string,
   newPassword: string
 ): Promise<IdentityResult> {
-  const response = await fetch(getApiUrl("Account/ChangePassword"), {
+  const response = await fetch(getApiUrl("Account/change-password"), {
     method: "POST",
     headers: {
       "Authorization": `Bearer ${accessToken}`,
       "Content-Type": "application/json",
-      "Accept": "text/plain"
+      "Accept": "application/json"
     },
     body: JSON.stringify({ currentPassword, newPassword })
   });
 
-  // Håndter fejl fra API (IdentityResult eller ExceptionMiddleware)
-  if (!response.ok) {
-    const text = await response.text();
-    let errorMsg = `Network response was not ok: ${response.status} ${response.statusText}`;
-
-    // Prøv at parse JSON for at finde fejlbesked(er)
-    try {
-      const errObj = JSON.parse(text);
-      if (Array.isArray(errObj?.errors)) {
-        errorMsg = errObj.errors.join(", ");
-      } else if (typeof errObj?.message === "string") {
-        errorMsg = errObj.message;
-      } else if (typeof errObj === "string") {
-        errorMsg = errObj;
-      }
-    } catch {
-      // Hvis ikke JSON, brug tekst direkte hvis muligt
-      if (text) errorMsg = text;
-    }
-
-    throw new Error(errorMsg);
-  }
-
-  // API returnerer text/plain, men indholdet er JSON
-  const text = await response.text();
-  try {
-    return JSON.parse(text) as IdentityResult;
-  } catch {
-    throw new Error("Uventet svar fra serveren ved skift af adgangskode.");
-  }
+  if (!response.ok) throw await parseApiError(response, "Fejl ved skift af adgangskode");
+  return response.json();
 }
 
-/**
- * Registrerer et billede fra Cloudinary for en bruger, inkl. rettigheds- og kvotetjek.
- * @param accessToken JWT token med brugerens auth information
- * @param userProfileId ID på brugeren billedet tilhører
- * @param requestDTO Billede-detaljer fra Cloudinary
- * @returns Det nye oprettede PhotoPrivateDTO fra API'en
- */
-export async function RegisterUserProfilePhoto(
-  accessToken: string,
-  userProfileId: string,
-  requestDTO: CloudinaryPhotoRegistryRequestDTO
-): Promise<PhotoPrivateDTO> {
-  const response = await fetch(getApiUrl(`Account/UserProfile/register-photo/${userProfileId}`), {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${accessToken}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(requestDTO)
-  });
-
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(`Network response was not ok: ${response.status} ${response.statusText} - ${text}`);
-  }
-
-  return await response.json();
-}
-
-//-------------------- READ
+//-------------------- GET
 
 /**
- * Henter upload-konfiguration til Cloudinary for et brugerprofilbillede, inkl. rettigheds- og kvotetjek.
- * @param accessToken JWT token med brugerens auth information
- * @param userProfileId ID på brugeren der skal have uploadet billede
- * @returns CloudinaryUploadConfigDTO fra API'en
+ * Henter upload-konfiguration til Cloudinary for et brugerprofilbillede
+ * GET /Account/{targetUserId}/photos/upload-config
  */
 export async function GetUserProfilePhotoUploadPermission(
   accessToken: string,
-  userProfileId: string
+  targetUserId: string
 ): Promise<CloudinaryUploadConfigDTO> {
-  const response = await fetch(getApiUrl(`Account/UserProfile/photo-upload-permission/${userProfileId}`), {
+  const response = await fetch(getApiUrl(`Account/${encodeURIComponent(targetUserId)}/photos/upload-config`), {
     method: "GET",
     headers: {
       "Authorization": `Bearer ${accessToken}`,
-      "Content-Type": "application/json"
+      "Accept": "application/json"
     }
   });
 
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(`Network response was not ok: ${response.status} ${response.statusText} - ${text}`);
-  }
-
-  return await response.json();
+  if (!response.ok) throw await parseApiError(response, "Fejl ved hentning af upload-konfiguration");
+  return response.json();
 }
 
-//-------- User
 /**
- * Henter en brugers profil baseret på userProfileId inklusive tilhørende billed og breederAccount - hvis nogen
- * @param accessToken JWT token med brugerens auth information
- * @param userProfileId ID på den bruger hvis profil skal hentes
- * @returns User_ProfileDTO fra API'en
+ * Henter en brugers komplet profil inkl. evt. BreederAccount
+ * GET /Account/{targetedUserId}/profile
  */
 export async function GetUserProfile(
   accessToken: string,
-  userProfileId: string
+  targetedUserId: string
 ): Promise<User_ProfileDTO> {
-  const response = await fetch(getApiUrl(`Account/UserProfile/${userProfileId}`), {
-    method: 'GET',
+  const response = await fetch(getApiUrl(`Account/${encodeURIComponent(targetedUserId)}/profile`), {
+    method: "GET",
     headers: {
-      'Authorization': `Bearer ${accessToken}`,
-      'Content-Type': 'application/json'
-    },
+      "Authorization": `Bearer ${accessToken}`,
+      "Accept": "application/json"
+    }
   });
 
-  if (!response.ok) {
-    throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
-  }
-
-  const userProfile = await response.json();
-  return userProfile;
+  if (!response.ok) throw await parseApiError(response, "Fejl ved hentning af brugerprofil");
+  return response.json();
 }
 
 //-------------------- PUT
+
 /**
- * Opdaterer en brugers profilinformation via PUT /Account/Update/{userProfileId}
- * @param accessToken JWT token med brugerens auth information
- * @param userProfileId ID på brugeren der skal opdateres
- * @param updateProfileDTO De nye profildata
- * @returns Den opdaterede brugerprofil
+ * Opdaterer en brugers profilinformation
+ * PUT /Account/{targetedUserId}/profile
  */
 export async function UpdateUserProfile(
   accessToken: string,
-  userProfileId: string,
+  targetedUserId: string,
   updateProfileDTO: User_UpdateProfileDTO
 ): Promise<User_ProfileDTO> {
-  const response = await fetch(getApiUrl(`Account/Update/${userProfileId}`), {
-    method: 'PUT',
+  const response = await fetch(getApiUrl(`Account/${encodeURIComponent(targetedUserId)}/profile`), {
+    method: "PUT",
     headers: {
-      'Authorization': `Bearer ${accessToken}`,
-      'Content-Type': 'application/json'
+      "Authorization": `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+      "Accept": "application/json"
     },
     body: JSON.stringify(updateProfileDTO)
   });
 
-  if (!response.ok) {
-    throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
-  }
-
-  const updatedProfile = await response.json();
-  return updatedProfile;
+  if (!response.ok) throw await parseApiError(response, "Fejl ved opdatering af brugerprofil");
+  return response.json();
 }
 
 /**
- * Opdaterer brugerens profilbillede.
- * @param accessToken JWT token med brugerens auth information
- * @param userProfileId ID på brugeren hvis profilbillede skal ændres
- * @param photoId ID på det billede der skal sættes som profilbillede
- * @returns Det opdaterede PhotoPrivateDTO fra API'en
+ * Opdaterer brugerens profilbillede
+ * PUT /Account/{targetUserId}/photo?photoId={photoId}
+ * @param photoId Send null for at fjerne profilbillede
  */
 export async function UpdateUserProfilePhoto(
   accessToken: string,
-  userProfileId: string,
-  photoId: number
+  targetUserId: string,
+  photoId: number | null
 ): Promise<PhotoPrivateDTO> {
-  const response = await fetch(getApiUrl(`Account/UserProfile/${userProfileId}/profile-photo/${photoId}`), {
+  const url = photoId != null
+    ? getApiUrl(`Account/${encodeURIComponent(targetUserId)}/photo?photoId=${photoId}`)
+    : getApiUrl(`Account/${encodeURIComponent(targetUserId)}/photo`);
+
+  const response = await fetch(url, {
     method: "PUT",
     headers: {
       "Authorization": `Bearer ${accessToken}`,
-      "Content-Type": "application/json"
+      "Accept": "application/json"
     }
   });
 
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(`Network response was not ok: ${response.status} ${response.statusText} - ${text}`);
-  }
-
-  return await response.json();
+  if (!response.ok) throw await parseApiError(response, "Fejl ved opdatering af profilbillede");
+  return response.json();
 }
 
 //-------------------- DELETE
+
 /**
- * Sletter et specifikt billede for en bruger via DELETE /Account/UserProfile/photo
- * @param accessToken JWT token med brugerens auth information
- * @param deletionDTO DTO med info om bruger og billede (EntityStringId og PhotoId)
- * @returns true hvis sletningen lykkedes
+ * Sletter et specifikt billede for en bruger
+ * DELETE /Account/{targetUserId}/photo/{photoId}
  */
 export async function DeleteUserProfilePhoto(
   accessToken: string,
-  deletionDTO: PhotoDeleteDTO
+  targetUserId: string,
+  photoId: number
 ): Promise<boolean> {
-  const response = await fetch(getApiUrl("Account/UserProfile/photo"), {
+  const response = await fetch(getApiUrl(`Account/${encodeURIComponent(targetUserId)}/photo/${photoId}`), {
     method: "DELETE",
     headers: {
       "Authorization": `Bearer ${accessToken}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(deletionDTO)
+      "Accept": "application/json"
+    }
   });
 
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(`Network response was not ok: ${response.status} ${response.statusText} - ${text}`);
-  }
-
-  // API returnerer true/false som JSON
-  return await response.json();
+  if (!response.ok) throw await parseApiError(response, "Fejl ved sletning af profilbillede");
+  return response.json();
 }

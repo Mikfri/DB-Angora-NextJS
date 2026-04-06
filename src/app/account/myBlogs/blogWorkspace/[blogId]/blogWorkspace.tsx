@@ -15,7 +15,7 @@ import { useRouter } from 'next/navigation';
 import { useBlogWorkspace } from '@/contexts/BlogWorkspaceContext';
 import BlogImageSection from './blogImages';
 import BlogContentEditor from './BlogContentEditor';
-import { AutoSaveIndicator } from '@/components/ui/AutoSaveIndicator';
+import { AutoSaveIndicator } from '@/components/ui/spinners/AutoSaveIndicator';
 import { FaSave, FaEye, FaArrowLeft, FaEdit, FaTimes } from 'react-icons/fa';
 
 export default function BlogWorkspace() {

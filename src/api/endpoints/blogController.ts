@@ -2,42 +2,30 @@
 import { getApiUrl } from "../config/apiConfig";
 import { parseApiError } from "../client/errorHandlers";
 import type {
-    BlogCardPreviewFilterDTO, ResultPagedDTO, BlogCardPreviewDTO, Blog_DTO, Blog_UpdateDTO, BlogPublicDTO,
+    BlogCardPreviewFilterDTO, ResultPagedDTO, BlogCardPreviewDTO, Blog_UpdateDTO, BlogPublicDTO,
     CloudinaryUploadConfigDTO, PhotoPrivateDTO, CloudinaryPhotoRegistryRequestDTO,
-    PhotoDeleteDTO,
-    Blog_CreateDTO,
-    BlogAuthedCardFilterDTO,
-    BlogsLatestByCategoryDTO
+    Blog_CreateDTO, BlogAuthedCardFilterDTO, BlogsLatestByCategoryDTO, BlogPrivateDTO
 } from '@/api/types/AngoraDTOs';
 
 //---------------- POST METHODS -----------------
-/**
- * Opretter et nyt blogindlæg som kladde.
- * Du kan sende et tomt objekt som createDTO.
- * @param createDTO - Data til oprettelse af nyt blogindlæg (kan være tomt)
- * @param accessToken - JWT token til adgangskontrol (påkrævet)
- * @returns Det oprettede blogindlæg (Blog_DTO)
- */
+
 export async function createBlog(
     createDTO: Blog_CreateDTO = {},
     accessToken: string
-): Promise<Blog_DTO> {
+): Promise<BlogPrivateDTO> {
     if (!accessToken || accessToken.trim() === "") {
         throw new Error("Access token is required for this endpoint.");
     }
-    // createDTO kan nu være tomt, så ingen check her
 
     const url = getApiUrl('Blog');
 
-    const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${accessToken}`
-    };
-
     const res = await fetch(url, {
         method: 'POST',
-        headers,
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${accessToken}`
+        },
         body: JSON.stringify(createDTO)
     });
 
@@ -46,29 +34,19 @@ export async function createBlog(
     }
 
     const data: unknown = await res.json();
-    // Forventet: { message: string, blog: Blog_DTO }
     if (
-        typeof data === "object" &&
-        data !== null &&
-        "blog" in data &&
-        typeof (data as { blog: unknown }).blog === "object"
+        typeof data === "object" && data !== null &&
+        "blog" in data && typeof (data as { blog: unknown }).blog === "object"
     ) {
-        return (data as { blog: Blog_DTO }).blog;
+        return (data as { blog: BlogPrivateDTO }).blog;
     }
     throw new Error("API svarede ikke med blog-data.");
 }
 
-/**
- * Publicerer et blogindlæg direkte, hvis brugeren har rettigheder.
- * Kræver UpdateBlog claim i accessToken.
- * @param blogId - ID på blogindlægget
- * @param accessToken - JWT token til adgangskontrol (påkrævet)
- * @returns Det publicerede blogindlæg (Blog_DTO)
- */
 export async function publishBlog(
     blogId: number,
     accessToken: string
-): Promise<Blog_DTO> {
+): Promise<BlogPrivateDTO> {
     if (!accessToken || accessToken.trim() === "") {
         throw new Error("Access token is required for this endpoint.");
     }
@@ -76,16 +54,12 @@ export async function publishBlog(
         throw new Error("Valid blog ID is required.");
     }
 
-    const url = getApiUrl(`Blog/publish/${blogId}`);
-
-    const headers: Record<string, string> = {
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${accessToken}`
-    };
-
-    const res = await fetch(url, {
+    const res = await fetch(getApiUrl(`Blog/${blogId}/publish`), {
         method: 'POST',
-        headers
+        headers: {
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${accessToken}`
+        }
     });
 
     if (!res.ok) {
@@ -93,56 +67,73 @@ export async function publishBlog(
     }
 
     const data: unknown = await res.json();
-    // Forventet: { message: string, blog: Blog_DTO }
     if (
-        typeof data === "object" &&
-        data !== null &&
-        "blog" in data &&
-        typeof (data as { blog: unknown }).blog === "object"
+        typeof data === "object" && data !== null &&
+        "blog" in data && typeof (data as { blog: unknown }).blog === "object"
     ) {
-        return (data as { blog: Blog_DTO }).blog;
+        return (data as { blog: BlogPrivateDTO }).blog;
     }
     throw new Error("API svarede ikke med blog-data.");
 }
 
-/**
- * Planlægger publicering af et blogindlæg på en given dato.
- * Kræver UpdateBlog claim i accessToken.
- * @param blogId - ID på blogindlægget
- * @param publishDate - Dato for publicering (ISO string eller Date)
- * @param accessToken - JWT token til adgangskontrol (påkrævet)
- * @returns Det planlagte blogindlæg (Blog_DTO)
- */
-export async function schedulePublishBlog(
+export async function unpublishBlog(
     blogId: number,
-    publishDate: Date | string,
     accessToken: string
-): Promise<Blog_DTO> {
+): Promise<BlogPrivateDTO> {
     if (!accessToken || accessToken.trim() === "") {
         throw new Error("Access token is required for this endpoint.");
     }
     if (!blogId || blogId <= 0) {
         throw new Error("Valid blog ID is required.");
     }
-    // Konverter publishDate til ISO string hvis det er en Date
+
+    const res = await fetch(getApiUrl(`Blog/${blogId}/unpublish`), {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${accessToken}`
+        }
+    });
+
+    if (!res.ok) {
+        throw await parseApiError(res, 'Fejl ved tilbagetrækning af blog');
+    }
+
+    const data: unknown = await res.json();
+    if (
+        typeof data === "object" && data !== null &&
+        "blog" in data && typeof (data as { blog: unknown }).blog === "object"
+    ) {
+        return (data as { blog: BlogPrivateDTO }).blog;
+    }
+    throw new Error("API svarede ikke med blog-data.");
+}
+
+export async function schedulePublishBlog(
+    blogId: number,
+    publishDate: Date | string,
+    accessToken: string
+): Promise<BlogPrivateDTO> {
+    if (!accessToken || accessToken.trim() === "") {
+        throw new Error("Access token is required for this endpoint.");
+    }
+    if (!blogId || blogId <= 0) {
+        throw new Error("Valid blog ID is required.");
+    }
+
     const publishDateIso = typeof publishDate === "string" ? publishDate : publishDate.toISOString();
 
-    // Tjek at publishDate er i fremtiden
     if (new Date(publishDateIso) <= new Date()) {
         throw new Error("Publiceringstidspunktet skal være i fremtiden");
     }
 
-    const url = getApiUrl(`Blog/schedule/${blogId}`);
-
-    const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${accessToken}`
-    };
-
-    const res = await fetch(url, {
+    const res = await fetch(getApiUrl(`Blog/${blogId}/schedule`), {
         method: 'POST',
-        headers,
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${accessToken}`
+        },
         body: JSON.stringify(publishDateIso)
     });
 
@@ -151,74 +142,15 @@ export async function schedulePublishBlog(
     }
 
     const data: unknown = await res.json();
-    // Forventet: { message: string, blog: Blog_DTO }
     if (
-        typeof data === "object" &&
-        data !== null &&
-        "blog" in data &&
-        typeof (data as { blog: unknown }).blog === "object"
+        typeof data === "object" && data !== null &&
+        "blog" in data && typeof (data as { blog: unknown }).blog === "object"
     ) {
-        return (data as { blog: Blog_DTO }).blog;
+        return (data as { blog: BlogPrivateDTO }).blog;
     }
     throw new Error("API svarede ikke med blog-data.");
 }
 
-/**
- * Trækker et blogindlæg tilbage fra publicering (unpublish).
- * Sætter IsPublished = false og PublishDate = null.
- * Kræver UpdateBlog claim i accessToken.
- * @param blogId - ID på blogindlægget
- * @param accessToken - JWT token til adgangskontrol (påkrævet)
- * @returns Det opdaterede blogindlæg (Blog_DTO)
- */
-export async function unpublishBlog(
-    blogId: number,
-    accessToken: string
-): Promise<Blog_DTO> {
-    if (!accessToken || accessToken.trim() === "") {
-        throw new Error("Access token is required for this endpoint.");
-    }
-    if (!blogId || blogId <= 0) {
-        throw new Error("Valid blog ID is required.");
-    }
-
-    const url = getApiUrl(`Blog/unpublish/${blogId}`);
-
-    const headers: Record<string, string> = {
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${accessToken}`
-    };
-
-    const res = await fetch(url, {
-        method: 'POST',
-        headers
-    });
-
-    if (!res.ok) {
-        throw await parseApiError(res, 'Fejl ved tilbagetrækning af blog');
-    }
-
-    const data: unknown = await res.json();
-    // Forventet: { message: string, blog: Blog_DTO }
-    if (
-        typeof data === "object" &&
-        data !== null &&
-        "blog" in data &&
-        typeof (data as { blog: unknown }).blog === "object"
-    ) {
-        return (data as { blog: Blog_DTO }).blog;
-    }
-    throw new Error("API svarede ikke med blog-data.");
-}
-
-/**
- * Registrerer et billede fra Cloudinary til et blogindlæg.
- * Kræver CreateBlog claim i accessToken.
- * @param blogId - ID på blogindlægget billedet tilhører
- * @param requestDTO - Billedoplysninger fra Cloudinary
- * @param accessToken - JWT token til adgangskontrol (påkrævet)
- * @returns Det oprettede private Photo DTO
- */
 export async function registerCloudinaryBlogPhoto(
     blogId: number,
     requestDTO: CloudinaryPhotoRegistryRequestDTO,
@@ -234,17 +166,13 @@ export async function registerCloudinaryBlogPhoto(
         throw new Error("Cloudinary photo registry request is required.");
     }
 
-    const url = getApiUrl(`Blog/register-photo/${blogId}`);
-
-    const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${accessToken}`
-    };
-
-    const res = await fetch(url, {
+    const res = await fetch(getApiUrl(`Blog/${blogId}/photos`), {
         method: 'POST',
-        headers,
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${accessToken}`
+        },
         body: JSON.stringify(requestDTO)
     });
 
@@ -252,20 +180,18 @@ export async function registerCloudinaryBlogPhoto(
         throw await parseApiError(res, 'Fejl ved registrering af blogfoto');
     }
 
-    const data = await res.json();
-    return data as PhotoPrivateDTO;
+    const data: unknown = await res.json();
+    if (
+        typeof data === "object" && data !== null &&
+        "photo" in data && typeof (data as { photo: unknown }).photo === "object"
+    ) {
+        return (data as { photo: PhotoPrivateDTO }).photo;
+    }
+    throw new Error("API svarede ikke med foto-data.");
 }
 
 //----------------- GET METHODS -----------------
-// Modtag accessToken som parameter (best practice)
 
-/**
- * Henter de seneste publicerede blogindlæg for en given kategori,
- * inkl. ét fremhævet og op til tre yderligere som kort.
- * @param category - Blogkategori (string, fx "PatchNotes", "Generel" osv.)
- * @param accessToken - JWT token til adgangskontrol (valgfrit)
- * @returns DTO med seneste blogs for kategorien
- */
 export async function getLatestBlogsByCategory(
     category: string,
     accessToken?: string
@@ -273,14 +199,9 @@ export async function getLatestBlogsByCategory(
     const url = getApiUrl(`Blog/latest-by-category?category=${encodeURIComponent(category)}`);
 
     const headers: Record<string, string> = { 'Accept': 'application/json' };
-    if (accessToken) {
-        headers['Authorization'] = `Bearer ${accessToken}`;
-    }
+    if (accessToken) headers['Authorization'] = `Bearer ${accessToken}`;
 
-    const res = await fetch(url, {
-        method: 'GET',
-        headers
-    });
+    const res = await fetch(url, { method: 'GET', headers });
 
     if (res.status === 401 || res.status === 403 || res.status === 404) {
         return null;
@@ -291,23 +212,16 @@ export async function getLatestBlogsByCategory(
     }
 
     const data = await res.json();
-    // API'en returnerer: { message: string, data: BlogsLatestByCategoryDTO }
     if (typeof data === "object" && data !== null && "data" in data) {
         return data.data as BlogsLatestByCategoryDTO;
     }
     return null;
 }
 
-/**
- * Henter en liste af blogindlæg baseret på filterkriterier.
- * Metoden kræver ikke nødvendigvis et accessToken, da alleme brugere kan tilgå public blogs.
- * Nogen blogs kan dog være paidContent som kræver login og rettigheder.
- * @param filter - Filterkriterier for blogindlæg
- * @param accessToken - JWT token til adgangskontrol (påkrævet)
- * @returns En pagineret liste af blogindlæg eller null ved fejl
- */
 export async function getBlogs(
     filter: BlogCardPreviewFilterDTO,
+    page: number = 1,
+    pageSize: number = 12,
     accessToken?: string
 ): Promise<ResultPagedDTO<BlogCardPreviewDTO> | null> {
     const params = new URLSearchParams();
@@ -318,42 +232,27 @@ export async function getBlogs(
         }
     });
 
-    const url = getApiUrl(`Blog?${params.toString()}`);
+    params.append('page', page.toString());
+    params.append('pageSize', pageSize.toString());
 
     const headers: Record<string, string> = { 'Accept': 'application/json' };
-    if (accessToken) {
-        headers['Authorization'] = `Bearer ${accessToken}`;
-    }
+    if (accessToken) headers['Authorization'] = `Bearer ${accessToken}`;
 
-    const res = await fetch(url, {
-        method: 'GET',
-        headers
-    });
+    const res = await fetch(getApiUrl(`Blog?${params.toString()}`), { method: 'GET', headers });
 
     if (!res.ok) {
         throw await parseApiError(res, 'Fejl ved hentning af blogs');
     }
 
-    const data = await res.json();
-    return data as ResultPagedDTO<BlogCardPreviewDTO>;
+    return await res.json() as ResultPagedDTO<BlogCardPreviewDTO>;
 }
 
-/**
- * Henter alle en brugers blogindlæg (inklusive kladder) med adgangskontrol.
- * Kun admin, moderator og content team kan tilgå andres blogindlæg.
- * @param targetedUserId - ID på brugeren hvis blogs ønskes
- * @param filterDTO - Filtreringsparametre (BlogAuthedCardFilterDTO) - UDEN page/pageSize!
- * @param page - Side
- * @param pageSize - Antal pr. side
- * @param accessToken - JWT token til adgangskontrol (optional)
- * @returns Pagineret liste af blogkort eller null ved fejl
- */
 export async function getBlogsAuthoredByUser(
     targetedUserId: string,
     filterDTO: Omit<BlogAuthedCardFilterDTO, 'page' | 'pageSize'>,
     page: number,
     pageSize: number,
-    accessToken: string // <-- ikke optional!
+    accessToken: string
 ): Promise<ResultPagedDTO<BlogCardPreviewDTO> | null> {
     if (!accessToken || accessToken.trim() === "") {
         throw new Error("Access token is required for this endpoint.");
@@ -361,198 +260,95 @@ export async function getBlogsAuthoredByUser(
 
     const params = new URLSearchParams();
 
-    // Tilføj filterDTO properties som query params
     Object.entries(filterDTO).forEach(([key, value]) => {
         if (value !== undefined && value !== null && value !== '') {
             params.append(key, value.toString());
         }
     });
 
-    params.append("page", page.toString());
-    params.append("pageSize", pageSize.toString());
-
-    const url = getApiUrl(`Blog/authored-by/${encodeURIComponent(targetedUserId)}?${params.toString()}`);
-
-    const headers: Record<string, string> = { 'Accept': 'application/json' };
-    if (accessToken) {
-        headers['Authorization'] = `Bearer ${accessToken}`;
-    }
-
-    const res = await fetch(url, {
-        method: 'GET',
-        headers
-    });
-
-    if (!res.ok) {
-        throw await parseApiError(res, 'Fejl ved hentning af brugerens blogs');
-    }
-
-    const data = await res.json();
-    return data as ResultPagedDTO<BlogCardPreviewDTO>;
-}
-
-/**
- * Dette endpoint er for sitets almene brugere/konsumers som vil tilgå blog-post for at læse indholdet.
- * Det kan være almene brugere UDEN LOGIN, brugerer som er registreret MED LOGIN, og med forskellige rettigheder:
- * • Almene brugere kan kun tilgå 'public' blogindlæg.
- * • Brugere som er registreret kan tilgå både 'public' og 'paidContent' blogindlæg,
- *  afhængigt af deres rettigheder.
- * @param slug 
- * @param accessToken 
- * @returns 
- */
-export async function getBlogBySlug(
-    slug: string,
-    accessToken?: string
-): Promise<BlogPublicDTO | null> {
-    const url = getApiUrl(`Blog/${encodeURIComponent(slug)}`);
-
-    const headers: Record<string, string> = { 'Accept': 'application/json' };
-    if (accessToken && accessToken.trim() !== "") {
-        headers['Authorization'] = `Bearer ${accessToken}`;
-    }
-
-    const res = await fetch(url, {
-        method: 'GET',
-        headers
-    });
-
-    // 401 Unauthorized
-    if (res.status === 401) {
-        const errorBody = await res.text();
-        let message = "Ikke autoriseret.";
-        try {
-            const errorData = JSON.parse(errorBody) as { message?: string };
-            if (errorData.message) message = errorData.message;
-        } catch { }
-        throw new Error(message);
-    }
-
-    // 403 Forbidden
-    if (res.status === 403) {
-        const errorBody = await res.text();
-        let message = "Adgang nægtet.";
-        try {
-            const errorData = JSON.parse(errorBody) as { message?: string };
-            if (errorData.message) message = errorData.message;
-        } catch { }
-        throw new Error(message);
-    }
-
-    // 404 Not Found
-    if (res.status === 404) {
-        await res.text(); // Optionelt: du kan logge errorBody hvis du vil debugge
-        return null;
-    }
-
-    // Andre fejl
-    if (!res.ok) {
-        throw await parseApiError(res, 'Fejl ved hentning af blog');
-    }
-
-    // 200 OK
-    const data: unknown = await res.json();
-    // Forventet: { message: string, blog: BlogPublicDTO }
-    if (
-        typeof data === "object" &&
-        data !== null &&
-        "blog" in data &&
-        typeof (data as { blog: unknown }).blog === "object"
-    ) {
-        return (data as { blog: BlogPublicDTO }).blog;
-    }
-    throw new Error("API svarede ikke med blog-data.");
-}
-
-/**
- * Henter et blogindlæg baseret på ID med adgangskontrol.
- * Endpointet er tiltænkt blog-content teamet som skal kunne tilgå et arbejdsdokument,
- * hvorfra de via andre endpoints kan redigere og opdatere indholdet.
- * Kræver Blog:Read claim i accessToken.
- * @param blogId - ID på blogindlægget (integer)
- * @param accessToken - JWT token til adgangskontrol (påkrævet)
- * @returns Blog_DTO eller null hvis ikke fundet
- */
-export async function getBlogById(
-    blogId: number,
-    accessToken: string
-): Promise<Blog_DTO | null> {
-    if (!accessToken || accessToken.trim() === "") {
-        throw new Error("Access token is required for this endpoint.");
-    }
-
-    const url = getApiUrl(`Blog/${blogId}`);
+    params.append('page', page.toString());
+    params.append('pageSize', pageSize.toString());
 
     const headers: Record<string, string> = {
         'Accept': 'application/json',
         'Authorization': `Bearer ${accessToken}`
     };
 
-    const res = await fetch(url, {
-        method: 'GET',
-        headers
-    });
+    const res = await fetch(
+        getApiUrl(`Blog/authored-by/${encodeURIComponent(targetedUserId)}?${params.toString()}`),
+        { method: 'GET', headers }
+    );
 
-    // 401 Unauthorized
-    if (res.status === 401) {
-        const errorBody = await res.text();
-        let message = "Ikke autoriseret.";
-        try {
-            const errorData = JSON.parse(errorBody) as { message?: string };
-            if (errorData.message) message = errorData.message;
-        } catch { }
-        throw new Error(message);
+    if (!res.ok) {
+        throw await parseApiError(res, 'Fejl ved hentning af brugerens blogs');
     }
 
-    // 403 Forbidden
-    if (res.status === 403) {
-        const errorBody = await res.text();
-        let message = "Adgang nægtet.";
-        try {
-            const errorData = JSON.parse(errorBody) as { message?: string };
-            if (errorData.message) message = errorData.message;
-        } catch { }
-        throw new Error(message);
+    return await res.json() as ResultPagedDTO<BlogCardPreviewDTO>;
+}
+
+export async function getBlogBySlug(
+    slug: string,
+    accessToken?: string
+): Promise<BlogPublicDTO | null> {
+    const headers: Record<string, string> = { 'Accept': 'application/json' };
+    if (accessToken && accessToken.trim() !== "") {
+        headers['Authorization'] = `Bearer ${accessToken}`;
     }
 
-    // 404 Not Found
+    const res = await fetch(getApiUrl(`Blog/${encodeURIComponent(slug)}`), { method: 'GET', headers });
+
     if (res.status === 404) {
-        await res.text(); // Optionelt: du kan logge errorBody hvis du vil debugge
         return null;
     }
 
-    // 400 Bad Request eller andre fejl
     if (!res.ok) {
-        let errorMessage = `${res.status} ${res.statusText}`;
-        const errorBody = await res.text();
-        try {
-            const errorData = JSON.parse(errorBody) as { message?: string };
-            if (errorData.message) errorMessage = errorData.message;
-        } catch { }
-        throw new Error(`Fejl ved hentning af blog: ${errorMessage}`);
+        throw await parseApiError(res, 'Fejl ved hentning af blog');
     }
 
-    // 200 OK
     const data: unknown = await res.json();
-    // Forventet: { message: string, blog: Blog_DTO }
     if (
-        typeof data === "object" &&
-        data !== null &&
-        "blog" in data &&
-        typeof (data as { blog: unknown }).blog === "object"
+        typeof data === "object" && data !== null &&
+        "blog" in data && typeof (data as { blog: unknown }).blog === "object"
     ) {
-        return (data as { blog: Blog_DTO }).blog;
+        return (data as { blog: BlogPublicDTO }).blog;
     }
     throw new Error("API svarede ikke med blog-data.");
 }
 
-/**
- * Henter konfigurationen for at uploade et billede til et blogindlæg.
- * Kræver UpdateBlog claim i accessToken.
- * @param blogId - ID på blogindlægget (integer)
- * @param accessToken - JWT token til adgangskontrol (påkrævet)
- * @returns Cloudinary upload konfiguration
- */
+export async function getBlogById(
+    blogId: number,
+    accessToken: string
+): Promise<BlogPrivateDTO | null> {
+    if (!accessToken || accessToken.trim() === "") {
+        throw new Error("Access token is required for this endpoint.");
+    }
+
+    const res = await fetch(getApiUrl(`Blog/${blogId}`), {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${accessToken}`
+        }
+    });
+
+    if (res.status === 404) {
+        return null;
+    }
+
+    if (!res.ok) {
+        throw await parseApiError(res, 'Fejl ved hentning af blog');
+    }
+
+    const data: unknown = await res.json();
+    if (
+        typeof data === "object" && data !== null &&
+        "blog" in data && typeof (data as { blog: unknown }).blog === "object"
+    ) {
+        return (data as { blog: BlogPrivateDTO }).blog;
+    }
+    throw new Error("API svarede ikke med blog-data.");
+}
+
 export async function getBlogImageUploadConfig(
     blogId: number,
     accessToken: string
@@ -560,47 +356,39 @@ export async function getBlogImageUploadConfig(
     if (!accessToken || accessToken.trim() === "") {
         throw new Error("Access token is required for this endpoint.");
     }
-
     if (!blogId || blogId <= 0) {
         throw new Error("Valid blog ID is required.");
     }
 
-    const url = getApiUrl(`Blog/upload-config/${blogId}`);
-
-    const headers: Record<string, string> = {
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${accessToken}`
-    };
-
-    const res = await fetch(url, {
+    const res = await fetch(getApiUrl(`Blog/${blogId}/photos/upload-config`), {
         method: 'GET',
-        headers
+        headers: {
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${accessToken}`
+        }
     });
 
     if (!res.ok) {
         throw await parseApiError(res, 'Fejl ved hentning af upload konfiguration');
     }
 
-    const data = await res.json();
-    return data as CloudinaryUploadConfigDTO;
+    const data: unknown = await res.json();
+    if (
+        typeof data === "object" && data !== null &&
+        "data" in data && typeof (data as { data: unknown }).data === "object"
+    ) {
+        return (data as { data: CloudinaryUploadConfigDTO }).data;
+    }
+    throw new Error("API svarede ikke med upload-konfiguration.");
 }
-
 
 //------------------ PUT METHODS -------------------
 
-/**
- * Opdaterer et eksisterende blogindlæg med adgangskontrol.
- * Kræver UpdateBlog claim i accessToken.
- * @param blogId - ID på blogindlægget (integer)
- * @param updateDTO - Data til opdatering af blogindlægget
- * @param accessToken - JWT token til adgangskontrol (påkrævet)
- * @returns Det opdaterede blogindlæg (Blog_DTO)
- */
 export async function updateBlog(
     blogId: number,
     updateDTO: Blog_UpdateDTO,
     accessToken: string
-): Promise<Blog_DTO> {
+): Promise<BlogPrivateDTO> {
     if (!accessToken || accessToken.trim() === "") {
         throw new Error("Access token is required for this endpoint.");
     }
@@ -608,17 +396,13 @@ export async function updateBlog(
         throw new Error("Valid blog ID is required.");
     }
 
-    const url = getApiUrl(`Blog/${blogId}`);
-
-    const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${accessToken}`
-    };
-
-    const res = await fetch(url, {
+    const res = await fetch(getApiUrl(`Blog/${blogId}`), {
         method: 'PUT',
-        headers,
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${accessToken}`
+        },
         body: JSON.stringify(updateDTO)
     });
 
@@ -627,26 +411,15 @@ export async function updateBlog(
     }
 
     const data: unknown = await res.json();
-    // Forventet: { message: string, blog: Blog_DTO }
     if (
-        typeof data === "object" &&
-        data !== null &&
-        "blog" in data &&
-        typeof (data as { blog: unknown }).blog === "object"
+        typeof data === "object" && data !== null &&
+        "blog" in data && typeof (data as { blog: unknown }).blog === "object"
     ) {
-        return (data as { blog: Blog_DTO }).blog;
+        return (data as { blog: BlogPrivateDTO }).blog;
     }
     throw new Error("API svarede ikke med blog-data.");
 }
 
-/**
- * Opdaterer hvilket billede der skal være featured image for et blogindlæg.
- * Kræver UpdateBlog claim i accessToken.
- * @param blogId - ID på blogindlægget
- * @param photoId - ID på billedet der skal sættes som featured image
- * @param accessToken - JWT token til adgangskontrol (påkrævet)
- * @returns Det opdaterede foto
- */
 export async function updateBlogFeaturedImage(
     blogId: number,
     photoId: number,
@@ -662,35 +435,30 @@ export async function updateBlogFeaturedImage(
         throw new Error("Valid photo ID is required.");
     }
 
-    const url = getApiUrl(`Blog/${blogId}/featured-image/${photoId}`);
-
-    const headers: Record<string, string> = {
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${accessToken}`
-    };
-
-    const res = await fetch(url, {
+    const res = await fetch(getApiUrl(`Blog/${blogId}/photo/${photoId}`), {
         method: 'PUT',
-        headers
+        headers: {
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${accessToken}`
+        }
     });
 
     if (!res.ok) {
         throw await parseApiError(res, 'Fejl ved opdatering af featured image');
     }
 
-    const data = await res.json();
-    return data as PhotoPrivateDTO;
+    const data: unknown = await res.json();
+    if (
+        typeof data === "object" && data !== null &&
+        "photo" in data && typeof (data as { photo: unknown }).photo === "object"
+    ) {
+        return (data as { photo: PhotoPrivateDTO }).photo;
+    }
+    throw new Error("API svarede ikke med foto-data.");
 }
 
 //---------------- DELETE METHODS ------------------
 
-/**
- * Sletter et blogindlæg og alle relaterede fotos.
- * Kræver DeleteBlog claim i accessToken.
- * @param blogId - ID på blogindlægget
- * @param accessToken - JWT token til adgangskontrol (påkrævet)
- * @returns Bekræftelse på sletning (object med message)
- */
 export async function deleteBlog(
     blogId: number,
     accessToken: string
@@ -702,16 +470,12 @@ export async function deleteBlog(
         throw new Error("Valid blog ID is required.");
     }
 
-    const url = getApiUrl(`Blog/${blogId}`);
-
-    const headers: Record<string, string> = {
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${accessToken}`
-    };
-
-    const res = await fetch(url, {
+    const res = await fetch(getApiUrl(`Blog/${blogId}`), {
         method: 'DELETE',
-        headers
+        headers: {
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${accessToken}`
+        }
     });
 
     if (!res.ok) {
@@ -719,53 +483,42 @@ export async function deleteBlog(
     }
 
     const data: unknown = await res.json();
-    // Forventet: { message: string, deleted?: unknown }
-    if (
-        typeof data === "object" &&
-        data !== null &&
-        "message" in data
-    ) {
+    if (typeof data === "object" && data !== null && "message" in data) {
         return data as { message: string; deleted?: unknown };
     }
     throw new Error("API svarede ikke med sletnings-data.");
 }
 
-/**
- * Sletter et billede fra et blogindlæg.
- * Kræver UpdateBlog claim i accessToken.
- * @param deletionDTO - DTO med PhotoId og BlogId
- * @param accessToken - JWT token til adgangskontrol (påkrævet)
- * @returns Bekræftelse på sletning (object med message)
- */
 export async function deleteBlogPhoto(
-    deletionDTO: PhotoDeleteDTO,
+    blogId: number,
+    photoId: number,
     accessToken: string
-): Promise<{ message: string }> {
+): Promise<{ message: string; deleted?: unknown }> {
     if (!accessToken || accessToken.trim() === "") {
         throw new Error("Access token is required for this endpoint.");
     }
-    if (!deletionDTO || !deletionDTO.photoId || !deletionDTO.entityIntId) {
-        throw new Error("PhotoDeleteDTO med PhotoId og BlogId er påkrævet.");
+    if (!blogId || blogId <= 0) {
+        throw new Error("Valid blog ID is required.");
+    }
+    if (!photoId || photoId <= 0) {
+        throw new Error("Valid photo ID is required.");
     }
 
-    const url = getApiUrl(`Blog/delete-photo`);
-
-    const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${accessToken}`
-    };
-
-    const res = await fetch(url, {
+    const res = await fetch(getApiUrl(`Blog/${blogId}/photos/${photoId}`), {
         method: 'DELETE',
-        headers,
-        body: JSON.stringify(deletionDTO)
+        headers: {
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${accessToken}`
+        }
     });
 
     if (!res.ok) {
         throw await parseApiError(res, 'Fejl ved sletning af blogfoto');
     }
 
-    const data = await res.json();
-    return data as { message: string };
+    const data: unknown = await res.json();
+    if (typeof data === "object" && data !== null && "message" in data) {
+        return data as { message: string; deleted?: unknown };
+    }
+    throw new Error("API svarede ikke med sletnings-data.");
 }

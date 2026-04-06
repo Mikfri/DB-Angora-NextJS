@@ -16,41 +16,35 @@
  * Bruges af: blogWorkspace.tsx (til metadata-sektionen)
  */
 
-import React, { ReactNode } from "react";
+import { ReactNode } from "react";
 import { Textarea, Select, SelectItem } from "@heroui/react";
-import { Blog_DTO, Blog_UpdateDTO } from "@/api/types/AngoraDTOs";
+import { Blog_UpdateDTO } from "@/api/types/AngoraDTOs";
 import EnumAutocomplete from "@/components/enumHandlers/enumAutocomplete";
 
 // Opdater editableFieldLabels - fjern title, subtitle og content
 export const editableFieldLabels: Record<Exclude<keyof Blog_UpdateDTO, 'title' | 'subtitle' | 'content'>, string> = {
-    visibilityLevel: "Synlighed",
-    category: "Kategori",
-    tags: "Tags",
-    metaDescription: "Meta beskrivelse",
-    authorId: "Forfatter ID"
+  visibilityLevel: "Synlighed",
+  category: "Kategori",
+  tags: "Tags",
+  metaDescription: "Meta beskrivelse",
 };
 
 // Visibility options
 const visibilityOptions = [
-    { value: "Public", label: "Offentlig" },
-    { value: "PaidContent", label: "Betalt indhold" }
+  { value: "Public", label: "Offentlig" },
+  { value: "PaidContent", label: "Betalt indhold" }
 ];
 
 function renderViewMode(
-    key: Exclude<keyof Blog_UpdateDTO, 'title' | 'subtitle' | 'content'>,  // ✅ Ændret her
-    value: unknown,
-    textClassName: string
+  key: Exclude<keyof Blog_UpdateDTO, 'title' | 'subtitle' | 'content'>,
+  value: unknown,
+  textClassName: string
 ): ReactNode {
-    if (key === "visibilityLevel") {
-        const option = visibilityOptions.find(opt => opt.value === value);
-        return <span className={textClassName}>{option?.label || value?.toString() || "Ikke angivet"}</span>;
-    }
-
-    if (key === "authorId") {
-        return <span className="text-muted italic">Ikke redigerbar</span>;
-    }
-
-    return <span className={textClassName}>{value?.toString() || "Ikke angivet"}</span>;
+  if (key === "visibilityLevel") {
+    const option = visibilityOptions.find(opt => opt.value === value);
+    return <span className={textClassName}>{option?.label || value?.toString() || "Ikke angivet"}</span>;
+  }
+  return <span className={textClassName}>{value?.toString() || "Ikke angivet"}</span>;
 }
 
 // Opdater signaturen til at tage updateField
@@ -61,9 +55,6 @@ function renderEditMode(
   updateField: (key: any, value: any) => void,
   className: string
 ): ReactNode {
-  if (key === "authorId") {
-    return <span className="text-muted italic">Ikke redigerbar</span>;
-  }
 
   if (key === "visibilityLevel") {
     return (

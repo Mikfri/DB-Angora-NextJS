@@ -21,7 +21,7 @@
 
 import { create } from 'zustand';
 import { Rabbit_OwnedFilterDTO, Rabbit_OwnedPreviewDTO } from '@/api/types/AngoraDTOs';
-import { getRabbitsOwnedByUser } from '@/app/actions/rabbit/rabbitCrudActions';
+import { getRabbitsOwnedOrLinkedByUser } from '@/app/actions/rabbit/rabbitCrudActions';
 import { useAuthStore } from './authStore';
 import { OwnFilters } from '@/api/types/filterTypes';
 
@@ -53,12 +53,27 @@ interface PaginationState {
 // Standard pagination-tilstand
 const DEFAULT_PAGINATION: PaginationState = {
     page: 1,
-    pageSize: 50,
+    pageSize: 12,
     totalPages: 1,
     totalCount: 0,
     hasNextPage: false,
     hasPreviousPage: false
 };
+
+const CLIENT_FETCH_PAGE_SIZE = 500;
+
+function buildClientPagination(page: number, pageSize: number, totalCount: number): PaginationState {
+    const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+    const safePage = Math.min(Math.max(page, 1), totalPages);
+    return {
+        page: safePage,
+        pageSize,
+        totalPages,
+        totalCount,
+        hasNextPage: safePage < totalPages,
+        hasPreviousPage: safePage > 1,
+    };
+}
 
 // Hovedinterface for hele storen
 interface RabbitsOwnedStore {
@@ -135,11 +150,8 @@ const filterRabbits = (rabbits: Rabbit_OwnedPreviewDTO[], filters: Required<OwnF
 };
 
 // Mapping OwnFilters -> Rabbit_OwnedFilterDTO (API filter)
-function mapOwnFiltersToDTO(filters: OwnFilters, page: number, pageSize: number): Rabbit_OwnedFilterDTO {
-    const dto: Rabbit_OwnedFilterDTO = {
-        page,
-        pageSize,
-    };
+function mapOwnFiltersToDTO(filters: OwnFilters): Rabbit_OwnedFilterDTO {
+    const dto: Rabbit_OwnedFilterDTO = {};
 
     if (filters.search && filters.search.trim() !== '') {
         dto.rightEarId = filters.search.trim();
@@ -192,6 +204,8 @@ export const useRabbitsOwnedStore = create<RabbitsOwnedStore>((set, get) => ({
         const { pagination, filters } = get();
         const effectiveUserId = userId || useAuthStore.getState().userIdentity?.id;
 
+        set({ isLoading: true, error: null });
+
         try {
             if (!effectiveUserId) {
                 set({
@@ -201,8 +215,9 @@ export const useRabbitsOwnedStore = create<RabbitsOwnedStore>((set, get) => ({
                 return;
             }
 
-            const filterDTO = mapOwnFiltersToDTO(filters, page, pagination.pageSize);
-            const result = await getRabbitsOwnedByUser(effectiveUserId, filterDTO, page, pagination.pageSize);
+            // Client-driven model: hent et stort datasæt én gang og filtrer/paginer lokalt.
+            const filterDTO = mapOwnFiltersToDTO(filters);
+            const result = await getRabbitsOwnedOrLinkedByUser(effectiveUserId, filterDTO, 1, CLIENT_FETCH_PAGE_SIZE);
 
             if (!result.success) {
                 set({
@@ -213,17 +228,13 @@ export const useRabbitsOwnedStore = create<RabbitsOwnedStore>((set, get) => ({
             }
 
             const newRabbits = result.data?.data || [];
+            const newFilteredRabbits = filterRabbits(newRabbits, filters);
+            const newPagination = buildClientPagination(page, pagination.pageSize, newFilteredRabbits.length);
+
             set({
                 rabbits: newRabbits,
-                filteredRabbits: filterRabbits(newRabbits, filters),
-                pagination: {
-                    page: result.data?.page || 1,
-                    pageSize: result.data?.pageSize || pagination.pageSize,
-                    totalPages: result.data?.totalPages || 1,
-                    totalCount: result.data?.totalCount || 0,
-                    hasNextPage: result.data?.hasNextPage || false,
-                    hasPreviousPage: result.data?.hasPreviousPage || false
-                },
+                filteredRabbits: newFilteredRabbits,
+                pagination: newPagination,
                 isLoading: false
             });
 
@@ -237,10 +248,17 @@ export const useRabbitsOwnedStore = create<RabbitsOwnedStore>((set, get) => ({
     },
 
     changePage: (newPage) => {
-        const { pagination, fetchRabbits } = get();
+        const { pagination } = get();
         if (newPage >= 1 && newPage <= pagination.totalPages) {
             window.scrollTo({ top: 0, behavior: 'smooth' });
-            fetchRabbits(newPage);
+            set(state => ({
+                pagination: {
+                    ...state.pagination,
+                    page: newPage,
+                    hasNextPage: newPage < state.pagination.totalPages,
+                    hasPreviousPage: newPage > 1,
+                }
+            }));
         }
     },
 
@@ -263,21 +281,29 @@ export const useRabbitsOwnedStore = create<RabbitsOwnedStore>((set, get) => ({
 
             const isActive = checkActiveFilters(updatedFilters);
             const newFilteredRabbits = filterRabbits(state.rabbits, updatedFilters);
+            const newPagination = buildClientPagination(1, state.pagination.pageSize, newFilteredRabbits.length);
 
             return {
                 filters: updatedFilters,
                 isAnyFilterActive: isActive,
-                filteredRabbits: newFilteredRabbits
+                filteredRabbits: newFilteredRabbits,
+                pagination: newPagination,
             };
         });
     },
 
     resetFilters: () => {
-        set(state => ({
-            filters: DEFAULT_FILTERS,
-            isAnyFilterActive: false,
-            filteredRabbits: filterRabbits(state.rabbits, DEFAULT_FILTERS)
-        }));
+        set(state => {
+            const newFilteredRabbits = filterRabbits(state.rabbits, DEFAULT_FILTERS);
+            const newPagination = buildClientPagination(1, state.pagination.pageSize, newFilteredRabbits.length);
+
+            return {
+                filters: DEFAULT_FILTERS,
+                isAnyFilterActive: false,
+                filteredRabbits: newFilteredRabbits,
+                pagination: newPagination,
+            };
+        });
     },
 
     setLifeStatusFilter: (status) => {

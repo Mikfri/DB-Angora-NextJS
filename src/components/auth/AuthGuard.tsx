@@ -1,39 +1,42 @@
 // src/components/auth/AuthGuard.tsx
-'use client';
-import { useEffect } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
-import { useAuthStore } from '@/store/authStore';
-
 /**
  * AuthGuard - Client-side beskyttelse af routes
  * 
- * Ansvarsområder:
- * 1. Reagerer på ændringer i authentication state (fx ved logout)
- * 2. Omdirigerer fra beskyttede routes når en bruger ikke længere er autentificeret
- * 3. Fungerer som backup for server-side middleware
- * 4. Håndterer lokale auth-tilstandsændringer som middleware ikke kan se
+ * Bruger next-auth's useSession() som primær kilde til auth state.
+ * Fungerer som backup for server-side middleware (auth.ts authorized callback).
  * 
- * Forskel fra middleware:
- * - Client-side (kører i browseren) vs. middleware (kører på serveren)
- * - Kan reagere på runtime ændringer vs. middleware (kun ved route skift)
- * - Bedre brugeroplevelse, da den kan omdirigere øjeblikkeligt ved logout
+ * Reagerer på:
+ * 1. Ændringer i session state (fx ved logout)
+ * 2. RefreshTokenError (session udløbet)
  */
+'use client';
+import { useEffect } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
+
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
-  const { isLoggedIn, isLoading, authInitialized } = useAuthStore(); // ← Hent direkte fra authStore
+  const { data: session, status } = useSession();
   const router = useRouter();
   const pathname = usePathname();
   
   useEffect(() => {
-    // Vent til authentication er færdig initialiseret og ikke loader
-    if (authInitialized && !isLoading) {
-      const isProtectedRoute = pathname.startsWith('/account') || pathname.startsWith('/admin');
-      
-      if (!isLoggedIn && isProtectedRoute) {
-        console.log('🔒 Auth guard redirecting from protected route:', pathname);
-        router.push(`/?returnUrl=${encodeURIComponent(pathname)}`);
-      }
+    // Vent til session er loaded
+    if (status === 'loading') return;
+
+    const isProtectedRoute = pathname.startsWith('/account') || pathname.startsWith('/admin');
+    
+    if (isProtectedRoute && status === 'unauthenticated') {
+      console.log('🔒 Auth guard redirecting from protected route:', pathname);
+      router.push(`/?returnUrl=${encodeURIComponent(pathname)}`);
+      return;
     }
-  }, [isLoggedIn, isLoading, authInitialized, pathname, router]);
+
+    // Håndter refresh token error
+    if (isProtectedRoute && session?.error === 'RefreshTokenError') {
+      console.log('🔒 Session expired, redirecting:', pathname);
+      router.push(`/?returnUrl=${encodeURIComponent(pathname)}`);
+    }
+  }, [session, status, pathname, router]);
   
   return <>{children}</>;
 }

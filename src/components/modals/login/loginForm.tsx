@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Input, Button } from "@heroui/react";
 import { toast } from 'react-toastify';
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
-import { useAuthStore } from '@/store/authStore';
+import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 interface Props {
     onSuccess?: () => void;
@@ -15,9 +15,7 @@ export default function LoginForm({ onSuccess }: Props) {
     const [userName, setUserName] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
-    
-    // Brug authStore direkte
-    const { login, isLoading } = useAuthStore();
+    const [isLoading, setIsLoading] = useState(false);
 
     const isValid = userName.trim().length >= 2 && password.length >= 6;
 
@@ -25,20 +23,27 @@ export default function LoginForm({ onSuccess }: Props) {
         event.preventDefault();
         if (!isValid) return;
     
+        setIsLoading(true);
         try {
-            // Brug login funktion fra authStore
-            const success = await login(userName.trim(), password);
+            const result = await signIn('credentials', {
+                userName: userName.trim(),
+                password,
+                redirect: false,
+            });
     
-            if (success) {
+            if (result?.ok) {
                 toast.success('Login successfuldt!');
-                onSuccess?.();  // Call onSuccess if provided
-                router.push('/account'); // Erstat window.location.href med router.push
+                onSuccess?.();
+                router.push('/account');
+                router.refresh(); // Refresh server components med ny session
             } else {
                 toast.error('Ugyldigt brugernavn eller kodeord');
             }
         } catch (error) {
             console.error('Login error:', error);
             toast.error('Der skete en uventet fejl');
+        } finally {
+            setIsLoading(false);
         }
     };
     

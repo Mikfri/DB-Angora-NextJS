@@ -67,7 +67,7 @@ export default function BlogPost({ blog }: Props) {
         {/* Forfatter og metadata */}
         <div className="flex items-center gap-4 pb-6 border-b border-divider">
           <Avatar
-            src={blog.authorProfilePicture ?? undefined}
+            src={blog.authorPhotoUrl ?? undefined}
             name={blog.authorName}
             size="lg"
             className="border-2 border-divider"
@@ -90,15 +90,15 @@ export default function BlogPost({ blog }: Props) {
       </header>
 
       {/* Featured image */}
-      {blog.featuredImageUrl && (
+      {blog.profilePhotoUrl && (
         <div className="not-prose flex justify-center mb-8">
           <Image
-            src={blog.featuredImageUrl}
+            src={blog.profilePhotoUrl}
             alt={blog.title}
             width={800}
             height={450}
             className="max-w-full h-auto object-cover rounded-lg shadow-lg cursor-pointer transition hover:brightness-90"
-            onClick={() => blog.featuredImageUrl && setModalImageUrl(blog.featuredImageUrl)}
+            onClick={() => blog.profilePhotoUrl && setModalImageUrl(blog.profilePhotoUrl)}
             priority
           />
         </div>

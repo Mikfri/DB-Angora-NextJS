@@ -1,42 +1,60 @@
 // src/components/providers/Providers.tsx
+/**
+ * Root Providers - Wrapper til alle app-wide providers
+ * 
+ * Inkluderer:
+ * - NextAuth SessionProvider (session management)
+ * - Theme Provider (next-themes)
+ * - HeroUI Provider (komponent bibliotek)
+ * - EnumProvider (enum context)
+ * - AuthSync (synkroniserer next-auth session til Zustand store)
+ * - Toast Container
+ */
 'use client'
 import { ReactNode, useEffect } from 'react'
 import { ThemeProvider as NextThemesProvider, useTheme } from 'next-themes'
 import { HeroUIProvider } from "@heroui/react"
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { SessionProvider, useSession } from 'next-auth/react';
 import { useAuthStore } from '@/store/authStore';
 import { EnumProvider } from '@/contexts/EnumContext';
 
 /**
- * Providers - Global app providers
- * 
- * Ansvar:
- * - Theme provider (dark/light mode)
- * - HeroUI provider (component library)
- * - Enum context (dropdown data)
- * - Auth initialization (checkAuth ved app start)
- * - Toast notifications
- * 
- * NOTE: NavContext er fjernet - alt sidenav håndteres nu i layoutWrapper.tsx
+ * AuthSync - Synkroniserer next-auth session til Zustand authStore
+ * Gør at eksisterende components der bruger useAuthStore() stadig virker
  */
-export default function Providers({ children }: { children: ReactNode }) {
-  // Initialize auth (authInitialized nu i authStore)
+function AuthSync({ children }: { children: ReactNode }) {
+  const { data: session, status } = useSession();
+  const syncFromSession = useAuthStore((s) => s.syncFromSession);
+
   useEffect(() => {
-    console.log('🔐 Running global auth check in Providers');
-    useAuthStore.getState().checkAuth();
-  }, []);
+    if (status === 'loading') return;
 
+    syncFromSession({
+      isAuthenticated: status === 'authenticated' && !!session?.user,
+      userName: session?.user?.name ?? undefined,
+      userIdentity: session?.userIdentity ?? null,
+    });
+  }, [session, status, syncFromSession]);
+
+  return <>{children}</>;
+}
+
+export default function Providers({ children }: { children: ReactNode }) {
   return (
-    <NextThemesProvider attribute="class" defaultTheme="dark" enableSystem>
-      <HeroUIProvider>
-        <EnumProvider>
-          {children}
-        </EnumProvider>
-
-        <ThemeToastContainer />
-      </HeroUIProvider>
-    </NextThemesProvider>
+    <SessionProvider>
+      <NextThemesProvider attribute="class" defaultTheme="dark" enableSystem>
+        <HeroUIProvider>
+          <EnumProvider>
+            <AuthSync>
+              {children}
+            </AuthSync>
+          </EnumProvider>
+          <ThemeToastContainer />
+        </HeroUIProvider>
+      </NextThemesProvider>
+    </SessionProvider>
   );
 }
 

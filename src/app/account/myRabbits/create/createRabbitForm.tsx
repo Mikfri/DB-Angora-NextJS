@@ -45,8 +45,8 @@ export default function CreateRabbitForm({ targetedUserId }: { targetedUserId?: 
             setFatherValidation(res.error || 'Ugyldig far');
             setFatherIsValid(false);
         } else if (res.result) {
-            setFatherValidation(res.result.message || (res.result.isValid ? '✔️ Gyldig far' : 'Ugyldig far'));
-            setFatherIsValid(res.result.isValid);
+            setFatherValidation(res.result.isValidParent ? '✔️ Gyldig far' : '❌ Ugyldig far');
+            setFatherIsValid(res.result.isValidParent);
         } else {
             setFatherValidation('Ukendt valideringsfejl');
             setFatherIsValid(false);
@@ -62,8 +62,8 @@ export default function CreateRabbitForm({ targetedUserId }: { targetedUserId?: 
             setMotherValidation(res.error || 'Ugyldig mor');
             setMotherIsValid(false);
         } else if (res.result) {
-            setMotherValidation(res.result.message || (res.result.isValid ? '✔️ Gyldig mor' : 'Ugyldig mor'));
-            setMotherIsValid(res.result.isValid);
+            setMotherValidation(res.result.isValidParent ? '✔️ Gyldig mor' : '❌ Ugyldig mor');
+            setMotherIsValid(res.result.isValidParent);
         } else {
             setMotherValidation('Ukendt valideringsfejl');
             setMotherIsValid(false);

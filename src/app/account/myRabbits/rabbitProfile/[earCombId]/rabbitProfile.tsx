@@ -3,9 +3,8 @@
 
 import Tabs, { TabItem } from '@/components/ui/tabs/Tabs';
 import { Tab as HeroTab } from '@heroui/react';
-import { Rabbit_ProfileDTO, RabbitSaleDetailsEmbeddedDTO } from '@/api/types/AngoraDTOs';
-import { useRabbitProfile as useProfileHook } from '@/hooks/rabbits/useRabbitProfile';
-import { useRabbitProfile as useProfileContext } from '@/contexts/RabbitProfileContext';
+import { RabbitSaleDetailsEmbeddedDTO } from '@/api/types/AngoraDTOs';
+import { useRabbitProfile } from '@/contexts/RabbitProfileContext';
 import RabbitDetails from './rabbitDetails';
 import RabbitChildren from './rabbitChildren';
 import RabbitSaleSection from './rabbitSaleSection';
@@ -16,52 +15,41 @@ import { RiPriceTag3Line, RiPriceTag3Fill } from "react-icons/ri";
 import { GiFamilyTree } from 'react-icons/gi';
 import { LuNetwork } from 'react-icons/lu';
 
-export default function RabbitProfile({ rabbitProfile: initialRabbitProfile }: { rabbitProfile: Rabbit_ProfileDTO }) {
-  const { refreshProfile } = useProfileContext();
-
+export default function RabbitProfile() {
   const {
-    currentProfile,
-    setCurrentProfile,
+    profile,
     isEditing,
     isSaving,
     editedData,
-    setEditedData,
     setIsEditing,
+    setEditedData,
     handleSave,
     handleCancelEdit,
-  } = useProfileHook(initialRabbitProfile);
+    patchProfile,
+  } = useRabbitProfile();
 
-  const handleSaveWithRefresh = useCallback(async () => {
-    await handleSave();
-    await refreshProfile();
-  }, [handleSave, refreshProfile]);
+  const [active, setActive] = useState('details');
 
   const handleSaleDetailsChange = useCallback((saleDetails: RabbitSaleDetailsEmbeddedDTO | null) => {
-    setCurrentProfile(prevProfile => ({
-      ...prevProfile,
-      saleDetailsEmbedded: saleDetails
-    }));
-  }, [setCurrentProfile]);
+    patchProfile({ saleDetailsEmbedded: saleDetails });
+  }, [patchProfile]);
 
-  const displayName = currentProfile.nickName || currentProfile.earCombId;
-  const childrenCount = currentProfile.children?.length || 0;
+  if (!profile || !editedData) return null;
 
-  // items still used for Carousel header on mobile
+  const displayName = profile.nickName || profile.earCombId;
+  const childrenCount = profile.children?.length || 0;
+
   const items: TabItem[] = [
     { key: 'details', label: 'Detaljer', icon: <RiInformationLine className="w-4 h-4" /> },
     { key: 'children', label: 'Afkom', icon: <LuNetwork className="w-4 h-4" /> },
     { key: 'pedigree', label: 'Stamtavle', icon: <GiFamilyTree className="w-4 h-4" /> },
-    { key: 'sale', label: 'Salgsprofil', icon: currentProfile.saleDetailsEmbedded ? <RiPriceTag3Fill className="w-4 h-4 text-blue-400" /> : <RiPriceTag3Line className="w-4 h-4" /> }
+    { key: 'sale', label: 'Salgsprofil', icon: profile.saleDetailsEmbedded ? <RiPriceTag3Fill className="w-4 h-4 text-blue-400" /> : <RiPriceTag3Line className="w-4 h-4" /> }
   ];
-
-  const [active, setActive] = useState('details');
 
   return (
     <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-6 shadow-lg">
       <div className="mb-6">
-          <h1 className="text-2xl font-bold text-zinc-100">
-              {displayName}
-          </h1>
+        <h1 className="text-2xl font-bold text-zinc-100">{displayName}</h1>
       </div>
 
       <Tabs
@@ -85,11 +73,11 @@ export default function RabbitProfile({ rabbitProfile: initialRabbitProfile }: {
           </div>
         }>
           <RabbitDetails
-            rabbitProfile={currentProfile}
+            rabbitProfile={profile}
             isEditing={isEditing}
             isSaving={isSaving}
             setIsEditing={setIsEditing}
-            handleSave={handleSaveWithRefresh}
+            handleSave={handleSave}
             handleCancel={handleCancelEdit}
             editedData={editedData}
             setEditedData={setEditedData}
@@ -107,9 +95,7 @@ export default function RabbitProfile({ rabbitProfile: initialRabbitProfile }: {
             )}
           </div>
         }>
-          <RabbitChildren>
-            {currentProfile.children || []}
-          </RabbitChildren>
+          <RabbitChildren>{profile.children || []}</RabbitChildren>
         </HeroTab>
 
         <HeroTab key="pedigree" title={
@@ -118,21 +104,19 @@ export default function RabbitProfile({ rabbitProfile: initialRabbitProfile }: {
             <span>Stamtavle</span>
           </div>
         }>
-          <RabbitPedigree earCombId={currentProfile.earCombId} />
+          <RabbitPedigree earCombId={profile.earCombId} />
         </HeroTab>
 
         <HeroTab key="sale" title={
           <div className="flex items-center space-x-2">
-            {currentProfile.saleDetailsEmbedded ? (
-              <RiPriceTag3Fill className="text-xl text-blue-400" />
-            ) : (
-              <RiPriceTag3Line className="text-xl" />
-            )}
+            {profile.saleDetailsEmbedded
+              ? <RiPriceTag3Fill className="text-xl text-blue-400" />
+              : <RiPriceTag3Line className="text-xl" />}
             <span>Salgsprofil</span>
           </div>
         }>
           <RabbitSaleSection
-            rabbitProfile={currentProfile}
+            rabbitProfile={profile}
             onSaleDetailsChange={handleSaleDetailsChange}
           />
         </HeroTab>

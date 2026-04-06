@@ -6,13 +6,15 @@ import {
   CloudinaryPhotoRegistryRequestDTO,
   CloudinaryUploadConfigDTO,
   ResultPagedDTO,
-  PhotoDeleteDTO,
   PhotoPrivateDTO,
   Rabbit_CreateDTO,
+  Rabbit_UpdateDTO,
   Rabbit_OwnedFilterDTO,
   Rabbit_ParentValidationResultDTO,
   Rabbit_OwnedPreviewDTO,
   Rabbit_ProfileDTO,
+  Rabbit_ForbreedingPreviewDTO,
+  Rabbit_ForbreedingFilterDTO,
   Rabbit_ForbreedingProfileDTO,
   PedigreeResultDTO
 } from '@/api/types/AngoraDTOs';
@@ -24,12 +26,13 @@ import {
   GetRabbitPhotoUploadPermission,
   DeleteRabbitPhoto,
   SetRabbitProfilePhoto,
-  RegisterRabbitPhoto,
+  AddRabbitPhoto,
   ValidateParentReference,
-  GetRabbitsOwnedByUser,
+  GetRabbitsOwnedOrLinkedByUser,
   GetRabbitForbreedingProfile,
   GetRabbitPedigree,
-  GetTestMatingPedigree
+  GetTestMatingPedigree,
+  GetRabbitsForBreeding,
 } from '@/api/endpoints/rabbitController';
 
 // ====================== TYPES ======================
@@ -38,7 +41,7 @@ export type CreateRabbitResult =
   | { success: true; earCombId: string }
   | { success: false; error: string };
 
-export type RegisterRabbitPhotoResult =
+export type AddRabbitPhotoResult =
   | { success: true; photo: PhotoPrivateDTO }
   | { success: false; error: string; status?: number };
 
@@ -62,8 +65,12 @@ export type DeleteRabbitResult =
   | { success: true; message: string }
   | { success: false; error: string };
 
-  export type PedigreeResult =
+export type PedigreeResult =
   | { success: true; data: PedigreeResultDTO }
+  | { success: false; error: string; status: number };
+
+export type BreedingRabbitsResult =
+  | { success: true; data: ResultPagedDTO<Rabbit_ForbreedingPreviewDTO> }
   | { success: false; error: string; status: number };
 
 
@@ -116,7 +123,7 @@ export async function createRabbit(rabbitData: Rabbit_CreateDTO, targetedUserId?
 
 
 /**
- * Server Action: Registrerer et billede fra Cloudinary for en kanin
+ * Server Action: Overfører et eksisterende billeds metadata fra Cloudinary til databasen og knytter det til en kanin
  * @param earCombId Kaninens øremærke-id
  * @param photoData Cloudinary billede-detaljer
  * @returns Resultat med det oprettede foto eller fejlbesked
@@ -124,7 +131,7 @@ export async function createRabbit(rabbitData: Rabbit_CreateDTO, targetedUserId?
 export async function registerRabbitPhoto(
   earCombId: string,
   photoData: CloudinaryPhotoRegistryRequestDTO
-): Promise<RegisterRabbitPhotoResult> {
+): Promise<AddRabbitPhotoResult> {
   try {
     if (!earCombId || !photoData) {
       return {
@@ -143,7 +150,7 @@ export async function registerRabbitPhoto(
       };
     }
 
-    const photo = await RegisterRabbitPhoto(accessToken, earCombId, photoData);
+    const photo = await AddRabbitPhoto(accessToken, earCombId, photoData);
 
     return {
       success: true,
@@ -167,7 +174,7 @@ export async function registerRabbitPhoto(
  * @param pageSize Antal elementer per side (default 12)
  * @returns Resultat med pagineret liste af kaniner eller fejlbesked
  */
-export async function getRabbitsOwnedByUser(
+export async function getRabbitsOwnedOrLinkedByUser(
   userId: string,
   filter: Rabbit_OwnedFilterDTO = {},
   page: number = 1,
@@ -182,7 +189,7 @@ export async function getRabbitsOwnedByUser(
         status: 401
       };
     }
-    const rabbits = await GetRabbitsOwnedByUser(userId, filter, accessToken, page, pageSize);
+    const rabbits = await GetRabbitsOwnedOrLinkedByUser(userId, filter, accessToken, page, pageSize);
     return {
       success: true,
       data: rabbits
@@ -371,17 +378,11 @@ export async function validateParentReference(
     }
 
     const result = await ValidateParentReference(accessToken, parentId, expectedGender);
-
-    // API returnerer altid 200 OK, så vi tjekker IsValid i resultatet
-    if (result && typeof result.isValid === "boolean") {
-      return { success: true, result };
-    } else {
-      return { success: false, error: result?.message || "Ukendt valideringsfejl" };
-    }
+    return { success: true, result };
   } catch (error) {
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Uventet fejl"
+      error: error instanceof Error ? error.message : 'Uventet fejl'
     };
   }
 }
@@ -396,80 +397,17 @@ export async function validateParentReference(
  */
 export async function updateRabbit(
   earCombId: string,
-  updatedData: Rabbit_ProfileDTO
+  updatedData: Rabbit_UpdateDTO
 ): Promise<UpdateRabbitResult> {
   try {
     const accessToken = await getAccessToken();
 
     if (!accessToken) {
-      return {
-        success: false,
-        error: 'Du er ikke logget ind'
-      };
+      return { success: false, error: 'Du er ikke logget ind' };
     }
 
-    if (!earCombId) {
-      return {
-        success: false,
-        error: 'Manglende øremærke-id'
-      };
-    }
-
-    if (!updatedData.nickName || updatedData.nickName.trim() === '') {
-      return {
-        success: false,
-        error: 'Navn er påkrævet'
-      };
-    }
-
-    // Valider datoer
-    if (updatedData.dateOfBirth) {
-      const birthDate = new Date(updatedData.dateOfBirth);
-      if (isNaN(birthDate.getTime())) {
-        return {
-          success: false,
-          error: 'Ugyldig fødselsdato'
-        };
-      }
-
-      // Fremtidige fødselsdatoer er ikke tilladt
-      if (birthDate > new Date()) {
-        return {
-          success: false,
-          error: 'Fødselsdato kan ikke være i fremtiden'
-        };
-      }
-    }
-
-    if (updatedData.dateOfDeath) {
-      const deathDate = new Date(updatedData.dateOfDeath);
-      if (isNaN(deathDate.getTime())) {
-        return {
-          success: false,
-          error: 'Ugyldig dødsdato'
-        };
-      }
-
-      // Hvis både fødsel og død er angivet, skal død være efter fødsel
-      if (updatedData.dateOfBirth) {
-        const birthDate = new Date(updatedData.dateOfBirth);
-        if (deathDate < birthDate) {
-          return {
-            success: false,
-            error: 'Dødsdato kan ikke være før fødselsdato'
-          };
-        }
-      }
-    }
-
-    // Kald API endpoint
     await EditRabbit(earCombId, updatedData, accessToken);
-
-    // Returner et success objekt
-    return {
-      success: true,
-      message: 'Kaninen blev opdateret'
-    };
+    return { success: true, message: 'Kaninen blev opdateret' };
   } catch (error) {
     console.error('Failed to update rabbit:', error);
     return {
@@ -551,13 +489,8 @@ export async function deleteRabbit(earCombId: string): Promise<DeleteRabbitResul
       };
     }
 
-    // Kald API endpoint og få preview af slettet kanin
-    const deletedRabbit = await DeleteRabbit(earCombId, accessToken);
-
-    return {
-      success: true,
-      message: `Kaninen "${deletedRabbit.nickName || earCombId}" blev slettet`
-    };
+    const result = await DeleteRabbit(earCombId, accessToken);
+    return { success: true, message: result.message || `Kaninen ${earCombId} blev slettet` };
   } catch (error) {
     console.error('Failed to delete rabbit:', error);
     return {
@@ -577,41 +510,45 @@ export type DeleteRabbitPhotoResult =
  * @returns Resultat med success flag eller fejlbesked
  */
 export async function deleteRabbitPhoto(
-  deletionDTO: PhotoDeleteDTO
+  earCombId: string,
+  photoId: number
 ): Promise<DeleteRabbitPhotoResult> {
   try {
-    if (!deletionDTO || !deletionDTO.entityStringId || !deletionDTO.photoId) {
-      return {
-        success: false,
-        error: "Ugyldig eller manglende data til sletning",
-        status: 400
-      };
-    }
-
     const accessToken = await getAccessToken();
     if (!accessToken) {
-      return {
-        success: false,
-        error: "Authentication required",
-        status: 401
-      };
+      return { success: false, error: 'Authentication required', status: 401 };
     }
 
-    const result = await DeleteRabbitPhoto(accessToken, deletionDTO);
-
-    if (result === true) {
-      return { success: true };
-    } else {
-      return {
-        success: false,
-        error: "Sletning mislykkedes",
-        status: 500
-      };
-    }
+    await DeleteRabbitPhoto(accessToken, earCombId, photoId);
+    return { success: true };
   } catch (error) {
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Uventet fejl",
+      error: error instanceof Error ? error.message : 'Uventet fejl',
+      status: 500
+    };
+  }
+}
+
+/**
+ * Server Action: Henter kaniner tilgængelige til avl, med valgfri filtrering og paginering.
+ */
+export async function getRabbitsForBreeding(
+  filter?: Rabbit_ForbreedingFilterDTO,
+  page: number = 1,
+  pageSize: number = 12
+): Promise<BreedingRabbitsResult> {
+  try {
+    const accessToken = await getAccessToken();
+    if (!accessToken) {
+      return { success: false, error: 'Du er ikke logget ind', status: 401 };
+    }
+    const data = await GetRabbitsForBreeding(accessToken, filter, page, pageSize);
+    return { success: true, data };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Fejl ved hentning af avlskaniner',
       status: 500
     };
   }

@@ -1,3 +1,5 @@
+// src/app/account/myRabbits/rabbitProfile/[earCombId]/rabbitSaleDetailsView.tsx
+
 import { RabbitSaleDetailsEmbeddedDTO } from '@/api/types/AngoraDTOs';
 import { Button, Card, CardBody, Chip } from "@heroui/react";
 import { formatCurrency, formatDate } from '@/utils/formatters';

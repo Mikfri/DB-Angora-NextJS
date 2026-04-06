@@ -2,179 +2,208 @@
 'use server';
 
 import { getAccessToken } from '@/app/actions/auth/session';
-import { GetReceivedTransferRequests, GetSentTransferRequests, UpdateBreederAccount } from '@/api/endpoints/breederAccountController';
-import { BreederAccount_PrivateProfileDTO, BreederAccount_UpdateDTO, TransferRequestPreviewDTO, TransferRequestPreviewFilterDTO } from '@/api/types/AngoraDTOs';
+import {
+  CreateBreederAccount,
+  DeleteBreederAccountPhoto,
+  GetBreederAccountPhotoUploadConfig,
+  GetDiscoverableBreeders,
+  GetPublicBreederProfile,
+  GetReceivedTransferRequests,
+  GetSentTransferRequests,
+  SaveBreederAccountPhoto,
+  UpdateBreederAccount,
+  UpdateBreederAccountProfilePicture,
+} from '@/api/endpoints/breederAccountController';
+import {
+  BreederAccount_CreateDTO,
+  BreederAccount_FilterDTO,
+  BreederAccount_PreviewCardDTO,
+  BreederAccount_PrivateProfileDTO,
+  BreederAccount_PublicProfileDTO,
+  BreederAccount_UpdateDTO,
+  CloudinaryPhotoRegistryRequestDTO,
+  CloudinaryUploadConfigDTO,
+  PhotoPrivateDTO,
+  ResultPagedDTO,
+  TransferRequestPreviewDTO,
+  TransferRequestPreviewFilterDTO,
+} from '@/api/types/AngoraDTOs';
 
-/**
- * Server Action: Henter modtagne overførselsanmodninger for brugeren (med filtrering)
- * @param filter Filtreringsparametre (valgfri)
- * @returns Liste af modtagne anmodninger eller fejl
- */
+// =============== POST ===============
+
+export async function createBreederAccount(
+  createDTO: BreederAccount_CreateDTO
+): Promise<{ success: boolean; data?: BreederAccount_PrivateProfileDTO; error?: string }> {
+  try {
+    if (!createDTO)
+      return { success: false, error: 'Oprettelsesdata er påkrævet' };
+
+    const accessToken = await getAccessToken();
+    if (!accessToken)
+      return { success: false, error: 'Ingen adgang - log venligst ind igen' };
+
+    const data = await CreateBreederAccount(accessToken, createDTO);
+    return { success: true, data };
+  } catch (error) {
+    return { success: false, error: error instanceof Error ? error.message : 'Fejl ved oprettelse af opdrætterkonto' };
+  }
+}
+
+export async function getBreederAccountPhotoUploadConfig(
+  breederAccountId: string
+): Promise<{ success: boolean; data?: CloudinaryUploadConfigDTO; error?: string }> {
+  try {
+    if (!breederAccountId?.trim())
+      return { success: false, error: 'BreederAccount ID er påkrævet' };
+
+    const accessToken = await getAccessToken();
+    if (!accessToken)
+      return { success: false, error: 'Ingen adgang - log venligst ind igen' };
+
+    const data = await GetBreederAccountPhotoUploadConfig(accessToken, breederAccountId);
+    return { success: true, data };
+  } catch (error) {
+    return { success: false, error: error instanceof Error ? error.message : 'Fejl ved hentning af upload-konfiguration' };
+  }
+}
+
+export async function saveBreederAccountPhoto(
+  breederAccountId: string,
+  requestDTO: CloudinaryPhotoRegistryRequestDTO
+): Promise<{ success: boolean; data?: PhotoPrivateDTO; error?: string }> {
+  try {
+    if (!breederAccountId?.trim() || !requestDTO)
+      return { success: false, error: 'BreederAccount ID og billeddata er påkrævet' };
+
+    const accessToken = await getAccessToken();
+    if (!accessToken)
+      return { success: false, error: 'Ingen adgang - log venligst ind igen' };
+
+    const data = await SaveBreederAccountPhoto(accessToken, breederAccountId, requestDTO);
+    return { success: true, data };
+  } catch (error) {
+    return { success: false, error: error instanceof Error ? error.message : 'Fejl ved registrering af opdrætterbillede' };
+  }
+}
+
+// =============== GET ===============
+
+export async function getDiscoverableBreeders(
+  filter?: BreederAccount_FilterDTO
+): Promise<{ success: boolean; data?: ResultPagedDTO<BreederAccount_PreviewCardDTO>; error?: string }> {
+  try {
+    const data = await GetDiscoverableBreeders(filter);
+    return { success: true, data };
+  } catch (error) {
+    return { success: false, error: error instanceof Error ? error.message : 'Fejl ved hentning af opdrættere' };
+  }
+}
+
+export async function getPublicBreederProfile(
+  breederRegNo: string
+): Promise<{ success: boolean; data?: BreederAccount_PublicProfileDTO; error?: string }> {
+  try {
+    if (!breederRegNo?.trim())
+      return { success: false, error: 'BreederRegNo er påkrævet' };
+
+    const data = await GetPublicBreederProfile(breederRegNo);
+    return { success: true, data };
+  } catch (error) {
+    return { success: false, error: error instanceof Error ? error.message : 'Fejl ved hentning af offentlig opdrætterprofil' };
+  }
+}
+
 export async function getReceivedTransferRequests(
   filter?: TransferRequestPreviewFilterDTO
-): Promise<{
-  success: boolean;
-  data?: TransferRequestPreviewDTO[];
-  error?: string;
-}> {
+): Promise<{ success: boolean; data?: TransferRequestPreviewDTO[]; error?: string }> {
   try {
     const accessToken = await getAccessToken();
-    if (!accessToken) {
-      return {
-        success: false,
-        error: "Du skal være logget ind for at se modtagne overførselsanmodninger"
-      };
-    }
+    if (!accessToken)
+      return { success: false, error: 'Ingen adgang - log venligst ind igen' };
+
     const data = await GetReceivedTransferRequests(accessToken, filter);
     return { success: true, data };
   } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : "Der skete en uventet fejl"
-    };
+    return { success: false, error: error instanceof Error ? error.message : 'Fejl ved hentning af modtagne overførselsanmodninger' };
   }
 }
 
-/**
- * Server Action: Henter udstedte (sendte) overførselsanmodninger for brugeren (med filtrering)
- * @param filter Filtreringsparametre (valgfri)
- * @returns Liste af sendte anmodninger eller fejl
- */
 export async function getSentTransferRequests(
   filter?: TransferRequestPreviewFilterDTO
-): Promise<{
-  success: boolean;
-  data?: TransferRequestPreviewDTO[];
-  error?: string;
-}> {
+): Promise<{ success: boolean; data?: TransferRequestPreviewDTO[]; error?: string }> {
   try {
     const accessToken = await getAccessToken();
-    if (!accessToken) {
-      return {
-        success: false,
-        error: "Du skal være logget ind for at se sendte overførselsanmodninger"
-      };
-    }
+    if (!accessToken)
+      return { success: false, error: 'Ingen adgang - log venligst ind igen' };
+
     const data = await GetSentTransferRequests(accessToken, filter);
     return { success: true, data };
   } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : "Der skete en uventet fejl"
-    };
+    return { success: false, error: error instanceof Error ? error.message : 'Fejl ved hentning af sendte overførselsanmodninger' };
   }
 }
 
-/**
- * Server Action: Opdaterer en opdrætterkonto (BreederAccount)
- * @param breederAccountId ID på opdrætterkontoen der skal opdateres
- * @param updateDTO De nye profildata
- * @returns Den opdaterede opdrætterprofil eller fejl
- */
+// =============== PUT ===============
+
 export async function updateBreederAccount(
   breederAccountId: string,
   updateDTO: BreederAccount_UpdateDTO
-): Promise<{
-  success: boolean;
-  data?: BreederAccount_PrivateProfileDTO;
-  error?: string;
-}> {
+): Promise<{ success: boolean; data?: BreederAccount_PrivateProfileDTO; error?: string }> {
   try {
-    if (!breederAccountId || !updateDTO) {
-      return {
-        success: false,
-        error: 'Opdrætterkonto ID og opdateringsdata er påkrævet'
-      };
-    }
+    if (!breederAccountId?.trim() || !updateDTO)
+      return { success: false, error: 'BreederAccount ID og opdateringsdata er påkrævet' };
 
     const accessToken = await getAccessToken();
-    if (!accessToken) {
-      return {
-        success: false,
-        error: 'Ingen adgang - log venligst ind igen'
-      };
-    }
+    if (!accessToken)
+      return { success: false, error: 'Ingen adgang - log venligst ind igen' };
 
-    const updatedProfile = await UpdateBreederAccount(accessToken, breederAccountId, updateDTO);
-
-    return {
-      success: true,
-      data: updatedProfile
-    };
+    const data = await UpdateBreederAccount(accessToken, breederAccountId, updateDTO);
+    return { success: true, data };
   } catch (error) {
-    // Brug type guard for Error
-    let message = 'Der opstod en fejl ved opdatering af opdrætterkonto';
-    if (error instanceof Error) {
-      message = error.message;
-    }
-    console.error('Error updating breeder account:', error);
-    return {
-      success: false,
-      error: message
-    };
+    return { success: false, error: error instanceof Error ? error.message : 'Fejl ved opdatering af opdrætterkonto' };
   }
 }
 
-// Nedenstående er Server filtrering.. Hvis DB-AngoraREST API'en understøtter det,
-// vil den kunne bruge denne metode..
+export async function updateBreederAccountProfilePicture(
+  breederAccountId: string,
+  photoId: number
+): Promise<{ success: boolean; data?: PhotoPrivateDTO; error?: string }> {
+  try {
+    if (!breederAccountId?.trim())
+      return { success: false, error: 'BreederAccount ID er påkrævet' };
+    if (!photoId || photoId <= 0)
+      return { success: false, error: 'Gyldigt billede ID er påkrævet' };
 
-/**
- * Server Action: Filtrerer brugerens kaniner baseret på søgekriterier
- * Henter data via getMyRabbits og anvender filtre på server-siden
- */
-// export async function searchMyRabbits(filters: {
-//   search?: string;
-//   Gender?: string;
-//   Race?: string;
-//   Color?: string;
-//   ForSale?: boolean;
-//   ForBreeding?: boolean;
-//   showDeceased?: boolean;
-//   raceColorApproval?: string;
-//   bornAfterDate?: string | null;
-// }): Promise<Rabbit_OwnedPreviewDTO[]> {
-//   try {
-//     const rabbits = await getMyRabbits();
-    
-//     if (!rabbits.length) return [];
-//     if (!Object.keys(filters).length) return rabbits;
-    
-//     // Implementering der matcher din eksisterende client-side filter
-//     return rabbits.filter(rabbit => {
-//       const isDeceased = rabbit.dateOfDeath !== null;
-//       if (filters.showDeceased !== undefined && filters.showDeceased !== isDeceased) return false;
+    const accessToken = await getAccessToken();
+    if (!accessToken)
+      return { success: false, error: 'Ingen adgang - log venligst ind igen' };
 
-//       const matchesSearch = !filters.search || (
-//         (rabbit.nickName?.toLowerCase().includes(filters.search.toLowerCase()) ?? false) ||
-//         (rabbit.earCombId.toLowerCase().includes(filters.search.toLowerCase())) ||
-//         (rabbit.race?.toLowerCase().includes(filters.search.toLowerCase()) ?? false) ||
-//         (rabbit.color?.toLowerCase().includes(filters.search.toLowerCase()) ?? false)
-//       );
+    const data = await UpdateBreederAccountProfilePicture(accessToken, breederAccountId, photoId);
+    return { success: true, data };
+  } catch (error) {
+    return { success: false, error: error instanceof Error ? error.message : 'Fejl ved opdatering af opdrætterprofilbillede' };
+  }
+}
 
-//       const matchesRaceColorApproval = !filters.raceColorApproval || 
-//         (filters.raceColorApproval === 'Approved' && rabbit.approvedRaceColorCombination === true) ||
-//         (filters.raceColorApproval === 'NotApproved' && rabbit.approvedRaceColorCombination === false);
-      
-//       const matchesBornAfter = !filters.bornAfterDate ||
-//         (rabbit.dateOfBirth && new Date(rabbit.dateOfBirth) >= new Date(filters.bornAfterDate));
-      
-//       const matchesGender = !filters.Gender || rabbit.gender === filters.Gender;
-//       const matchesRace = !filters.Race || rabbit.race === filters.Race;
-//       const matchesColor = !filters.Color || rabbit.color === filters.Color;
-//       const matchesForSale = !filters.ForSale || rabbit.hasSaleDetails === true;
-//       const matchesForBreeding = !filters.ForBreeding || rabbit.forBreeding === 'Ja';
+// =============== DELETE ===============
 
-//       return matchesSearch &&
-//         matchesGender &&
-//         matchesRace &&
-//         matchesColor &&
-//         matchesForSale &&
-//         matchesForBreeding &&
-//         matchesRaceColorApproval &&
-//         matchesBornAfter;
-//     });
-//   } catch (error) {
-//     console.error("Error in searchMyRabbits server action:", error);
-//     return [];
-//   }
-// }
+export async function deleteBreederAccountPhoto(
+  breederAccountId: string,
+  photoId: number
+): Promise<{ success: boolean; data?: boolean; error?: string }> {
+  try {
+    if (!breederAccountId?.trim())
+      return { success: false, error: 'BreederAccount ID er påkrævet' };
+    if (!photoId || photoId <= 0)
+      return { success: false, error: 'Gyldigt billede ID er påkrævet' };
+
+    const accessToken = await getAccessToken();
+    if (!accessToken)
+      return { success: false, error: 'Ingen adgang - log venligst ind igen' };
+
+    const data = await DeleteBreederAccountPhoto(accessToken, breederAccountId, photoId);
+    return { success: true, data };
+  } catch (error) {
+    return { success: false, error: error instanceof Error ? error.message : 'Fejl ved sletning af opdrætterbillede' };
+  }
+}

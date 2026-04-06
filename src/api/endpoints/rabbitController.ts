@@ -2,18 +2,19 @@
 import { parseApiError } from "../client/errorHandlers";
 import { getApiUrl } from "../config/apiConfig";
 import {
-    Rabbit_CreateDTO, Rabbit_ProfileDTO,
-    Rabbits_ForbreedingPreviewList, Rabbit_UpdateDTO, Rabbit_OwnedPreviewDTO,
-    Rabbit_CreateSaleDetailsDTO, Rabbit_UpdateSaleDetailsDTO,
-    CloudinaryUploadConfigDTO,
-    SaleDetailsProfileDTO,
-    PhotoPrivateDTO,
-    PhotoDeleteDTO,
-    CloudinaryPhotoRegistryRequestDTO,
-    Rabbit_ParentValidationResultDTO,
-    ResultPagedDTO,
+    Rabbit_CreateDTO,
+    Rabbit_ProfileDTO,
+    Rabbit_UpdateDTO,
+    Rabbit_OwnedPreviewDTO,
     Rabbit_OwnedFilterDTO,
+    Rabbit_ForbreedingPreviewDTO,
+    Rabbit_ForbreedingFilterDTO,
     Rabbit_ForbreedingProfileDTO,
+    Rabbit_ParentValidationResultDTO,
+    CloudinaryUploadConfigDTO,
+    CloudinaryPhotoRegistryRequestDTO,
+    PhotoPrivateDTO,
+    ResultPagedDTO,
     PedigreeResultDTO,
     COIContributorDTO,
     Rabbit_PedigreeDTO,
@@ -35,14 +36,7 @@ export async function CreateRabbit(
     rabbitData: Rabbit_CreateDTO,
     accessToken: string
 ): Promise<Rabbit_ProfileDTO> {
-    if (!accessToken || accessToken.trim() === "") {
-        throw new Error("Access token is required for this endpoint.");
-    }
-    if (!targetedUserId || targetedUserId.trim() === "") {
-        throw new Error("targetedUserId er påkrævet.");
-    }
-
-    const response = await fetch(getApiUrl(`Rabbit/CreateForUser/${encodeURIComponent(targetedUserId)}`), {
+    const response = await fetch(getApiUrl(`Rabbit/${encodeURIComponent(targetedUserId)}`), {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${accessToken}`,
@@ -52,75 +46,33 @@ export async function CreateRabbit(
         body: JSON.stringify(rabbitData)
     });
 
-    if (response.status === 201) {
-        return response.json();
-    }
-
-    throw await parseApiError(response);
+    if (!response.ok) throw await parseApiError(response, 'Fejl ved oprettelse af kanin');
+    return response.json();
 }
 
 /**
- * Opretter salgsdetaljer for en kanin
+ * Registrerer Cloudinary-billede for en kanin.
+ * @param accessToken JWT token
  * @param earCombId Kaninens øremærke-id
- * @param saleDetails Data for salgsopslaget
- * @param accessToken Brugerens JWT token
- * @returns De oprettede salgsdetaljer
+ * @param requestDTO Cloudinary upload info
+ * @returns PhotoPrivateDTO
  */
-export async function CreateSaleDetails(
-    earCombId: string,
-    saleDetails: Rabbit_CreateSaleDetailsDTO,
-    accessToken: string
-): Promise<SaleDetailsProfileDTO> {
-    if (!accessToken || accessToken.trim() === "") {
-        throw new Error("Access token is required for this endpoint.");
-    }
-    if (!earCombId || earCombId.trim() === "") {
-        throw new Error("earCombId er påkrævet.");
-    }
-
-    const response = await fetch(getApiUrl(`Rabbit/CreateSaleDetails/${earCombId}`), {
-        method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${accessToken}`,
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        },
-        body: JSON.stringify(saleDetails)
-    });
-
-    if (response.status === 201) {
-        return response.json();
-    }
-
-    throw await parseApiError(response, 'Fejl ved oprettelse af salgsdetaljer');
-}
-
-/**
- * Registrerer et billede fra Cloudinary specifikt for en kanin.
- * @param accessToken JWT token for bruger
- * @param earCombId Kaninens øremærke-id
- * @param requestDTO Billede-detaljer fra Cloudinary
- * @returns Det nye oprettede PhotoPrivateDTO
- */
-export async function RegisterRabbitPhoto(
+export async function AddRabbitPhoto(
   accessToken: string,
   earCombId: string,
   requestDTO: CloudinaryPhotoRegistryRequestDTO
 ): Promise<PhotoPrivateDTO> {
-  const response = await fetch(getApiUrl(`Rabbit/${earCombId}/register-photo`), {
-    method: 'POST',
+  const response = await fetch(getApiUrl(`Rabbit/${encodeURIComponent(earCombId)}/photos`), {
+    method: "POST",
     headers: {
-      'Authorization': `Bearer ${accessToken}`,
-      'Content-Type': 'application/json',
-      'Accept': 'application/json'
+      "Authorization": `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+      "Accept": "application/json",
     },
-    body: JSON.stringify(requestDTO)
+    body: JSON.stringify(requestDTO),
   });
 
-  if (!response.ok) {
-    throw await parseApiError(response);
-  }
-
+  if (!response.ok) throw await parseApiError(response, "Kunne ikke registrere rabbit foto");
   return response.json();
 }
 
@@ -136,7 +88,7 @@ export async function GetRabbitPhotoUploadPermission(
     accessToken: string,
     earCombId: string
 ): Promise<CloudinaryUploadConfigDTO> {
-    const response = await fetch(getApiUrl(`Rabbit/${earCombId}/photo-upload-permission`), {
+    const response = await fetch(getApiUrl(`Rabbit/${encodeURIComponent(earCombId)}/photos/upload-config`), {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${accessToken}`,
@@ -144,11 +96,9 @@ export async function GetRabbitPhotoUploadPermission(
         }
     });
 
-    if (!response.ok) {
-        throw await parseApiError(response);
-    }
-
-    return response.json();
+    if (!response.ok) throw await parseApiError(response, 'Fejl ved hentning af upload-konfiguration');
+    const data = await response.json();
+    return data.data ?? data;
 }
 
 /**
@@ -163,7 +113,7 @@ export async function ValidateParentReference(
   parentId: string,
   expectedGender: string
 ): Promise<Rabbit_ParentValidationResultDTO> {
-  const url = getApiUrl(`Rabbit/Validate-parent?parentId=${encodeURIComponent(parentId)}&expectedGender=${encodeURIComponent(expectedGender)}`);
+  const url = getApiUrl(`Rabbit/validate-parent?parentId=${encodeURIComponent(parentId)}&expectedGender=${encodeURIComponent(expectedGender)}`);
   const response = await fetch(url, {
     method: 'GET',
     headers: {
@@ -172,24 +122,36 @@ export async function ValidateParentReference(
     }
   });
 
-  if (!response.ok) {
-    throw await parseApiError(response);
-  }
-
+  if (!response.ok) throw await parseApiError(response, 'Fejl ved validering af forældre-reference');
   return response.json();
 }
 
 
-export async function GetRabbitsForBreeding(accessToken: string): Promise<Rabbits_ForbreedingPreviewList> {
-    const data = await fetch(getApiUrl('Rabbit/Forbreeding'), {
-        headers: { Authorization: `Bearer ${accessToken}` }
-    });
-    
-    if (!data.ok) {
-        throw await parseApiError(data);
+export async function GetRabbitsForBreeding(
+    accessToken: string,
+    filter?: Rabbit_ForbreedingFilterDTO,
+    page: number = 1,
+    pageSize: number = 12
+): Promise<ResultPagedDTO<Rabbit_ForbreedingPreviewDTO>> {
+    const params = new URLSearchParams();
+    if (filter) {
+        Object.entries(filter).forEach(([key, value]) => {
+            if (value !== undefined && value !== null) params.append(key, String(value));
+        });
     }
-    
-    return data.json();
+    params.append('page', page.toString());
+    params.append('pageSize', pageSize.toString());
+
+    const response = await fetch(getApiUrl(`Rabbit/for-breeding?${params.toString()}`), {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Accept': 'application/json'
+        }
+    });
+
+    if (!response.ok) throw await parseApiError(response, 'Fejl ved hentning af avlskaniner');
+    return response.json();
 }
 
 /**
@@ -202,7 +164,7 @@ export async function GetRabbitsForBreeding(accessToken: string): Promise<Rabbit
  * @param pageSize Antal elementer per side (default 12)
  * @returns Pagineret liste af kaniner
  */
-export async function GetRabbitsOwnedByUser(
+export async function GetRabbitsOwnedOrLinkedByUser(
   userId: string,
   filter: Rabbit_OwnedFilterDTO,
   accessToken: string,
@@ -241,14 +203,15 @@ export async function GetRabbitsOwnedByUser(
 * Henter en kaninprofil ud fra øremærke
 */
 export async function GetRabbitProfile(accessToken: string, earCombId: string): Promise<Rabbit_ProfileDTO> {
-    const response = await fetch(getApiUrl(`Rabbit/Profile/${earCombId}`), {
-        headers: { Authorization: `Bearer ${accessToken}` }
+    const response = await fetch(getApiUrl(`Rabbit/${encodeURIComponent(earCombId)}/profile`), {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Accept': 'application/json'
+        }
     });
 
-    if (!response.ok) {
-        throw await parseApiError(response);
-    }
-
+    if (!response.ok) throw await parseApiError(response, 'Fejl ved hentning af kaninprofil');
     return response.json();
 }
 
@@ -262,7 +225,7 @@ export async function GetRabbitForbreedingProfile(
   accessToken: string,
   earCombId: string
 ): Promise<Rabbit_ForbreedingProfileDTO> {
-  const response = await fetch(getApiUrl(`Rabbit/ForbreedingProfile/${earCombId}`), {
+  const response = await fetch(getApiUrl(`Rabbit/${encodeURIComponent(earCombId)}/for-breeding`), {
     method: 'GET',
     headers: {
       'Authorization': `Bearer ${accessToken}`,
@@ -270,10 +233,7 @@ export async function GetRabbitForbreedingProfile(
     }
   });
 
-  if (!response.ok) {
-    throw await parseApiError(response);
-  }
-
+  if (!response.ok) throw await parseApiError(response, 'Fejl ved hentning af avls-profil');
   return response.json();
 }
 
@@ -290,7 +250,7 @@ export async function GetRabbitPedigree(
     earCombId: string,
     maxGeneration: number = 4
 ): Promise<PedigreeResultDTO> {
-    const url = getApiUrl(`Rabbit/Pedigree/${earCombId}?maxGeneration=${maxGeneration}`);
+    const url = getApiUrl(`Rabbit/${encodeURIComponent(earCombId)}/pedigree?maxGeneration=${maxGeneration}`);
     const response = await fetch(url, {
         method: 'GET',
         headers: {
@@ -299,9 +259,7 @@ export async function GetRabbitPedigree(
         }
     });
 
-    if (!response.ok) {
-        throw await parseApiError(response);
-    }
+    if (!response.ok) throw await parseApiError(response, 'Fejl ved hentning af stamtavle');
 
     const rawData: unknown = await response.json();
     
@@ -340,7 +298,7 @@ export async function GetTestMatingPedigree(
     maxGeneration: number = 4
 ): Promise<PedigreeResultDTO> {
     const url = getApiUrl(
-        `Rabbit/TestMatingPedigree?fatherEarCombId=${encodeURIComponent(fatherEarCombId)}&motherEarCombId=${encodeURIComponent(motherEarCombId)}&maxGeneration=${maxGeneration}`
+        `Rabbit/test-mating-pedigree?fatherEarCombId=${encodeURIComponent(fatherEarCombId)}&motherEarCombId=${encodeURIComponent(motherEarCombId)}&maxGeneration=${maxGeneration}`
     );
     const response = await fetch(url, {
         method: 'GET',
@@ -350,9 +308,7 @@ export async function GetTestMatingPedigree(
         }
     });
 
-    if (!response.ok) {
-        throw await parseApiError(response);
-    }
+    if (!response.ok) throw await parseApiError(response, 'Fejl ved beregning af test-parings stamtavle');
 
     const rawData: unknown = await response.json();
 
@@ -378,70 +334,26 @@ export async function GetTestMatingPedigree(
 
 //-------------------- PUT
 
-export async function EditRabbit(earCombId: string,
-    rabbitData: Rabbit_UpdateDTO,
-    accessToken: string): Promise<Rabbit_ProfileDTO> {
-    const formattedData = {
-        ...rabbitData,
-        dateOfBirth: rabbitData.dateOfBirth,
-        dateOfDeath: rabbitData.dateOfDeath || null
-    };
-
-    const response = await fetch(getApiUrl(`Rabbit/Update/${earCombId}`), {
-        method: 'PUT',
-        headers: {
-            'Authorization': `Bearer ${accessToken}`,
-            'Content-Type': 'application/json',
-            'accept': 'text/plain'
-        },
-        body: JSON.stringify(formattedData)
-    });
-
-    if (!response.ok) {
-        throw await parseApiError(response, 'Failed to update rabbit');
-    }
-
-    return response.json();
-}
-
-/**
- * Opdaterer salgsdetaljer for en kanin
- * @param earCombId Kaninens øremærke-id
- * @param updateSaleDetailsDTO Opdaterede salgsoplysninger
- * @param accessToken Brugerens JWT token
- * @returns Boolean som indikerer om opdateringen var succesfuld
- */
-export async function UpdateSaleDetails(
+export async function EditRabbit(
     earCombId: string,
-    updateSaleDetailsDTO: Rabbit_UpdateSaleDetailsDTO,
+    rabbitData: Rabbit_UpdateDTO,
     accessToken: string
-): Promise<boolean> {
-    const response = await fetch(getApiUrl(`Rabbit/UpdateSaleDetails/${earCombId}`), {
+): Promise<Rabbit_ProfileDTO> {
+    const response = await fetch(getApiUrl(`Rabbit/${encodeURIComponent(earCombId)}`), {
         method: 'PUT',
         headers: {
             'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json',
-            'Accept': 'text/plain'
+            'Accept': 'application/json'
         },
-        body: JSON.stringify(updateSaleDetailsDTO)
+        body: JSON.stringify(rabbitData)
     });
 
-    if (!response.ok) {
-        throw await parseApiError(response, 'Kunne ikke opdatere salgsdetaljer');
-    }
-
-    // Hvis response body er tom, returner true
-    if (response.headers.get('content-length') === '0') {
-        return true;
-    }
-
-    try {
-        const result = await response.json();
-        return result === true || Boolean(result);
-    } catch {
-        return true;
-    }
+    if (!response.ok) throw await parseApiError(response, 'Fejl ved opdatering af kanin');
+    const data = await response.json();
+    return data.rabbit ?? data;
 }
+
 
 /**
  * Opdaterer hvilket billede der skal være profilbilledet for en kanin.
@@ -455,7 +367,7 @@ export async function SetRabbitProfilePhoto(
     earCombId: string,
     photoId: number
 ): Promise<PhotoPrivateDTO> {
-    const response = await fetch(getApiUrl(`Rabbit/${earCombId}/profile-photo/${photoId}`), {
+    const response = await fetch(getApiUrl(`Rabbit/${encodeURIComponent(earCombId)}/photos/${photoId}`), {
         method: 'PUT',
         headers: {
             'Authorization': `Bearer ${accessToken}`,
@@ -463,11 +375,9 @@ export async function SetRabbitProfilePhoto(
         }
     });
 
-    if (!response.ok) {
-        throw await parseApiError(response);
-    }
-
-    return response.json();
+    if (!response.ok) throw await parseApiError(response, 'Fejl ved opdatering af profilbillede');
+    const data = await response.json();
+    return data.photo ?? data;
 }
 
 //-------------------- DELETE
@@ -480,8 +390,8 @@ export async function SetRabbitProfilePhoto(
 export async function DeleteRabbit(
   earCombId: string,
   accessToken: string
-): Promise<Rabbit_OwnedPreviewDTO> {
-  const response = await fetch(getApiUrl(`Rabbit/Delete/${earCombId}`), {
+): Promise<{ message: string }> {
+  const response = await fetch(getApiUrl(`Rabbit/${encodeURIComponent(earCombId)}`), {
     method: 'DELETE',
     headers: {
       'Authorization': `Bearer ${accessToken}`,
@@ -489,32 +399,10 @@ export async function DeleteRabbit(
     }
   });
 
-  if (!response.ok) {
-    throw await parseApiError(response);
-  }
-
+  if (!response.ok) throw await parseApiError(response, 'Fejl ved sletning af kanin');
   return response.json();
 }
 
-export async function DeleteSaleDetails(
-    earCombId: string,
-    accessToken: string
-): Promise<{ message: string }> {
-    const response = await fetch(getApiUrl(`Rabbit/DeleteSaleDetails/${earCombId}`), {
-        method: 'DELETE',
-        headers: {
-            'Authorization': `Bearer ${accessToken}`,
-            'Content-Type': 'application/json',
-            'accept': 'text/plain'
-        }
-    });
-
-    if (!response.ok) {
-        throw await parseApiError(response, 'Failed to delete sale details');
-    }
-
-    return response.json();
-}
 
 /**
  * Sletter et billede fra en kanin, inkl. validering og autorisationskontrol.
@@ -524,21 +412,17 @@ export async function DeleteSaleDetails(
  */
 export async function DeleteRabbitPhoto(
   accessToken: string,
-  deletionDTO: PhotoDeleteDTO
+  earCombId: string,
+  photoId: number
 ): Promise<boolean> {
-  const response = await fetch(getApiUrl('Rabbit/DeletePhoto'), {
+  const response = await fetch(getApiUrl(`Rabbit/${encodeURIComponent(earCombId)}/photos/${photoId}`), {
     method: 'DELETE',
     headers: {
       'Authorization': `Bearer ${accessToken}`,
-      'Content-Type': 'application/json',
       'Accept': 'application/json'
-    },
-    body: JSON.stringify(deletionDTO)
+    }
   });
 
-  if (!response.ok) {
-    throw await parseApiError(response);
-  }
-
-  return response.json();
+  if (!response.ok) throw await parseApiError(response, 'Fejl ved sletning af kanin-billede');
+  return true;
 }

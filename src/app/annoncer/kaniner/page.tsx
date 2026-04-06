@@ -3,8 +3,8 @@ import { Metadata } from 'next';
 import { Suspense } from 'react';
 import { Spinner } from "@heroui/react";
 import SaleList from './rabbitSaleList';
-import { getRabbitSaleItems } from '@/app/actions/sale/saleActions';
-import { Rabbit_ForSaleFilterDTO } from '@/api/types/filterTypes';
+import { getRabbitSaleItems } from '@/app/actions/sales/salesActions';
+import { RabbitSaleFilterDTO } from '@/api/types/filterTypes';
 
 // Opdateret type definition for Next.js 15
 type SearchParamsType = {
@@ -71,8 +71,8 @@ async function ItemLoader({ searchParams }: { searchParams: KaninerPageProps['se
     MaxZipCode: maxZipParam
   } = params;
   
-  // Opret standard søge-/filtreringsparametre med Rabbit_ForSaleFilterDTO
-  const filter: Rabbit_ForSaleFilterDTO = {
+  // Opret standard søge-/filtreringsparametre med RabbitSaleFilterDTO
+  const filter: RabbitSaleFilterDTO = {
     page: pageParam ? parseInt(pageParam) : 1,
     pageSize: pageSizeParam ? parseInt(pageSizeParam) : 12
   };

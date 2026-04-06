@@ -1,4 +1,10 @@
 // src/components/cards/blogOwnPreviewCard.tsx
+
+/**
+ * Dette card er for blog content-creatoren selv.
+ * IKKE DEN ALMENE BESØGENDE
+ */
+
 'use client';
 import { useState, memo } from 'react';
 import { Card, CardHeader, CardBody, Avatar } from '@heroui/react';
@@ -19,7 +25,7 @@ const BlogOwnPreviewCard = memo(function BlogOwnPreviewCard({
   const [imageError, setImageError] = useState(false);
 
   const defaultImage = '/images/DB-Angora.png';
-  const featuredImage = (!imageError && blog.featuredImageUrl) || defaultImage;
+  const featuredImage = (!imageError && blog.profilePhotoUrl) || defaultImage;
 
   // Card click handler - enten onClick prop eller direkte til workspace
   const handleCardPress = () => {
@@ -90,7 +96,7 @@ const BlogOwnPreviewCard = memo(function BlogOwnPreviewCard({
         <h3 className="text-md font-bold text-zinc-100 line-clamp-2 text-left w-full">{blog.title}</h3>
         <div className="flex flex-row items-start gap-2 w-full">
           <Avatar
-            src={blog.authorProfilePicture ?? undefined}
+            src={blog.authorPhotoUrl ?? undefined}
             name={blog.authorName ?? 'Ukendt forfatter'}
             size="sm"
             className="border border-zinc-700 mt-0.5"

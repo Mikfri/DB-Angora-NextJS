@@ -5,7 +5,7 @@ import { Rabbit_ProfileDTO, RabbitSaleDetailsEmbeddedDTO } from '@/api/types/Ang
 import { Button, Card, CardBody, Spinner } from "@heroui/react";
 import { useAuthStore } from '@/store/authStore';
 import SaleDetailsForm from './saleDetailsForm';
-import { useSaleDetailsHandler } from '@/hooks/useSaleDetailsHandler';
+import { useSaleDetailsHandler } from '@/hooks/rabbits/useRabbitSaleDetailsHandler';
 import SaleDetailsView from './rabbitSaleDetailsView';
 
 interface RabbitSaleSectionProps {

@@ -41,7 +41,7 @@ type StatusChip = {
 export default function RabbitPreviewCard({ rabbit, onClick }: Props) {
     const [imageError, setImageError] = useState(false);
     const defaultImage = '/images/default-rabbit.jpg';
-    const profileImage = (!imageError && rabbit.profilePicture) || defaultImage;
+    const profileImage = (!imageError && rabbit.profilePhotoUrl) || defaultImage;
 
     // Forbered formaterede tekster
     const displayName = rabbit.nickName || 'Unavngivet kanin';

@@ -1,8 +1,10 @@
 // src/components/cards/blogPreviewCard.tsx
 
-/*
-Dette card er for den almene besøgende af siden/læseren.
-IKKE BLOG CONTENT-CREATOREN*/
+/**
+ * Dette card er for den almene besøgende af siden/læseren.
+ * IKKE BLOG CONTENT-CREATOREN
+ */
+
 
 'use client';
 import { useState, memo } from 'react';
@@ -32,7 +34,7 @@ const BlogPreviewCard = memo(function BlogPreviewCard({
 	const [isFavorite, setIsFavorite] = useState(initialFavorite);
 
 	const defaultImage = '/images/DB-Angora.png';
-	const featuredImage = (!imageError && blog.featuredImageUrl) || defaultImage;
+	const featuredImage = (!imageError && blog.profilePhotoUrl) || defaultImage;
 
 	// Handler til favorit knap
 	const handleFavoriteClick = (event: React.MouseEvent) => {
@@ -162,7 +164,7 @@ const BlogPreviewCard = memo(function BlogPreviewCard({
 
 				<div className="flex flex-row items-center gap-2.5 w-full">
 					<Avatar
-						src={blog.authorProfilePicture ?? undefined}
+						src={blog.authorPhotoUrl ?? undefined}
 						name={blog.authorName ?? 'Ukendt forfatter'}
 						size="sm"
 						className="border-2 border-primary/20 ring-2 ring-primary/5"

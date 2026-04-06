@@ -3,7 +3,7 @@
 
 import { useState, ReactNode } from 'react';
 import { Divider, Button } from '@heroui/react';
-import ProfileImage from '@/components/ui/ProfileImage';
+import ProfileImage from '@/components/ui/images/ProfileImage';
 import { useRabbitProfile } from '@/contexts/RabbitProfileContext';
 import { IoColorPaletteOutline } from "react-icons/io5";
 import { FaInfoCircle, FaPercent, FaUserCircle, FaIdCard, FaTrash, FaExchangeAlt } from "react-icons/fa";
@@ -114,7 +114,7 @@ export function RabbitProfileNavClient() {
         <div className="flex justify-center">
           <div className="w-full max-w-[300px] aspect-square">
             <ProfileImage 
-              imageUrl={profile.profilePicture} 
+              imageUrl={profile.profilePhotoUrl} 
               alt={displayName}
               className="w-full h-full"
             />

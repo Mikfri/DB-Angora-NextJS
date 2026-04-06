@@ -18,25 +18,25 @@
 
 import { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import { useParams } from 'next/navigation';
-import { Blog_DTO, Blog_UpdateDTO } from '@/api/types/AngoraDTOs';
+import { BlogPrivateDTO, Blog_UpdateDTO } from '@/api/types/AngoraDTOs';
 import { deleteBlogAction, fetchBlogByIdAction, publishBlogAction, unpublishBlogAction, updateBlogAction } from '@/app/actions/blog/blogActions';
 import { toast } from 'react-toastify';
 
 interface BlogWorkspaceContextType {
-  blog: Blog_DTO | null;
+  blog: BlogPrivateDTO | null;
   isLoading: boolean;
   isPublishing: boolean;
   isEditing: boolean;
   isSaving: boolean;
-  editedData: Blog_DTO | null;
+  editedData: BlogPrivateDTO | null;
   error: { message: string; status?: number } | null;
   // Auto-save status
   autoSaveStatus: 'idle' | 'saving' | 'saved' | 'error';
   lastSaved: Date | null;
   hasUnsavedChanges: boolean;
   setIsEditing: (editing: boolean) => void;
-  setEditedData: (data: Blog_DTO) => void;
-  updateField: <K extends keyof Blog_DTO>(key: K, value: Blog_DTO[K]) => void;
+  setEditedData: (data: BlogPrivateDTO) => void;
+  updateField: <K extends keyof BlogPrivateDTO>(key: K, value: BlogPrivateDTO[K]) => void;
   refreshBlog: () => Promise<void>;
   handlePublish: () => Promise<void>;
   handleUnpublish: () => Promise<void>;
@@ -53,14 +53,14 @@ export function BlogWorkspaceProvider({ children }: { children: React.ReactNode 
   const params = useParams();
   const blogId = parseInt(params.blogId as string, 10);
 
-  const [blog, setBlog] = useState<Blog_DTO | null>(null);
+  const [blog, setBlog] = useState<BlogPrivateDTO | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isPublishing, setIsPublishing] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [editedData, setEditedData] = useState<Blog_DTO | null>(null);
+  const [editedData, setEditedData] = useState<BlogPrivateDTO | null>(null);
   const [error, setError] = useState<{ message: string; status?: number } | null>(null);
-  
+
   // Auto-save state
   const [autoSaveStatus, setAutoSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
@@ -120,17 +120,17 @@ export function BlogWorkspaceProvider({ children }: { children: React.ReactNode 
         tags: editedData.tags,
         visibilityLevel: editedData.visibilityLevel,
         category: editedData.category,
-        authorId: editedData.authorId
+        metaDescription: editedData.metaDescription,  // ← ADD
       };
 
       const result = await updateBlogAction(blog.id, updateData);
-      
+
       if (result.success) {
         setBlog(result.data);
         setHasUnsavedChanges(false);
         setAutoSaveStatus('saved');
         setLastSaved(new Date());
-        
+
         // Reset til idle efter 2 sek
         setTimeout(() => {
           setAutoSaveStatus(prev => prev === 'saved' ? 'idle' : prev);
@@ -150,9 +150,9 @@ export function BlogWorkspaceProvider({ children }: { children: React.ReactNode 
     if (autoSaveTimeoutRef.current) {
       clearTimeout(autoSaveTimeoutRef.current);
     }
-    
+
     setHasUnsavedChanges(true);
-    
+
     autoSaveTimeoutRef.current = setTimeout(() => {
       performAutoSave();
     }, AUTO_SAVE_DELAY);
@@ -181,7 +181,7 @@ export function BlogWorkspaceProvider({ children }: { children: React.ReactNode 
   }, [hasUnsavedChanges]);
 
   // Opdater et enkelt felt og trigger auto-save
-  const updateField = useCallback(<K extends keyof Blog_DTO>(key: K, value: Blog_DTO[K]) => {
+  const updateField = useCallback(<K extends keyof BlogPrivateDTO>(key: K, value: BlogPrivateDTO[K]) => {
     setEditedData(prev => {
       if (!prev) return prev;
       return { ...prev, [key]: value };
@@ -212,7 +212,6 @@ export function BlogWorkspaceProvider({ children }: { children: React.ReactNode 
         tags: editedData.tags,
         visibilityLevel: editedData.visibilityLevel,
         category: editedData.category,
-        authorId: editedData.authorId
       };
 
       const result = await updateBlogAction(blog.id, updateData);

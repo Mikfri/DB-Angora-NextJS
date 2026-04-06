@@ -1,18 +1,18 @@
 // src/store/saleRabbitsFilterStore.ts
 import { create } from 'zustand';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import { Rabbit_ForSaleFilterDTO } from '@/api/types/filterTypes';
+import { RabbitSaleFilterDTO } from '@/api/types/filterTypes';
 
 // Lav en type for værdier der kan bruges i filters
 type FilterValue = string | number | boolean | null | undefined;
 
 interface RabbitFilterState {
   // Filter state
-  filters: Partial<Rabbit_ForSaleFilterDTO>;
+  filters: Partial<RabbitSaleFilterDTO>;
   
   // Actions
-  updateFilter: (key: keyof Rabbit_ForSaleFilterDTO, value: FilterValue) => void;
-  clearFilter: (key: keyof Rabbit_ForSaleFilterDTO) => void;
+  updateFilter: (key: keyof RabbitSaleFilterDTO, value: FilterValue) => void;
+  clearFilter: (key: keyof RabbitSaleFilterDTO) => void;
   clearAllFilters: () => void;
   syncWithUrl: (searchParams: URLSearchParams) => void;
 }
@@ -35,7 +35,7 @@ export const saleRabbitsFilterStore = create<RabbitFilterState>()((set) => ({
   clearAllFilters: () => set({ filters: {} }),
   
   syncWithUrl: (searchParams) => {
-    const newFilters: Partial<Rabbit_ForSaleFilterDTO> = {};
+    const newFilters: Partial<RabbitSaleFilterDTO> = {};
     
     // Parse URL parameters to filter object using camelCase keys
     if (searchParams.has('Race')) newFilters.race = searchParams.get('Race') || undefined;
