@@ -3,7 +3,7 @@
 
 import Image from 'next/image';
 import { useState, useRef, useEffect } from 'react';
-import { Avatar } from '@heroui/react';
+import { Avatar } from '@/components/ui/heroui';
 import type { BlogPublicDTO } from '@/api/types/AngoraDTOs';
 import ImageModal from '@/components/modals/image/imageModal';
 
@@ -66,12 +66,10 @@ export default function BlogPost({ blog }: Props) {
 
         {/* Forfatter og metadata */}
         <div className="flex items-center gap-4 pb-6 border-b border-divider">
-          <Avatar
-            src={blog.authorPhotoUrl ?? undefined}
-            name={blog.authorName}
-            size="lg"
-            className="border-2 border-divider"
-          />
+          <Avatar size="lg" className="border-2 border-divider">
+            <Avatar.Image src={blog.authorPhotoUrl ?? undefined} alt={blog.authorName} />
+            <Avatar.Fallback>{blog.authorName?.charAt(0) ?? '?'}</Avatar.Fallback>
+          </Avatar>
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-2">
               {/* Bruger text-heading */}

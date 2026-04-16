@@ -1,7 +1,7 @@
 // src/app/account/mySales/rabbitSaleForm.tsx
 'use client';
-import { Button, Input, Textarea, Switch, Card, CardBody } from '@heroui/react';
-import EnumAutocomplete from '@/components/enumHandlers/enumAutocomplete';
+import { Button, Input, TextArea, Switch, Card } from '@heroui/react';
+import EnumAutocomplete from '@/components/ui/custom/autocomplete/EnumAutocomplete';
 import { RabbitPostPutSaleDetailsDTO } from '@/api/types/RabbitSaleDTOs';
 
 interface RabbitSaleFormProps {
@@ -29,7 +29,7 @@ export default function RabbitSaleForm({ formData, setFormData, onSave, onCancel
 
     return (
         <Card className="bg-zinc-800/80 border border-zinc-700/50">
-            <CardBody>
+            <Card.Content>
                 <form onSubmit={(e) => { e.preventDefault(); onSave(); }} className="space-y-4">
                     <h2 className="text-xl font-semibold">Rediger salgsannonce</h2>
 
@@ -68,11 +68,11 @@ export default function RabbitSaleForm({ formData, setFormData, onSave, onCancel
 
                     <div className="space-y-1">
                         <label className="text-sm text-zinc-300">Beskrivelse</label>
-                        <Textarea
+                        <TextArea
                             value={formData.baseProperties.description}
                             onChange={(e) => handleBaseChange('description', e.target.value)}
                             placeholder="Beskriv kaninen..."
-                            minRows={4}
+                            rows={4}
                         />
                     </div>
 
@@ -81,7 +81,7 @@ export default function RabbitSaleForm({ formData, setFormData, onSave, onCancel
                             <label className="text-sm text-zinc-300">Kan leveres</label>
                             <Switch
                                 isSelected={formData.baseProperties.canBeShipped}
-                                onValueChange={(v) => handleBaseChange('canBeShipped', v)}
+                                onChange={(v) => handleBaseChange('canBeShipped', v)}
                                 size="sm"
                             />
                         </div>
@@ -89,7 +89,7 @@ export default function RabbitSaleForm({ formData, setFormData, onSave, onCancel
                             <label className="text-sm text-zinc-300">Pottetrænet</label>
                             <Switch
                                 isSelected={formData.isLitterTrained}
-                                onValueChange={(v) => handleChange('isLitterTrained', v)}
+                                onChange={(v) => handleChange('isLitterTrained', v)}
                                 size="sm"
                             />
                         </div>
@@ -97,18 +97,18 @@ export default function RabbitSaleForm({ formData, setFormData, onSave, onCancel
                             <label className="text-sm text-zinc-300">Neutraliseret</label>
                             <Switch
                                 isSelected={formData.isNeutered}
-                                onValueChange={(v) => handleChange('isNeutered', v)}
+                                onChange={(v) => handleChange('isNeutered', v)}
                                 size="sm"
                             />
                         </div>
                     </div>
 
                     <div className="flex justify-end gap-2 pt-2">
-                        <Button color="default" variant="flat" onPress={onCancel} isDisabled={isSaving}>Annuller</Button>
-                        <Button color="primary" type="submit" isLoading={isSaving}>Gem ændringer</Button>
+                        <Button variant="ghost" onPress={onCancel} isDisabled={isSaving}>Annuller</Button>
+                        <Button variant="primary" type="submit" isPending={isSaving}>Gem ændringer</Button>
                     </div>
                 </form>
-            </CardBody>
+            </Card.Content>
         </Card>
     );
 }

@@ -1,6 +1,6 @@
 // src/api/types/YarnDTOs.ts
 
-import { SaleDetailsBasePostPutDTO, SaleDetailsFilterDTO } from "./SaleDetailsDTOs";
+import { SaleDetailsBasePostPutDTO, SaleDetailsFilterDTO, SaleDetailsPrivateDTO } from "./SaleDetailsDTOs";
 
 /**
  * Repræsenterer en enkelt fiberkomponent i en garnsammensætning.
@@ -61,24 +61,24 @@ export interface YarnSaleFilterDTO extends SaleDetailsFilterDTO {
  * Output/profil DTO (private profil view), der svarer til C#-record:
  * YarnSaleProfilePrivateDTO : SaleDetailsPrivateDTO
  */
-export interface YarnSaleProfilePrivateDTO {
+export interface YarnSaleProfilePrivateDTO extends SaleDetailsPrivateDTO {
   // === FYSISKE MÅL ===
   weightInGrams: number;
   lengthInMeters: number;
   // Snapshot/computed
   gristDescription: string;
   // === KATEGORISERING ===
-  applicationCategory: string;
-  weightCategory: string;
+  applicationCategory: string;      // enum
+  weightCategory: string;           // enum
 
   // === TEKNISKE DETALJER ===
   plyCount?: number | null;
   gauge: string;
   twistAmount?: string;
   // === KVALITATIVE BESKRIVELSER ===
-  consistency: string;
-  softness?: string;
-  durability?: string;
+  consistency: string;              // enum
+  softness?: string;                // enum
+  durability?: string;              // enum
 
   // === FARVE OG FIBER ===
   color: string;        // enten enum WoolNaturalColor eller WoolDyedColor 

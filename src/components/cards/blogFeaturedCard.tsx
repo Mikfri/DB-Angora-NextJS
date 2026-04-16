@@ -2,7 +2,7 @@
 
 'use client';
 import { useState, memo } from 'react';
-import { Card } from '@heroui/react';
+import ClickableCard from '@/components/ui/custom/cards/ClickableCard';
 import Image from 'next/image';
 import { ROUTES } from '@/constants/navigationConstants';
 import type { BlogCardPreviewDTO } from '@/api/types/AngoraDTOs';
@@ -24,21 +24,9 @@ const BlogFeaturedCard = memo(function BlogFeaturedCard({ blog, onClick }: Props
 	};
 
 	return (
-		<Card
-			isPressable
-			onPress={handleCardPress}
-			className="w-full h-full transition-all duration-300 backdrop-blur-md backdrop-saturate-150 border select-none group overflow-hidden flex flex-col"
-			style={{
-				background: 'var(--card-bg-gradient)',
-				borderColor: 'var(--card-border)',
-				boxShadow: 'var(--card-shadow)',
-			}}
-			onMouseEnter={(e) => {
-				e.currentTarget.style.boxShadow = 'var(--card-shadow-hover)';
-			}}
-			onMouseLeave={(e) => {
-				e.currentTarget.style.boxShadow = 'var(--card-shadow)';
-			}}
+		<ClickableCard
+			onClick={handleCardPress}
+			className="w-full h-full flex flex-col"
 		>
 			{/* Stort billede der fylder hele kortet */}
 			<div className="relative w-full h-full min-h-[400px] lg:min-h-[600px] overflow-hidden">
@@ -73,7 +61,7 @@ const BlogFeaturedCard = memo(function BlogFeaturedCard({ blog, onClick }: Props
 					</div>
 				</div>
 			</div>
-		</Card>
+		</ClickableCard>
 	);
 });
 

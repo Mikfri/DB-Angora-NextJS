@@ -2,9 +2,9 @@
 'use client';
 
 import { ReactNode } from 'react';
-import { Divider } from "@heroui/react";
+import { Separator } from "@heroui/react";
 import { MdMail, MdNumbers, MdPhone } from 'react-icons/md';
-import ProfileImage from '@/components/ui/images/ProfileImage';
+import ProfileImage from '@/components/ui/custom/images/ProfileImage';
 import { useUserAccountProfileStore } from '@/store/userAccountProfileStore';
 
 const SECTIONS = {
@@ -42,7 +42,7 @@ export function UserProfileNavClient() {
         </div>
       </div>
 
-      <Divider className="bg-zinc-200/5 my-0.5" />
+      <Separator className="bg-zinc-200/5 my-0.5" />
 
       {/* Bruger information sektion */}
       <div>
@@ -67,7 +67,7 @@ export function UserProfileNavClient() {
         </div>
       </div>
 
-      <Divider className="bg-zinc-200/5 my-0.5" />
+      <Separator className="bg-zinc-200/5 my-0.5" />
 
       {/* Avler info sektion */}
       <div>

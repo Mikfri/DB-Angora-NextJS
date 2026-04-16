@@ -14,7 +14,7 @@ export async function invalidateForsalePages() {
     revalidatePath(ROUTES.SALE.BASE, 'layout');
 
     // Invaliderer dynamiske ruter for detaljeret visning
-    revalidatePath(ROUTES.SALE.RABBIT_PROFILE('[entityId]'), 'layout');
+    revalidatePath(ROUTES.SALE.SALEPROFILE('[entityId]'), 'layout');
 
     return { success: true };
 }

@@ -4,8 +4,8 @@
 import { formatDate } from '@/utils/formatters';
 import { useSaleProfile } from '@/contexts/SaleProfileContext';
 import { ReactNode } from 'react';
-import ProfileImage from '@/components/ui/images/ProfileImage';
-import { Divider, Chip, Spinner } from '@heroui/react';
+import ProfileImage from '@/components/ui/custom/images/ProfileImage';
+import { Separator, Chip, Spinner } from '@heroui/react';
 import { IoLocationOutline, IoCallOutline, IoTimeOutline, IoEyeOutline } from "react-icons/io5";
 import { MdOutlineLocalShipping } from 'react-icons/md';
 import { FaUserCircle } from "react-icons/fa";
@@ -67,7 +67,7 @@ export function SaleProfileNavClient() {
         </div>
       </div>
 
-      <Divider className="bg-zinc-200/5 my-0.5" />
+      <Separator className="bg-zinc-200/5 my-0.5" />
 
       {/* Salgs information sektion */}
       <div>
@@ -96,18 +96,17 @@ export function SaleProfileNavClient() {
           <div className="mt-2">
             <Chip 
               color="success" 
-              variant="flat" 
+              variant="soft" 
               size="sm" 
-              startContent={<MdOutlineLocalShipping />}
               className="text-xs"
             >
-              Kan sendes
+              <MdOutlineLocalShipping /> Kan sendes
             </Chip>
           </div>
         )}
       </div>
 
-      <Divider className="bg-zinc-200/5 my-0.5" />
+      <Separator className="bg-zinc-200/5 my-0.5" />
 
       {/* Sælger sektion */}
       <div>
@@ -134,7 +133,7 @@ export function SaleProfileNavClient() {
         </div>
       </div>
 
-      <Divider className="bg-zinc-200/5 my-0.5" />
+      <Separator className="bg-zinc-200/5 my-0.5" />
 
       {/* Kontakt sektion */}
       <div>

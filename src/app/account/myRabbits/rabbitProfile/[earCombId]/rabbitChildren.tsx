@@ -46,7 +46,7 @@ export default function RabbitChildren({ children = [] }: RabbitChildrenProps) {
           dateOfBirth: child.dateOfBirth,
           formattedDate: formatDate(child.dateOfBirth) || 'Ukendt fødselsdato',
           children: [],
-          otherParentId: child.otherParentId
+          otherParentId: child.otherParentId ?? null
         });
       }
       

@@ -33,8 +33,8 @@ export function useCreateRabbit(targetedUserId?: string) {
                     const fatherValidation = await validateParentReference(formData.fatherId_Placeholder, 'Han');
                     if (!fatherValidation.success) {
                         toast.warning(fatherValidation.error || 'Kunne ikke validere far; kaninen gemmes alligevel');
-                    } else if (!fatherValidation.result.isValid) {
-                        toast.warning(fatherValidation.result.message || 'Far-øremærke ser ud til at være ugyldigt; kaninen gemmes alligevel');
+                    } else if (!fatherValidation.result.isValidParent) {
+                        toast.warning('Far-øremærke ser ud til at være ugyldigt; kaninen gemmes alligevel');
                     }
                 } catch (err) {
                     console.error('Father validation error', err);
@@ -46,8 +46,8 @@ export function useCreateRabbit(targetedUserId?: string) {
                     const motherValidation = await validateParentReference(formData.motherId_Placeholder, 'Hun');
                     if (!motherValidation.success) {
                         toast.warning(motherValidation.error || 'Kunne ikke validere mor; kaninen gemmes alligevel');
-                    } else if (!motherValidation.result.isValid) {
-                        toast.warning(motherValidation.result.message || 'Mor-øremærke ser ud til at være ugyldigt; kaninen gemmes alligevel');
+                    } else if (!motherValidation.result.isValidParent) {
+                        toast.warning('Mor-øremærke ser ud til at være ugyldigt; kaninen gemmes alligevel');
                     }
                 } catch (err) {
                     console.error('Mother validation error', err);

@@ -50,20 +50,20 @@ export default function LoginForm({ onSuccess }: Props) {
     return (
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <Input
-                label="Brugernavn/email"
+                placeholder="Brugernavn/email"
                 value={userName}
                 onChange={(e) => setUserName(e.target.value)}
-                isDisabled={isLoading}
+                disabled={isLoading}
                 required
                 minLength={2}
             />
             <div className="relative">
                 <Input
-                    label="Password"
+                    placeholder="Password"
                     type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    isDisabled={isLoading}
+                    disabled={isLoading}
                     required
                     minLength={6}
                 />
@@ -81,8 +81,8 @@ export default function LoginForm({ onSuccess }: Props) {
             </div>
             <Button
                 type="submit"
-                color="success"
-                isLoading={isLoading}
+                variant="primary"
+                isPending={isLoading}
                 isDisabled={!isValid || isLoading}
             >
                 {isLoading ? 'Logger ind...' : 'Log ind'}

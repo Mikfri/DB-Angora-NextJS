@@ -1,10 +1,8 @@
-/* src/app/globals.css - optimeret og simplificeret */
+/* src/app/globals.css - Tailwind v4 + HeroUI v3 */
 @import url('https://fonts.googleapis.com/css2?family=Raleway:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap');
 @import '../styles/scrollbar.css';
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "@heroui/styles";
+@plugin "@tailwindcss/typography";
 
 /* ===== BASE STYLES ===== */
 @layer base {
@@ -13,15 +11,30 @@
     scroll-padding-top: 80px;
   }
 
-  /* ===== CONTAINER DESIGN TOKENS ===== */
+  /* ===== THEME TOKENS ===== */
   :root {
-    --container-bg: rgba(255, 255, 255, 0.8);
-    --container-border: rgba(0, 0, 0, 0.06);
-    --container-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
-    --container-highlight: rgba(255, 255, 255, 0.95);
-    
+    color-scheme: light;
+    --background: #eef4fb;
+    --foreground: #0f172a;
+    --surface: rgba(255, 255, 255, 0.95);
+    --surface-secondary: rgba(255, 255, 255, 0.92);
+    --surface-muted: rgba(241, 245, 249, 0.7);
+    --border: rgba(0, 0, 0, 0.06);
+    --accent: #2563eb;
+    --accent-strong: #1d4ed8;
+    --muted: rgba(15, 23, 42, 0.55);
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    --shadow-hover: 0 12px 32px rgba(59, 130, 246, 0.25);
+    --highlight: rgba(255, 255, 255, 0.95);
+
+    /* Container design tokens */
+    --container-bg: var(--surface-secondary);
+    --container-border: var(--border);
+    --container-shadow: var(--shadow);
+    --container-highlight: var(--highlight);
+
     /* Card specific tokens */
-    --card-bg: rgba(255, 255, 255, 0.95);
+    --card-bg: var(--surface);
     --card-bg-gradient: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(249, 250, 251, 0.95));
     --card-border: rgba(0, 0, 0, 0.1);
     --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -29,13 +42,26 @@
   }
 
   .dark {
-    --container-bg: rgba(35, 38, 46, 0.8);
-    --container-border: rgba(255, 255, 255, 0.06);
-    --container-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
-    --container-highlight: rgba(255, 255, 255, 0.08);
-    
-    /* Card specific tokens */
-    --card-bg: rgba(35, 38, 46, 0.9);
+    color-scheme: dark;
+    --background: #111827;
+    --foreground: #f8fafc;
+    --surface: rgba(35, 38, 46, 0.92);
+    --surface-secondary: rgba(25, 28, 36, 0.88);
+    --surface-muted: rgba(255, 255, 255, 0.08);
+    --border: rgba(255, 255, 255, 0.08);
+    --accent: #60a5fa;
+    --accent-strong: #3b82f6;
+    --muted: rgba(248, 250, 252, 0.72);
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+    --shadow-hover: 0 12px 32px rgba(59, 130, 246, 0.3);
+    --highlight: rgba(255, 255, 255, 0.08);
+
+    --container-bg: var(--surface-secondary);
+    --container-border: var(--border);
+    --container-shadow: var(--shadow);
+    --container-highlight: var(--highlight);
+
+    --card-bg: var(--surface);
     --card-bg-gradient: linear-gradient(135deg, rgba(39, 39, 42, 0.9), rgba(24, 24, 27, 0.9));
     --card-border: rgba(255, 255, 255, 0.06);
     --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
@@ -44,13 +70,15 @@
   
   body {
     @apply text-foreground bg-background;
+    background: var(--background);
+    color: var(--foreground);
     min-height: 100vh;
-    transition: background 0.3s ease;
+    transition: background 0.3s ease, color 0.3s ease;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   }
   
   input[type="date"] {
-    @apply text-default-500;
+    @apply text-foreground/70;
   }
 
   input[type="date"]::-webkit-calendar-picker-indicator {
@@ -63,7 +91,14 @@
 @layer components {
 
   /* ===== UNIFIED CONTAINER SYSTEM ===== */
-  .unified-container {
+  .unified-container,
+  .nav-container,
+  .top-nav,
+  .side-nav,
+  .breadcrumb-container,
+  .app-footer,
+  .main-content-container,
+  .content-cell {
     background: var(--container-bg);
     box-shadow: var(--container-shadow);
     border-top: 1px solid var(--container-highlight);
@@ -74,10 +109,8 @@
   }
 
   /* ===== NAVIGATION COMPONENTS ===== */
-  .nav-container { @apply unified-container; }
-  
   .top-nav {
-    @apply unified-container w-full backdrop-blur-md rounded-t-none rounded-b-xl;
+    @apply w-full backdrop-blur-md rounded-t-none rounded-b-xl;
     border-top: none;
   }
   
@@ -86,7 +119,7 @@
   }
   
   .side-nav {
-    @apply unified-container p-4 w-full;
+    @apply p-4 w-full;
     max-height: calc(100vh - 6rem);
     overflow-y: auto;
     overflow-x: hidden;
@@ -95,30 +128,30 @@
   }
   
   .breadcrumb-container {
-    @apply unified-container w-full py-3 px-4 mb-4 mt-2;
+    @apply w-full py-3 px-4 mb-4 mt-2;
   }
   
   .app-footer {
-    @apply unified-container w-full py-6 px-4 mt-auto rounded-b-none rounded-t-xl;
+    @apply w-full py-6 px-4 mt-auto rounded-b-none rounded-t-xl;
     border-bottom: none;
   }
   
-  .main-content-container { @apply unified-container p-6; }
-  .content-cell { @apply unified-container p-6; }
+  .main-content-container { @apply p-6; }
+  .content-cell { @apply p-6; }
 
   /* ===== GLOBAL STYLES ===== */
-  .nav-link { @apply text-foreground/70 hover:text-primary transition-colors duration-200; }
-  .nav-link-active { @apply text-primary font-medium; }
+  .nav-link { @apply text-foreground/70 hover:text-accent transition-colors duration-200; }
+  .nav-link-active { @apply text-accent font-medium; }
   
   .text-body { @apply text-foreground/85; }
-  .text-muted { @apply text-foreground/60; }
+  .text-muted-custom { @apply text-foreground/60; }
   .text-subtle { @apply text-foreground/50; }
   .text-heading { @apply text-foreground font-semibold; }
   .text-label { @apply text-xs font-medium text-foreground/70; }
   .text-value { @apply text-sm text-foreground; }
   .text-placeholder { @apply text-foreground/50 italic; }
   
-  .divider { @apply border-divider; }
+  .divider { @apply border-separator; }
 
   /* ===== SECTION HEADERS - CRAP PRINCIPLES ===== */
   .section-header {
@@ -155,7 +188,7 @@
   /* ===== BLOG CONTENT ===== */
   .blog-content {
     @apply prose max-w-none;
-    color: hsl(var(--heroui-foreground) / 0.85);
+    color: color-mix(in oklab, var(--foreground) 85%, transparent);
     font-family: 'Inter', sans-serif;
   }
   
@@ -163,12 +196,12 @@
   .blog-content li,
   .blog-content span,
   .blog-content div {
-    color: hsl(var(--heroui-foreground) / 0.85) !important;
+    color: color-mix(in oklab, var(--foreground) 85%, transparent) !important;
   }
   
   .blog-content em,
   .blog-content i {
-    color: hsl(var(--heroui-foreground) / 0.85) !important;
+    color: color-mix(in oklab, var(--foreground) 85%, transparent) !important;
     font-style: italic;
   }
   
@@ -180,32 +213,32 @@
   .blog-content h6,
   .blog-content strong,
   .blog-content b {
-    color: hsl(var(--heroui-foreground)) !important;
+    color: var(--foreground) !important;
     font-family: 'Raleway', sans-serif;
   }
   
-  .blog-content a { color: hsl(var(--heroui-primary)) !important; }
+  .blog-content a { color: var(--accent) !important; }
   
   .blog-content blockquote {
-    color: hsl(var(--heroui-foreground) / 0.9) !important;
-    border-left-color: hsl(var(--heroui-primary)) !important;
-    @apply bg-content2/30 pl-6 py-4;
+    color: color-mix(in oklab, var(--foreground) 90%, transparent) !important;
+    border-left-color: var(--accent) !important;
+    @apply bg-surface-secondary/30 pl-6 py-4;
   }
   
   .blog-content code {
-    color: hsl(var(--heroui-foreground)) !important;
-    @apply bg-content2/50 px-2 py-1 rounded;
+    color: var(--foreground) !important;
+    @apply bg-surface-secondary/50 px-2 py-1 rounded;
   }
   
-  .blog-content pre { @apply bg-content2 p-4 rounded; }
+  .blog-content pre { @apply bg-surface-secondary p-4 rounded; }
   
   .blog-content ul,
-  .blog-content ol { color: hsl(var(--heroui-foreground) / 0.85) !important; }
+  .blog-content ol { color: color-mix(in oklab, var(--foreground) 85%, transparent) !important; }
   
-  .blog-content li { color: hsl(var(--heroui-foreground) / 0.85) !important; }
+  .blog-content li { color: color-mix(in oklab, var(--foreground) 85%, transparent) !important; }
   
   .blog-content ul li::marker,
-  .blog-content ol li::marker { color: hsl(var(--heroui-foreground) / 0.6) !important; }
+  .blog-content ol li::marker { color: color-mix(in oklab, var(--foreground) 60%, transparent) !important; }
   
   /* Blog content sizing */
   .blog-content h1 { @apply text-2xl font-bold mb-4 mt-8; }
@@ -233,4 +266,19 @@
     padding: 0;
     @apply rounded-lg shadow-lg;
   }
+}
+
+/* ===== NAV SCROLL-SPY ACTIVE STATE ===== */
+/* Unlayered for at override HeroUIs unlayerede stylesheet */
+.nav-list .list-box-item[data-selected=true] {
+  background-color: var(--accent);
+  color: white;
+}
+.nav-list .list-box-item[data-selected=true][data-hovered=true],
+.nav-list .list-box-item[data-selected=true]:hover {
+  background-color: var(--accent-strong);
+  color: white;
+}
+.nav-list .list-box-item[data-hovered=true]:not([data-selected=true]) {
+  background-color: var(--surface-muted);
 }

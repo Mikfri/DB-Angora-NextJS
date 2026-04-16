@@ -22,7 +22,9 @@ export interface OwnFilters {
     showJuveniles?: boolean; 
     raceColorApproval?: boolean | null;
     bornAfterDate?: string | null;
-    includeLinkedRabbits?: boolean; // <-- NYT FELT
+    includeLinkedRabbits?: boolean;
+    inbreedingMin?: number | null;  // 0-100 (procentpoint)
+    inbreedingMax?: number | null;  // 0-100 (procentpoint)
 }
 
 /**

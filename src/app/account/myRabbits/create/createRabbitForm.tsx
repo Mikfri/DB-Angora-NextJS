@@ -1,8 +1,8 @@
 // src/app/account/myRabbits/create/createRabbitForm.tsx
 'use client';
 import { useCreateRabbit } from '@/hooks/rabbits/useRabbitCreate';
-import { Input, Button, Switch } from "@heroui/react";
-import EnumAutocomplete from '@/components/enumHandlers/enumAutocomplete';
+import { Input, Button, Switch } from '@/components/ui/heroui';
+import EnumAutocomplete from '@/components/ui/custom/autocomplete/EnumAutocomplete';
 import { useRouter } from 'next/navigation';
 import { useCallback, useState } from 'react';
 import { validateParentReference } from '@/app/actions/rabbit/rabbitCrudActions';
@@ -71,15 +71,15 @@ export default function CreateRabbitForm({ targetedUserId }: { targetedUserId?: 
     };
 
     return (
-        <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-4">
+        <div className="bg-surface-secondary/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-divider/50 p-4">
             <div className="mb-2">
-                <h1 className="text-2xl font-bold text-zinc-100">Opret ny kanin</h1>
+                <h1 className="text-2xl font-bold text-foreground">Opret ny kanin</h1>
             </div>
 
             <form noValidate onSubmit={handleSubmit}>
-                <div className="w-full bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-lg border border-zinc-700/50">
+                <div className="w-full bg-surface-secondary/80 backdrop-blur-md backdrop-saturate-150 rounded-lg border border-divider/50">
                     {/* Header */}
-                    <div className="p-2 bg-zinc-900/50 text-zinc-300 border-b border-zinc-700/50 rounded-t-lg">
+                    <div className="p-2 bg-surface/50 text-muted border-b border-divider/50 rounded-t-lg">
                         <div className="flex justify-between items-center">
                             <div className="flex gap-4">
                                 <div className="w-1/3 text-sm">FELT</div>
@@ -88,16 +88,16 @@ export default function CreateRabbitForm({ targetedUserId }: { targetedUserId?: 
                             <div className="space-x-2">
                                 <Button
                                     size="sm"
-                                    color="danger"
+                                    variant="danger"
                                     onPress={() => router.back()}
                                 >
                                     Annuller
                                 </Button>
                                 <Button
                                     size="sm"
-                                    color="primary"
+                                    variant="primary"
                                     onPress={handleFormSubmit}
-                                    isLoading={isSubmitting}
+                                    isPending={isSubmitting}
                                 >
                                     {isSubmitting ? 'Opretter...' : 'Opret'}
                                 </Button>
@@ -106,12 +106,12 @@ export default function CreateRabbitForm({ targetedUserId }: { targetedUserId?: 
                     </div>
 
                     {/* Form Fields */}
-                    <div className="divide-y divide-zinc-700/30">
-                        <div className="p-2 flex items-center hover:bg-zinc-700/30">
-                            <div className="w-1/3 text-sm font-medium text-zinc-100">Højre øremærke</div>
+                    <div className="divide-y divide-divider/30">
+                        <div className="p-2 flex items-center hover:bg-surface/30">
+                            <div className="w-1/3 text-sm font-medium text-foreground">Højre øremærke</div>
                             <div className="w-2/3">
                                 <Input
-                                    size="sm"
+
                                     value={formData.rightEarId || ''}
                                     onChange={e => setFormData({ ...formData, rightEarId: e.target.value })}
                                     onPaste={e => {
@@ -119,19 +119,16 @@ export default function CreateRabbitForm({ targetedUserId }: { targetedUserId?: 
                                         const text = e.clipboardData.getData('text').replace(/\s/g, '');
                                         handleEarIdChange('rightEarId', text);
                                     }}
-                                    classNames={{
-                                        input: "bg-zinc-800/50 text-zinc-100 text-sm py-0",
-                                        inputWrapper: "h-7 min-h-unit-7",
-                                    }}
+                                    className="bg-surface-secondary/50 text-foreground text-sm py-0 h-7"
                                 />
                             </div>
                         </div>
 
-                        <div className="p-2 flex items-center hover:bg-zinc-700/30">
-                            <div className="w-1/3 text-sm font-medium text-zinc-100">Venstre øremærke</div>
+                        <div className="p-2 flex items-center hover:bg-surface/30">
+                            <div className="w-1/3 text-sm font-medium text-foreground">Venstre øremærke</div>
                             <div className="w-2/3">
                                 <Input
-                                    size="sm"
+
                                     value={formData.leftEarId || ''}
                                     onChange={e => setFormData({ ...formData, leftEarId: e.target.value })}
                                     onPaste={e => {
@@ -139,19 +136,16 @@ export default function CreateRabbitForm({ targetedUserId }: { targetedUserId?: 
                                         const text = e.clipboardData.getData('text').replace(/\s/g, '');
                                         handleEarIdChange('leftEarId', text);
                                     }}
-                                    classNames={{
-                                        input: "bg-zinc-800/50 text-zinc-100 text-sm py-0",
-                                        inputWrapper: "h-7 min-h-unit-7",
-                                    }}
+                                    className="bg-surface-secondary/50 text-foreground text-sm py-0 h-7"
                                 />
                             </div>
                         </div>
 
-                        <div className="p-2 flex items-center hover:bg-zinc-700/30">
-                            <div className="w-1/3 text-sm font-medium text-zinc-100">Navn</div>
+                        <div className="p-2 flex items-center hover:bg-surface/30">
+                            <div className="w-1/3 text-sm font-medium text-foreground">Navn</div>
                             <div className="w-2/3">
                                 <Input
-                                    size="sm"
+
                                     value={formData.nickName || ''}
                                     onChange={e => {
                                         let value = e.target.value;
@@ -182,16 +176,13 @@ export default function CreateRabbitForm({ targetedUserId }: { targetedUserId?: 
 
                                         setFormData({ ...formData, nickName: text });
                                     }}
-                                    classNames={{
-                                        input: "bg-zinc-800/50 text-zinc-100 text-sm py-0",
-                                        inputWrapper: "h-7 min-h-unit-7",
-                                    }}
+                                    className="bg-surface-secondary/50 text-foreground text-sm py-0 h-7"
                                 />
                             </div>
                         </div>
 
-                        <div className="p-2 flex items-center hover:bg-zinc-700/30">
-                            <div className="w-1/3 text-sm font-medium text-zinc-100">Race</div>
+                        <div className="p-2 flex items-center hover:bg-surface/30">
+                            <div className="w-1/3 text-sm font-medium text-foreground">Race</div>
                             <div className="w-2/3">
                                 <EnumAutocomplete
                                     enumType="Race"
@@ -203,8 +194,8 @@ export default function CreateRabbitForm({ targetedUserId }: { targetedUserId?: 
                             </div>
                         </div>
 
-                        <div className="p-2 flex items-center hover:bg-zinc-700/30">
-                            <div className="w-1/3 text-sm font-medium text-zinc-100">Farve</div>
+                        <div className="p-2 flex items-center hover:bg-surface/30">
+                            <div className="w-1/3 text-sm font-medium text-foreground">Farve</div>
                             <div className="w-2/3">
                                 <EnumAutocomplete
                                     enumType="Color"
@@ -216,8 +207,8 @@ export default function CreateRabbitForm({ targetedUserId }: { targetedUserId?: 
                             </div>
                         </div>
 
-                        <div className="p-2 flex items-center hover:bg-zinc-700/30">
-                            <div className="w-1/3 text-sm font-medium text-zinc-100">Køn</div>
+                        <div className="p-2 flex items-center hover:bg-surface/30">
+                            <div className="w-1/3 text-sm font-medium text-foreground">Køn</div>
                             <div className="w-2/3">
                                 <EnumAutocomplete
                                     enumType="Gender"
@@ -229,30 +220,27 @@ export default function CreateRabbitForm({ targetedUserId }: { targetedUserId?: 
                             </div>
                         </div>
 
-                        <div className="p-2 flex items-center hover:bg-zinc-700/30">
-                            <div className="w-1/3 text-sm font-medium text-zinc-100">Fødselsdato</div>
+                        <div className="p-2 flex items-center hover:bg-surface/30">
+                            <div className="w-1/3 text-sm font-medium text-foreground">Fødselsdato</div>
                             <div className="w-2/3">
                                 <Input
-                                    size="sm"
+
                                     type="date"
                                     value={formData.dateOfBirth ?? ''}
                                     onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value || undefined })}
                                     placeholder="Vælg fødselsdato"
-                                    classNames={{
-                                        input: "bg-zinc-800/50 text-zinc-100 text-sm py-0",
-                                        inputWrapper: "h-7 min-h-unit-7",
-                                    }}
+                                    className="bg-surface-secondary/50 text-foreground text-sm py-0 h-7"
                                 />
                             </div>
                         </div>
 
-                        <div className="p-2 flex items-center hover:bg-zinc-700/30">
-                            <div className="w-1/3 text-sm font-medium text-zinc-100">Til avl</div>
+                        <div className="p-2 flex items-center hover:bg-surface/30">
+                            <div className="w-1/3 text-sm font-medium text-foreground">Til avl</div>
                             <div className="w-2/3">
                                 <Switch
                                     size="sm"
                                     isSelected={formData.isForBreeding === true}
-                                    onValueChange={(value) => setFormData({
+                                onChange={(value) => setFormData({
                                         ...formData,
                                         isForBreeding: value
                                     })}
@@ -262,11 +250,11 @@ export default function CreateRabbitForm({ targetedUserId }: { targetedUserId?: 
                             </div>
                         </div>
 
-                        <div className="p-2 flex items-center hover:bg-zinc-700/30">
-                            <div className="w-1/3 text-sm font-medium text-zinc-100">Far øremærke (valgfri)</div>
+                        <div className="p-2 flex items-center hover:bg-surface/30">
+                            <div className="w-1/3 text-sm font-medium text-foreground">Far øremærke (valgfri)</div>
                             <div className="w-2/3 flex gap-2 items-center">
                                 <Input
-                                    size="sm"
+
                                     value={formData.fatherId_Placeholder || ''}
                                     onChange={e =>
                                         setFormData({
@@ -283,14 +271,11 @@ export default function CreateRabbitForm({ targetedUserId }: { targetedUserId?: 
                                         });
                                     }}
                                     placeholder="Fars øremærke"
-                                    classNames={{
-                                        input: "bg-zinc-800/50 text-zinc-100 text-sm py-0",
-                                        inputWrapper: "h-7 min-h-unit-7",
-                                    }}
+                                    className="bg-surface-secondary/50 text-foreground text-sm py-0 h-7"
                                 />
                                 <Button
                                     size="sm"
-                                    color="secondary"
+                                    variant="secondary"
                                     isDisabled={!formData.fatherId_Placeholder}
                                     onPress={handleValidateFather}
                                     type="button"
@@ -314,11 +299,11 @@ export default function CreateRabbitForm({ targetedUserId }: { targetedUserId?: 
                             </div>
                         )}
 
-                        <div className="p-2 flex items-center hover:bg-zinc-700/30">
-                            <div className="w-1/3 text-sm font-medium text-zinc-100">Mor øremærke (valgfri)</div>
+                        <div className="p-2 flex items-center hover:bg-surface/30">
+                            <div className="w-1/3 text-sm font-medium text-foreground">Mor øremærke (valgfri)</div>
                             <div className="w-2/3 flex gap-2 items-center">
                                 <Input
-                                    size="sm"
+
                                     value={formData.motherId_Placeholder || ''}
                                     onChange={e =>
                                         setFormData({
@@ -335,14 +320,11 @@ export default function CreateRabbitForm({ targetedUserId }: { targetedUserId?: 
                                         });
                                     }}
                                     placeholder="Mors øremærke"
-                                    classNames={{
-                                        input: "bg-zinc-800/50 text-zinc-100 text-sm py-0",
-                                        inputWrapper: "h-7 min-h-unit-7",
-                                    }}
+                                    className="bg-surface-secondary/50 text-foreground text-sm py-0 h-7"
                                 />
                                 <Button
                                     size="sm"
-                                    color="secondary"
+                                    variant="secondary"
                                     isDisabled={!formData.motherId_Placeholder}
                                     onPress={handleValidateMother}
                                     type="button"

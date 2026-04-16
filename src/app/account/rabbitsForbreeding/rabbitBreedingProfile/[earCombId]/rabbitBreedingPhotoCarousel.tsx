@@ -42,7 +42,7 @@ export default function RabbitBreedingPhotoCarousel({ photos }: { photos: PhotoP
           <Button
             isIconOnly
             size="sm"
-            variant="light"
+            variant="ghost"
             className="absolute left-2 top-1/2 -translate-y-1/2 z-10"
             onPress={handlePrev}
             aria-label="Forrige billede"
@@ -52,7 +52,7 @@ export default function RabbitBreedingPhotoCarousel({ photos }: { photos: PhotoP
           <Button
             isIconOnly
             size="sm"
-            variant="light"
+            variant="ghost"
             className="absolute right-2 top-1/2 -translate-y-1/2 z-10"
             onPress={handleNext}
             aria-label="Næste billede"

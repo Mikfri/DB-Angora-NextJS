@@ -1,7 +1,7 @@
 'use client';
 
 import { Rabbit_ChildPreviewDTO } from '@/api/types/AngoraDTOs';
-import { Card, CardHeader, CardBody, Chip } from "@heroui/react";
+import { Card, Chip } from '@/components/ui/heroui';
 import Image from 'next/image';
 import { useState } from 'react';
 import { formatDate } from '@/utils/formatters';
@@ -21,9 +21,8 @@ export default function RabbitChildPreviewCard({ child, compact = false }: Props
     const displayName = child.nickName || 'Unavngivet';
 
     return (
+        <NextLink href={`/account/myRabbits/rabbitProfile/${child.earCombId}`} className="block h-full">
         <Card
-            as={NextLink}
-            href={`/account/myRabbits/rabbitProfile/${child.earCombId}`}
             className={`hover:shadow-lg transition-shadow bg-zinc-800/80 backdrop-blur-md 
             backdrop-saturate-150 border border-zinc-700/50 ${compact ? 'h-full' : ''}`}
         >
@@ -40,17 +39,17 @@ export default function RabbitChildPreviewCard({ child, compact = false }: Props
                 />
             </div>
             
-            <CardHeader className={`flex flex-col ${compact ? 'p-2' : 'p-3'}`}>
+            <Card.Header className={`flex flex-col ${compact ? 'p-2' : 'p-3'}`}>
                 <p className={`${compact ? 'text-sm' : 'text-md'} font-bold text-zinc-100 truncate`} title={displayName}>
                     {displayName}
                 </p>
                 <p className="text-xs font-mono text-blue-400 truncate" title={child.earCombId}>
                     {child.earCombId}
                 </p>
-            </CardHeader>
+            </Card.Header>
             
             {/* I kompakt tilstand viser vi kun køn og farve */}
-            <CardBody className={`text-zinc-300 ${compact ? 'p-2 pt-0' : 'p-3 pt-0'}`}>
+            <Card.Content className={`text-zinc-300 ${compact ? 'p-2 pt-0' : 'p-3 pt-0'}`}>
                 {compact ? (
                     // Kompakt visning - kun køn og farve på én linje
                     <div className="flex flex-wrap gap-2 justify-between">
@@ -59,8 +58,8 @@ export default function RabbitChildPreviewCard({ child, compact = false }: Props
                             {child.gender ? (
                                 <Chip 
                                     size="sm" 
-                                    color={child.gender === 'Han' ? 'primary' : 'secondary'}
-                                    variant="flat"
+                                    color={child.gender === 'Han' ? 'accent' : 'default'}
+                                    variant="soft"
                                 >
                                     {child.gender}
                                 </Chip>
@@ -85,8 +84,8 @@ export default function RabbitChildPreviewCard({ child, compact = false }: Props
                             {child.gender ? (
                                 <Chip 
                                     size="sm" 
-                                    color={child.gender === 'Han' ? 'primary' : 'secondary'}
-                                    variant="flat"
+                                    color={child.gender === 'Han' ? 'accent' : 'default'}
+                                    variant="soft"
                                 >
                                     {child.gender}
                                 </Chip>
@@ -110,7 +109,8 @@ export default function RabbitChildPreviewCard({ child, compact = false }: Props
                         </span>
                     </div>
                 )}
-            </CardBody>
+            </Card.Content>
         </Card>
+        </NextLink>
     );
 }

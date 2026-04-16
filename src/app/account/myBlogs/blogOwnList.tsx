@@ -46,7 +46,7 @@ export default function BlogOwnList({ userId }: { userId: string }) {
       <div className="flex justify-center items-center min-h-[50vh]">
         <div className="flex flex-col items-center gap-4">
             <span className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-            <p className="text-zinc-300">Indlæser dine blogs...</p>
+            <p className="text-muted">Indlæser dine blogs...</p>
         </div>
       </div>
     );
@@ -59,12 +59,11 @@ export default function BlogOwnList({ userId }: { userId: string }) {
         <p className="text-red-200 mb-4">{error}</p>
         <Button
           size="sm"
-          color="warning"
-          variant="flat"
-          startContent={<RiRefreshLine />}
+          variant="ghost"
+          className="text-warning"
           onPress={onRetry}
         >
-          Forsøg igen
+          <RiRefreshLine /> Forsøg igen
         </Button>
       </div>
     );
@@ -73,19 +72,19 @@ export default function BlogOwnList({ userId }: { userId: string }) {
   return (
     <div className="main-content-container">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-2xl font-bold text-zinc-300">Dine blogs</h2>
-        <div className="text-sm text-zinc-400">
+        <h2 className="text-2xl font-bold text-foreground">Dine blogs</h2>
+        <div className="text-sm text-muted">
           {blogsCount} i alt
         </div>
       </div>
 
       {loading && (
-        <div className="text-xs text-zinc-400 mb-3">Opdaterer…</div>
+        <div className="text-xs text-muted mb-3">Opdaterer…</div>
       )}
 
       {blogs.length === 0 ? (
         <div className="text-center py-16">
-          <p className="text-zinc-400">Ingen blogs matcher filtrene.</p>
+          <p className="text-muted">Ingen blogs matcher filtrene.</p>
         </div>
       ) : (
         <>
@@ -104,25 +103,25 @@ export default function BlogOwnList({ userId }: { userId: string }) {
               <div className="flex items-center justify-center gap-2 mt-6">
                 <Button
                   size="sm"
-                  variant="flat"
+                  variant="ghost"
                   isDisabled={pagination.page <= 1}
                   onPress={() => setPage(pagination.page - 1)}
                 >
                   Forrige
                 </Button>
-                <span className="text-xs text-zinc-400">
+                <span className="text-xs text-muted">
                   Side {pagination.page} / {totalPages}
                 </span>
                 <Button
                   size="sm"
-                  variant="flat"
+                  variant="ghost"
                   isDisabled={pagination.page >= totalPages}
                   onPress={() => setPage(pagination.page + 1)}
                 >
                   Næste
                 </Button>
                 <select
-                  className="text-xs bg-zinc-800 border border-zinc-700 rounded px-2 py-1 ml-2"
+                  className="text-xs bg-surface-secondary border border-divider rounded px-2 py-1 ml-2 text-foreground"
                   value={pagination.pageSize}
                   onChange={e => setPageSize(parseInt(e.target.value, 10))}
                 >

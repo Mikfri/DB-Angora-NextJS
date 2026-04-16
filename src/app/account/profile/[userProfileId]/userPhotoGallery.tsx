@@ -31,7 +31,7 @@ export default function PhotoGallery({
   if (isLoading && photos.length === 0) {
     return (
       <div className="flex justify-center items-center py-8">
-        <Spinner size="lg" color="primary" />
+        <Spinner size="lg" color="accent" />
       </div>
     );
   }
@@ -51,8 +51,7 @@ export default function PhotoGallery({
       {photos.map(photo => (
         <div
           key={photo.id}
-          className={`bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border ${photo.isProfilePicture ? 'border-blue-500' : 'border-zinc-700/50'
-            } overflow-hidden`}
+          className={`bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 overflow-hidden`}
         >
           <div className="aspect-square relative">
             <CloudinaryImage
@@ -67,28 +66,22 @@ export default function PhotoGallery({
           </div>
 
           <div className="p-3 flex flex-col gap-2">
-            {photo.isProfilePicture ? (
-              <p className="text-sm text-blue-500 text-center">Profilbillede</p>
-            ) : (
               <Button
                 size="sm"
-                color="primary"
+                variant="primary"
                 className="w-full"
                 onPress={() => onSetAsProfile(photo.id)}
-                isLoading={isLoadingProfileAction === photo.id}
+                isPending={isLoadingProfileAction === photo.id}
                 isDisabled={isLoadingProfileAction !== null || isLoadingDeleteAction !== null}
               >
                 Sæt som profil
               </Button>
-            )}
-
             <Button
               size="sm"
-              color="danger"
-              variant="ghost"
+              variant="danger"
               className="w-full"
               onPress={() => onDelete(photo.id)}
-              isLoading={isLoadingDeleteAction === photo.id}
+              isPending={isLoadingDeleteAction === photo.id}
               isDisabled={isLoadingProfileAction !== null || isLoadingDeleteAction !== null}
             >
               Slet

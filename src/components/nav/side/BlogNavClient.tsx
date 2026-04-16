@@ -1,14 +1,14 @@
 // src/components/nav/side/BlogNavClient.tsx
 'use client';
 
-import { Button, Input, Select, SelectItem, Divider } from '@heroui/react';
+import { Button, Input, Separator } from '@heroui/react';
 import { useEffect, memo, useState } from 'react';
 import { useBlogFilters } from '@/store/blogFilterStore';
 import { useEnums } from '@/contexts/EnumContext';
 import { IoMdClose } from "react-icons/io";
 import { MdCategory, MdPerson, MdTag, MdSort } from "react-icons/md";
 import { TbFilterSearch } from "react-icons/tb";
-import EnumAutocomplete from '@/components/enumHandlers/enumAutocomplete';
+import EnumAutocomplete from '@/components/ui/custom/autocomplete/EnumAutocomplete';
 
 // Mapper sorteringsmuligheder til brugervenlige labels
 const SORT_OPTION_LABELS: Record<string, string> = {
@@ -20,7 +20,7 @@ const SORT_OPTION_LABELS: Record<string, string> = {
 // Memoize component to prevent unnecessary re-renders
 export const BlogNavClient = memo(function BlogNavClient() {
   const { getEnumValues, isLoading } = useEnums();
-  const [blogSortOptions, setBlogSortOptions] = useState<string[]>([]);
+  const [blogSortOptions, setBlogSortOptions] = useState<import('@/contexts/EnumContext').EnumOption[]>([]);
 
   // Brug Zustand store i stedet for props
   const {
@@ -57,8 +57,7 @@ export const BlogNavClient = memo(function BlogNavClient() {
         {hasActiveFilters && (
           <Button
             size="sm"
-            variant="light"
-            className="h-5 text-xs text-muted hover:text-foreground"
+            variant="ghost"
             onPress={() => {
               clearAllFilters();
               applyFilters();
@@ -69,7 +68,7 @@ export const BlogNavClient = memo(function BlogNavClient() {
         )}
       </div>
 
-      <Divider className="divider my-0.5" />
+      <Separator className="divider my-0.5" />
 
       {/* Søgeterm */}
       <div className="flex items-center gap-1">
@@ -79,27 +78,22 @@ export const BlogNavClient = memo(function BlogNavClient() {
         </div>
         <div className="flex-1 flex items-center gap-1">
           <Input
-            size="sm"
             placeholder="Søg i blogs..."
             value={filters.searchTerm || ''}
             onChange={(e) => updateFilter('searchTerm', e.target.value || null)}
             onKeyDown={(e) => e.key === 'Enter' && applyFilters()}
-            endContent={!!filters.searchTerm && (
-              <Button
-                isIconOnly
-                size="sm"
-                variant="light"
-                className="text-muted"
-                onPress={() => clearFilter('searchTerm')}
-              >
-                <IoMdClose />
-              </Button>
-            )}
-            classNames={{
-              inputWrapper: "h-7 min-h-unit-7 px-2",
-              input: "text-xs text-body"
-            }}
           />
+          {!!filters.searchTerm && (
+            <Button
+              isIconOnly
+              size="sm"
+              variant="ghost"
+              className="text-muted"
+              onPress={() => clearFilter('searchTerm')}
+            >
+              <IoMdClose />
+            </Button>
+          )}
         </div>
       </div>
 
@@ -131,27 +125,22 @@ export const BlogNavClient = memo(function BlogNavClient() {
         </div>
         <div className="flex-1 flex items-center gap-1">
           <Input
-            size="sm"
             placeholder="Forfatter navn..."
             value={filters.authorFullName || ''}
             onChange={(e) => updateFilter('authorFullName', e.target.value || null)}
             onKeyDown={(e) => e.key === 'Enter' && applyFilters()}
-            endContent={!!filters.authorFullName && (
-              <Button
-                isIconOnly
-                size="sm"
-                variant="light"
-                className="text-muted"
-                onPress={() => clearFilter('authorFullName')}
-              >
-                <IoMdClose />
-              </Button>
-            )}
-            classNames={{
-              inputWrapper: "h-7 min-h-unit-7 px-2",
-              input: "text-xs text-body"
-            }}
           />
+          {!!filters.authorFullName && (
+            <Button
+              isIconOnly
+              size="sm"
+              variant="ghost"
+              className="text-muted"
+              onPress={() => clearFilter('authorFullName')}
+            >
+              <IoMdClose />
+            </Button>
+          )}
         </div>
       </div>
 
@@ -163,27 +152,22 @@ export const BlogNavClient = memo(function BlogNavClient() {
         </div>
         <div className="flex-1 flex items-center gap-1">
           <Input
-            size="sm"
             placeholder="Tag (fx Avl, Pasning)..."
             value={filters.tagFilter || ''}
             onChange={(e) => updateFilter('tagFilter', e.target.value || null)}
             onKeyDown={(e) => e.key === 'Enter' && applyFilters()}
-            endContent={!!filters.tagFilter && (
-              <Button
-                isIconOnly
-                size="sm"
-                variant="light"
-                className="text-muted"
-                onPress={() => clearFilter('tagFilter')}
-              >
-                <IoMdClose />
-              </Button>
-            )}
-            classNames={{
-              inputWrapper: "h-7 min-h-unit-7 px-2",
-              input: "text-xs text-body"
-            }}
           />
+          {!!filters.tagFilter && (
+            <Button
+              isIconOnly
+              size="sm"
+              variant="ghost"
+              className="text-muted"
+              onPress={() => clearFilter('tagFilter')}
+            >
+              <IoMdClose />
+            </Button>
+          )}
         </div>
       </div>
 
@@ -214,7 +198,7 @@ export const BlogNavClient = memo(function BlogNavClient() {
         </div>
       </div> */}
 
-      <Divider className="divider my-0.5" />
+      <Separator className="divider my-0.5" />
 
       {/* Action button - FJERN DENNE SEKTION */}
       {/* Dropdowns søger nu automatisk, så knappen er ikke længere nødvendig */}

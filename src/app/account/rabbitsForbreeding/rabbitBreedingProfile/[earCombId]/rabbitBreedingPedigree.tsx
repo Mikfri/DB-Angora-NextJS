@@ -54,7 +54,7 @@ export default function RabbitBreedingPedigree({ earCombId }: { earCombId: strin
     if (isLoading) {
         return (
             <div className="flex justify-center items-center py-12">
-                <Spinner size="lg" color="primary" />
+                <Spinner size="lg" color="accent" />
             </div>
         );
     }
@@ -64,8 +64,7 @@ export default function RabbitBreedingPedigree({ earCombId }: { earCombId: strin
             <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 text-center">
                 <p className="text-red-500">{error}</p>
                 <Button
-                    color="primary"
-                    variant="light"
+                    variant="ghost"
                     className="mt-4"
                     onPress={refreshPedigree}
                 >
@@ -162,8 +161,7 @@ export default function RabbitBreedingPedigree({ earCombId }: { earCombId: strin
                     <div className="flex gap-2">
                         <Button
                             size="sm"
-                            variant="flat"
-                            color="default"
+                            variant="ghost"
                             isDisabled={maxGenerations <= 1}
                             onPress={() => setMaxGenerations(prev => Math.max(1, prev - 1))}
                         >
@@ -171,8 +169,7 @@ export default function RabbitBreedingPedigree({ earCombId }: { earCombId: strin
                         </Button>
                         <Button
                             size="sm"
-                            variant="flat"
-                            color="primary"
+                            variant="primary"
                             isDisabled={maxGenerations >= 4}
                             onPress={() => setMaxGenerations(prev => Math.min(4, prev + 1))}
                         >
@@ -183,8 +180,7 @@ export default function RabbitBreedingPedigree({ earCombId }: { earCombId: strin
                     {/* Debug knap */}
                     <Button
                         size="sm"
-                        variant="flat"
-                        color="default"
+                        variant="ghost"
                         className="text-xs"
                         onPress={() => setShowDebug(!showDebug)}
                     >
@@ -291,9 +287,9 @@ function PedigreeTableView({ pedigree, maxGenerations }: {
                     <div className="flex items-center gap-2">
                         {/* Mini profile picture */}
                         <div className="w-8 h-8 flex-shrink-0 rounded-full overflow-hidden bg-zinc-700">
-                            {rabbit.ProfilePicture ? (
+                            {rabbit.ProfilePhotoUrl ? (
                                 <Image
-                                    src={rabbit.ProfilePicture}
+                                    src={rabbit.ProfilePhotoUrl}
                                     alt={rabbit.NickName || ""}
                                     width={32}
                                     height={32}

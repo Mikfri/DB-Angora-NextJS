@@ -51,7 +51,7 @@ export type SaleDetailsPublicCardList = SaleDetailsPublicCardDTO[];
  */
 export interface SaleDetailsFilterDTO {
     minPrice?: number | null;
-    maxPrice?: number  | null;
+    maxPrice?: number | null;
     canBeShipped?: boolean | null;
     entityType?: string | null;     // "Rabbit", "WoolSD", etc.
     city?: string | null;
@@ -85,16 +85,19 @@ export interface SaleDetailsPrivateCardDTO {
  * Benyttes via arv af DTO'er af typen: [EntityType]SaleProfilePrivateDTO. 
  */
 export interface SaleDetailsPrivateDTO {
+    // --- NON-EDITABLE PROPERTIES (base SaleDetails + UserOwner)
     id: number;
     entityType: string;     // "Rabbit", "WoolSD", etc.
     slug: string;
-    title: string;
-    price: number;
-    status: string;         // "Active", "OnHold", "Sold"
     dateListed: string;     // DateTime
-    lastUpdated: string;    // DateTime
-    canBeShipped: boolean;
+    lastUpdated: string;    // DateTime    
+    //dateSold?: string | null; // DateTime (endnu  ikke implementeret)
     viewCount: number;
+    // --- EDITABLE POPERTIES
+    status: string;         // "Active", "OnHold", "Sold"
+    title: string;          // (styrer også slug)
+    price: number;
+    canBeShipped: boolean;
     description: string;
     // --- Relationer
     //ownerId: number;

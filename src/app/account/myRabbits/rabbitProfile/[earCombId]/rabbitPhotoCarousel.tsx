@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import CloudinaryImage from '@/components/cloudinary/CloudinaryImage';
-import { Button, Spinner } from '@heroui/react';
+import { Button, Spinner } from '@/components/ui/heroui';
 import { PhotoPrivateDTO } from '@/api/types/AngoraDTOs';
 import { RiArrowLeftSLine, RiArrowRightSLine, RiFullscreenLine, RiStarLine, RiDeleteBin5Line } from "react-icons/ri";
 
@@ -65,7 +65,7 @@ export default function RabbitPhotoCarousel({
   if (isLoading && photos.length === 0) {
     return (
       <div className="flex justify-center items-center h-full">
-        <Spinner size="lg" color="primary" />
+        <Spinner size="lg" color="accent" />
       </div>
     );
   }
@@ -96,7 +96,7 @@ export default function RabbitPhotoCarousel({
         className="fixed inset-0 bg-black/90 z-50 flex flex-col justify-center items-center"
         onClick={() => setFullscreen(false)}
       >
-        <div className="relative w-full h-full max-w-screen-lg max-h-screen p-8">
+        <div className="relative w-full h-full max-w-5xl max-h-screen p-8">
           <CloudinaryImage
             publicId={currentPhoto.cloudinaryPublicId}
             cloudName={cloudName}
@@ -109,6 +109,7 @@ export default function RabbitPhotoCarousel({
           
           {/* Navigation pile */}
           <button 
+            aria-label="Forrige billede"
             className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70"
             onClick={(e) => { e.stopPropagation(); goToPrevious(); }}
           >
@@ -116,6 +117,7 @@ export default function RabbitPhotoCarousel({
           </button>
           
           <button 
+            aria-label="Næste billede"
             className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70"
             onClick={(e) => { e.stopPropagation(); goToNext(); }}
           >
@@ -155,6 +157,7 @@ export default function RabbitPhotoCarousel({
         
         {/* Fullscreen knap */}
         <button 
+          aria-label="Vis i fuld skærm"
           className="absolute top-2 right-2 bg-black/50 text-white p-1.5 rounded-full hover:bg-black/70"
           onClick={() => setFullscreen(true)}
         >
@@ -165,6 +168,7 @@ export default function RabbitPhotoCarousel({
         {photos.length > 1 && (
           <>
             <button 
+              aria-label="Forrige billede"
               className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 text-white p-1.5 rounded-full hover:bg-black/70"
               onClick={goToPrevious}
             >
@@ -172,6 +176,7 @@ export default function RabbitPhotoCarousel({
             </button>
             
             <button 
+              aria-label="Næste billede"
               className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 text-white p-1.5 rounded-full hover:bg-black/70"
               onClick={goToNext}
             >
@@ -192,6 +197,7 @@ export default function RabbitPhotoCarousel({
             {photos.map((_, index) => (
               <button
                 key={index}
+                aria-label={`Gå til billede ${index + 1}`}
                 className={`w-2 h-2 rounded-full transition-colors ${
                   index === currentIndex ? 'bg-blue-500' : 'bg-zinc-600'
                 }`}
@@ -207,29 +213,25 @@ export default function RabbitPhotoCarousel({
         {!isProfilePhoto(currentPhoto) && (
           <Button
             size="sm"
-            color="primary"
-            variant="light"
+            variant="ghost"
             className="flex-1 gap-1"
             onPress={() => onSetAsProfile(currentPhoto.id)}
-            isLoading={isLoadingProfileAction === currentPhoto.id}
+            isPending={isLoadingProfileAction === currentPhoto.id}
             isDisabled={isLoadingProfileAction !== null || isLoadingDeleteAction !== null}
-            startContent={<RiStarLine />}
           >
-            Sæt som profil
+            <RiStarLine /> Sæt som profil
           </Button>
         )}
         
         <Button
           size="sm"
-          color="danger"
-          variant="light"
+          variant="danger-soft"
           className="flex-1 gap-1"
           onPress={() => onDelete(currentPhoto.id)}
-          isLoading={isLoadingDeleteAction === currentPhoto.id}
+          isPending={isLoadingDeleteAction === currentPhoto.id}
           isDisabled={isLoadingProfileAction !== null || isLoadingDeleteAction !== null}
-          startContent={<RiDeleteBin5Line />}
         >
-          Slet billede
+          <RiDeleteBin5Line /> Slet billede
         </Button>
       </div>
     </div>

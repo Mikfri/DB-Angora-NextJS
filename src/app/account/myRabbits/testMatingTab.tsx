@@ -4,7 +4,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useRabbitsOwnedStore } from "@/store/rabbitsOwnedStore";
 import { getTestMatingPedigree } from "@/app/actions/rabbit/rabbitCrudActions";
-import { Spinner, Button } from "@heroui/react";
+import { Spinner, Button } from '@/components/ui/heroui';
 import PedigreeTable from "@/components/pedigree/pedigreeTable/pedigreeTable";
 import RabbitPedigreeCard from "@/components/cards/rabbitPedigreeCard";
 import { Rabbit_OwnedPreviewDTO, Rabbit_PedigreeDTO, PedigreeResultDTO } from "@/api/types/AngoraDTOs";
@@ -96,7 +96,7 @@ export default function TestMatingTab() {
               </div>
             ))}
             {!Huns.length && (
-              <div className="text-xs text-zinc-400 col-span-full">Ingen hun-kaniner fundet</div>
+              <div className="text-xs text-muted col-span-full">Ingen hun-kaniner fundet</div>
             )}
           </div>
         </div>
@@ -117,7 +117,7 @@ export default function TestMatingTab() {
               </div>
             ))}
             {!Hans.length && (
-              <div className="text-xs text-zinc-400 col-span-full">Ingen han-kaniner fundet</div>
+              <div className="text-xs text-muted col-span-full">Ingen han-kaniner fundet</div>
             )}
           </div>
         </div>
@@ -126,7 +126,7 @@ export default function TestMatingTab() {
       {/* Inputfelter i hver deres kolonne */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label className="block text-xs text-zinc-400 mb-1" htmlFor="manualMotherId">
+          <label className="block text-xs text-muted mb-1" htmlFor="manualMotherId">
             Øremærke på hun (Hun)
           </label>
           <input
@@ -138,11 +138,11 @@ export default function TestMatingTab() {
               setSelectedHun(null);
             }}
             placeholder="fx 1234-5678"
-            className="w-full px-2 py-1 rounded border border-zinc-600 bg-zinc-900 text-zinc-200 text-sm"
+            className="w-full px-2 py-1 rounded border border-divider bg-surface text-muted text-sm"
           />
         </div>
         <div>
-          <label className="block text-xs text-zinc-400 mb-1" htmlFor="manualFatherId">
+          <label className="block text-xs text-muted mb-1" htmlFor="manualFatherId">
             Øremærke på han (Han)
           </label>
           <input
@@ -154,7 +154,7 @@ export default function TestMatingTab() {
               setSelectedHan(null);
             }}
             placeholder="fx 1234-5678"
-            className="w-full px-2 py-1 rounded border border-zinc-600 bg-zinc-900 text-zinc-200 text-sm"
+            className="w-full px-2 py-1 rounded border border-divider bg-surface text-muted text-sm"
           />
         </div>
       </div>
@@ -162,8 +162,8 @@ export default function TestMatingTab() {
       {/* Knap og spinner */}
       <div className="flex gap-3 mt-4">
         <Button
-          color="primary"
-          disabled={
+          variant="primary"
+          isDisabled={
             loading ||
             (!manualFatherId.trim() && !selectedHan) ||
             (!manualMotherId.trim() && !selectedHun)
@@ -181,13 +181,13 @@ export default function TestMatingTab() {
         <div className="space-y-6 mt-8">
           {/* Indavlskoefficient og COI-bidragydere */}
           <div className="grid gap-6 md:grid-cols-3">
-            <div className="md:col-span-1 bg-zinc-800/60 border border-zinc-700/30 rounded-lg p-4 flex flex-col justify-center">
-              <h4 className="text-sm text-zinc-300 mb-1">Indavlskoefficient</h4>
+            <div className="md:col-span-1 bg-surface-secondary/60 border border-divider/30 rounded-lg p-4 flex flex-col justify-center">
+              <h4 className="text-sm text-muted mb-1">Indavlskoefficient</h4>
               <div className="flex items-baseline gap-3">
                 <span className="text-2xl md:text-3xl font-semibold text-blue-400">
                   {(result.CalculatedInbreedingCoefficient * 100).toFixed(2)}%
                 </span>
-                <span className="text-xs text-zinc-400">
+                <span className="text-xs text-muted">
                   {result.CalculatedInbreedingCoefficient > 0.125
                     ? "Højt niveau af indavl"
                     : result.CalculatedInbreedingCoefficient > 0
@@ -196,35 +196,35 @@ export default function TestMatingTab() {
                 </span>
               </div>
             </div>
-            <div className="md:col-span-2 overflow-hidden bg-zinc-800/50 border border-zinc-700/30 rounded-lg">
-              <div className="px-4 py-3 border-b border-zinc-700/50">
-                <h3 className="text-sm font-medium text-zinc-200">COI-bidragydere</h3>
+            <div className="md:col-span-2 overflow-hidden bg-surface-secondary/50 border border-divider/30 rounded-lg">
+              <div className="px-4 py-3 border-b border-divider/50">
+                <h3 className="text-sm font-medium text-muted">COI-bidragydere</h3>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="text-left text-xs text-zinc-400 border-b border-zinc-700/30">
+                    <tr className="text-left text-xs text-muted border-b border-divider/30">
                       <th className="px-4 py-2">Kanin</th>
                       <th className="px-4 py-2">Bidrag</th>
                       <th className="px-4 py-2">Bidrag (%)</th>
                       <th className="px-4 py-2">Stier</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-zinc-700/30">
+                  <tbody className="divide-y divide-divider/30">
                     {result.COIContributors && result.COIContributors.length > 0 ? (
                       result.COIContributors.map((contrib, idx) => (
                         <tr key={contrib.EarCombId ?? idx} className="text-xs">
-                          <td className="px-4 py-2 text-zinc-200">{contrib.NickName || contrib.EarCombId}</td>
+                          <td className="px-4 py-2 text-muted">{contrib.NickName || contrib.EarCombId}</td>
                           <td className="px-4 py-2 text-blue-400">
                             {(contrib.Contribution * 100).toFixed(2)}%
                           </td>
-                          <td className="px-4 py-2 text-zinc-400">{contrib.ContributionPercent.toFixed(1)}%</td>
-                          <td className="px-4 py-2 text-zinc-400">{(contrib.AncestorPaths || []).join(', ')}</td>
+                          <td className="px-4 py-2 text-muted">{contrib.ContributionPercent.toFixed(1)}%</td>
+                          <td className="px-4 py-2 text-muted">{(contrib.AncestorPaths || []).join(', ')}</td>
                         </tr>
                       ))
                     ) : (
                       <tr>
-                        <td colSpan={4} className="px-4 py-6 text-center text-zinc-500 text-sm">Ingen COI-bidragydere fundet</td>
+                        <td colSpan={4} className="px-4 py-6 text-center text-muted text-sm">Ingen COI-bidragydere fundet</td>
                       </tr>
                     )}
                   </tbody>
@@ -232,7 +232,7 @@ export default function TestMatingTab() {
               </div>
             </div>
           </div>
-          <div className="relative border border-zinc-700/50 rounded-lg overflow-auto">
+          <div className="relative border border-divider/50 rounded-lg overflow-auto">
             <PedigreeTable pedigree={result.Pedigree} generations={4} onGenerationsChange={() => {}} />
           </div>
         </div>

@@ -17,9 +17,10 @@
  */
 
 import { ReactNode } from "react";
-import { Textarea, Select, SelectItem } from "@heroui/react";
+import { TextArea } from "@heroui/react";
+import { HeroSelect, HeroSelectItem } from '@/components/ui/heroui';
 import { Blog_UpdateDTO } from "@/api/types/AngoraDTOs";
-import EnumAutocomplete from "@/components/enumHandlers/enumAutocomplete";
+import EnumAutocomplete from "@/components/ui/custom/autocomplete/EnumAutocomplete";
 
 // Opdater editableFieldLabels - fjern title, subtitle og content
 export const editableFieldLabels: Record<Exclude<keyof Blog_UpdateDTO, 'title' | 'subtitle' | 'content'>, string> = {
@@ -58,35 +59,30 @@ function renderEditMode(
 
   if (key === "visibilityLevel") {
     return (
-      <Select
-        id={`${key}-input`}
-        selectedKeys={value ? [value as string] : []}
-        onSelectionChange={(keys) => {
-          const selectedKey = Array.from(keys)[0] as string;
-          updateField(key, selectedKey);
-        }}
-        className={className}
+      <HeroSelect
+        value={value as string ?? null}
+        onChange={(v) => updateField(key, v)}
         placeholder="Vælg synlighed"
+        className={className}
       >
         {visibilityOptions.map((option) => (
-          <SelectItem key={option.value} value={option.value}>
+          <HeroSelectItem key={option.value} id={option.value} textValue={option.label}>
             {option.label}
-          </SelectItem>
+          </HeroSelectItem>
         ))}
-      </Select>
+      </HeroSelect>
     );
   }
 
   if (key === "metaDescription" || key === "tags") {
     return (
-      <Textarea
+      <TextArea
         id={`${key}-input`}
         value={value?.toString() || ""}
         onChange={(e) => updateField(key, e.target.value)}
         className={className}
         placeholder={key === "metaDescription" ? "SEO beskrivelse..." : "Komma-separerede tags..."}
-        minRows={2}
-        maxRows={4}
+        rows={2}
       />
     );
   }

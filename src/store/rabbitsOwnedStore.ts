@@ -37,7 +37,9 @@ const DEFAULT_FILTERS: Required<OwnFilters> = {
     showJuveniles: false,
     raceColorApproval: null,
     bornAfterDate: null,
-    includeLinkedRabbits: true, // <-- NYT FELT
+    includeLinkedRabbits: true,
+    inbreedingMin: null,
+    inbreedingMax: null,
 };
 
 // Tilstandstyper for pagination
@@ -102,7 +104,9 @@ const checkActiveFilters = (filters: Required<OwnFilters>): boolean => {
         filters.lifeStatus !== null ||
         filters.showJuveniles !== false ||
         filters.raceColorApproval !== null ||
-        filters.bornAfterDate !== null;
+        filters.bornAfterDate !== null ||
+        filters.inbreedingMin !== null ||
+        filters.inbreedingMax !== null;
 };
 
 // Hjælpefunktion: Filtrer kaniner baseret på filtre (CSR)
@@ -132,6 +136,10 @@ const filterRabbits = (rabbits: Rabbit_OwnedPreviewDTO[], filters: Required<OwnF
         const matchesBornAfter = !filters.bornAfterDate ||
             (rabbit.dateOfBirth && new Date(rabbit.dateOfBirth) >= new Date(filters.bornAfterDate));
 
+        const inbreedingPct = rabbit.inbreedingCoefficient * 100;
+        const matchesInbreedingMin = filters.inbreedingMin === null || inbreedingPct >= filters.inbreedingMin;
+        const matchesInbreedingMax = filters.inbreedingMax === null || inbreedingPct <= filters.inbreedingMax;
+
         const matchesGender = !filters.gender || rabbit.gender === filters.gender;
         const matchesRace = !filters.race || rabbit.race === filters.race;
         const matchesColor = !filters.color || rabbit.color === filters.color;
@@ -145,7 +153,9 @@ const filterRabbits = (rabbits: Rabbit_OwnedPreviewDTO[], filters: Required<OwnF
             matchesForSale &&
             matchesForBreeding &&
             matchesRaceColorApproval &&
-            matchesBornAfter;
+            matchesBornAfter &&
+            matchesInbreedingMin &&
+            matchesInbreedingMax;
     });
 };
 
@@ -276,7 +286,9 @@ export const useRabbitsOwnedStore = create<RabbitsOwnedStore>((set, get) => ({
                 ...(newFilters.color !== undefined ? { color: newFilters.color } : {}),
                 ...(newFilters.raceColorApproval !== undefined ? { raceColorApproval: newFilters.raceColorApproval } : {}),
                 ...(newFilters.bornAfterDate !== undefined ? { bornAfterDate: newFilters.bornAfterDate } : {}),
-                ...(newFilters.includeLinkedRabbits !== undefined ? { includeLinkedRabbits: newFilters.includeLinkedRabbits } : {}), // <-- NYT
+                ...(newFilters.includeLinkedRabbits !== undefined ? { includeLinkedRabbits: newFilters.includeLinkedRabbits } : {}),
+                ...(newFilters.inbreedingMin !== undefined ? { inbreedingMin: newFilters.inbreedingMin } : {}),
+                ...(newFilters.inbreedingMax !== undefined ? { inbreedingMax: newFilters.inbreedingMax } : {}),
             };
 
             const isActive = checkActiveFilters(updatedFilters);

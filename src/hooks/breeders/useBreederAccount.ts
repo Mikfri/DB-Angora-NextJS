@@ -20,8 +20,8 @@ export function useBreederAccount(
     setError(null);
     try {
       const updatePayload: BreederAccount_UpdateDTO = {
-        breederBrandName: editedData.breederBrandName ?? breederAccount.breederBrandName,
-        breederBrandDescription: editedData.breederBrandDescription ?? breederAccount.breederBrandDescription,
+        brandName: editedData.brandName ?? breederAccount.brandName,
+        brandDescription: editedData.brandDescription ?? breederAccount.brandDescription,
         isFindable: editedData.isFindable ?? breederAccount.isFindable,
       };
       const result = await updateBreederAccount(userId, updatePayload);

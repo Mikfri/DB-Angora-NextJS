@@ -53,10 +53,10 @@ export default function RabbitNode({ data }: NodeProps<RabbitNodeData>) {
       <div className="flex items-center gap-2 mt-2">
         {/* Mini profile picture */}
         <div className="w-9 h-9 flex-shrink-0 rounded-full overflow-hidden bg-zinc-700">
-          {rabbit.ProfilePicture ? (
+          {rabbit.ProfilePhotoUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img 
-              src={rabbit.ProfilePicture} 
+              src={rabbit.ProfilePhotoUrl} 
               alt={rabbit.NickName || ""} 
               className="w-full h-full object-cover" 
             />

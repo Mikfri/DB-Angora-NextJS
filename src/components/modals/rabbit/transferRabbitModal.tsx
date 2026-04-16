@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useCallback } from 'react';
-import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Input, Textarea } from "@heroui/react";
+import { Modal, Button, Input, TextArea } from '@/components/ui/heroui';
 import { TransferRequest_CreateDTO } from '@/api/types/AngoraDTOs';
 
 interface TransferOwnershipModalProps {
@@ -62,90 +62,95 @@ export default function TransferOwnershipModal({
     }
   }, [formData, rabbitEarCombId, onSubmit]);
 
+  if (!isOpen) return null;
+
   return (
-    <Modal className="dark"
-      isOpen={isOpen} 
-      onClose={onClose}
-      hideCloseButton={isSubmitting}
-      isDismissable={!isSubmitting}
-      backdrop="blur"
+    <Modal
+      isOpen={isOpen}
+      onOpenChange={(open) => !open && onClose()}
     >
-      <ModalContent>
-        <ModalHeader>Anmod om ejerskabsoverdragelse</ModalHeader>
-        <ModalBody>
-          <div className="space-y-4">
-            <div>
-              <p className="mb-2"><strong>Kanin:</strong> {rabbitName} ({rabbitEarCombId})</p>
-            </div>
-            
-            <div>
-              <label htmlFor="recipient_BreederRegNo" className="block text-sm font-medium mb-1">
-                Modtagers avlernummer *
-              </label>
-              <Input
-                id="recipient_BreederRegNo"
-                name="recipient_BreederRegNo"
-                value={formData.recipient_BreederRegNo}
-                onChange={handleChange}
-                placeholder="f.eks. 3X12"
+      <Modal.Backdrop variant="blur">
+        <Modal.Container>
+          <Modal.Dialog className="dark">
+            <Modal.Header>
+              <Modal.Heading>Anmod om ejerskabsoverdragelse</Modal.Heading>
+            </Modal.Header>
+            <Modal.Body>
+              <div className="space-y-4">
+                <div>
+                  <p className="mb-2"><strong>Kanin:</strong> {rabbitName} ({rabbitEarCombId})</p>
+                </div>
+
+                <div>
+                  <label htmlFor="recipient_BreederRegNo" className="block text-sm font-medium mb-1">
+                    Modtagers avlernummer *
+                  </label>
+                  <Input
+                    id="recipient_BreederRegNo"
+                    name="recipient_BreederRegNo"
+                    value={formData.recipient_BreederRegNo}
+                    onChange={handleChange}
+                    placeholder="f.eks. 3X12"
+                    disabled={isSubmitting}
+                    required
+                  />
+                  <p className="mt-1 text-xs text-zinc-400">
+                    Du finder avlerens nummer på deres profil eller under medlemslisten.
+                  </p>
+                </div>
+
+                <div>
+                  <label htmlFor="price" className="block text-sm font-medium mb-1">
+                    Pris (DKK)
+                  </label>
+                  <Input
+                    id="price"
+                    name="price"
+                    type="number"
+                    min="0"
+                    value={String(formData.price)}
+                    onChange={handleChange}
+                    placeholder="0"
+                    disabled={isSubmitting}
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="saleConditions" className="block text-sm font-medium mb-1">
+                    Salgsbetingelser (valgfrit)
+                  </label>
+                  <TextArea
+                    id="saleConditions"
+                    name="saleConditions"
+                    value={formData.saleConditions || ''}
+                    onChange={handleChange}
+                    placeholder="Eventuelle betingelser for overdragelsen..."
+                    rows={3}
+                    disabled={isSubmitting}
+                  />
+                </div>
+              </div>
+            </Modal.Body>
+            <Modal.Footer>
+              <Button
+                variant="secondary"
+                onPress={onClose}
                 isDisabled={isSubmitting}
-                required
-              />
-              <p className="mt-1 text-xs text-zinc-400">
-                Du finder avlerens nummer på deres profil eller under medlemslisten.
-              </p>
-            </div>
-            
-            <div>
-              <label htmlFor="price" className="block text-sm font-medium mb-1">
-                Pris (DKK)
-              </label>
-              <Input
-                id="price"
-                name="price"
-                type="number"
-                min="0"
-                value={String(formData.price)}
-                onChange={handleChange}
-                placeholder="0"
+              >
+                Annuller
+              </Button>
+              <Button
+                variant="primary"
+                onPress={handleSubmit}
+                isPending={isSubmitting}
                 isDisabled={isSubmitting}
-              />
-            </div>
-            
-            <div>
-              <label htmlFor="saleConditions" className="block text-sm font-medium mb-1">
-                Salgsbetingelser (valgfrit)
-              </label>
-              <Textarea
-                id="saleConditions"
-                name="saleConditions"
-                value={formData.saleConditions || ''}
-                onChange={handleChange}
-                placeholder="Eventuelle betingelser for overdragelsen..."
-                minRows={3}
-                isDisabled={isSubmitting}
-              />
-            </div>
-          </div>
-        </ModalBody>
-        <ModalFooter>
-          <Button 
-            color="secondary" 
-            onPress={onClose} 
-            isDisabled={isSubmitting}
-          >
-            Annuller
-          </Button>
-          <Button 
-            color="primary" 
-            onPress={handleSubmit}
-            isLoading={isSubmitting}
-            isDisabled={isSubmitting}
-          >
-            Send anmodning
-          </Button>
-        </ModalFooter>
-      </ModalContent>
+              >
+                Send anmodning
+              </Button>
+            </Modal.Footer>
+          </Modal.Dialog>
+        </Modal.Container>
+      </Modal.Backdrop>
     </Modal>
   );
 }

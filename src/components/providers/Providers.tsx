@@ -5,15 +5,16 @@
  * Inkluderer:
  * - NextAuth SessionProvider (session management)
  * - Theme Provider (next-themes)
- * - HeroUI Provider (komponent bibliotek)
  * - EnumProvider (enum context)
  * - AuthSync (synkroniserer next-auth session til Zustand store)
  * - Toast Container
+ *
+ * Bemærk: HeroUI kræver ikke en separat provider her. Den er sat op via
+ * `@heroui/styles` i globals.css og komponentimporterne i appen.
  */
 'use client'
 import { ReactNode, useEffect } from 'react'
 import { ThemeProvider as NextThemesProvider, useTheme } from 'next-themes'
-import { HeroUIProvider } from "@heroui/react"
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { SessionProvider, useSession } from 'next-auth/react';
@@ -45,14 +46,12 @@ export default function Providers({ children }: { children: ReactNode }) {
   return (
     <SessionProvider>
       <NextThemesProvider attribute="class" defaultTheme="dark" enableSystem>
-        <HeroUIProvider>
           <EnumProvider>
             <AuthSync>
               {children}
             </AuthSync>
           </EnumProvider>
           <ThemeToastContainer />
-        </HeroUIProvider>
       </NextThemesProvider>
     </SessionProvider>
   );

@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Button, Card, CardBody, CardHeader, Spinner } from '@heroui/react';
+import { Button, Card, Spinner } from '@heroui/react';
 import { FaUpload, FaTrash, FaStar, FaRegStar } from 'react-icons/fa';
 import SimpleCloudinaryWidget from '@/components/cloudinary/SimpleCloudinaryWidget';
 import CloudinaryImage from '@/components/cloudinary/CloudinaryImage';
@@ -159,45 +159,44 @@ export default function BlogImageSection({
             <div className="flex justify-between items-center">
                 <h3 className="text-lg font-semibold text-heading">Blog Billeder</h3>
                 <Button
-                    color="primary"
+                    variant="primary"
                     onPress={handleUploadClick}
-                    isLoading={isLoadingConfig}
-                    startContent={<FaUpload />}
+                    isPending={isLoadingConfig}
                     isDisabled={isLoadingConfig}
                 >
-                    Upload Billede
+                    <FaUpload /> Upload Billede
                 </Button>
             </div>
 
             {/* Fejlmeddelelse */}
             {error && (
                 <Card className="bg-red-500/10 border-red-500/50">
-                    <CardBody>
+                    <Card.Content>
                         <p className="text-red-300 text-sm">{error}</p>
-                    </CardBody>
+                    </Card.Content>
                 </Card>
             )}
 
             {/* Upload Widget */}
             {showUpload && uploadConfig && (
                 <Card className="bg-content2 border-divider">
-                    <CardHeader>
+                    <Card.Header>
                         <div className="flex justify-between items-center w-full">
                             <h4 className="text-heading">Upload Nyt Billede</h4>
                             <Button
                                 size="sm"
-                                variant="light"
+                                variant="ghost"
                                 onPress={handleCloseUpload}
                                 isDisabled={isRegistering}
                             >
                                 Luk
                             </Button>
                         </div>
-                    </CardHeader>
-                    <CardBody>
+                    </Card.Header>
+                    <Card.Content>
                         {isRegistering && (
                             <div className="flex items-center gap-2 mb-4 text-primary">
-                                <Spinner size="sm" color="primary" />
+                                <Spinner size="sm" color="accent" />
                                 <span>Registrerer billede...</span>
                             </div>
                         )}
@@ -209,7 +208,7 @@ export default function BlogImageSection({
                             widgetKey={`blog-${blogId}-${Date.now()}`}
                             forceReload={true}
                         />
-                    </CardBody>
+                    </Card.Content>
                 </Card>
             )}
 
@@ -218,7 +217,7 @@ export default function BlogImageSection({
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {photos.map((photo) => (
                         <Card key={photo.id} className="bg-content2 border-divider">
-                            <CardBody className="p-2">
+                            <Card.Content className="p-2">
                                 <div className="relative">
                                     <CloudinaryImage
                                         publicId={photo.cloudinaryPublicId}
@@ -245,23 +244,21 @@ export default function BlogImageSection({
                                     <div className="flex gap-2">
                                         <Button
                                             size="sm"
-                                            variant="light"
-                                            color={featuredImageId === photo.id ? "warning" : "default"}
+                                            variant={featuredImageId === photo.id ? "warning" as any : "ghost"}
                                             onPress={() => handleSetFeaturedImage(photo.id)}
-                                            isLoading={isSettingFeatured === photo.id}
-                                            startContent={featuredImageId === photo.id ? <FaStar /> : <FaRegStar />}
+                                            isPending={isSettingFeatured === photo.id}
                                             className="flex-1"
                                             isDisabled={isSettingFeatured !== null || isDeleting !== null}
                                         >
+                                            {featuredImageId === photo.id ? <FaStar /> : <FaRegStar />}
                                             {featuredImageId === photo.id ? 'Featured' : 'Sæt Featured'}
                                         </Button>
                                         
                                         <Button
                                             size="sm"
-                                            color="danger"
-                                            variant="light"
+                                            variant="danger"
                                             onPress={() => handleDeletePhoto(photo.id)}
-                                            isLoading={isDeleting === photo.id}
+                                            isPending={isDeleting === photo.id}
                                             isIconOnly
                                             isDisabled={isSettingFeatured !== null || isDeleting !== null}
                                         >
@@ -269,23 +266,22 @@ export default function BlogImageSection({
                                         </Button>
                                     </div>
                                 </div>
-                            </CardBody>
+                            </Card.Content>
                         </Card>
                     ))}
                 </div>
             ) : (
                 <Card className="bg-content2 border-divider">
-                    <CardBody className="text-center py-8">
+                    <Card.Content className="text-center py-8">
                         <p className="text-muted mb-4">Ingen billeder uploadet endnu</p>
                         <Button
-                            color="primary"
+                            variant="primary"
                             onPress={handleUploadClick}
-                            isLoading={isLoadingConfig}
-                            startContent={<FaUpload />}
+                            isPending={isLoadingConfig}
                         >
-                            Upload Dit Første Billede
+                            <FaUpload /> Upload Dit Første Billede
                         </Button>
-                    </CardBody>
+                    </Card.Content>
                 </Card>
             )}
         </div>

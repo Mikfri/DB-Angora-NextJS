@@ -2,7 +2,8 @@
 'use client';
 
 import { Rabbit_ForbreedingPreviewDTO } from '@/api/types/AngoraDTOs';
-import { Card, CardHeader, CardBody, Chip, Divider } from "@heroui/react";
+import ClickableCard from '@/components/ui/custom/cards/ClickableCard';
+import { Chip, Separator } from '@/components/ui/heroui';
 import Image from 'next/image';
 import { useState, ReactNode } from 'react';
 import { formatDate } from '@/utils/formatters';
@@ -11,27 +12,6 @@ import { BsCalendarDate, BsGenderAmbiguous } from "react-icons/bs";
 import { IoColorPaletteOutline } from "react-icons/io5";
 import { SiMicrogenetics } from "react-icons/si";
 import { TbHeartSearch } from 'react-icons/tb';
-
-interface Props {
-    rabbit: Rabbit_ForbreedingPreviewDTO;
-    onClick?: () => void;
-}
-
-const formatNullableValue = (value: string | null | undefined): string => {
-    return value || 'Ikke angivet';
-};
-
-const formatInbreedingCoefficient = (coefficient: number | null | undefined): string => {
-    if (coefficient === null || coefficient === undefined) return 'Ikke beregnet';
-    return `${(coefficient * 100).toFixed(2)}%`;
-};
-
-type StatusChip = {
-    key: string;
-    color: "primary" | "secondary" | "success" | "warning" | "danger";
-    icon: ReactNode;
-    text: string;
-}
 
 export default function RabbitForbreedingCard({ rabbit, onClick }: Props) {
     const [imageError, setImageError] = useState(false);
@@ -52,9 +32,13 @@ export default function RabbitForbreedingCard({ rabbit, onClick }: Props) {
     });
 
     return (
-        <Card
-            isPressable={!!onClick}
-            onPress={onClick}
+        <ClickableCard
+            onClick={onClick}
+            style={{
+                cursor: onClick ? 'pointer' : 'default',
+                background: 'transparent',
+                borderColor: 'transparent',
+            }}
             className="max-w-sm hover:shadow-lg transition-shadow bg-zinc-800/80 backdrop-blur-md 
             backdrop-saturate-150 border border-zinc-700/50"
         >
@@ -78,12 +62,11 @@ export default function RabbitForbreedingCard({ rabbit, onClick }: Props) {
                         <Chip
                             key={chip.key}
                             color={chip.color}
-                            variant="flat"
+                            variant="soft"
                             size="md"
-                            startContent={chip.icon}
                             className="h-6 min-h-0 text-foreground-300"
                         >
-                            {chip.text}
+                            {chip.icon}{chip.text}
                         </Chip>
                     ))}
                 </div>
@@ -97,14 +80,14 @@ export default function RabbitForbreedingCard({ rabbit, onClick }: Props) {
                 </div>
             </div>
 
-            <CardHeader className="pb-0 pt-3 px-4">
+            <Card.Header className="pb-0 pt-3 px-4">
                 <div className="flex flex-col">
                     <p className="text-md font-bold text-zinc-100">{displayName}</p>
                     <p className="text-xs text-zinc-400">{rabbit.earCombId}</p>
                 </div>
-            </CardHeader>
+            </Card.Header>
 
-            <CardBody className="text-zinc-300 py-2 px-4">
+            <Card.Content className="text-zinc-300 py-2 px-4">
                 <div className="space-y-1">
                     {/* Hovedegenskaber med ikoner - kompakte rækker */}
                     <div className="flex items-center text-xs">
@@ -115,7 +98,7 @@ export default function RabbitForbreedingCard({ rabbit, onClick }: Props) {
                         </div>
                     </div>
 
-                    <Divider className="my-0.5 bg-zinc-700/30" />
+                    <Separator className="my-0.5 bg-zinc-700/30" />
 
                     <div className="flex items-center text-xs">
                         <IoColorPaletteOutline className="text-zinc-400 mr-2 shrink-0" size={12} />
@@ -141,7 +124,7 @@ export default function RabbitForbreedingCard({ rabbit, onClick }: Props) {
                         </div>
                     </div>
                 </div>
-            </CardBody>
-        </Card>
+            </Card.Content>
+        </ClickableCard>
     );
 }

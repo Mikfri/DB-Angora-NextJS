@@ -22,7 +22,7 @@ import {
   $isListNode
 } from "@lexical/list";
 import { useCallback, useEffect, useState } from "react";
-import { Button, Modal, ModalContent, ModalHeader, ModalBody, Card, CardBody } from "@heroui/react";
+import { Button, Modal } from "@heroui/react";
 import {
   FaBold,
   FaItalic,
@@ -98,22 +98,25 @@ function ImageSelector({ blogId, isOpen, onClose, onImageSelect, existingPhotos 
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="2xl">
-      <ModalContent>
-        <ModalHeader>Vælg eller Upload Billede</ModalHeader>
-        <ModalBody className="pb-6">
-          {!showUpload ? (
-            <div className="space-y-4">
-              {/* Upload knap */}
-              <Button
-                color="primary"
-                onPress={handleUploadClick}
-                isLoading={isLoadingConfig}
-                startContent={<FaImage />}
-                className="w-full"
-              >
-                Upload Nyt Billede
-              </Button>
+    <Modal isOpen={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
+      <Modal.Backdrop />
+      <Modal.Container>
+        <Modal.Dialog>
+          <Modal.Header>
+            <Modal.Heading>Vælg eller Upload Billede</Modal.Heading>
+          </Modal.Header>
+          <Modal.Body className="pb-6">
+            {!showUpload ? (
+              <div className="space-y-4">
+                {/* Upload knap */}
+                <Button
+                  variant="primary"
+                  onPress={handleUploadClick}
+                  isPending={isLoadingConfig}
+                  className="w-full"
+                >
+                  <FaImage /> Upload Nyt Billede
+                </Button>
 
               {/* Eksisterende billeder */}
               {existingPhotos.length > 0 && (
@@ -121,17 +124,16 @@ function ImageSelector({ blogId, isOpen, onClose, onImageSelect, existingPhotos 
                   <h4 className="text-lg font-semibold mb-3 text-heading">Eksisterende Billeder</h4>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-h-64 overflow-y-auto">
                     {existingPhotos.map((photo) => (
-                      <Card
+                      <div
                         key={photo.id}
-                        className="cursor-pointer hover:ring-2 hover:ring-primary transition-all bg-content2 border-divider"
-                        isPressable
-                        onPress={() => {
+                        className="cursor-pointer hover:ring-2 hover:ring-primary transition-all bg-content2 border-divider rounded-lg"
+                        onClick={() => {
                           const imageUrl = photo.filePath;
                           onImageSelect(imageUrl, photo.fileName || 'Blog billede');
                           onClose();
                         }}
                       >
-                        <CardBody className="p-2">
+                        <div className="p-2">
                           <CloudinaryImage
                             publicId={photo.cloudinaryPublicId}
                             alt={photo.fileName || 'Blog billede'}
@@ -143,25 +145,25 @@ function ImageSelector({ blogId, isOpen, onClose, onImageSelect, existingPhotos 
                           <p className="text-xs text-muted mt-1 truncate">
                             {photo.fileName || 'Unavngivet'}
                           </p>
-                        </CardBody>
-                      </Card>
+                        </div>
+                      </div>
                     ))}
                   </div>
                 </div>
               )}
             </div>
-          ) : (
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <h4 className="text-lg font-semibold text-zinc-100">Upload Nyt Billede</h4>
-                <Button
-                  size="sm"
-                  variant="light"
-                  onPress={() => setShowUpload(false)}
-                >
-                  Tilbage
-                </Button>
-              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <h4 className="text-lg font-semibold text-zinc-100">Upload Nyt Billede</h4>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onPress={() => setShowUpload(false)}
+                  >
+                    Tilbage
+                  </Button>
+                </div>
 
               {uploadConfig && (
                 <SimpleCloudinaryWidget
@@ -180,9 +182,10 @@ function ImageSelector({ blogId, isOpen, onClose, onImageSelect, existingPhotos 
                 />
               )}
             </div>
-          )}
-        </ModalBody>
-      </ModalContent>
+            )}
+          </Modal.Body>
+        </Modal.Dialog>
+      </Modal.Container>
     </Modal>
   );
 }
@@ -373,8 +376,7 @@ export function ToolbarPlugin({
         <div className="flex items-center gap-1 mr-2">
           <Button
             size="sm"
-            variant={isBold ? "solid" : "light"}
-            color={isBold ? "primary" : "default"}
+            variant={isBold ? "primary" : "ghost"}
             onPress={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold')}
             isIconOnly
           >
@@ -382,8 +384,7 @@ export function ToolbarPlugin({
           </Button>
           <Button
             size="sm"
-            variant={isItalic ? "solid" : "light"}
-            color={isItalic ? "primary" : "default"}
+            variant={isItalic ? "primary" : "ghost"}
             onPress={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic')}
             isIconOnly
           >
@@ -391,8 +392,7 @@ export function ToolbarPlugin({
           </Button>
           <Button
             size="sm"
-            variant={isUnderline ? "solid" : "light"}
-            color={isUnderline ? "primary" : "default"}
+            variant={isUnderline ? "primary" : "ghost"}
             onPress={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'underline')}
             isIconOnly
           >
@@ -404,17 +404,17 @@ export function ToolbarPlugin({
 
         {/* Block formatting */}
         <div className="flex items-center gap-1 mr-2">
-          <Button size="sm" variant="light" onPress={formatParagraph} className="min-w-fit px-2">
+          <Button size="sm" variant="ghost" onPress={formatParagraph} className="min-w-fit px-2">
             Normal
           </Button>
-          <Button size="sm" variant="light" onPress={() => formatHeading('h1')} startContent={<FaHeading />} className="min-w-fit px-2">
-            H1
+          <Button size="sm" variant="ghost" onPress={() => formatHeading('h1')} className="min-w-fit px-2">
+            <FaHeading /> H1
           </Button>
-          <Button size="sm" variant="light" onPress={() => formatHeading('h2')} startContent={<FaHeading />} className="min-w-fit px-2">
-            H2
+          <Button size="sm" variant="ghost" onPress={() => formatHeading('h2')} className="min-w-fit px-2">
+            <FaHeading /> H2
           </Button>
-          <Button size="sm" variant="light" onPress={() => formatHeading('h3')} startContent={<FaHeading />} className="min-w-fit px-2">
-            H3
+          <Button size="sm" variant="ghost" onPress={() => formatHeading('h3')} className="min-w-fit px-2">
+            <FaHeading /> H3
           </Button>
         </div>
 
@@ -424,12 +424,11 @@ export function ToolbarPlugin({
         <div className="flex items-center gap-1 mr-2">
           <Button
             size="sm"
-            variant="light"
+            variant="ghost"
             onPress={() => setShowImageSelector(true)}
-            startContent={<FaImage />}
             className="min-w-fit px-2"
           >
-            Billede
+            <FaImage /> Billede
           </Button>
         </div>
 
@@ -439,8 +438,7 @@ export function ToolbarPlugin({
         <div className="flex items-center gap-1 mr-2">
           <Button
             size="sm"
-            variant={blockType === 'bullet' ? "solid" : "light"}
-            color={blockType === 'bullet' ? "primary" : "default"}
+            variant={blockType === 'bullet' ? "primary" : "ghost"}
             onPress={() => toggleList('bullet')}
             isIconOnly
           >
@@ -448,14 +446,13 @@ export function ToolbarPlugin({
           </Button>
           <Button
             size="sm"
-            variant={blockType === 'number' ? "solid" : "light"}
-            color={blockType === 'number' ? "primary" : "default"}
+            variant={blockType === 'number' ? "primary" : "ghost"}
             onPress={() => toggleList('number')}
             isIconOnly
           >
             <FaListOl />
           </Button>
-          <Button size="sm" variant="light" onPress={formatQuote} isIconOnly>
+          <Button size="sm" variant="ghost" onPress={formatQuote} isIconOnly>
             <FaQuoteLeft />
           </Button>
         </div>
@@ -466,12 +463,11 @@ export function ToolbarPlugin({
         <div className="flex items-center gap-1 mr-2">
           <Button
             size="sm"
-            variant="light"
+            variant="ghost"
             onPress={insertYouTube}
-            startContent={<FaYoutube className="text-red-500" />}
             className="min-w-fit px-2"
           >
-            YouTube
+            <FaYoutube className="text-red-500" /> YouTube
           </Button>
         </div>
       </div>

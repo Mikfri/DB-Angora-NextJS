@@ -15,7 +15,7 @@ export interface CloudinaryPhotoRegistryRequestDTO {
 }
 
 /**
- * En DTO som indeholder de nødvendige oplysninger for at uploade et billede til Cloudinary.
+ * En DTO som backenden sender til frontenden. Indeholder de nødvendige oplysninger for at uploade et billede til Cloudinary.
  * Sendt fra DB-AngoraREST API'en til brug af et pt: UN-SIGNED-upload setup på Cloudinary.
  * https://console.cloudinary.com/settings/[...]/upload/presets
  */

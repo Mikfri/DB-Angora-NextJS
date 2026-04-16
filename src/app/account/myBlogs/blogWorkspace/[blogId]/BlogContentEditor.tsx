@@ -142,14 +142,10 @@ export default function BlogContentEditor({ editedData, isEditing }: Props) {
             <Input
               value={editedData.title || ""}
               onChange={(e) => updateField('title', e.target.value)}
-              className={inputClassName}
+              className={`${inputClassName} text-xl font-semibold`}
               placeholder="Indtast en fængende titel..."
               maxLength={160}
-              isRequired
-              size="lg"
-              classNames={{
-                input: "text-xl font-semibold"
-              }}
+              required
             />
             <p className="text-xs text-muted mt-1">
               {editedData.title?.length || 0}/160 tegn
@@ -163,12 +159,9 @@ export default function BlogContentEditor({ editedData, isEditing }: Props) {
             <Input
               value={editedData.subtitle || ""}
               onChange={(e) => updateField('subtitle', e.target.value)}
-              className={inputClassName}
+              className={`${inputClassName} text-base`}
               placeholder="Tilføj en kort beskrivelse..."
               maxLength={160}
-              classNames={{
-                input: "text-base"
-              }}
             />
             <p className="text-xs text-muted mt-1">
               {editedData.subtitle?.length || 0}/160 tegn

@@ -77,27 +77,26 @@ export default function UserDetails({
                         {!isEditing ? (
                             <Button
                                 size="sm"
-                                variant="light"
-                                color="warning"
+                                variant="ghost"
+                                className="text-warning"
                                 onPress={() => setIsEditing(true)}
-                                startContent={<FaEdit size={16} />}
                             >
-                                Rediger
+                                <FaEdit size={16} /> Rediger
                             </Button>
                         ) : (
                             <div className="space-x-2">
                                 <Button
                                     size="sm"
-                                    color="success"
+                                    variant="secondary"
+                                    className="text-success-foreground bg-success"
                                     onPress={handleSave}
                                     isDisabled={isSaving || !hasUnsavedChanges}
-                                    className="text-white"
                                 >
                                     {isSaving ? "Gemmer..." : "Gem"}
                                 </Button>
                                 <Button
                                     size="sm"
-                                    color="secondary"
+                                    variant="secondary"
                                     onPress={handleCancel}
                                     isDisabled={isSaving}
                                 >

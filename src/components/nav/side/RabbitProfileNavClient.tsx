@@ -2,8 +2,8 @@
 'use client';
 
 import { useState, ReactNode } from 'react';
-import { Divider, Button } from '@heroui/react';
-import ProfileImage from '@/components/ui/images/ProfileImage';
+import { Separator, Button } from '@/components/ui/heroui';
+import ProfileImage from '@/components/ui/custom/images/ProfileImage';
 import { useRabbitProfile } from '@/contexts/RabbitProfileContext';
 import { IoColorPaletteOutline } from "react-icons/io5";
 import { FaInfoCircle, FaPercent, FaUserCircle, FaIdCard, FaTrash, FaExchangeAlt } from "react-icons/fa";
@@ -83,31 +83,27 @@ export function RabbitProfileNavClient() {
           <h3 className="text-label mb-1">Handlinger</h3>
           <div className="flex flex-col gap-2 mb-3">
             <Button
-              color="primary"
-              variant="bordered"
+              variant="outline"
               fullWidth
               size="sm"
-              startContent={<FaExchangeAlt />}
               onPress={handleTransferClick}
               isDisabled={isTransferring}
-              isLoading={isTransferring}
+              isPending={isTransferring}
             >
-              Ejerskifte
+              <FaExchangeAlt /> Ejerskifte
             </Button>
             <Button
-              color="danger"
-              variant="bordered"
+              variant="danger-soft"
               fullWidth
               size="sm"
-              startContent={<FaTrash />}
               onPress={handleDeleteClick}
               isDisabled={isDeleting}
-              isLoading={isDeleting}
+              isPending={isDeleting}
             >
-              Slet kanin
+              <FaTrash /> Slet kanin
             </Button>
           </div>
-          <Divider className="divider my-0.5" />
+          <Separator className="Separator my-0.5" />
         </div>
 
         {/* Profile image */}
@@ -121,7 +117,7 @@ export function RabbitProfileNavClient() {
           </div>
         </div>
 
-        <Divider className="divider my-0.5" />
+        <Separator className="Separator my-0.5" />
 
         {/* Info section */}
         <div>
@@ -143,7 +139,7 @@ export function RabbitProfileNavClient() {
           </div>
         </div>
 
-        <Divider className="divider my-0.5" />
+        <Separator className="Separator my-0.5" />
 
         {/* Owner section */}
         <div>
@@ -166,7 +162,7 @@ export function RabbitProfileNavClient() {
           </div>
         </div>
 
-        <Divider className="divider my-0.5" />
+        <Separator className="Separator my-0.5" />
 
         {/* Features section */}
         <div>

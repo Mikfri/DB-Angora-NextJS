@@ -2,9 +2,21 @@
 
 import { SaleDetailsPrivateCardDTO } from '@/api/types/AngoraDTOs';
 import SaleOwnDetailsCard from '@/components/cards/saleOwnDetailsCard';
-import { Button } from '@heroui/react';
+import { Button, Pagination } from '@/components/ui/heroui';
 import { ROUTES } from '@/constants/navigationConstants';
 import { useRouter } from 'next/navigation';
+
+function getPageItems(current: number, total: number): (number | 'ellipsis')[] {
+    if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+    const pages: (number | 'ellipsis')[] = [1];
+    if (current > 3) pages.push('ellipsis');
+    for (let i = Math.max(2, current - 1); i <= Math.min(total - 1, current + 1); i++) {
+        pages.push(i);
+    }
+    if (current < total - 2) pages.push('ellipsis');
+    pages.push(total);
+    return pages;
+}
 
 interface Props {
   items: SaleDetailsPrivateCardDTO[];
@@ -19,40 +31,70 @@ export default function SalesOwnList({ items, page, totalPages, onCardClick, onP
 
   if (items.length === 0) {
     return (
-      <div className="rounded-xl border border-zinc-700/50 bg-zinc-800/70 p-6 text-center">
-        <p className="text-zinc-300 mb-2">Der er endnu ingen annoncer på din konto</p>
-        <p className="text-zinc-500 mb-4">Begynd med at oprette dit første salgsopslag.</p>
-        <Button color="primary" onPress={() => router.push(ROUTES.ACCOUNT.MY_RABBITS)}>Opret annonce</Button>
+      <div className="rounded-xl border border-divider bg-surface-secondary p-6 text-center">
+        <p className="text-foreground mb-2">Ingen annoncer matcher dit filter</p>
+        <p className="text-muted mb-4">Prøv at vælge en anden statuskategori, eller opret en ny annonce.</p>
+        <Button variant="primary" onPress={() => router.push(ROUTES.ACCOUNT.MY_RABBITS)}>Opret annonce</Button>
       </div>
     );
   }
 
   return (
-    <>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {items.map((item) => (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-start">
+        {items.map((item, index) => (
           <SaleOwnDetailsCard
             key={`${item.entityType}-${item.slug}`}
             item={item}
             onClick={() => onCardClick(item)}
+            priority={index === 0}
           />
         ))}
       </div>
+
       {totalPages > 1 && (
-        <div className="mt-6 flex justify-center gap-3">
-          <Button
-            color="secondary"
-            disabled={page <= 1}
-            onPress={() => onPageChange(Math.max(page - 1, 1))}
-          >Tilbage</Button>
-          <div className="text-sm text-zinc-400">Side {page} af {totalPages}</div>
-          <Button
-            color="secondary"
-            disabled={page >= totalPages}
-            onPress={() => onPageChange(Math.min(page + 1, totalPages))}
-          >Næste</Button>
+        <div className="flex justify-center py-4">
+          <Pagination size="sm">
+            <Pagination.Content>
+              <Pagination.Item>
+                <Pagination.Previous
+                  isDisabled={page <= 1}
+                  onPress={() => onPageChange(page - 1)}
+                >
+                  <Pagination.PreviousIcon />
+                </Pagination.Previous>
+              </Pagination.Item>
+
+              {getPageItems(page, totalPages).map((item, i) =>
+                item === 'ellipsis' ? (
+                  <Pagination.Item key={`ellipsis-${i}`}>
+                    <Pagination.Ellipsis />
+                  </Pagination.Item>
+                ) : (
+                  <Pagination.Item key={item}>
+                    <Pagination.Link
+                      isActive={item === page}
+                      onPress={() => onPageChange(item)}
+                    >
+                      {item}
+                    </Pagination.Link>
+                  </Pagination.Item>
+                )
+              )}
+
+              <Pagination.Item>
+                <Pagination.Next
+                  isDisabled={page >= totalPages}
+                  onPress={() => onPageChange(page + 1)}
+                >
+                  <Pagination.NextIcon />
+                </Pagination.Next>
+              </Pagination.Item>
+            </Pagination.Content>
+          </Pagination>
         </div>
       )}
-    </>
+    </div>
   );
 }
+

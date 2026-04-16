@@ -10,12 +10,12 @@
 
 'use client';
 
-import { Divider, Button, Card, CardBody, CardHeader } from '@heroui/react';
+import { Separator, Button, Card } from '@heroui/react';
 import { useRouter } from 'next/navigation';
 import { useBlogWorkspace } from '@/contexts/BlogWorkspaceContext';
 import BlogImageSection from './blogImages';
 import BlogContentEditor from './BlogContentEditor';
-import { AutoSaveIndicator } from '@/components/ui/spinners/AutoSaveIndicator';
+import { AutoSaveIndicator } from '@/components/ui/custom/spinners/AutoSaveIndicator';
 import { FaSave, FaEye, FaArrowLeft, FaEdit, FaTimes } from 'react-icons/fa';
 
 export default function BlogWorkspace() {
@@ -50,10 +50,9 @@ export default function BlogWorkspace() {
         <div className="flex items-center gap-4">
           <Button 
             variant="ghost" 
-            startContent={<FaArrowLeft />} 
             onPress={() => router.back()}
           >
-            Tilbage
+            <FaArrowLeft /> Tilbage
           </Button>
           <h1 className="text-2xl font-bold">Rediger blog</h1>
         </div>
@@ -63,71 +62,67 @@ export default function BlogWorkspace() {
           
           {!isEditing ? (
             <Button
-              color="primary"
-              startContent={<FaEdit />}
+              variant="primary"
               onPress={() => setIsEditing(true)}
             >
-              Rediger
+              <FaEdit /> Rediger
             </Button>
           ) : (
             <>
               <Button
-                variant="bordered"
-                startContent={<FaTimes />}
+                variant="outline"
                 onPress={handleCancelEdit}
               >
-                Annuller
+                <FaTimes /> Annuller
               </Button>
               <Button
-                color="primary"
-                startContent={<FaSave />}
+                variant="primary"
                 onPress={handleSave}
-                isLoading={isSaving}
+                isPending={isSaving}
                 isDisabled={!hasUnsavedChanges}
               >
-                Gem nu
+                <FaSave /> Gem nu
               </Button>
             </>
           )}
 
           <Button
-            variant="bordered"
-            startContent={<FaEye />}
+            variant="outline"
             onPress={() => window.open(`/blogs/${blog.slug}`, '_blank')}
           >
-            Preview
+            <FaEye /> Preview
           </Button>
         </div>
       </div>
 
-      <Divider />
+      <Separator />
 
       {/* Content Editor - fuld bredde */}
       <Card>
-        <CardHeader>
+        <Card.Header>
           <h2 className="text-lg font-semibold">Indhold</h2>
-        </CardHeader>
-        <CardBody>
+        </Card.Header>
+        <Card.Content>
           <BlogContentEditor
             editedData={editedData}
             isEditing={isEditing}
           />
-        </CardBody>
+        </Card.Content>
       </Card>
 
       {/* Billeder sektion */}
       <Card>
-        <CardHeader>
+        <Card.Header>
           <h2 className="text-lg font-semibold">Billeder</h2>
-        </CardHeader>
-        <CardBody>
+        </Card.Header>
+        <Card.Content>
           <BlogImageSection
             blogId={blog.id}
             currentPhotos={editedData.photos || []}
             featuredImageId={undefined}
             onPhotosUpdated={() => {}}
           />
-        </CardBody>
+        </Card.Content>
       </Card>
     </div>
   );

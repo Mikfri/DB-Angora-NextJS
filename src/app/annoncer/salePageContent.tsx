@@ -1,33 +1,105 @@
 // src/app/annoncer/salePageContent.tsx
-'use client'
-import PageNavigationCard from '@/components/cards/pageNavigationCard';
-import { ROUTES } from '@/constants/navigationConstants';
+import SaleCategoryCards from '@/components/cards/saleCategoryCards';
+import SaleItemsList from './saleItemsList';
+import { getAllSaleItemsFiltered } from '@/app/actions/sales/salesActions';
+import { SaleDetailsFilterDTO } from '@/api/types/AngoraDTOs';
+import BannerCard from '@/components/cards/bannerCard';
 
-export default function SalePageContent() {
-    return (
-        <div className="main-content-container">
-            <div className="flex flex-col justify-center items-center gap-6">
-                <h1 className="site-title">
-                    Til salg
-                </h1>
-                <p className="text-foreground/80">Se hvad vi har til salg hos DenBlå-Angora. Kaniner, uld og mere.</p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl w-full p-4">
-                    <PageNavigationCard
-                        href={ROUTES.SALE.RABBITS}
-                        imageSrc="/images/sideNavigationCard_SaleRabbits.jpg"
-                        title="Kaniner"
-                        description="Find kaniner til salg, ud fra vores smarte filtrerings muligheder. Filtrer bl.a. efter race, farve, alder, køn og postnummer"
-                    />
-                    <PageNavigationCard
-                        href={ROUTES.SALE.WOOLS}
-                        imageSrc="/images/sideNavigationCard_SaleWool.jpg"
-                        title="Uld"
-                        description="Køb hjemmeproduceret uld. 1'ste, 2'den og 3'de sortering, kartet eller u-kartet, farvet eller ikke farvet. Rent eller som blandingsprodukt. Heraf 'Satin-angora'- eller 'Angora' uld, direkte fra sitets registrerede avlere. Gå på opdagelse iblandt avlernes sortementer, det bedste Danmark har at byde på! (Under udvikling)"
-                        isDisabled={true}
-                        disabledMessage="Uld-sektion kommer snart! Vi arbejder på at gøre den klar."
-                    />
-                </div>
+type SearchParamsType = {
+    EntityType?: string;
+    MinPrice?: string;
+    MaxPrice?: string;
+    CanBeShipped?: string;
+    City?: string;
+    MinZipCode?: string;
+    MaxZipCode?: string;
+    SortBy?: string;
+    Page?: string;
+    PageSize?: string;
+};
+
+interface Props {
+    searchParams?: Promise<SearchParamsType>;
+}
+
+export default async function SalePageContent({ searchParams }: Props) {
+    const params = (await (searchParams || Promise.resolve({}))) as SearchParamsType;
+
+    const {
+        EntityType,
+        MinPrice,
+        MaxPrice,
+        CanBeShipped,
+        City,
+        MinZipCode,
+        MaxZipCode,
+        SortBy,
+        Page: pageParam,
+        PageSize: pageSizeParam,
+    } = params;
+
+    const page = pageParam ? parseInt(pageParam) : 1;
+    const pageSize = pageSizeParam ? parseInt(pageSizeParam) : 12;
+
+    const filter: SaleDetailsFilterDTO = {};
+
+    if (EntityType) filter.entityType = EntityType;
+    if (City) filter.city = City;
+    if (SortBy) filter.sortBy = SortBy;
+
+    if (MinPrice) {
+        const v = parseFloat(MinPrice);
+        if (!isNaN(v)) filter.minPrice = v;
+    }
+    if (MaxPrice) {
+        const v = parseFloat(MaxPrice);
+        if (!isNaN(v)) filter.maxPrice = v;
+    }
+    if (MinZipCode) {
+        const v = parseInt(MinZipCode);
+        if (!isNaN(v)) filter.minZipCode = v;
+    }
+    if (MaxZipCode) {
+        const v = parseInt(MaxZipCode);
+        if (!isNaN(v)) filter.maxZipCode = v;
+    }
+    if (CanBeShipped !== undefined) {
+        filter.canBeShipped = CanBeShipped === 'true';
+    }
+
+    const result = await getAllSaleItemsFiltered(filter, page, pageSize);
+
+    if (!result.success) {
+        return (
+            <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-6 text-center">
+                <p className="text-red-500">Der opstod en fejl: {result.error}</p>
             </div>
+        );
+    }
+
+    return (
+        <div className="space-y-6">
+            <BannerCard
+                title="Til salg"
+                description="Find kaniner, uld, garn og skind fra passionerede angora-avlere i hele Danmark."
+                imageSrc="/images/sideNavigationCard_MySales.png"
+                imageAlt="Varer til salg fra DB-Angora"
+            />
+
+            <SaleCategoryCards />
+
+            <SaleItemsList
+                items={result.data.data}
+                paging={{
+                    currentPage: result.data.page,
+                    pageSize: result.data.pageSize,
+                    totalCount: result.data.totalCount,
+                    totalPages: result.data.totalPages,
+                    hasNextPage: result.data.hasNextPage,
+                    hasPreviousPage: result.data.hasPreviousPage,
+                }}
+            />
         </div>
     );
 }
+

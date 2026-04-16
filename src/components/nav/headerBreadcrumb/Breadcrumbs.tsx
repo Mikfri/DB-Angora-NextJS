@@ -1,7 +1,7 @@
 // src/components/header/pageHeader.tsx
 'use client'
 import { usePathname } from 'next/navigation';
-import { Breadcrumbs, BreadcrumbItem } from "@heroui/react";
+import { Breadcrumbs, BreadcrumbsItem } from "@heroui/react";
 import { topNavigationLinks } from '@/constants/navigationConstants';
 
 const pageTitles: Record<string, string> = Object.fromEntries(
@@ -26,20 +26,15 @@ export default function PageHeader() {
 
   return (
     <div className="breadcrumb-container">
-      <Breadcrumbs
-        classNames={{
-          list: "gap-2",
-          separator: "breadcrumb-separator"
-        }}
-      >
+      <Breadcrumbs className="gap-2">
         {breadcrumbItems.map((item) => (
-          <BreadcrumbItem
+          <BreadcrumbsItem
             key={item.path}
             href={item.path}
             className="breadcrumb-link"
           >
             {item.label}
-          </BreadcrumbItem>
+          </BreadcrumbsItem>
         ))}
       </Breadcrumbs>
     </div>

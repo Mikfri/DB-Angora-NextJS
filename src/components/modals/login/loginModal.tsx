@@ -1,6 +1,6 @@
 // src/components/modals/login/LoginModal.tsx
 'use client'
-import { Modal, ModalContent, ModalHeader, ModalBody } from "@heroui/react";
+import { Modal } from '@/components/ui/heroui';
 import LoginForm from "./loginForm";
 
 interface Props {
@@ -9,19 +9,22 @@ interface Props {
 }
 
 export default function LoginModal({ isOpen, onClose }: Props) {
+    if (!isOpen) return null;
+
     return (
-        <Modal 
-            isOpen={isOpen} 
-            onClose={onClose}
-            placement="center"
-            backdrop="blur"
-        >
-            <ModalContent>
-                <ModalHeader className="flex flex-col gap-1 text-2xl text-gray-700">Log ind</ModalHeader>
-                <ModalBody>
-                    <LoginForm onSuccess={onClose} />
-                </ModalBody>
-            </ModalContent>
+        <Modal isOpen={isOpen} onOpenChange={(open) => !open && onClose()}>
+            <Modal.Backdrop variant="blur">
+                <Modal.Container>
+                    <Modal.Dialog>
+                        <Modal.Header>
+                            <Modal.Heading className="text-2xl text-gray-700">Log ind</Modal.Heading>
+                        </Modal.Header>
+                        <Modal.Body>
+                            <LoginForm onSuccess={onClose} />
+                        </Modal.Body>
+                    </Modal.Dialog>
+                </Modal.Container>
+            </Modal.Backdrop>
         </Modal>
     );
 }

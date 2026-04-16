@@ -6,7 +6,7 @@ import {
   CloudinaryUploadConfigDTO,
   CloudinaryPhotoRegistryRequestDTO
 } from '@/api/types/AngoraDTOs';
-import { Button } from "@heroui/react";
+import { Button } from '@/components/ui/heroui';
 import SimpleCloudinaryWidget from '@/components/cloudinary/SimpleCloudinaryWidget';
 import { useRabbitProfile } from '@/contexts/RabbitProfileContext';
 import { useAuthStore } from '@/store/authStore';
@@ -143,10 +143,10 @@ export default function PhotoSection({ earCombId }: PhotoSectionProps) {
         </div>
         <Button
           size="sm"
-          color="primary"
+          variant="primary"
           onPress={handleShowWidget}
           isDisabled={isLoadingUploadConfig || isMaxImagesReached}
-          isLoading={isLoadingUploadConfig}
+          isPending={isLoadingUploadConfig}
         >
           {isLoadingUploadConfig
             ? 'Indlæser...'

@@ -2,14 +2,14 @@
 'use client';
 
 import { ReactNode, useState } from 'react';
-import { Divider, Button, Input, Textarea, Select, SelectItem } from '@heroui/react';
+import { Separator, Button, Input, TextArea } from '@heroui/react';
 import { 
   FaRegEdit, FaUserCircle, FaCalendarAlt, FaEye, FaEyeSlash, 
   FaTrash, FaEdit, FaTimes, FaSave, FaTags, FaListAlt, FaFileAlt 
 } from "react-icons/fa";
 import { useBlogWorkspace } from '@/contexts/BlogWorkspaceContext';
 import DeleteBlogModal from '@/components/modals/blog/deleteBlogModal';
-import EnumAutocomplete from '@/components/enumHandlers/enumAutocomplete';
+import EnumAutocomplete from '@/components/ui/custom/autocomplete/EnumAutocomplete';
 
 const SECTIONS = {
   ACTIONS: 'Handlinger',
@@ -80,8 +80,7 @@ export function BlogWorkspaceNavClient() {
           </h3>
           <div className="flex flex-col gap-2">
             <Button
-              color="primary"
-              variant="bordered"
+              variant="outline"
               fullWidth
               size="sm"
               onPress={handlePublish}
@@ -90,8 +89,7 @@ export function BlogWorkspaceNavClient() {
               Publicer
             </Button>
             <Button
-              color="primary"
-              variant="bordered"
+              variant="outline"
               fullWidth
               size="sm"
               onPress={handleUnpublish}
@@ -100,11 +98,9 @@ export function BlogWorkspaceNavClient() {
               Træk tilbage
             </Button>
             <Button
-              color="danger"
-              variant="bordered"
+              variant="danger"
               fullWidth
               size="sm"
-              startContent={<FaTrash />}
               onPress={handleDeleteClick}
             >
               Slet blog
@@ -112,7 +108,7 @@ export function BlogWorkspaceNavClient() {
           </div>
         </div>
 
-        <Divider />
+        <Separator />
 
         {/* Blog info */}
         <div>
@@ -125,7 +121,7 @@ export function BlogWorkspaceNavClient() {
           </div>
         </div>
 
-        <Divider />
+        <Separator />
 
         {/* Metadata - redigerbar sektion */}
         <div>
@@ -136,7 +132,7 @@ export function BlogWorkspaceNavClient() {
             {!isMetadataEditing ? (
               <Button
                 size="sm"
-                variant="light"
+                variant="ghost"
                 isIconOnly
                 onPress={() => setIsMetadataEditing(true)}
               >
@@ -146,7 +142,7 @@ export function BlogWorkspaceNavClient() {
               <div className="flex gap-1">
                 <Button
                   size="sm"
-                  variant="light"
+                  variant="ghost"
                   isIconOnly
                   onPress={() => setIsMetadataEditing(false)}
                 >
@@ -181,7 +177,6 @@ export function BlogWorkspaceNavClient() {
               <div>
                 <label className="text-xs text-foreground/60 mb-1 block">Tags</label>
                 <Input
-                  size="sm"
                   value={editedData.tags || ""}
                   onChange={(e) => updateField('tags', e.target.value)}
                   placeholder="Komma-separerede tags..."
@@ -191,40 +186,35 @@ export function BlogWorkspaceNavClient() {
               {/* Meta beskrivelse */}
               <div>
                 <label className="text-xs text-foreground/60 mb-1 block">Meta beskrivelse</label>
-                <Textarea
-                  size="sm"
+                <TextArea
                   value={editedData.metaDescription || ""}
                   onChange={(e) => updateField('metaDescription', e.target.value)}
                   placeholder="SEO beskrivelse..."
-                  minRows={2}
-                  maxRows={3}
+                  rows={2}
                 />
               </div>
 
               {/* Synlighed */}
               <div>
                 <label className="text-xs text-foreground/60 mb-1 block">Synlighed</label>
-                <Select
-                  size="sm"
-                  selectedKeys={editedData.visibilityLevel ? [editedData.visibilityLevel] : []}
-                  onSelectionChange={(keys) => {
-                    const selectedKey = Array.from(keys)[0] as string;
-                    updateField('visibilityLevel', selectedKey);
-                  }}
-                  placeholder="Vælg synlighed"
-                >
+                <div className="flex flex-col gap-1">
                   {visibilityOptions.map((option) => (
-                    <SelectItem key={option.value}>
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => updateField('visibilityLevel', option.value)}
+                      className={`text-xs px-2 py-1 rounded text-left ${editedData.visibilityLevel === option.value ? 'bg-zinc-600 text-white' : 'text-zinc-400 hover:text-white hover:bg-zinc-700'}`}
+                    >
                       {option.label}
-                    </SelectItem>
+                    </button>
                   ))}
-                </Select>
+                </div>
               </div>
             </div>
           )}
         </div>
 
-        <Divider />
+        <Separator />
 
         {/* Forfatter */}
         <div>
@@ -237,7 +227,7 @@ export function BlogWorkspaceNavClient() {
           </div>
         </div>
 
-        <Divider />
+        <Separator />
 
         {/* Status */}
         <div>

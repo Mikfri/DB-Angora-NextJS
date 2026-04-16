@@ -2,136 +2,89 @@
 
 import Image from 'next/image';
 import { SaleDetailsPrivateCardDTO } from '@/api/types/AngoraDTOs';
-import { Card, CardHeader, CardBody, Divider } from '@heroui/react';
-import { useState, memo } from 'react';
-import { ImPriceTag } from 'react-icons/im';
-import { IoLocationOutline } from 'react-icons/io5';
+import ClickableCard from '@/components/ui/custom/cards/ClickableCard';
+import { memo, useState } from 'react';
+import { formatRelativeDate } from '@/utils/formatters';
 import { LuRabbit } from 'react-icons/lu';
 import { GiWool } from 'react-icons/gi';
-import { BsClock } from 'react-icons/bs';
+import { MdRemoveRedEye } from 'react-icons/md';
+
+const statusConfig: Record<string, { label: string; className: string }> = {
+    Active:  { label: 'Aktiv',     className: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' },
+    OnHold:  { label: 'Inaktiv',  className: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' },
+    Sold:    { label: 'Solgt',     className: 'bg-zinc-200 text-zinc-500 dark:bg-zinc-800/50 dark:text-zinc-400' },
+};
 
 interface Props {
-  item: SaleDetailsPrivateCardDTO;
-  onClick?: () => void;
+    item: SaleDetailsPrivateCardDTO;
+    onClick?: () => void;
+    priority?: boolean;
 }
 
-const SaleOwnDetailsCard = memo(function SaleOwnDetailsCard({
-  item,
-  onClick
-}: Props) {
-  const [imageError, setImageError] = useState(false);
+const SaleOwnDetailsCard = memo(function SaleOwnDetailsCard({ item, onClick, priority = false }: Props) {
+    const [imageError, setImageError] = useState(false);
 
-  const defaultImage = '/images/default-rabbit.jpg';
-  const profileImage = (!imageError && item.profilePhotoUrl) || defaultImage;
+    const defaultImage = '/images/default-rabbit.jpg';
+    const profileImage = (!imageError && item.profilePhotoUrl) || defaultImage;
 
-  // Klik handler
-  const handleCardPress = () => {
-    if (onClick) onClick();
-  };
+    const getEntityIcon = () => {
+        switch (item.entityType?.toLowerCase()) {
+            case 'rabbit': return <LuRabbit size={14} />;
+            case 'wool':   return <GiWool size={14} />;
+            default:       return <LuRabbit size={14} />;
+        }
+    };
 
-  const getEntityIcon = () => {
-    const entityType = item.entityType?.toLowerCase() || 'rabbit';
+    const status = statusConfig[item.status] ?? { label: item.status, className: 'bg-zinc-100 text-zinc-500' };
+    const formattedDate = formatRelativeDate(item.dateListed);
 
-    switch (entityType) {
-      case 'rabbit':
-        return <LuRabbit size={14} />;
-      case 'wool':
-        return <GiWool size={14} />;
-      default:
-        return <LuRabbit size={14} />;
-    }
-  };
-
-  const typeChip = (
-    <div className="inline-flex items-center gap-1 bg-black/40 backdrop-blur-sm text-white text-sm font-medium px-2 py-1 rounded-full shadow-sm">
-      {getEntityIcon()}
-      <span className="truncate max-w-[120px]">{item.title || 'Ukendt'}</span>
-    </div>
-  );
-
-  const priceChip = (
-    <div className="inline-flex items-center gap-1 bg-emerald-600/90 text-white text-sm font-medium px-2 py-1 rounded-full shadow-sm">
-      <ImPriceTag size={12} />
-      <span>{item.price} kr.</span>
-    </div>
-  );
-
-  const calculateTimeSince = () => {
-    if (!item.dateListed) return 'Ukendt';
-
-    const listedDate = new Date(item.dateListed);
-    const now = new Date();
-    const diffTime = Math.abs(now.getTime() - listedDate.getTime());
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
-    if (diffDays === 0) {
-      return 'I dag';
-    } else if (diffDays === 1) {
-      return 'I går';
-    } else if (diffDays < 7) {
-      return `${diffDays} dage siden`;
-    } else if (diffDays < 31) {
-      const weeks = Math.floor(diffDays / 7);
-      return `${weeks} ${weeks === 1 ? 'uge' : 'uger'} siden`;
-    } else {
-      const months = Math.floor(diffDays / 30);
-      return `${months} ${months === 1 ? 'måned' : 'måneder'} siden`;
-    }
-  };
-
-  return (
-    <Card
-      isPressable
-      onPress={handleCardPress}
-      className="max-w-sm hover:shadow-lg transition-shadow bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 border border-zinc-700/50 select-none"
-    >
-      <div className="relative w-full h-64">
-        <Image
-          src={profileImage}
-          alt={`${item.title || 'Salgsobjekt'} billede`}
-          fill
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          className="object-cover"
-          onError={() => setImageError(true)}
-          draggable={false}
-        />
-
-        <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-black/80 to-transparent" />
-
-        <div className="absolute bottom-2 left-2 z-10 select-none">{typeChip}</div>
-        <div className="absolute bottom-2 right-2 z-10 select-none">{priceChip}</div>
-      </div>
-
-      <CardHeader className="flex gap-3 py-2.5">
-        <div className="flex flex-col w-full">
-          <div className="flex items-center justify-between">
-            <p className="text-small text-zinc-300">ID: {item.slug}</p>
-          </div>
-        </div>
-      </CardHeader>
-
-      <CardBody className="text-zinc-300 py-0 pb-3 select-none">
-        <div className="space-y-2">
-          <div className="flex items-center">
-            <BsClock className="text-zinc-400 mr-2 shrink-0" size={14} />
-            <div className="grid grid-cols-2 gap-x-2 w-full">
-              <span className="text-zinc-400 text-sm">Oprettet:</span>
-              <span className="text-sm">{calculateTimeSince()}</span>
+    return (
+        <ClickableCard onClick={onClick} className="w-full h-full flex flex-col hover:-translate-y-1">
+            {/* Billede */}
+            <div className="relative w-full h-48 overflow-hidden">
+                <Image
+                    src={profileImage}
+                    alt={`${item.title || 'Salgsobjekt'} billede`}
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                    className="object-cover"
+                    onError={() => setImageError(true)}
+                    draggable={false}
+                    priority={priority}
+                />
             </div>
-          </div>
 
-          <Divider className="my-1.5 bg-zinc-700/50" />
+            {/* Tekst-indhold */}
+            <ClickableCard.Content>
+                <div className="space-y-1.5">
+                    {/* Status + dato */}
+                    <div className="flex items-center gap-2">
+                        <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${status.className}`}>
+                            {status.label}
+                        </span>
+                        <span className="text-xs text-muted">· {formattedDate}</span>
+                    </div>
 
-          <div className="flex items-center">
-            <IoLocationOutline className="text-zinc-400 mr-2 shrink-0" size={16} />
-            <div className="grid grid-cols-2 gap-x-2 w-full">
-              <span className="text-zinc-400 text-sm">Lokation:</span>
-            </div>
-          </div>
-        </div>
-      </CardBody>
-    </Card>
-  );
+                    {/* Titel */}
+                    <p className="text-sm font-semibold text-foreground line-clamp-2 leading-snug flex items-center gap-1">
+                        {getEntityIcon()} {item.title}
+                    </p>
+
+                    {/* Pris */}
+                    <p className="text-base font-bold text-foreground">{item.price} kr.</p>
+
+                    {/* Visninger + kan sendes */}
+                    <div className="flex items-center gap-3 text-xs text-muted">
+                        <span className="flex items-center gap-1">
+                            <MdRemoveRedEye size={13} />
+                            {item.viewCount ?? 0} visninger
+                        </span>
+                        {item.canBeShipped && <span>· Kan sendes</span>}
+                    </div>
+                </div>
+            </ClickableCard.Content>
+        </ClickableCard>
+    );
 });
 
 export default SaleOwnDetailsCard;

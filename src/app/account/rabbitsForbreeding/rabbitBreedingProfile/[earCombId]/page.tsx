@@ -45,7 +45,7 @@ export default function RabbitBreedingProfilePage() {
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[50vh]">
-        <Spinner size="lg" color="primary" label="Indlæser avlsprofil..." />
+        <Spinner size="lg" color="accent" />
       </div>
     );
   }

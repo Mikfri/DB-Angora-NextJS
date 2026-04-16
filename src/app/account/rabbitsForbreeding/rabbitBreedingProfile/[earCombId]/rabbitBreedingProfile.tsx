@@ -3,8 +3,8 @@
 "use client";
 
 import { Rabbit_ForbreedingProfileDTO } from '@/api/types/AngoraDTOs';
-import { Tabs, Tab } from "@heroui/react";
-import { useMemo } from 'react';
+import CustomTabs, { TabItem } from '@/components/ui/custom/tabs/Tabs';
+import { useMemo, useState } from 'react';
 import RabbitBreedingDetails from './rabbitBreedingDetails';
 import RabbitBreedingPhotoCarousel from './rabbitBreedingPhotoCarousel';
 import RabbitBreedingSaleDetailsView from './rabbitBreedingSaleDetails';
@@ -18,6 +18,7 @@ interface RabbitBreedingProfileProps {
 
 export default function RabbitBreedingProfile({ profile }: RabbitBreedingProfileProps) {
   const displayName = profile.nickName || profile.earCombId;
+  const [activeTab, setActiveTab] = useState('details');
 
   const detailsTab = useMemo(() => (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -55,58 +56,33 @@ export default function RabbitBreedingProfile({ profile }: RabbitBreedingProfile
         <p className="text-sm text-zinc-400 mt-1">Avlsprofil</p>
       </div>
 
-      <Tabs
+      <CustomTabs
         aria-label="Kanin avlsinformation"
-        variant="underlined"
-        color="primary"
-        classNames={{
-          tabList: "gap-6 w-full relative p-0 border-b border-zinc-700/50",
-          cursor: "w-full bg-blue-500",
-          tab: "max-w-fit px-0 h-12",
-          tabContent: "group-data-[selected=true]:text-blue-500",
-          panel: "pt-5"
-        }}
-      >
-        <Tab
-          key="details"
-          title={
-            <div className="flex items-center space-x-2">
-              <RiInformationLine className="text-xl" />
-              <span>Detaljer</span>
-            </div>
-          }
-        >
-          {detailsTab}
-        </Tab>
-
-        <Tab
-          key="pedigree"
-          title={
-            <div className="flex items-center space-x-2">
-              <FaTreeCity className="text-xl" />
-              <span>Stamtavle</span>
-            </div>
-          }
-        >
-          {pedigreeTab}
-        </Tab>
-
-        <Tab
-          key="sale"
-          title={
-            <div className="flex items-center space-x-2">
-              {profile.saleDetailsEmbedded ? (
-                <RiPriceTag3Fill className="text-xl text-blue-400" />
-              ) : (
-                <RiPriceTag3Line className="text-xl" />
-              )}
-              <span>Salgsprofil</span>
-            </div>
-          }
-        >
-          {saleTab}
-        </Tab>
-      </Tabs>
+        activeKey={activeTab}
+        onChange={setActiveTab}
+        items={[
+          {
+            key: 'details',
+            label: 'Detaljer',
+            icon: <RiInformationLine className="text-xl" />,
+            content: detailsTab,
+          },
+          {
+            key: 'pedigree',
+            label: 'Stamtavle',
+            icon: <FaTreeCity className="text-xl" />,
+            content: pedigreeTab,
+          },
+          {
+            key: 'sale',
+            label: 'Salgsprofil',
+            icon: profile.saleDetailsEmbedded
+              ? <RiPriceTag3Fill className="text-xl text-blue-400" />
+              : <RiPriceTag3Line className="text-xl" />,
+            content: saleTab,
+          },
+        ] as TabItem[]}
+      />
     </div>
   );
 }

@@ -2,12 +2,12 @@
 'use client';
 
 import { useState, useCallback, useEffect, useTransition } from 'react';
-import { Input, Button, Divider, Tooltip, Chip } from "@heroui/react";
+import { Input, Button, Separator, Tooltip, Chip } from "@heroui/react";
 import { useRouter } from 'next/navigation';
 import { useBlogOwnedStore } from '@/store/BlogOwnedStore';
 import { createBlogAction } from "@/app/actions/blog/blogActions";
 import { useEnums } from '@/contexts/EnumContext';
-import EnumAutocomplete from '@/components/enumHandlers/enumAutocomplete';
+import EnumAutocomplete from '@/components/ui/custom/autocomplete/EnumAutocomplete';
 
 import {
   RiAddCircleLine,
@@ -87,20 +87,19 @@ export function BlogOwnNavClient() {
       <div>
         <h3 className="text-[13px] font-medium text-zinc-400 mb-0.5">{SECTION.ACTIONS}</h3>
         <Button
-          color="primary"
           variant="ghost"
           fullWidth
           size="sm"
           className="justify-start"
-          startContent={<RiAddCircleLine className="text-lg" />}
           onPress={handleCreateBlog}
-          isLoading={isPending}
+          isPending={isPending}
         >
+          <RiAddCircleLine className="text-lg" />
           Ny blog-kladde
         </Button>
       </div>
 
-      <Divider className="bg-zinc-200/5 my-0.5" />
+      <Separator className="bg-zinc-200/5 my-0.5" />
 
       {/* Søg + dato */}
       <div>
@@ -109,25 +108,20 @@ export function BlogOwnNavClient() {
         {/* Søg */}
         <div className="flex items-center gap-1">
           <div className="flex items-center gap-1.5 min-w-[68px]">
-            <TbFilterSearch className="text-lg text-default-500" />
+            <TbFilterSearch className="text-lg text-foreground/70" />
             <span className="text-xs font-medium">Søg</span>
           </div>
           <div className="flex-1 flex items-center gap-1">
             <Input
-              size="sm"
               placeholder="Titel, undertitel, indhold"
               value={searchDraft}
               onChange={(e) => setSearchDraft(e.target.value)}
               onKeyDown={onSearchKey}
-              classNames={{
-                inputWrapper: "h-7 min-h-unit-7 px-2",
-                input: "text-xs"
-              }}
             />
             {searchDraft && (
               <Button
                 size="sm"
-                variant="light"
+                variant="ghost"
                 isIconOnly
                 aria-label="Ryd søgning"
                 onPress={clearSearch}
@@ -137,8 +131,7 @@ export function BlogOwnNavClient() {
             )}
             <Button
               size="sm"
-              color="primary"
-              variant={searchDraft === filters.search ? "flat" : "solid"}
+              variant={searchDraft === filters.search ? "secondary" : "primary"}
               isIconOnly
               aria-label="Udfør søgning"
               onPress={applySearch}
@@ -152,24 +145,19 @@ export function BlogOwnNavClient() {
         {/* Oprettet efter */}
         <div className="flex items-center gap-1 mt-2">
           <div className="flex items-center gap-1.5 min-w-[68px]">
-            <MdCalendarMonth className="text-lg text-default-500" />
+            <MdCalendarMonth className="text-lg text-foreground/70" />
             <span className="text-xs font-medium">Efter</span>
           </div>
           <div className="flex-1 flex items-center gap-1">
             <Input
-              size="sm"
               type="date"
               value={filters.createdAfter || ''}
               onChange={(e) => updateFilters({ createdAfter: e.target.value || null })}
-              classNames={{
-                inputWrapper: "h-7 min-h-unit-7 px-2",
-                input: "text-xs"
-              }}
             />
             {hasDate && (
               <Button
                 size="sm"
-                variant="light"
+                variant="ghost"
                 isIconOnly
                 aria-label="Ryd dato"
                 onPress={() => updateFilters({ createdAfter: null })}
@@ -183,7 +171,7 @@ export function BlogOwnNavClient() {
         {/* Kategori filter */}
         <div className="flex items-center gap-1 mt-2">
           <div className="flex items-center gap-1.5 min-w-[68px]">
-            <MdCalendarMonth className="text-lg text-default-500" />
+            <MdCalendarMonth className="text-lg text-foreground/70" />
             <span className="text-xs font-medium">Kategori</span>
           </div>
           <div className="flex-1 flex items-center gap-1">
@@ -198,99 +186,111 @@ export function BlogOwnNavClient() {
         </div>
       </div>
 
-      <Divider className="bg-zinc-200/5 my-0.5" />
+      <Separator className="bg-zinc-200/5 my-0.5" />
 
       {/* Publicering */}
       <div>
         <h3 className="text-[13px] font-medium text-zinc-400 mb-0.5">{SECTION.PUBLISHING}</h3>
         <div className="flex gap-2">
-          <Tooltip content="Alle" className="dark" showArrow placement="bottom">
-            <Button
-              size="sm"
-              variant={filters.isPublished === null ? "solid" : "flat"}
-              color={filters.isPublished === null ? "primary" : "default"}
-              onPress={() => setPublishedFilter(null)}
-              isIconOnly
-              aria-label="Alle"
-            >
-              <HiOutlineSelector className="text-base" />
-            </Button>
-          </Tooltip>
-          <Tooltip content="Publicerede" className="dark" showArrow placement="bottom">
-            <Button
-              size="sm"
-              variant={filters.isPublished === true ? "solid" : "flat"}
-              color={filters.isPublished === true ? "success" : "default"}
-              onPress={() => setPublishedFilter(true)}
-              isIconOnly
-              aria-label="Publicerede"
-            >
-              <RiEyeLine className="text-base" />
-            </Button>
-          </Tooltip>
-          <Tooltip content="Kladder" className="dark" showArrow placement="bottom">
-            <Button
-              size="sm"
-              variant={filters.isPublished === false ? "solid" : "flat"}
-              color={filters.isPublished === false ? "warning" : "default"}
-              onPress={() => setPublishedFilter(false)}
-              isIconOnly
-              aria-label="Kladder"
-            >
-              <RiEyeOffLine className="text-base" />
-            </Button>
-          </Tooltip>
+          <Tooltip.Root>
+            <Tooltip.Trigger>
+              <Button
+                size="sm"
+                variant={filters.isPublished === null ? "primary" : "secondary"}
+                onPress={() => setPublishedFilter(null)}
+                isIconOnly
+                aria-label="Alle"
+              >
+                <HiOutlineSelector className="text-base" />
+              </Button>
+            </Tooltip.Trigger>
+            <Tooltip.Content>Alle</Tooltip.Content>
+          </Tooltip.Root>
+          <Tooltip.Root>
+            <Tooltip.Trigger>
+              <Button
+                size="sm"
+                variant={filters.isPublished === true ? "primary" : "secondary"}
+                onPress={() => setPublishedFilter(true)}
+                isIconOnly
+                aria-label="Publicerede"
+              >
+                <RiEyeLine className="text-base" />
+              </Button>
+            </Tooltip.Trigger>
+            <Tooltip.Content>Publicerede</Tooltip.Content>
+          </Tooltip.Root>
+          <Tooltip.Root>
+            <Tooltip.Trigger>
+              <Button
+                size="sm"
+                variant={filters.isPublished === false ? "primary" : "secondary"}
+                onPress={() => setPublishedFilter(false)}
+                isIconOnly
+                aria-label="Kladder"
+              >
+                <RiEyeOffLine className="text-base" />
+              </Button>
+            </Tooltip.Trigger>
+            <Tooltip.Content>Kladder</Tooltip.Content>
+          </Tooltip.Root>
         </div>
       </div>
 
-      <Divider className="bg-zinc-200/5 my-0.5" />
+      <Separator className="bg-zinc-200/5 my-0.5" />
 
       {/* Synlighed */}
       <div>
         <h3 className="text-[13px] font-medium text-zinc-400 mb-0.5">{SECTION.VISIBILITY}</h3>
         <div className="flex gap-2">
-          <Tooltip content="Alle" className="dark" placement="bottom" showArrow>
-            <Button
-              size="sm"
-              variant={filters.visibilityLevel === null ? "solid" : "flat"}
-              color={filters.visibilityLevel === null ? "primary" : "default"}
-              onPress={() => setVisibility(null)}
-              isIconOnly
-              aria-label="Alle synligheder"
-            >
-              <HiOutlineSelector className="text-base" />
-            </Button>
-          </Tooltip>
-          <Tooltip content="Offentlig" className="dark" placement="bottom" showArrow>
-            <Button
-              size="sm"
-              variant={filters.visibilityLevel === 'Public' ? "solid" : "flat"}
-              color={filters.visibilityLevel === 'Public' ? "success" : "default"}
-              onPress={() => setVisibility('Public')}
-              isIconOnly
-              aria-label="Offentlig"
-            >
-              <BiWorld className="text-base" />
-            </Button>
-          </Tooltip>
-          <Tooltip content="Betalt indhold" className="dark" placement="bottom" showArrow>
-            <Button
-              size="sm"
-              variant={filters.visibilityLevel === 'PaidContent' ? "solid" : "flat"}
-              color={filters.visibilityLevel === 'PaidContent' ? "warning" : "default"}
-              onPress={() => setVisibility('PaidContent')}
-              isIconOnly
-              aria-label="Betalt indhold"
-            >
-              <FaCoins className="text-sm" />
-            </Button>
-          </Tooltip>
+          <Tooltip.Root>
+            <Tooltip.Trigger>
+              <Button
+                size="sm"
+                variant={filters.visibilityLevel === null ? "primary" : "secondary"}
+                onPress={() => setVisibility(null)}
+                isIconOnly
+                aria-label="Alle synligheder"
+              >
+                <HiOutlineSelector className="text-base" />
+              </Button>
+            </Tooltip.Trigger>
+            <Tooltip.Content>Alle</Tooltip.Content>
+          </Tooltip.Root>
+          <Tooltip.Root>
+            <Tooltip.Trigger>
+              <Button
+                size="sm"
+                variant={filters.visibilityLevel === 'Public' ? "primary" : "secondary"}
+                onPress={() => setVisibility('Public')}
+                isIconOnly
+                aria-label="Offentlig"
+              >
+                <BiWorld className="text-base" />
+              </Button>
+            </Tooltip.Trigger>
+            <Tooltip.Content>Offentlig</Tooltip.Content>
+          </Tooltip.Root>
+          <Tooltip.Root>
+            <Tooltip.Trigger>
+              <Button
+                size="sm"
+                variant={filters.visibilityLevel === 'PaidContent' ? "primary" : "secondary"}
+                onPress={() => setVisibility('PaidContent')}
+                isIconOnly
+                aria-label="Betalt indhold"
+              >
+                <FaCoins className="text-sm" />
+              </Button>
+            </Tooltip.Trigger>
+            <Tooltip.Content>Betalt indhold</Tooltip.Content>
+          </Tooltip.Root>
         </div>
       </div>
 
       {isAnyFilterActive && (
         <div className="text-center mt-2">
-          <Chip size="sm" color="primary" variant="flat">
+          <Chip size="sm" variant="soft">
             {blogsCount} fundet
           </Chip>
         </div>

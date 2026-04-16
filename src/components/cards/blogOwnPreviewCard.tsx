@@ -7,7 +7,7 @@
 
 'use client';
 import { useState, memo } from 'react';
-import { Card, CardHeader, CardBody, Avatar } from '@heroui/react';
+import { Card, Avatar } from '@/components/ui/heroui';
 import Image from 'next/image';
 import { MdOutlineArticle } from 'react-icons/md';
 import { ROUTES } from '@/constants/navigationConstants';
@@ -64,8 +64,8 @@ const BlogOwnPreviewCard = memo(function BlogOwnPreviewCard({
 
   return (
     <Card
-      isPressable
-      onPress={handleCardPress}
+      style={{cursor: "pointer"}}
+      onClick={handleCardPress}
       className="max-w-sm hover:shadow-lg transition-shadow bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 border border-zinc-700/50 select-none"
     >
       {/* Billede container */}
@@ -92,15 +92,13 @@ const BlogOwnPreviewCard = memo(function BlogOwnPreviewCard({
       </div>
 
       {/* Header sektion med titel og forfatter */}
-      <CardHeader className="flex flex-col items-start gap-1 py-2.5 px-4">
+      <Card.Header className="flex flex-col items-start gap-1 py-2.5 px-4">
         <h3 className="text-md font-bold text-zinc-100 line-clamp-2 text-left w-full">{blog.title}</h3>
         <div className="flex flex-row items-start gap-2 w-full">
-          <Avatar
-            src={blog.authorPhotoUrl ?? undefined}
-            name={blog.authorName ?? 'Ukendt forfatter'}
-            size="sm"
-            className="border border-zinc-700 mt-0.5"
-          />
+          <Avatar size="sm" className="border border-zinc-700 mt-0.5">
+            <Avatar.Image src={blog.authorPhotoUrl ?? undefined} alt={blog.authorName ?? 'Ukendt forfatter'} />
+            <Avatar.Fallback>{(blog.authorName ?? 'U').charAt(0)}</Avatar.Fallback>
+          </Avatar>
           <div className="flex flex-col">
             <div className="flex items-center gap-2 text-xs text-zinc-400">
               <span>{blog.authorName ?? 'Ukendt forfatter'}</span>
@@ -113,15 +111,15 @@ const BlogOwnPreviewCard = memo(function BlogOwnPreviewCard({
         {blog.subtitle && (
           <div className="text-xs text-zinc-400 italic line-clamp-1 text-left w-full">{blog.subtitle}</div>
         )}
-      </CardHeader>
+      </Card.Header>
 
       {/* Body sektion med summary */}
-      <CardBody className="text-zinc-300 py-2 px-4">
+      <Card.Content className="text-zinc-300 py-2 px-4">
         <div
           className="line-clamp-3 text-sm mb-2"
           dangerouslySetInnerHTML={{ __html: blog.contentSummary }}
         />
-      </CardBody>
+      </Card.Content>
     </Card>
   );
 });

@@ -7,12 +7,13 @@ import TestMatingTab from './testMatingTab';
 import { ROUTES } from '@/constants/navigationConstants';
 // Ikoner og UI
 import RabbitPreviewCard from '@/components/cards/rabbitOwnPreviewCard';
-import { Tabs, Tab } from "@heroui/react";
+import CustomTabs from '@/components/ui/custom/tabs/Tabs';
 import { TbFolderHeart, TbFolderPin, TbFolderQuestion } from 'react-icons/tb';
 
 export default function RabbitOwnList({ userId }: { userId: string }) {
     const router = useRouter();
     const { fetchRabbits, rabbits, filteredRabbits, pagination, resetFilters, changePage, isLoading, error } = useRabbitsOwnedStore();
+    const [activeTab, setActiveTab] = useState<'mine' | 'test-mating' | 'bestand'>('mine');
 
     // Hent kaniner for userId ved mount og når userId ændrer sig
     useEffect(() => {
@@ -62,11 +63,11 @@ export default function RabbitOwnList({ userId }: { userId: string }) {
     // Sorteringskontrol til UI
     const sortControls = (
         <div className="flex gap-2 mb-4 items-center">
-            <span className="text-xs text-zinc-400">Sortér efter:</span>
+            <span className="text-xs text-muted">Sortér efter:</span>
             <select
                 value={sortBy}
                 onChange={e => setSortBy(e.target.value as 'none' | 'dateOfBirth' | 'race')}
-                className="bg-zinc-700 text-zinc-100 rounded px-2 py-1 text-xs"
+                className="bg-surface-secondary text-foreground border border-divider rounded px-2 py-1 text-xs"
             >
                 <option value="none">Ingen sortering</option>
                 <option value="dateOfBirth">Fødselsdato</option>
@@ -74,7 +75,7 @@ export default function RabbitOwnList({ userId }: { userId: string }) {
             </select>
             <button
                 onClick={() => setSortOrder(order => order === 'asc' ? 'desc' : 'asc')}
-                className="bg-zinc-700 text-zinc-100 rounded px-2 py-1 text-xs"
+                className="bg-surface-secondary text-foreground border border-divider rounded px-2 py-1 text-xs"
                 disabled={sortBy === 'none'}
             >
                 {sortOrder === 'asc' ? 'Stigende ↑' : 'Faldende ↓'}
@@ -88,7 +89,7 @@ export default function RabbitOwnList({ userId }: { userId: string }) {
             <div className="flex justify-center items-center min-h-[50vh]">
                 <div className="flex flex-col items-center gap-4">
                     <span className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
-                    <p className="text-zinc-300">Indlæser dine kaniner...</p>
+                    <p className="text-muted">Indlæser dine kaniner...</p>
                 </div>
             </div>
         );
@@ -105,11 +106,11 @@ export default function RabbitOwnList({ userId }: { userId: string }) {
     // Tab: Mine kaniner
     const mineKaninerTab = (
         <div>
-            <div className="text-xs text-zinc-500 mb-4">
+            <div className="text-xs text-muted mb-4">
                 Side {pagination.page} • Viser {mineKaniner.length} ud af {pagination.totalCount} kaniner
             </div>
             {sortControls}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {mineKaniner.map((rabbit) => (
                     <RabbitPreviewCard
                         key={rabbit.earCombId}
@@ -120,7 +121,7 @@ export default function RabbitOwnList({ userId }: { userId: string }) {
 
                 {mineKaniner.length === 0 && (
                     <div className="col-span-full text-center py-8">
-                        <p className="text-zinc-400">Ingen kaniner matcher de valgte filtre</p>
+                        <p className="text-muted">Ingen kaniner matcher de valgte filtre</p>
                         <button
                             onClick={resetFilters}
                             className="mt-2 text-primary underline text-sm"
@@ -132,7 +133,7 @@ export default function RabbitOwnList({ userId }: { userId: string }) {
             </div>
             {pagination.totalPages > 1 && (
                 <div className="flex flex-col items-center gap-4 mt-8">
-                    <p className="text-zinc-400">
+                    <p className="text-muted">
                         Viser side {pagination.page} af {pagination.totalPages} 
                         ({pagination.totalCount} kaniner i alt)
                     </p>
@@ -140,14 +141,14 @@ export default function RabbitOwnList({ userId }: { userId: string }) {
                         <button
                             onClick={() => changePage(1)}
                             disabled={!pagination.hasPreviousPage || isLoading}
-                            className="px-3 py-1 bg-zinc-700 rounded disabled:opacity-50"
+                            className="px-3 py-1 bg-surface-secondary text-foreground border border-divider rounded disabled:opacity-50"
                         >
                             «
                         </button>
                         <button
                             onClick={() => changePage(pagination.page - 1)}
                             disabled={!pagination.hasPreviousPage || isLoading}
-                            className="px-3 py-1 bg-zinc-700 rounded disabled:opacity-50"
+                            className="px-3 py-1 bg-surface-secondary text-foreground border border-divider rounded disabled:opacity-50"
                         >
                             ‹
                         </button>
@@ -169,7 +170,7 @@ export default function RabbitOwnList({ userId }: { userId: string }) {
                                                 className={`px-3 py-1 rounded min-w-[2.5rem] ${
                                                     pageNum === pagination.page
                                                         ? "bg-primary text-white"
-                                                        : "bg-zinc-700 hover:bg-zinc-600"
+                                                        : "bg-surface-secondary text-foreground hover:bg-surface"
                                                 }`}
                                             >
                                                 {pageNum}
@@ -181,14 +182,14 @@ export default function RabbitOwnList({ userId }: { userId: string }) {
                         <button
                             onClick={() => changePage(pagination.page + 1)}
                             disabled={!pagination.hasNextPage || isLoading}
-                            className="px-3 py-1 bg-zinc-700 rounded disabled:opacity-50"
+                            className="px-3 py-1 bg-surface-secondary text-foreground border border-divider rounded disabled:opacity-50"
                         >
                             ›
                         </button>
                         <button
                             onClick={() => changePage(pagination.totalPages)}
                             disabled={!pagination.hasNextPage || isLoading}
-                            className="px-3 py-1 bg-zinc-700 rounded disabled:opacity-50"
+                            className="px-3 py-1 bg-surface-secondary text-foreground border border-divider rounded disabled:opacity-50"
                         >
                             » 
                         </button>
@@ -201,11 +202,11 @@ export default function RabbitOwnList({ userId }: { userId: string }) {
     // Tab: Bestand (ikke ejet)
     const bestandTab = (
         <div>
-            <div className="text-xs text-zinc-500 mb-4">
+            <div className="text-xs text-muted mb-4">
                 Side {pagination.page} • Viser {bestandKaniner.length} ud af {pagination.totalCount} kaniner
             </div>
             {sortControls}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {bestandKaniner.map((rabbit) => (
                     <RabbitPreviewCard
                         key={rabbit.earCombId}
@@ -216,7 +217,7 @@ export default function RabbitOwnList({ userId }: { userId: string }) {
 
                 {bestandKaniner.length === 0 && (
                     <div className="col-span-full text-center py-8">
-                        <p className="text-zinc-400">Ingen kaniner matcher de valgte filtre</p>
+                        <p className="text-muted">Ingen kaniner matcher de valgte filtre</p>
                         <button
                             onClick={resetFilters}
                             className="mt-2 text-primary underline text-sm"
@@ -228,7 +229,7 @@ export default function RabbitOwnList({ userId }: { userId: string }) {
             </div>
             {pagination.totalPages > 1 && (
                 <div className="flex flex-col items-center gap-4 mt-8">
-                    <p className="text-zinc-400">
+                    <p className="text-muted">
                         Viser side {pagination.page} af {pagination.totalPages} 
                         ({pagination.totalCount} kaniner i alt)
                     </p>
@@ -236,14 +237,14 @@ export default function RabbitOwnList({ userId }: { userId: string }) {
                         <button
                             onClick={() => changePage(1)}
                             disabled={!pagination.hasPreviousPage || isLoading}
-                            className="px-3 py-1 bg-zinc-700 rounded disabled:opacity-50"
+                            className="px-3 py-1 bg-surface-secondary text-foreground border border-divider rounded disabled:opacity-50"
                         >
                             «
                         </button>
                         <button
                             onClick={() => changePage(pagination.page - 1)}
                             disabled={!pagination.hasPreviousPage || isLoading}
-                            className="px-3 py-1 bg-zinc-700 rounded disabled:opacity-50"
+                            className="px-3 py-1 bg-surface-secondary text-foreground border border-divider rounded disabled:opacity-50"
                         >
                             ‹
                         </button>
@@ -265,7 +266,7 @@ export default function RabbitOwnList({ userId }: { userId: string }) {
                                                 className={`px-3 py-1 rounded min-w-[2.5rem] ${
                                                     pageNum === pagination.page
                                                         ? "bg-primary text-white"
-                                                        : "bg-zinc-700 hover:bg-zinc-600"
+                                                        : "bg-surface-secondary text-foreground hover:bg-surface"
                                                 }`}
                                             >
                                                 {pageNum}
@@ -277,14 +278,14 @@ export default function RabbitOwnList({ userId }: { userId: string }) {
                         <button
                             onClick={() => changePage(pagination.page + 1)}
                             disabled={!pagination.hasNextPage || isLoading}
-                            className="px-3 py-1 bg-zinc-700 rounded disabled:opacity-50"
+                            className="px-3 py-1 bg-surface-secondary text-foreground border border-divider rounded disabled:opacity-50"
                         >
                             ›
                         </button>
                         <button
                             onClick={() => changePage(pagination.totalPages)}
                             disabled={!pagination.hasNextPage || isLoading}
-                            className="px-3 py-1 bg-zinc-700 rounded disabled:opacity-50"
+                            className="px-3 py-1 bg-surface-secondary text-foreground border border-divider rounded disabled:opacity-50"
                         >
                             » 
                         </button>
@@ -295,53 +296,43 @@ export default function RabbitOwnList({ userId }: { userId: string }) {
     );
 
     return (
-        <Tabs
+        <CustomTabs
             aria-label="Mine kaniner"
-            variant="bordered"
-            color="primary"
-            radius="lg"
-            classNames={{
-                base: "w-full",
-                tabList: "gap-2 w-full relative p-2 bg-zinc-900 border border-zinc-700 rounded-xl",
-                tab: "px-4 py-2 rounded-lg data-[selected=true]:bg-primary data-[selected=true]:text-white data-[hover=true]:bg-zinc-800 text-sm font-medium flex items-center gap-2",
-                cursor: "",
-                tabContent: "",
-                panel: "pt-6"
-            }}
-        >
-            <Tab
-                key="mine"
-                title={
-                    <span className="flex items-center gap-2">
-                        <TbFolderPin className="text-lg" />
-                        I-folden
-                    </span>
-                }
-            >
-                {mineKaninerTab}
-            </Tab>                
-            <Tab
-                key="test-mating"
-                title={
-                    <span className="flex items-center gap-2">
-                        <TbFolderHeart className="text-lg" />
-                        Test parringer
-                    </span>
-                }
-            >
-                <TestMatingTab />
-            </Tab>
-            <Tab
-                key="bestand"
-                title={
-                    <span className="flex items-center gap-2">
-                        <TbFolderQuestion className="text-lg" />
-                        Udenfor-folden
-                    </span>
-                }
-            >
-                {bestandTab}
-            </Tab>
-        </Tabs>
+            activeKey={activeTab}
+            onChange={(key) => setActiveTab(key as 'mine' | 'test-mating' | 'bestand')}
+            className="w-full"
+            items={[
+                {
+                    key: 'mine',
+                    label: (
+                        <span className="flex items-center gap-2">
+                            <TbFolderPin className="text-lg" />
+                            I-folden
+                        </span>
+                    ),
+                    content: mineKaninerTab,
+                },
+                {
+                    key: 'test-mating',
+                    label: (
+                        <span className="flex items-center gap-2">
+                            <TbFolderHeart className="text-lg" />
+                            Test parringer
+                        </span>
+                    ),
+                    content: <TestMatingTab />,
+                },
+                {
+                    key: 'bestand',
+                    label: (
+                        <span className="flex items-center gap-2">
+                            <TbFolderQuestion className="text-lg" />
+                            Udenfor-folden
+                        </span>
+                    ),
+                    content: bestandTab,
+                },
+            ]}
+        />
     );
 }

@@ -2,7 +2,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { Tabs, Tab } from "@heroui/react";
+import CustomTabs, { TabItem } from '@/components/ui/custom/tabs/Tabs';
 import UserDetails from './userDetails';
 import { User_ProfileDTO } from "@/api/types/AngoraDTOs";
 import { useUserProfile } from '@/hooks/users/useUserProfile';
@@ -57,65 +57,57 @@ export default function UserProfile({ userProfile: initialProfile }: Props) {
         )}
       </div>
 
-      <Tabs
+      <CustomTabs
         aria-label="Brugerprofil"
-        selectedKey={activeTab}
-        onSelectionChange={key => setActiveTab(key as string)}
-        variant="underlined"
-        color="primary"
-        classNames={{
-          tabList: "gap-6 w-full relative p-0 border-b border-zinc-700/50",
-          cursor: "w-full bg-blue-500",
-          tab: "max-w-fit px-0 h-12",
-          tabContent: "group-data-[selected=true]:text-blue-500",
-          panel: "pt-5"
-        }}
-      >
-        <Tab key="details" title={<span>Profiloplysninger</span>}>
-          <UserDetails
-            userProfile={userProfile}
-            isEditing={isEditing}
-            isSaving={isSaving}
-            editedData={editedData}
-            setEditedData={setEditedData}
-            setIsEditing={setIsEditing}
-            handleSave={handleSave}
-            // Password props
-            handleChangePassword={handleChangePassword}
-            isChangingPassword={isChangingPassword}
-            changePasswordError={changePasswordError}
-            changePasswordSuccess={changePasswordSuccess}
-          />
-          {/* Foto sektion under profiloplysninger */}
-          <div className="mt-8">
-            <UserPhotoSection
-              userProfileId={userProfile.userId}
-              photos={userProfile.photos || []}
-              refreshProfile={refreshProfile}
-            />
-          </div>
-        </Tab>
-        <Tab key="breeder" title={<span>Avlerkonto</span>}>
-          {userProfile.breederAccount ? (
-            <BreederAccountDetails
-              breederAccount={userProfile.breederAccount}
-              userId={userProfile.userId}
-              setBreederAccount={updated => {
-                setUserProfile({
-                  ...userProfile,
-                  breederAccount: updated
-                });
-                setBreederAccount(updated);
-              }}
-            />
-          ) : (
-            <div className="text-zinc-400">Ingen avlerkonto tilknyttet.</div>
-          )}
-        </Tab>
-        {/* <Tab key="favoristes" title={<span>Favoritter</span>}>
-          <div className="text-zinc-400">Denne funktion er under udvikling.</div>
-        </Tab> */}
-      </Tabs>
+        activeKey={activeTab}
+        onChange={key => setActiveTab(key)}
+        items={[
+          {
+            key: 'details',
+            label: 'Profiloplysninger',
+            content: (
+              <>
+                <UserDetails
+                  userProfile={userProfile}
+                  isEditing={isEditing}
+                  isSaving={isSaving}
+                  editedData={editedData}
+                  setEditedData={setEditedData}
+                  setIsEditing={setIsEditing}
+                  handleSave={handleSave}
+                  handleChangePassword={handleChangePassword}
+                  isChangingPassword={isChangingPassword}
+                  changePasswordError={changePasswordError}
+                  changePasswordSuccess={changePasswordSuccess}
+                />
+                <div className="mt-8">
+                  <UserPhotoSection
+                    userProfileId={userProfile.userId}
+                    photos={[]}
+                    refreshProfile={refreshProfile}
+                  />
+                </div>
+              </>
+            ),
+          },
+          {
+            key: 'breeder',
+            label: 'Avlerkonto',
+            content: userProfile.breederAccount ? (
+              <BreederAccountDetails
+                breederAccount={userProfile.breederAccount}
+                userId={userProfile.userId}
+                setBreederAccount={updated => {
+                  setUserProfile({ ...userProfile, breederAccount: updated });
+                  setBreederAccount(updated);
+                }}
+              />
+            ) : (
+              <div className="text-zinc-400">Ingen avlerkonto tilknyttet.</div>
+            ),
+          },
+        ] as TabItem[]}
+      />
     </div>
   );
 }

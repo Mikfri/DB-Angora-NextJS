@@ -1,8 +1,8 @@
 // src/app/account/myRabbits/rabbitProfile/[earCombId]/rabbitSaleSection.tsx
 "use client";
 
-import { Rabbit_ProfileDTO, RabbitSaleDetailsEmbeddedDTO } from '@/api/types/AngoraDTOs';
-import { Button, Card, CardBody, Spinner } from "@heroui/react";
+import { Rabbit_ProfileDTO, RabbitSaleProfilePrivateDTO } from '@/api/types/AngoraDTOs';
+import { Button, Card, Spinner } from '@/components/ui/heroui';
 import { useAuthStore } from '@/store/authStore';
 import SaleDetailsForm from './saleDetailsForm';
 import { useSaleDetailsHandler } from '@/hooks/rabbits/useRabbitSaleDetailsHandler';
@@ -10,7 +10,7 @@ import SaleDetailsView from './rabbitSaleDetailsView';
 
 interface RabbitSaleSectionProps {
   rabbitProfile: Rabbit_ProfileDTO;
-  onSaleDetailsChange: (saleDetails: RabbitSaleDetailsEmbeddedDTO | null) => void;
+  onSaleDetailsChange: (saleDetails: RabbitSaleProfilePrivateDTO | null) => void;
 }
 
 export default function RabbitSaleSection({
@@ -50,7 +50,7 @@ export default function RabbitSaleSection({
     return (
       <div className="p-10 text-center">
         <p className="text-red-500 mb-4">Du skal være logget ind for at administrere salgsprofiler</p>
-        <Button color="primary" href="/">Log ind</Button>
+        <a href="/" className="inline-block"><Button variant="primary">Log ind</Button></a>
       </div>
     );
   }
@@ -59,7 +59,7 @@ export default function RabbitSaleSection({
   if (isCreating || isEditing) {
     return (
       <Card className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 border border-zinc-700/50">
-        <CardBody>
+        <Card.Content>
           <h2 className="text-xl font-semibold mb-4">
             {isEditing ? 'Rediger salgsprofil' : 'Opret salgsprofil'}
           </h2>
@@ -72,7 +72,7 @@ export default function RabbitSaleSection({
             isSaving={isSaving}
             isEditing={isEditing}
           />
-        </CardBody>
+        </Card.Content>
       </Card>
     );
   }
@@ -92,17 +92,17 @@ export default function RabbitSaleSection({
   // Show create button if no sale details exist
   return (
     <Card className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 border border-zinc-700/50">
-      <CardBody>
+      <Card.Content>
         <div className="text-center py-6">
           <h2 className="text-xl font-semibold mb-4">Denne kanin er ikke sat til salg</h2>
           <Button 
-            color="primary"
+            variant="primary"
             onPress={startCreating}
           >
             Sæt til salg
           </Button>
         </div>
-      </CardBody>
+      </Card.Content>
     </Card>
   );
 }

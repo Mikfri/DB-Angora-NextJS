@@ -1,6 +1,6 @@
 // src/app/account/myRabbits/rabbitProfile/[earCombId]/saleDetailsForm.tsx
-import { Button, Input, Textarea, Switch } from "@heroui/react";
-import EnumAutocomplete from "@/components/enumHandlers/enumAutocomplete";
+import { Button, Input, TextArea, Switch } from '@/components/ui/heroui';
+import EnumAutocomplete from "@/components/ui/custom/autocomplete/EnumAutocomplete";
 import { RabbitPostPutSaleDetailsDTO } from "@/api/types/AngoraDTOs";
 
 interface SaleDetailsFormProps {
@@ -73,19 +73,19 @@ export default function SaleDetailsForm({
                         value={formData.homeEnvironment}
                         onChange={val => handleChange('homeEnvironment', val ?? "")}
                         placeholder="Vælg boform"
-                        label=""
+                        label="Bosted"
                     />
                 </div>
 
                 {/* Description */}
                 <div className="space-y-1">
                     <label htmlFor="description" className="text-sm text-zinc-300">Beskrivelse</label>
-                    <Textarea
+                    <TextArea
                         id="description"
                         value={formData.baseProperties.description || ''}
                         onChange={(e) => handleBaseChange('description', e.target.value)}
                         placeholder="Beskriv kaninen..."
-                        minRows={4}
+                        rows={4}
                     />
                 </div>
 
@@ -96,7 +96,7 @@ export default function SaleDetailsForm({
                         <Switch
                             id="canBeShipped"
                             isSelected={formData.baseProperties.canBeShipped}
-                            onValueChange={(checked) => handleBaseChange('canBeShipped', checked)}
+                            onChange={(checked) => handleBaseChange('canBeShipped', checked)}
                             size="sm"
                         />
                     </div>
@@ -106,7 +106,7 @@ export default function SaleDetailsForm({
                         <Switch
                             id="isLitterTrained"
                             isSelected={formData.isLitterTrained}
-                            onValueChange={(checked) => handleChange('isLitterTrained', checked)}
+                            onChange={(checked) => handleChange('isLitterTrained', checked)}
                             size="sm"
                         />
                     </div>
@@ -116,7 +116,7 @@ export default function SaleDetailsForm({
                         <Switch
                             id="isNeutered"
                             isSelected={formData.isNeutered}
-                            onValueChange={(checked) => handleChange('isNeutered', checked)}
+                            onChange={(checked) => handleChange('isNeutered', checked)}
                             size="sm"
                         />
                     </div>
@@ -126,16 +126,16 @@ export default function SaleDetailsForm({
             {/* Form actions */}
             <div className="flex justify-end gap-2">
                 <Button
-                    color="secondary"
+                    variant="secondary"
                     onPress={onCancel}
                     isDisabled={isSaving}
                 >
                     Annuller
                 </Button>
                 <Button
-                    color="primary"
+                    variant="primary"
                     type="submit"
-                    isLoading={isSaving}
+                    isPending={isSaving}
                 >
                     {isSaving ? 'Gemmer...' : isEditing ? 'Gem ændringer' : 'Opret salgsprofil'}
                 </Button>

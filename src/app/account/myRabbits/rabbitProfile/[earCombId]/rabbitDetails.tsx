@@ -2,10 +2,11 @@
 'use client'
 
 import { useState, useEffect } from 'react';
-import { Button } from "@heroui/react";
+import { Button } from '@/components/ui/heroui';
 import { Rabbit_ProfileDTO, Rabbit_UpdateDTO } from "@/api/types/AngoraDTOs";
 import PhotoSection from './rabbitPhotoSection';
-import { editableFieldLabels, renderCell } from './rabbitFormFields';
+import { editableFieldLabels, renderEditNode } from './rabbitFormFields';
+import { PropertyTable } from '@/components/ui/custom/tables';
 import { FaEdit } from 'react-icons/fa';
 
 interface RabbitDetailsProps {
@@ -70,16 +71,22 @@ export default function RabbitDetails({
 
   const hasUnsavedChanges = changedFields.size > 0;
 
+  const tableItems = (Object.keys(editableFieldLabels) as Array<keyof Rabbit_UpdateDTO>).map((key) => ({
+    label: editableFieldLabels[key],
+    editNode: renderEditNode(key, editedData, setEditedData, changedFields.has(key)),
+    className: changedFields.has(key) ? 'bg-amber-400/5' : '',
+  }));
+
   return (
     <div className="space-y-8">
       {/* Hovedcontainer der holder info og foto side ved side */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Venstre side: Kanin information */}
         <div className="lg:col-span-2">
-          <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-lg border border-zinc-700/50 overflow-hidden h-full">
+          <div className="bg-surface backdrop-blur-md rounded-lg border border-divider overflow-hidden h-full">
             {/* Form Header med knapper */}
-            <div className="flex justify-between items-center p-4 border-b border-zinc-700/50">
-              <h3 className="text-zinc-100 font-medium">Kanin Information</h3>
+            <div className="flex justify-between items-center p-4 border-b border-divider">
+              <h3 className="text-foreground font-medium">Kanin Information</h3>
               <div className="flex items-center gap-2">
                 {hasUnsavedChanges && isEditing && (
                   <span className="text-amber-400 text-sm animate-pulse mr-4">
@@ -89,72 +96,45 @@ export default function RabbitDetails({
                 {!isEditing ? (
                   <Button
                     size="sm"
-                    color="warning"
-                    variant="light"
+                    variant="ghost"
+                    className="text-warning"
                     onPress={() => setIsEditing(true)}
-                    startContent={<FaEdit size={16} />
-                  }
                   >
-                    Rediger
+                    <FaEdit size={16} /> Rediger
                   </Button>
                 ) : (
                   <>
                     <Button
                       size="sm"
-                      color="success"
+                      variant="secondary"
+                      className="text-success-foreground bg-success"
                       onPress={handleSave}
                       isDisabled={isSaving || !hasUnsavedChanges}
-                      className='text-white'
-                      startContent={
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                        </svg>
-                      }
                     >
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                      </svg>
                       {isSaving ? 'Gemmer...' : 'Gem'}
                     </Button>
                     <Button
                       size="sm"
-                      color="secondary"
-                      variant="ghost"
+                      variant="secondary"
                       onPress={handleCancelWithReset}
                       isDisabled={isSaving}
-                      startContent={
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-                        </svg>
-                      }
                     >
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+                      </svg>
                       Annuller
                     </Button>
                   </>
                 )}
-              </div>            </div>
+              </div>
+            </div>
 
             {/* Form Content */}
-            <form onSubmit={handleSubmit} className="grid gap-4 p-4">
-              {(Object.keys(editableFieldLabels) as Array<keyof Rabbit_UpdateDTO>).map((key) => (
-                <div key={key} className="grid grid-cols-1 sm:grid-cols-[200px,1fr] gap-2 items-center">
-                  <label
-                    htmlFor={`${key}-input`}
-                    id={`${key}-label`}
-                    className={`font-medium ${changedFields.has(key) ? 'text-amber-400' : 'text-zinc-300'}`}
-                  >
-                    {editableFieldLabels[key]}
-                  </label>
-                  <div className="w-full">
-                    {renderCell(
-                      key,
-                      rabbitProfile[key],
-                      isEditing,
-                      editedData,
-                      setEditedData,
-                      rabbitProfile,
-                      changedFields.has(key)
-                    )}
-                  </div>
-                </div>
-              ))}
+            <form onSubmit={handleSubmit} className="p-4">
+              <PropertyTable items={tableItems} className="bg-content1" useCard={false} isEditing={isEditing} />
             </form>
           </div>
         </div>

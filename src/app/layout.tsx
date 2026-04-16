@@ -58,7 +58,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="da" className="h-full" suppressHydrationWarning>
+    <html lang="da" className="h-full" suppressHydrationWarning data-scroll-behavior="smooth">
       <head>
         {/* Tilføj struktureret data for hele organisationen */}
         <script

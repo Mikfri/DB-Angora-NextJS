@@ -4,7 +4,7 @@
 
 import { useRabbitPedigree } from '@/hooks/rabbits/useRabbitPedigree';
 import { useState } from 'react';
-import { Spinner, Button } from "@heroui/react";
+import { Spinner, Button } from '@/components/ui/heroui';
 import PedigreeTable from '@/components/pedigree/pedigreeTable/pedigreeTable';
 
 export default function RabbitPedigree({ earCombId }: { earCombId: string }) {
@@ -14,7 +14,7 @@ export default function RabbitPedigree({ earCombId }: { earCombId: string }) {
     if (isLoading) {
         return (
             <div className="flex justify-center items-center py-12">
-                <Spinner size="lg" color="primary" />
+                <Spinner size="lg" color="accent" />
             </div>
         );
     }
@@ -24,8 +24,7 @@ export default function RabbitPedigree({ earCombId }: { earCombId: string }) {
             <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 text-center">
                 <p className="text-red-500">{error}</p>
                 <Button
-                    color="primary"
-                    variant="light"
+                    variant="ghost"
                     className="mt-4"
                     onPress={refreshPedigree}
                 >

@@ -1,4 +1,4 @@
-// src/components/enumHandlers/enumAutocomplete.tsx
+// src/components/ui/custom/autocomplete/EnumAutocomplete.tsx
 
 /**
  * Bemærk at .NET default serialiserer enum værdier som strings.
@@ -9,7 +9,7 @@
 
 "use client"
 
-import { Autocomplete, AutocompleteItem } from "@heroui/react";
+import { Autocomplete, ListBox, ListBoxItem, SearchField, useFilter } from "@/components/ui/heroui";
 import { useEffect, useState, useRef } from 'react';
 import { useEnums } from '@/contexts/EnumContext';
 import type { EnumType, EnumOption } from '@/contexts/EnumContext';
@@ -36,6 +36,7 @@ export default function EnumAutocomplete({
     const [options, setOptions] = useState<EnumOption[]>([]);
     const { getEnumValues, isLoading } = useEnums();
     const isMounted = useRef(true);
+    const { contains } = useFilter({ sensitivity: 'base' });
 
     useEffect(() => {
         isMounted.current = true;
@@ -59,7 +60,7 @@ export default function EnumAutocomplete({
 
     return (
         <div className="relative w-full">
-            <label 
+            <label
                 htmlFor={uniqueId}
                 id={`${uniqueId}-label`}
                 className="sr-only"
@@ -67,46 +68,41 @@ export default function EnumAutocomplete({
                 {label}
             </label>
             <Autocomplete
-                size="sm"
                 id={uniqueId}
-                selectedKey={value || ""}
-                onSelectionChange={(key) => onChange(key ? key.toString() : null)}
-                isLoading={isLoading(enumType)}
+                value={value ?? undefined}
+                onChange={(key) => onChange(key ? key.toString() : null)}
+                isDisabled={isLoading(enumType)}
                 aria-labelledby={ariaLabelledBy || `${uniqueId}-label`}
                 placeholder={placeholder || `Vælg ${label.toLowerCase()}`}
-                labelPlacement="outside"
-                classNames={{
-                    base: "w-full",
-                    listbox: "unified-container text-body p-1", // Bruger unified-container + text-body
-                    listboxWrapper: "data-[hover=true]:bg-content2/50", // Bruger content2 fra tailwind.config
-                    popoverContent: "unified-container backdrop-blur-md", // Bruger unified-container
-                    endContentWrapper: "text-body", // Bruger text-body
-                    selectorButton: "text-muted" // Bruger text-muted
-                }}
+                fullWidth
             >
-                {options.map((option) => (
-                    <AutocompleteItem
-                        key={option.name}
-                        textValue={option.name}
-                        className="text-body data-[selected=true]:bg-primary/10 hover:bg-content2/30 data-[hover=true]:bg-primary/100 data-[hover=true]:text-white" // Tilføjet: Hover styling som i MyNavClient (blå baggrund + hvid tekst)
-                    >
-                        {option.name.replace(/_/g, ' ')}
-                    </AutocompleteItem>
-                ))}
+                <Autocomplete.Trigger>
+                    <Autocomplete.Value />
+                    <Autocomplete.ClearButton />
+                    <Autocomplete.Indicator />
+                </Autocomplete.Trigger>
+                <Autocomplete.Popover>
+                    <Autocomplete.Filter filter={contains}>
+                        <SearchField aria-label="Søg">
+                            <SearchField.Group>
+                                <SearchField.SearchIcon />
+                                <SearchField.Input placeholder="Søg..." />
+                            </SearchField.Group>
+                        </SearchField>
+                        <ListBox>
+                            {options.map((option) => (
+                                <ListBoxItem
+                                    key={option.name}
+                                    id={option.name}
+                                    textValue={option.name}
+                                >
+                                    {option.name.replace(/_/g, ' ')}
+                                </ListBoxItem>
+                            ))}
+                        </ListBox>
+                    </Autocomplete.Filter>
+                </Autocomplete.Popover>
             </Autocomplete>
         </div>
     );
 }
-/*
-Genbrugelige utility komponenter
-• Domain-agnostiske
-• Højt abstraktionsniveau
-• Cross-cutting concerns
-
-EnumSelect/EnumAutocomplete er:
-• Generiske input komponenter
-• Genbruges på tværs af features
-• Uafhængige af forretningslogik
-• Potentielt brugbare i andre projekter
-• Dette følger SOLID principperne, særligt Single Responsibility og Interface Segregation.
-*/

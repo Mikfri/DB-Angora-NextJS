@@ -1,9 +1,11 @@
 // src/app/account/myRabbits/rabbitProfile/[earCombId]/rabbitFormFields.tsx
-import { ReactNode } from "react";
-import { PiRabbitFill, PiRabbit } from "react-icons/pi";
-import { Input, Switch } from "@heroui/react";
+'use client';
+import { ReactNode, useState, useEffect, useRef } from "react";
+import { Input, Switch } from '@/components/ui/heroui';
 import { Rabbit_ProfileDTO, Rabbit_UpdateDTO } from "@/api/types/AngoraDTOs";
-import EnumAutocomplete from "@/components/enumHandlers/enumAutocomplete";
+import EnumAutocomplete from "@/components/ui/custom/autocomplete/EnumAutocomplete";
+import { validateParentReference } from "@/app/actions/rabbit/rabbitCrudActions";
+import { FaCheckCircle, FaSpinner, FaTimesCircle } from "react-icons/fa";
 
 // Eksporter konstanten, så den kan bruges andre steder
 export const editableFieldLabels: Record<keyof Rabbit_UpdateDTO, string> = {
@@ -18,111 +20,122 @@ export const editableFieldLabels: Record<keyof Rabbit_UpdateDTO, string> = {
   motherId_Placeholder: "Mor ID"
 };
 
-// Helper function for parent validation
-function isParentValid(placeholderId: string | null, actualId: string | null): boolean {
-  return !!placeholderId && placeholderId === actualId;
+function getTypingHint(val: string): { text: string; color: string } {
+  if (!val) return { text: 'Format: XXXX-XXXX (f.eks. 5000-1234)', color: 'text-foreground/50' };
+  if (!val.includes('-')) return { text: 'Tilføj bindestreg mellem ørenumrene', color: 'text-warning' };
+  const parts = val.split('-');
+  if (parts.length > 2) return { text: 'Kun ét bindestreg er tilladt', color: 'text-danger' };
+  const [left, right] = parts;
+  if ((left + right).length < 4) return { text: 'Fortsæt med at skrive ID\'et...', color: 'text-foreground/50' };
+  return { text: 'Tab ud af feltet for at verificere i systemet', color: 'text-foreground/50' };
 }
 
-export function renderCell(
+function ParentIdInput({
+  fieldKey,
+  value,
+  onChange,
+  isChanged,
+}: {
+  fieldKey: 'fatherId_Placeholder' | 'motherId_Placeholder';
+  value: string;
+  onChange: (val: string) => void;
+  isChanged?: boolean;
+}) {
+  const [status, setStatus] = useState<'idle' | 'loading' | 'valid' | 'invalid'>('idle');
+  const [validationHint, setValidationHint] = useState('');
+  const [isFocused, setIsFocused] = useState(false);
+  const isFocusedRef = useRef(false);
+  const gender = fieldKey === 'fatherId_Placeholder' ? 'Han' : 'Hun';
+
+  // Auto-validate when value changes while NOT focused (mount + after cancel)
+  useEffect(() => {
+    if (isFocusedRef.current) return;
+    if (value && value.includes('-')) {
+      setStatus('loading');
+      setValidationHint('');
+      validateParentReference(value, gender).then(res => {
+        if (isFocusedRef.current) return;
+        if (!res.success) {
+          setStatus('invalid');
+          setValidationHint(res.error ?? 'Ugyldig');
+        } else if (res.result?.isValidParent) {
+          setStatus('valid');
+          setValidationHint('Registreret i systemet');
+        } else {
+          setStatus('invalid');
+          setValidationHint('Ikke fundet i systemet');
+        }
+      });
+    } else {
+      setStatus('idle');
+      setValidationHint('');
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]);
+
+  const handleFocus = () => {
+    setIsFocused(true);
+    isFocusedRef.current = true;
+  };
+
+  const handleBlur = async () => {
+    setIsFocused(false);
+    isFocusedRef.current = false;
+    if (!value || !value.includes('-')) {
+      setStatus('idle');
+      setValidationHint('');
+      return;
+    }
+    setStatus('loading');
+    setValidationHint('');
+    const res = await validateParentReference(value, gender);
+    if (!res.success) {
+      setStatus('invalid');
+      setValidationHint(res.error ?? 'Ugyldig');
+    } else if (res.result?.isValidParent) {
+      setStatus('valid');
+      setValidationHint('Registreret i systemet');
+    } else {
+      setStatus('invalid');
+      setValidationHint('Ikke fundet i systemet');
+    }
+  };
+
+  const typingHint = isFocused ? getTypingHint(value) : null;
+
+  return (
+    <div className="space-y-0.5">
+      <div className="flex items-center gap-2">
+        <Input
+          value={value}
+          onChange={(e) => onChange(e.target.value.replace(/[^0-9a-zA-Z-]/g, ''))}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          placeholder="0000-1111"
+          className={`transition-colors duration-200${isChanged ? ' border-amber-400' : ''}`}
+          aria-label={fieldKey === 'fatherId_Placeholder' ? 'Far ID' : 'Mor ID'}
+        />
+        {!isFocused && status === 'loading' && <FaSpinner className="animate-spin text-foreground/50 shrink-0" />}
+        {!isFocused && status === 'valid' && <FaCheckCircle className="text-success shrink-0" />}
+        {!isFocused && status === 'invalid' && <FaTimesCircle className="text-danger shrink-0" />}
+      </div>
+      {typingHint && (
+        <p className={`text-xs ${typingHint.color}`}>{typingHint.text}</p>
+      )}
+      {!isFocused && validationHint && (
+        <p className={`text-xs ${status === 'valid' ? 'text-success' : 'text-danger'}`}>{validationHint}</p>
+      )}
+    </div>
+  );
+}
+
+export function renderEditNode(
   key: keyof Rabbit_UpdateDTO,
-  value: unknown,
-  isEditing: boolean,
   editedData: Rabbit_ProfileDTO,
   setEditedData: (data: Rabbit_ProfileDTO) => void,
-  rabbitProfile?: Rabbit_ProfileDTO,
   isChanged?: boolean
 ): ReactNode {
-  const inputClassName = `transition-colors duration-200 ${isChanged ? 'border-amber-400' : ''}`;
-  const textClassName = isChanged ? 'text-amber-400' : 'text-zinc-300';
-
-  if (!isEditing) {
-    return renderViewMode(key, value, rabbitProfile, textClassName);
-  }
-
-  return renderEditMode(key, editedData, setEditedData, inputClassName);
-}
-
-// Helper function for view mode rendering
-function renderViewMode(
-  key: keyof Rabbit_UpdateDTO,
-  value: unknown,
-  rabbitProfile: Rabbit_ProfileDTO | undefined,
-  textClassName: string
-): ReactNode {
-  // Date fields
-  if (key === "dateOfBirth" || key === "dateOfDeath") {
-    return (
-      <span className={textClassName}>
-        {value ? new Date(value as string).toLocaleDateString() : "Ikke angivet"}
-      </span>
-    );
-  }
-
-  // Boolean fields
-  if (key === "isForBreeding") {
-    // Tager højde for at værdien nu er en boolean
-    const booleanValue = value === true || value === "true" || value === "Ja";
-    return (
-      <span className={textClassName}>
-        {booleanValue ? "Ja" : "Nej"}
-      </span>
-    );
-  }
-
-  // Parent fields
-  if (key === "fatherId_Placeholder" || key === "motherId_Placeholder") {
-    const parentType = key === "fatherId_Placeholder" ? "Far" : "Mor";
-    
-    // Håndter manglende værdi
-    if (!value) {
-      return (
-        <div className="flex items-center gap-2">
-          <PiRabbit
-            className="w-5 h-5 text-zinc-400 opacity-60"
-            title={`Ingen ${parentType.toLowerCase()} angivet`}
-          />
-          <span className="text-zinc-500 italic">Ikke angivet</span>
-        </div>
-      );
-    }
-
-    if (!rabbitProfile) return <span className={textClassName}>{String(value)}</span>;
-
-    const actualId = key === "fatherId_Placeholder"
-      ? rabbitProfile.father_EarCombId
-      : rabbitProfile.mother_EarCombId;
-    const parentValid = isParentValid(value as string, actualId ?? null);
-
-    return (
-      <div className="flex items-center gap-2">
-        {parentValid ? (
-          <PiRabbitFill
-            className="w-5 h-5 text-blue-500"
-            title={`${parentType} findes i systemet`}
-          />
-        ) : (
-          <PiRabbit
-            className="w-5 h-5 text-zinc-400"
-            title={`${parentType} findes ikke i systemet`}
-          />
-        )}
-        <span className={textClassName}>
-          {String(value)}
-        </span>
-      </div>
-    );
-  }
-
-  return <span className={textClassName}>{value?.toString() || "Ikke angivet"}</span>;
-}
-
-// Helper function for edit mode rendering
-function renderEditMode(
-  key: keyof Rabbit_UpdateDTO,
-  editedData: Rabbit_ProfileDTO,
-  setEditedData: (data: Rabbit_ProfileDTO) => void,
-  className: string
-): ReactNode {
+  const className = `transition-colors duration-200${isChanged ? ' border-amber-400' : ''}`;
   // Enum inputs (moved to top since it's more specific)
   if (key === "race" || key === "color" || key === "gender") {
     const enumType = key === "race" ? "Race" : key === "color" ? "Color" : "Gender";
@@ -153,15 +166,19 @@ function renderEditMode(
     return (
       <Switch
         id={`${key}-input`}
-        size="sm"
+        size="md"
         isSelected={isSelected}
-        onValueChange={(checked) =>
-          // Brug boolean værdi direkte, da feltet nu forventer en boolean
+        onChange={(checked) =>
           setEditedData({ ...editedData, [key]: checked })
         }
         className={className}
         aria-label={editableFieldLabels[key]}
-      />
+      >
+        <Switch.Control>
+          <Switch.Thumb />
+        </Switch.Control>
+        <span className="text-sm">{isSelected ? 'Ja' : 'Nej'}</span>
+      </Switch>
     );
   }
 
@@ -177,7 +194,6 @@ function renderEditMode(
     return (
       <Input
         id={`${key}-input`}
-        size="sm"
         type="date"
         value={dateValue}
         onChange={(e) => {
@@ -193,72 +209,15 @@ function renderEditMode(
     );
   }
 
-  // Parent ID inputs in renderEditMode
+  // Parent ID inputs
   if (key === "fatherId_Placeholder" || key === "motherId_Placeholder") {
-    const [rightId = '', leftId = ''] = (editedData[key] as string || '').split('-');
-    const parentType = key === "fatherId_Placeholder" ? "Far" : "Mor";
-    const combinedId = editedData[key] as string || '';
-
     return (
-      <div className="border border-zinc-700 rounded-lg overflow-hidden">
-        <div className="p-4 space-y-4">
-          {/* Header row with combined ID */}
-          <div className="flex items-center gap-2">
-            <label className="text-sm text-zinc-300 font-medium shrink-0">
-              {parentType} ID:
-            </label>
-            <div className="text-sm text-zinc-400 font-mono bg-zinc-700/50 px-2 py-1 rounded">
-              {combinedId || 'xxxx-yyyy'}
-            </div>
-          </div>
-
-          {/* Divider */}
-          <div className="border-t border-zinc-700" />
-
-          {/* Separate ear ID inputs */}
-          <div className="grid grid-cols-2 gap-4">
-            {/* Right ear input */}
-            <div className="flex items-center gap-2">
-              <label htmlFor={`${key}-right`}
-                className="text-xs text-zinc-400 whitespace-nowrap">
-                Højre øre:
-              </label>
-              <Input
-                id={`${key}-right`}
-                size="sm"
-                value={rightId}
-                onChange={(e) => {
-                  const newRight = e.target.value;
-                  const newId = newRight || leftId ? `${newRight}-${leftId}` : '';
-                  setEditedData({ ...editedData, [key]: newId });
-                }}
-                className={className}
-                placeholder="xxxx"
-              />
-            </div>
-
-            {/* Left ear input */}
-            <div className="flex items-center gap-2">
-              <label htmlFor={`${key}-left`}
-                className="text-xs text-zinc-400 whitespace-nowrap">
-                Venstre øre:
-              </label>
-              <Input
-                id={`${key}-left`}
-                size="sm"
-                value={leftId}
-                onChange={(e) => {
-                  const newLeft = e.target.value;
-                  const newId = rightId || newLeft ? `${rightId}-${newLeft}` : '';
-                  setEditedData({ ...editedData, [key]: newId });
-                }}
-                className={className}
-                placeholder="yyyy"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
+      <ParentIdInput
+        fieldKey={key}
+        value={(editedData[key] as string) || ''}
+        onChange={(val) => setEditedData({ ...editedData, [key]: val })}
+        isChanged={isChanged}
+      />
     );
   }
 
@@ -266,7 +225,7 @@ function renderEditMode(
   return (
     <Input
       id={`${key}-input`}
-      size="sm"
+
       value={editedData[key]?.toString() || ""}
       onChange={(e) => setEditedData({ ...editedData, [key]: e.target.value })}
       className={className}

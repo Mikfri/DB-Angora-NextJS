@@ -1,7 +1,7 @@
 // src/components/cards/pageNavigationCard.tsx
 'use client'
 
-import { Card, CardHeader, CardBody } from "@heroui/react";
+import { Card } from "@heroui/react";
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
@@ -43,8 +43,8 @@ export default function PageNavigationCard({
 
   return (
     <Card 
-      isPressable={true} // Altid pressable så vi kan håndtere disabled state
-      onPress={handleClick}
+      style={{cursor: "pointer"}} // Altid pressable så vi kan håndtere disabled state
+      onClick={handleClick}
       className={`max-w-sm transition-all duration-200 backdrop-blur-md backdrop-saturate-150 border border-zinc-700/50 transform hover:scale-[1.02]
         ${isDisabled 
           ? 'bg-zinc-800/40 opacity-60 cursor-not-allowed hover:opacity-70' 
@@ -73,7 +73,7 @@ export default function PageNavigationCard({
         )}
       </div>
       
-      <CardHeader className="flex gap-3">
+      <Card.Header className="flex gap-3">
         <div className="flex flex-col">
           <p className={`text-md font-bold transition-colors ${
             isDisabled ? 'text-zinc-400' : 'text-zinc-100'
@@ -81,13 +81,13 @@ export default function PageNavigationCard({
             {title}
           </p>
         </div>
-      </CardHeader>
+      </Card.Header>
       
-      <CardBody className={`transition-colors ${
+      <Card.Content className={`transition-colors ${
         isDisabled ? 'text-zinc-500' : 'text-zinc-300'
       }`}>
         <p>{description}</p>
-      </CardBody>
+      </Card.Content>
     </Card>
   );
 }

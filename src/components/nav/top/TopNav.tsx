@@ -1,7 +1,7 @@
 // src/components/nav/top/TopNav.tsx
 'use client'
 import {
-    Dropdown, DropdownTrigger, DropdownMenu,
+    Dropdown, DropdownTrigger, DropdownMenu, DropdownPopover,
     DropdownItem, Chip
 } from "@heroui/react";
 import Image from 'next/image';
@@ -79,7 +79,7 @@ export default function TopNav() {
             <p className="font-bold text-foreground hidden sm:inline">DenBlå-Angora</p>
             <Chip
               color="danger"
-              variant="shadow"
+              variant="soft"
               size="sm"
               className="ml-2 font-bold tracking-wide hidden sm:inline-block"
             >
@@ -152,60 +152,57 @@ export default function TopNav() {
           {isLoading ? (
             <div className="w-8 h-8 animate-pulse bg-content2 rounded-full" />
           ) : isLoggedIn ? (
-            <Dropdown placement="bottom-end">
-              <DropdownTrigger>
-                <div className="flex items-center gap-5 cursor-pointer">
-                  <div className="flex flex-col items-end">
-                    <span className="nav-text">{userName}</span>
-                    {hasMultipleRoles ? (
-                      <div className="flex gap-1 mt-1 flex-wrap justify-end">
-                        {roles.map(role => (
-                          <Chip
-                            key={role}
-                            size="sm"
-                            color="warning"
-                            variant="light"
-                            className="text-[10px] h-4 px-1"
-                          >
-                            {roleDisplayNames[role] || role}
-                          </Chip>
-                        ))}
-                      </div>
-                    ) : (
-                      <span className="text-xs text-warning">{userRole}</span>
-                    )}
-                  </div>
-                  <PiUserCircleCheckFill size={32} className="text-primary hover:text-primary-400" />
+            <Dropdown>
+              <DropdownTrigger className="flex items-center gap-5 cursor-pointer bg-transparent border-0 p-0 focus:outline-none">
+                <div className="flex flex-col items-end">
+                  <span className="nav-text">{userName}</span>
+                  {hasMultipleRoles ? (
+                    <div className="flex gap-1 mt-1 flex-wrap justify-end">
+                      {roles.map(role => (
+                        <Chip
+                          key={role}
+                          size="sm"
+                          color="warning"
+                          variant="soft"
+                          className="text-[10px] h-4 px-1"
+                        >
+                          {roleDisplayNames[role] || role}
+                        </Chip>
+                      ))}
+                    </div>
+                  ) : (
+                    <span className="text-xs text-warning">{userRole}</span>
+                  )}
                 </div>
+                <PiUserCircleCheckFill size={32} className="text-primary hover:text-primary-400" />
               </DropdownTrigger>
 
-              <DropdownMenu aria-label="Profil handlinger">
-                <DropdownItem 
-                  key="min-side" 
-                  textValue="Min side"
-                  href="/account"
-                >
-                  Min side
-                </DropdownItem>
-                <DropdownItem 
-                  key="profile" 
-                  textValue="Bruger profil"
-                  href="/account/profile"
-                >
-                  Bruger profil
-                </DropdownItem>
-                <DropdownItem
-                  key="logout"
-                  className="text-danger"
-                  textValue="Log ud"
-                  onPress={logout}
-                >
-                  <div className="flex items-center gap-2">
-                    <MdOutlineLogout size={20} />
-                    Log ud
-                  </div>
-                </DropdownItem>
-              </DropdownMenu>
+              <DropdownPopover placement="bottom end">
+                <DropdownMenu aria-label="Profil handlinger">
+                  <DropdownItem 
+                    id="min-side" 
+                    textValue="Min side"
+                    href="/account"
+                  >
+                    Min side
+                  </DropdownItem>
+                  <DropdownItem 
+                    id="profile" 
+                    textValue="Bruger profil"
+                    href="/account/profile"
+                  >
+                    Bruger profil
+                  </DropdownItem>
+                  <DropdownItem
+                    id="logout"
+                    className="text-danger"
+                    textValue="Log ud"
+                    onPress={logout}
+                  >
+                    <MdOutlineLogout size={20} /> Log ud
+                  </DropdownItem>
+                </DropdownMenu>
+              </DropdownPopover>
             </Dropdown>
           ) : (
             <div className="flex items-center gap-2 cursor-pointer" onClick={() => setIsLoginOpen(true)}>

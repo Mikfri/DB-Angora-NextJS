@@ -2,86 +2,158 @@
 
 /**
  * Genbrugelig base-komponent for "salgsarbejdsplads" i brugerens annoncer (Mine Salg).
- * - Indeholder fælles layout og funktionalitet for både kanin- og uldsalgsarbejdspladsen.
- * - Håndterer visning af generelle salgsoplysninger (titel, pris, status, beskrivelse, datoer).
- * - Inkluderer knapper til redigering og sletning af annoncen.
- * - Entity-specifikke felter (f.eks. kaninens øre-comb ID, uldens fiberindhold) injiceres via children-prop.
- * - Målrettet mod private salgsvisninger, da den viser følsomme oplysninger som ID.
+ * - Viser redigerbare base-felter (titel, pris, beskrivelse, kan leveres) med always-visible inputs.
+ * - Inputs er låste (pointer-events-none opacity-50) når !isEditing, live når isEditing.
+ * - Håndterer edit/save/cancel/slet-knapper i headeren.
+ * - Entity-specifikke felter (rabbit, yarn osv.) injiceres via children-prop (children modtager isEditing via props).
+ * - Ikke-redigerbare felter (ID, slug, datoer, visninger etc.) vises i SaleWorkspaceNav (side nav).
  */
 
 'use client';
-import { useRouter } from 'next/navigation';
-import { Button, Chip, Card, CardBody } from '@heroui/react';
-import { formatCurrency, formatDate } from '@/utils/formatters';
-import { FiArrowLeft, FiEye, FiTruck } from 'react-icons/fi';
-import { SaleDetailsPrivateDTO } from '@/api/types/SaleDetailsDTOs';
-import { ROUTES } from '@/constants/navigationConstants';
+import { ReactNode } from 'react';
+import { Button, Input, TextArea, Switch } from '@/components/ui/heroui';
+import { SaleDetailsBasePostPutDTO, SaleDetailsPrivateDTO } from '@/api/types/SaleDetailsDTOs';
+import { PropertyTable, PropertyTableItem } from '@/components/ui/custom/tables';
+import { FaEdit } from 'react-icons/fa';
+import SalePhotoManager from './salePhotoManager';
 
 interface SaleWorkspaceBaseProps {
   profile: SaleDetailsPrivateDTO;
+  formData: SaleDetailsBasePostPutDTO;
+  setFormData: (data: SaleDetailsBasePostPutDTO) => void;
+  isEditing: boolean;
+  isSaving: boolean;
+  hasChanges: boolean;
   onEdit: () => void;
-  onDelete: () => void;
-  isDeleting: boolean;
-  children?: React.ReactNode;  // ← entity-specifikke felter
+  onSave: () => void;
+  onCancel: () => void;
+  children?: ReactNode;
 }
 
-export default function SaleWorkspaceBase({ profile, onEdit, onDelete, isDeleting, children }: SaleWorkspaceBaseProps) {
-    const router = useRouter();
+export default function SaleWorkspaceBase({
+  profile,
+  formData,
+  setFormData,
+  isEditing,
+  isSaving,
+  hasChanges,
+  onEdit,
+  onSave,
+  onCancel,
+  children,
+}: SaleWorkspaceBaseProps) {
+  const set = <K extends keyof SaleDetailsBasePostPutDTO>(key: K, val: SaleDetailsBasePostPutDTO[K]) =>
+    setFormData({ ...formData, [key]: val });
 
-    return (
-        <div className="space-y-4">
-            <Button variant="light" startContent={<FiArrowLeft />} onPress={() => router.push(ROUTES.ACCOUNT.MY_SALES)}>
-                Mine annoncer
+  const baseItems: PropertyTableItem[] = [
+    {
+      label: 'Titel',
+      editNode: (
+        <Input
+          value={formData.title}
+          onChange={(e) => set('title', e.target.value)}
+          placeholder="Salgstitel..."
+          maxLength={200}
+          aria-label="Titel"
+        />
+      ),
+    },
+    {
+      label: 'Pris (DKK)',
+      editNode: (
+        <Input
+          type="number"
+          value={formData.price.toString()}
+          onChange={(e) => set('price', Number(e.target.value))}
+          min="0"
+          aria-label="Pris"
+        />
+      ),
+    },
+    {
+      label: 'Kan leveres',
+      editNode: (
+        <Switch
+          size="md"
+          isSelected={formData.canBeShipped}
+          onChange={(v) => set('canBeShipped', v)}
+          aria-label="Kan leveres"
+        >
+          <Switch.Control><Switch.Thumb /></Switch.Control>
+          <span className="text-sm">{formData.canBeShipped ? 'Ja' : 'Nej'}</span>
+        </Switch>
+      ),
+    },
+  ];
+
+  return (
+    <div className="bg-surface rounded-lg border border-divider overflow-hidden">
+      {/* Header med redigerings-knapper */}
+      <div className="flex justify-between items-center p-4 border-b border-divider">
+        <h3 className="text-foreground font-medium">Salgsdetaljer</h3>
+        <div className="flex items-center gap-2">
+          {hasChanges && isEditing && (
+            <span className="text-amber-400 text-sm animate-pulse mr-4">
+              Der er ændringer som ikke er gemt
+            </span>
+          )}
+          {!isEditing ? (
+            <Button size="sm" variant="ghost" className="text-warning" onPress={onEdit}>
+              <FaEdit size={16} /> Rediger
             </Button>
-
-            <Card className="bg-zinc-800/80 border border-zinc-700/50">
-                <CardBody className="space-y-4">
-                    {/* Header: titel + pris + status */}
-                    <div className="flex justify-between items-start">
-                        <div>
-                            <h1 className="text-2xl font-bold">{profile.title}</h1>
-                            <div className="flex items-center gap-3 text-sm text-zinc-400 mt-1">
-                                <span><FiEye className="inline mr-1" />{profile.viewCount} visninger</span>
-                                <span>ID: {profile.id}</span>
-                            </div>
-                        </div>
-                        <div className="flex flex-col items-end gap-2">
-                            <span className="text-2xl font-bold text-amber-500">{formatCurrency(profile.price)}</span>
-                            <Chip color={profile.status === 'Active' ? 'success' : 'default'} size="sm">{profile.status}</Chip>
-                        </div>
-                    </div>
-
-                    {/* Public URL */}
-                    <div className="bg-zinc-900/50 p-3 rounded-lg text-sm flex justify-between items-center">
-                        <span className="text-zinc-400">Offentlig URL: </span>
-                        <a href={ROUTES.SALE.BASE + '/' + profile.slug} target="_blank" className="text-blue-400 hover:underline">
-                            .../{profile.slug}
-                        </a>
-                        {profile.canBeShipped && <Chip startContent={<FiTruck />} size="sm" color="primary">Kan leveres</Chip>}
-                    </div>
-
-                    {/* Base datoer */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                        <div><p className="text-zinc-400">Oprettet</p><p>{formatDate(profile.dateListed)}</p></div>
-                        <div><p className="text-zinc-400">Sidst opdateret</p><p>{formatDate(profile.lastUpdated)}</p></div>
-                    </div>
-
-                    {/* Beskrivelse */}
-                    <div>
-                        <p className="text-zinc-400 text-sm mb-1">Beskrivelse</p>
-                        <div className="bg-zinc-900/50 p-3 rounded-lg whitespace-pre-wrap">{profile.description || 'Ingen beskrivelse'}</div>
-                    </div>
-
-                    {/* Entity-specifikke felter injiceres her */}
-                    {children}
-
-                    {/* Handlinger */}
-                    <div className="flex justify-end gap-2 pt-2 border-t border-zinc-700/50">
-                        <Button color="danger" variant="flat" onPress={onDelete} isLoading={isDeleting}>Slet</Button>
-                        <Button color="primary" onPress={onEdit}>Rediger</Button>
-                    </div>
-                </CardBody>
-            </Card>
+          ) : (
+            <>
+              <Button
+                size="sm"
+                variant="secondary"
+                className="text-success-foreground bg-success"
+                onPress={onSave}
+                isDisabled={isSaving || !hasChanges}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                </svg>
+                {isSaving ? 'Gemmer...' : 'Gem'}
+              </Button>
+              <Button
+                size="sm"
+                variant="secondary"
+                onPress={onCancel}
+                isDisabled={isSaving}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+                </svg>
+                Annuller
+              </Button>
+            </>
+          )}
         </div>
-    );
+      </div>
+
+      {/* Tabeller */}
+      <div className="p-4 space-y-4">
+        <SalePhotoManager />
+
+        <PropertyTable items={baseItems} useCard={false} isEditing={isEditing} />
+
+        {/* Beskrivelse — full-width under tabellen for mere plads */}
+        <div className={`space-y-1.5 border-t border-divider pt-3 ${!isEditing ? 'pointer-events-none opacity-50' : ''}`}>
+          <p className="px-3 text-xs font-medium text-foreground/60">Beskrivelse</p>
+          <TextArea
+            fullWidth
+            variant="secondary"
+            value={formData.description}
+            onChange={(e) => set('description', e.target.value)}
+            placeholder="Beskriv annoncen..."
+            rows={8}
+            aria-label="Beskrivelse"
+          />
+        </div>
+
+        {children}
+      </div>
+    </div>
+  );
 }
+

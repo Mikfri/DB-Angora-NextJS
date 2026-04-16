@@ -319,10 +319,8 @@ export async function fetchLatestBlogsByCategoryAction(
             };
         }
 
-        // Hent accessToken hvis nødvendigt (valgfrit, afhængigt af API)
-        const accessToken = await getAccessToken();
-
-        const result = await getLatestBlogsByCategory(category, accessToken ?? undefined);
+        // Home page data is public; avoid server runtime hooks like auth() on the root route.
+        const result = await getLatestBlogsByCategory(category);
 
         if (!result) {
             return {

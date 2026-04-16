@@ -69,7 +69,8 @@ export async function RequestUploadPermission(
         }
     });
     if (!response.ok) throw await parseApiError(response, 'Kunne ikke hente upload-konfiguration');
-    return response.json();
+    const result = await response.json();
+    return result.data ?? result;
 }
 
 export async function SavePhoto(
@@ -87,7 +88,8 @@ export async function SavePhoto(
         body: JSON.stringify(dto)
     });
     if (!response.ok) throw await parseApiError(response, 'Kunne ikke gemme billede');
-    return response.json();
+    const result = await response.json();
+    return result.data ?? result;
 }
 
 export async function UpdateProfilePhoto(
@@ -103,7 +105,8 @@ export async function UpdateProfilePhoto(
         }
     });
     if (!response.ok) throw await parseApiError(response, 'Kunne ikke opdatere profilbillede');
-    return response.json();
+    const result = await response.json();
+    return result.data ?? result;
 }
 
 export async function DeletePhoto(

@@ -3,14 +3,14 @@
 import { usePathname } from 'next/navigation';
 import { useMemo, useCallback, useEffect, useState } from 'react';
 import { useAuthStore } from '@/store/authStore';
-import { Listbox, ListboxItem, ListboxSection } from "@heroui/react";
+import { ListBox, ListBoxItem, ListBoxSection, Separator } from "@heroui/react";
+import { Header } from 'react-aria-components';
 import {
     breederNavigationLinks,
     moderatorNavigationLinks,
     navigationLinks,
     homeNavigationLinks,
     saleNavigationLinks,
-    NAV_STYLES,
     createIconMap,
     getDefaultSectionTitle,
     ROUTES,
@@ -19,6 +19,13 @@ import {
 import { NavGroup } from '@/types/navigationTypes';
 import { hasAnyRole, roleGroups } from '@/types/authTypes';
 
+const ITEM_BASE_CLASSES = [
+    "group",
+    "flex items-center gap-2",
+    "rounded-md",
+    "transition-colors duration-150",
+].join(" ");
+
 /**
  * Client Component for MyNav
  * Handles auth-based filtering and interactive elements
@@ -26,17 +33,12 @@ import { hasAnyRole, roleGroups } from '@/types/authTypes';
 export function MyNavClient() {
     const pathname = usePathname();
     const { isLoggedIn, userIdentity } = useAuthStore();
-    
-    // Track hash for anchor links
+
     const [hash, setHash] = useState('');
-    
-    // Ny state for active section på forsiden (scroll spying)
     const [activeSection, setActiveSection] = useState<string | null>(null);
-    
+
     useEffect(() => {
-        // Initial hash
         setHash(window.location.hash);
-        
         // Listen for hash changes
         const handleHashChange = () => {
             setHash(window.location.hash);
@@ -141,70 +143,47 @@ export function MyNavClient() {
         )
         , [currentLinks]);
 
-    // Early return for edge case
     if (!currentLinks.length) return null;
 
     return (
-        <Listbox
+        <ListBox
             aria-label="Navigation menu"
-            variant="flat"
-            className="p-0 gap-0"
+            className="px-1 py-0 gap-0 nav-list"   // ← nav-list tilføjet
             disabledKeys={new Set(disabledKeys)}
             selectedKeys={[fullPath]}
             selectionMode="single"
-            //selectionIcon= // <--- Ændret: Fjerner fluebens ikonet helt (i stedet for showSelectionIcon)
-            classNames={{
-                base: "px-1 py-0"
-            }}
-            itemClasses={{
-                base: [
-                    "group", // add group so icons can react to hover/selected via group- classes
-                    // Hover: blue pill + white text
-                    "data-[hover=true]:bg-primary/100",
-                    "data-[hover=true]:text-white",
-                    "data-[hover=true]:rounded-md",
-                    // Selected: identical to hover
-                    "data-[selected=true]:bg-primary/100",
-                    "data-[selected=true]:text-white",
-                    "data-[selected=true]:rounded-md",
-                ],
-                // Fjernet endContent - ikke tilladt i slot-typen
-            }}
         >
-            {currentLinks.map((group, groupIndex) => (
-                <ListboxSection
-                    key={`nav-group-${groupIndex}`}
-                    title={getSectionTitle(group)}
-                    showDivider={groupIndex < currentLinks.length - 1}
-                    hideSelectedIcon={true} // <--- Tilføjet: Fjerner fluebens ikonet i hele sektionen
-                    classNames={{
-                        divider: "divider mt-1"
-                    }}
-                >
+            {currentLinks.flatMap((group, groupIndex) => [
+                ...(groupIndex > 0 ? [<Separator key={`sep-${groupIndex}`} className="mt-1 mb-1" />] : []),
+                <ListBoxSection key={`nav-group-${groupIndex}`}>
+                    {getSectionTitle(group) && (
+                        <Header className="text-xs font-semibold text-muted px-2 py-1">
+                            {getSectionTitle(group)}
+                        </Header>
+                    )}
                     {group.links?.map((link) => {
-                        const classNames = (link.href === ROUTES.ACCOUNT.BASE || link.href === ROUTES.SALE.BASE)
-                            ? "font-semibold"
-                            : "pl-4";
+                        const itemClass = (link.href === ROUTES.ACCOUNT.BASE || link.href === ROUTES.SALE.BASE)
+                            ? `font-semibold ${ITEM_BASE_CLASSES}`
+                            : `pl-4 ${ITEM_BASE_CLASSES}`;
 
                         return (
-                            <ListboxItem
+                            <ListBoxItem
                                 key={link.href}
-                                value={link.href}
+                                id={link.href}
                                 href={link.href}
                                 textValue={link.label}
-                                className={classNames}
-                                startContent={getIconForLink(link.href)}
-                                selectedIcon={null} // <--- Tilføjet: Fjerner fluebens ikonet på dette item
+                                className={itemClass}
                             >
+                                {getIconForLink(link.href)}
                                 {link.label}
                                 {link.disabled && (
                                     <span className="ml-2 text-xs text-muted">(kommer snart)</span>
                                 )}
-                            </ListboxItem>
+                            </ListBoxItem>
                         );
                     })}
-                </ListboxSection>
-            ))}
-        </Listbox>
+                </ListBoxSection>
+            ])}
+        </ListBox>
     );
 }

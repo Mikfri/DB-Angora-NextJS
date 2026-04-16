@@ -2,13 +2,13 @@
 'use client';
 
 import { memo, useEffect, useState } from 'react';
-import { Input, Divider } from "@heroui/react";
+import { Input, Separator } from "@heroui/react";
 import { MdFilterList, MdOutlineLocationOn } from "react-icons/md";
 import { LuRabbit } from "react-icons/lu";
 import { IoColorPaletteOutline } from "react-icons/io5";
 import { FaVenusMars } from "react-icons/fa";
 import { useEnums, EnumType } from '@/contexts/EnumContext';
-import EnumAutocomplete from '@/components/enumHandlers/enumAutocomplete';
+import EnumAutocomplete from '@/components/ui/custom/autocomplete/EnumAutocomplete';
 import { useRabbitsForbreedingStore } from '@/store/rabbitsForbreedingStore';  // ← RETTET
 
 // De enum typer der bruges i denne komponent
@@ -49,19 +49,14 @@ export const RabbitForbreedingNavClient = memo(function RabbitForbreedingNavClie
                     {/* Søgefelt */}
                     <div className="flex items-center gap-1">
                         <div className="flex items-center gap-1.5 min-w-[70px]">
-                            <MdFilterList className="text-lg text-default-500" />
+                            <MdFilterList className="text-lg text-foreground/70" />
                             <span className="text-xs font-medium">Søg</span>
                         </div>
                         <div className="flex-1">
                             <Input
-                                size="sm"
                                 placeholder="Race, farve eller ID"
                                 value={filters.search}
                                 onChange={(e) => updateFilters({ search: e.target.value })}
-                                classNames={{
-                                    inputWrapper: "h-7 min-h-unit-7 px-2",
-                                    input: "text-xs"
-                                }}
                             />
                         </div>
                     </div>
@@ -69,7 +64,7 @@ export const RabbitForbreedingNavClient = memo(function RabbitForbreedingNavClie
                     {/* Race filter */}
                     <div className="flex items-center gap-1">
                         <div className="flex items-center gap-1.5 min-w-[70px]">
-                            <LuRabbit className="text-lg text-default-500" />
+                            <LuRabbit className="text-lg text-foreground/70" />
                             <span className="text-xs font-medium">Race</span>
                         </div>
                         <div className="flex-1">
@@ -85,7 +80,7 @@ export const RabbitForbreedingNavClient = memo(function RabbitForbreedingNavClie
                     {/* Color filter */}
                     <div className="flex items-center gap-1">
                         <div className="flex items-center gap-1.5 min-w-[70px]">
-                            <IoColorPaletteOutline className="text-lg text-default-500" />
+                            <IoColorPaletteOutline className="text-lg text-foreground/70" />
                             <span className="text-xs font-medium">Farve</span>
                         </div>
                         <div className="flex-1">
@@ -101,7 +96,7 @@ export const RabbitForbreedingNavClient = memo(function RabbitForbreedingNavClie
                     {/* Gender filter */}
                     <div className="flex items-center gap-1">
                         <div className="flex items-center gap-1.5 min-w-[70px]">
-                            <FaVenusMars className="text-lg text-default-500" />
+                            <FaVenusMars className="text-lg text-foreground/70" />
                             <span className="text-xs font-medium">Køn</span>
                         </div>
                         <div className="flex-1">
@@ -116,7 +111,7 @@ export const RabbitForbreedingNavClient = memo(function RabbitForbreedingNavClie
                 </div>
             </div>
             
-            <Divider className="bg-zinc-200/5 my-0.5" />
+            <Separator className="bg-zinc-200/5 my-0.5" />
 
             {/* Lokationsfiltre */}
             <div>
@@ -128,12 +123,11 @@ export const RabbitForbreedingNavClient = memo(function RabbitForbreedingNavClie
                     {/* Min ZipCode filter */}
                     <div className="flex items-center gap-1">
                         <div className="flex items-center gap-1.5 min-w-[70px]">
-                            <MdOutlineLocationOn className="text-lg text-default-500" />
+                            <MdOutlineLocationOn className="text-lg text-foreground/70" />
                             <span className="text-xs font-medium">Fra</span>
                         </div>
                         <div className="flex-1">
                             <Input
-                                size="sm"
                                 type="number"
                                 placeholder="Minimum postnr"
                                 value={filters.minZipCode?.toString() || ''}
@@ -142,10 +136,6 @@ export const RabbitForbreedingNavClient = memo(function RabbitForbreedingNavClie
                                     const numValue = value ? parseInt(value) : undefined;
                                     updateFilters({ minZipCode: numValue });
                                 }}
-                                classNames={{
-                                    inputWrapper: "h-7 min-h-unit-7 px-2",
-                                    input: "text-xs"
-                                }}
                             />
                         </div>
                     </div>
@@ -153,12 +143,11 @@ export const RabbitForbreedingNavClient = memo(function RabbitForbreedingNavClie
                     {/* Max ZipCode filter */}
                     <div className="flex items-center gap-1">
                         <div className="flex items-center gap-1.5 min-w-[70px]">
-                            <MdOutlineLocationOn className="text-lg text-default-500" />
+                            <MdOutlineLocationOn className="text-lg text-foreground/70" />
                             <span className="text-xs font-medium">Til</span>
                         </div>
                         <div className="flex-1">
                             <Input
-                                size="sm"
                                 type="number"
                                 placeholder="Maximum postnr"
                                 value={filters.maxZipCode?.toString() || ''}
@@ -166,10 +155,6 @@ export const RabbitForbreedingNavClient = memo(function RabbitForbreedingNavClie
                                     const value = e.target.value;
                                     const numValue = value ? parseInt(value) : undefined;
                                     updateFilters({ maxZipCode: numValue });
-                                }}
-                                classNames={{
-                                    inputWrapper: "h-7 min-h-unit-7 px-2",
-                                    input: "text-xs"
                                 }}
                             />
                         </div>

@@ -2,65 +2,139 @@
 
 /**
  * Arbejdsplads for redigering af kaninannoncer i "Mine Salg".
- * - Bruger SaleWorkspaceBase for fælles layout og funktionalitet.
- * - Håndterer kanin-specifikke felter som bosted, pottetræning og neutralisering.
- * - Inkluderer form til redigering af kaninannoncer (RabbitSaleForm).
- * - Målrettet mod private salgsvisninger, da den viser følsomme oplysninger som ID.
+ * - Bruger SaleWorkspaceBase for fælles layout, edit-header og base-felter.
+ * - Håndterer kanin-specifikke felter (bosted, pottetræning, neutralisering) med editNode-pattern.
+ * - Inputs vises altid — låste når !isEditing, aktive når isEditing.
  */
 
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
-import { RabbitSaleProfilePrivateDTO } from '@/api/types/RabbitSaleDTOs';
-import { RabbitPostPutSaleDetailsDTO } from '@/api/types/RabbitSaleDTOs';
-import { updateRabbitSaleDetails, deleteRabbitSaleDetails } from '@/app/actions/sales/salesRabbitActions';
+import { RabbitSaleProfilePrivateDTO, RabbitPostPutSaleDetailsDTO } from '@/api/types/RabbitSaleDTOs';
+import { SaleDetailsBasePostPutDTO } from '@/api/types/SaleDetailsDTOs';
+import { updateRabbitSaleDetails } from '@/app/actions/sales/salesRabbitActions';
+import { useSaleWorkspace } from '@/contexts/SaleWorkspaceContext';
 import SaleWorkspaceBase from './_shared/saleWorkspaceBase';
-import { ROUTES } from '@/constants/navigationConstants';
-import RabbitSaleForm from './rabbitSaleForm';
-// + form komponent
+import { PropertyTableItem, PropertyTable } from '@/components/ui/custom/tables';
+import { Switch } from '@/components/ui/heroui';
+import EnumAutocomplete from '@/components/ui/custom/autocomplete/EnumAutocomplete';
 
 interface Props { profile: RabbitSaleProfilePrivateDTO; }
 
 export default function RabbitSaleWorkspace({ profile }: Props) {
     const router = useRouter();
+    const { refreshProfile } = useSaleWorkspace();
     const [isEditing, setIsEditing] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
-    const [isDeleting, setIsDeleting] = useState(false);
-    const [formData, setFormData] = useState<RabbitPostPutSaleDetailsDTO>({
-        baseProperties: { title: profile.title, price: profile.price, description: profile.description, canBeShipped: profile.canBeShipped },
+
+    const [baseData, setBaseData] = useState<SaleDetailsBasePostPutDTO>({
+        title: profile.title,
+        price: profile.price,
+        description: profile.description,
+        canBeShipped: profile.canBeShipped,
+    });
+
+    const [rabbitData, setRabbitData] = useState({
+        homeEnvironment: profile.homeEnvironment,
         isLitterTrained: profile.isLitterTrained,
         isNeutered: profile.isNeutered,
-        homeEnvironment: profile.homeEnvironment,
     });
+
+    const hasChanges =
+        baseData.title !== profile.title ||
+        baseData.price !== profile.price ||
+        baseData.description !== profile.description ||
+        baseData.canBeShipped !== profile.canBeShipped ||
+        rabbitData.homeEnvironment !== profile.homeEnvironment ||
+        rabbitData.isLitterTrained !== profile.isLitterTrained ||
+        rabbitData.isNeutered !== profile.isNeutered;
 
     const handleSave = async () => {
         setIsSaving(true);
+        const formData: RabbitPostPutSaleDetailsDTO = {
+            baseProperties: baseData,
+            ...rabbitData,
+        };
         const result = await updateRabbitSaleDetails(profile.id, formData);
-        if (result.success) { toast.success(result.message); setIsEditing(false); router.refresh(); }
-        else toast.error(result.error);
+        if (result.success) {
+            toast.success(result.message);
+            setIsEditing(false);
+            await refreshProfile(); // opdater nav øjeblikkeligt
+            router.refresh();       // opdater server-prop baseline (hasChanges)
+        } else {
+            toast.error(result.error);
+        }
         setIsSaving(false);
     };
 
-    const handleDelete = async () => {
-        setIsDeleting(true);
-        const result = await deleteRabbitSaleDetails(profile.id);
-        if (result.success) { toast.success(result.message); router.push(ROUTES.ACCOUNT.MY_SALES); }
-        else { toast.error(result.error); setIsDeleting(false); }
+    const handleCancel = () => {
+        setBaseData({ title: profile.title, price: profile.price, description: profile.description, canBeShipped: profile.canBeShipped });
+        setRabbitData({ homeEnvironment: profile.homeEnvironment, isLitterTrained: profile.isLitterTrained, isNeutered: profile.isNeutered });
+        setIsEditing(false);
     };
 
-    if (isEditing) {
-        return <RabbitSaleForm formData={formData} setFormData={setFormData} onSave={handleSave} onCancel={() => setIsEditing(false)} isSaving={isSaving} />;
-    }
+    const rabbitTableItems: PropertyTableItem[] = [
+        {
+            label: 'Bosted',
+            editNode: (
+                <EnumAutocomplete
+                    enumType="RabbitHomeEnvironment"
+                    value={rabbitData.homeEnvironment}
+                    onChange={(val) => setRabbitData({ ...rabbitData, homeEnvironment: val ?? '' })}
+                    label="Bosted"
+                    placeholder="Vælg boform"
+                />
+            ),
+        },
+        {
+            label: 'Pottetrænet',
+            editNode: (
+                <Switch
+                    size="md"
+                    isSelected={rabbitData.isLitterTrained}
+                    onChange={(v) => setRabbitData({ ...rabbitData, isLitterTrained: v })}
+                    aria-label="Pottetrænet"
+                >
+                    <Switch.Control><Switch.Thumb /></Switch.Control>
+                    <span className="text-sm">{rabbitData.isLitterTrained ? 'Ja' : 'Nej'}</span>
+                </Switch>
+            ),
+        },
+        {
+            label: 'Neutraliseret',
+            editNode: (
+                <Switch
+                    size="md"
+                    isSelected={rabbitData.isNeutered}
+                    onChange={(v) => setRabbitData({ ...rabbitData, isNeutered: v })}
+                    aria-label="Neutraliseret"
+                >
+                    <Switch.Control><Switch.Thumb /></Switch.Control>
+                    <span className="text-sm">{rabbitData.isNeutered ? 'Ja' : 'Nej'}</span>
+                </Switch>
+            ),
+        },
+    ];
 
     return (
-        <SaleWorkspaceBase profile={profile} onEdit={() => setIsEditing(true)} onDelete={handleDelete} isDeleting={isDeleting}>
-            {/* Rabbit-specifikke felter */}
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm border-t border-zinc-700/30 pt-4">
-                <div><p className="text-zinc-400">Bosted</p><p>{profile.homeEnvironment}</p></div>
-                <div><p className="text-zinc-400">Pottetrænet</p><p>{profile.isLitterTrained ? 'Ja' : 'Nej'}</p></div>
-                <div><p className="text-zinc-400">Neutraliseret</p><p>{profile.isNeutered ? 'Ja' : 'Nej'}</p></div>
-            </div>
+        <SaleWorkspaceBase
+            profile={profile}
+            formData={baseData}
+            setFormData={setBaseData}
+            isEditing={isEditing}
+            isSaving={isSaving}
+            hasChanges={hasChanges}
+            onEdit={() => setIsEditing(true)}
+            onSave={handleSave}
+            onCancel={handleCancel}
+        >
+            <PropertyTable
+                title="Kanin-specifikke salgsdetaljer"
+                items={rabbitTableItems}
+                isEditing={isEditing}
+            />
         </SaleWorkspaceBase>
     );
 }
+

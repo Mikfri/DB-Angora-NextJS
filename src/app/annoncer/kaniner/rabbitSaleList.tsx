@@ -4,7 +4,7 @@ import { useCallback } from "react";
 import { useRouter, useSearchParams } from 'next/navigation';
 import SaleDetailsCard from '@/components/cards/saleDetailsCard';
 import { SaleDetailsPublicCardDTO } from '@/api/types/AngoraDTOs';
-import { Button, Pagination } from "@heroui/react";
+import { Button } from "@heroui/react";
 import { ROUTES } from '@/constants/navigationConstants';
 
 // Interface for pagineringsinfo
@@ -31,17 +31,7 @@ export default function SaleList({
 
   // Opdateret klik-handler til kort - bruger korrekte ROUTES konstanter
   const handleCardClick = useCallback((item: SaleDetailsPublicCardDTO) => {
-    switch (item.entityType.toLowerCase()) {
-      case 'rabbit':
-        router.push(ROUTES.SALE.RABBIT(item.slug));
-        break;
-      case 'wool':
-        router.push(ROUTES.SALE.WOOL(item.slug));
-        break;
-      default:
-        router.push(`${ROUTES.SALE.BASE}/${item.entityType.toLowerCase()}/${item.slug}`);
-        break;
-    }
+    router.push(ROUTES.SALE.SALEPROFILE(item.slug));
   }, [router]);
 
   // Håndterer skift af side - bruger ROUTES konstant
@@ -62,7 +52,7 @@ export default function SaleList({
           Prøv at ændre dine filtre for at se flere resultater
         </p>
         <Button
-          color="primary"
+          variant="primary"
           onPress={() => router.push(ROUTES.SALE.RABBITS)}
         >
           Vis alle kaniner
@@ -95,15 +85,24 @@ export default function SaleList({
 
       {/* Vis paginering hvis der er flere sider */}
       {paging && paging.totalPages > 1 && (
-        <div className="flex justify-center py-4">
-          <Pagination
-            total={paging.totalPages}
-            initialPage={paging.currentPage}
-            onChange={handlePageChange}
-            showControls
-            color="primary"
-            className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-2"
-          />
+        <div className="flex justify-center items-center gap-4 py-4">
+          <Button
+            variant="outline"
+            isDisabled={!paging.hasPreviousPage}
+            onPress={() => handlePageChange(paging.currentPage - 1)}
+          >
+            Forrige
+          </Button>
+          <span className="text-zinc-400 text-sm">
+            Side {paging.currentPage} / {paging.totalPages}
+          </span>
+          <Button
+            variant="outline"
+            isDisabled={!paging.hasNextPage}
+            onPress={() => handlePageChange(paging.currentPage + 1)}
+          >
+            Næste
+          </Button>
         </div>
       )}
     </div>

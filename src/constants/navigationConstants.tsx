@@ -5,6 +5,10 @@ import { IoHomeOutline, IoPersonOutline } from "react-icons/io5";
 import { MdPets } from "react-icons/md";
 import { FaUsersCog } from "react-icons/fa";
 import { ImPriceTags } from 'react-icons/im';
+import { LuRabbit } from 'react-icons/lu';
+import { GiWool } from 'react-icons/gi';
+import { PiYarn } from 'react-icons/pi';
+import type { IconType } from 'react-icons';
 
 // ============= ROUTES KONSTANTER =============
 export const ROUTES = {
@@ -35,10 +39,7 @@ export const ROUTES = {
     BASE: '/annoncer',
     RABBITS: '/annoncer/kaniner',
     WOOLS: '/annoncer/wool',
-    RABBIT_PROFILE: (id: string) => `/annoncer/kaniner/profile/${id}`,
-    RABBIT: (slug: string) => `/annoncer/kaniner/${slug}`,
-    WOOL_PROFILE: (id: string) => `/annoncer/uld/profile/${id}`,
-    WOOL: (slug: string) => `/annoncer/uld/${slug}`,
+    SALEPROFILE: (slug: string) => `/annoncer/${slug}`,
   },
   ADMIN: {
     USERS: '/admin/users',
@@ -54,6 +55,21 @@ export const ROUTES = {
     BLOGS: '/#blogs'        // NY
   }
 } as const;
+
+// ============= SALG KATEGORI LINKS =============
+export interface SaleCategoryLink {
+  label: string;
+  href: string;
+  icon: IconType;
+  disabled?: boolean;
+}
+
+export const saleCategoryLinks: SaleCategoryLink[] = [
+  { label: 'Kaniner', href: ROUTES.SALE.RABBITS,                     icon: LuRabbit },
+  { label: 'Uld',     href: `${ROUTES.SALE.BASE}?EntityType=WoolSD`, icon: GiWool,  disabled: true },
+  { label: 'Garn',    href: `${ROUTES.SALE.BASE}?EntityType=YarnSD`, icon: PiYarn,  disabled: true },
+  { label: 'Skind',   href: `${ROUTES.SALE.BASE}?EntityType=PeltSD`, icon: MdPets,  disabled: true },
+];
 
 // ============= UI KONSTANTER =============
 export const SECTION_TITLES = {
@@ -71,7 +87,7 @@ export const NAV_STYLES = {
   // Match hover: blue pill with white text so active looks the same as hover
   //active: "bg-primary/100 text-white rounded-full px-3 py-1",
   divider: "bg-zinc-700/50 my-1",
-  icon: "text-xl text-default-500",
+  icon: "text-xl text-foreground/70",
   disabledText: "ml-2 text-xs text-default-400"
 } as const;
 

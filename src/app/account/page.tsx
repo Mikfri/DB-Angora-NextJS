@@ -20,7 +20,7 @@ export default function AccountPage() {
     if (!mounted || isLoading) {
         return (
             <div className="flex justify-center items-center min-h-[50vh]">
-                <Spinner size="lg" color="primary" />
+                <Spinner size="lg" color="accent" />
             </div>
         );
     }

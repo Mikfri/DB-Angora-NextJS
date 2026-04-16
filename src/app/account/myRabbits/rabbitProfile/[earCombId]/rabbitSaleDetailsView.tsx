@@ -1,13 +1,13 @@
 // src/app/account/myRabbits/rabbitProfile/[earCombId]/rabbitSaleDetailsView.tsx
 
-import { RabbitSaleDetailsEmbeddedDTO } from '@/api/types/AngoraDTOs';
-import { Button, Card, CardBody, Chip } from "@heroui/react";
+import { RabbitSaleProfilePrivateDTO } from '@/api/types/AngoraDTOs';
+import { Button, Card, Chip } from '@/components/ui/heroui';
 import { formatCurrency, formatDate } from '@/utils/formatters';
 import { FiEye, FiTag, FiTruck } from "react-icons/fi";
 import { ROUTES } from '@/constants/navigationConstants'; // <-- Tilføjet import
 
 interface SaleDetailsViewProps {
-  saleDetails: RabbitSaleDetailsEmbeddedDTO;
+  saleDetails: RabbitSaleProfilePrivateDTO;
   onEdit: () => void;
   onDelete: () => void;
   isDeleting: boolean;
@@ -21,7 +21,7 @@ export default function SaleDetailsView({
 }: SaleDetailsViewProps) {
   return (
     <Card className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 border border-zinc-700/50">
-      <CardBody>
+      <Card.Content>
         <div className="flex flex-col md:flex-row justify-between items-start mb-4">
           <div>
             <h2 className="text-xl font-semibold mb-1">{saleDetails.title}</h2>
@@ -47,23 +47,22 @@ export default function SaleDetailsView({
             <div className="text-sm text-zinc-400">
               <span className="font-medium mr-1">Offentlig URL:</span>
               <a 
-                href={ROUTES.SALE.RABBIT(saleDetails.slug)} 
+                href={ROUTES.SALE.SALEPROFILE(saleDetails.slug)} 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="text-blue-400 hover:underline"
               >
-                {ROUTES.SALE.RABBIT(saleDetails.slug)}
+                {ROUTES.SALE.SALEPROFILE(saleDetails.slug)}
               </a>
             </div>
             {saleDetails.canBeShipped && (
               <Chip 
-                startContent={<FiTruck size={14} />}
-                variant="flat"
-                color="primary"
+                variant="soft"
+                color="accent"
                 size="sm"
                 className="mt-2 md:mt-0"
               >
-                Kan leveres
+                <FiTruck size={14} /> Kan leveres
               </Chip>
             )}
           </div>
@@ -97,21 +96,21 @@ export default function SaleDetailsView({
 
         <div className="flex flex-wrap gap-2 justify-end">
           <Button
-            color="primary"
+            variant="primary"
             onPress={onEdit}
             isDisabled={isDeleting}
           >
             Rediger
           </Button>
           <Button
-            color="danger"
+            variant="danger"
             onPress={onDelete}
-            isLoading={isDeleting}
+            isPending={isDeleting}
           >
             {isDeleting ? 'Fjerner...' : 'Fjern fra salg'}
           </Button>
         </div>
-      </CardBody>
+      </Card.Content>
     </Card>
   );
 }

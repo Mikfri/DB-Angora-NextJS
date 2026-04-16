@@ -1,10 +1,10 @@
 // src/app/account/profile/[userProfileId]/breederFormFields.tsx
 import { BreederAccount_PrivateProfileDTO } from "@/api/types/AngoraDTOs";
-import { Input, Switch } from "@heroui/react";
+import { Input, Switch } from '@/components/ui/heroui';
 
-export const editableBreederFieldLabels: Record<keyof Partial<Pick<BreederAccount_PrivateProfileDTO, "breederBrandName" | "breederBrandDescription" | "isFindable">>, string> = {
-  breederBrandName: "Brandnavn",
-  breederBrandDescription: "Beskrivelse",
+export const editableBreederFieldLabels: Record<keyof Partial<Pick<BreederAccount_PrivateProfileDTO, "brandName" | "brandDescription" | "isFindable">>, string> = {
+  brandName: "Brandnavn",
+  brandDescription: "Beskrivelse",
   isFindable: "Offentlig"
 };
 
@@ -28,7 +28,7 @@ export function renderBreederCell(
     return (
       <Switch
         isSelected={editedData.isFindable ?? breederAccount?.isFindable ?? false}
-        onChange={e => setEditedData({ ...editedData, isFindable: e.target.checked })}
+        onChange={v => setEditedData({ ...editedData, isFindable: v })}
         className="ml-2"
       >
         {(editedData.isFindable ?? breederAccount?.isFindable) ? "Ja" : "Nej"}
@@ -39,7 +39,6 @@ export function renderBreederCell(
   return (
     <Input
       id={`${key}-input`}
-      size="sm"
       value={editedData[key]?.toString() ?? value?.toString() ?? ""}
       onChange={e => setEditedData({ ...editedData, [key]: e.target.value })}
       className={inputClassName}

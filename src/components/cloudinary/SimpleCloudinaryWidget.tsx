@@ -353,7 +353,7 @@ export default function SimpleCloudinaryWidget({
 
       {isLoading && (
         <div className="py-8 flex justify-center">
-          <Spinner size="lg" color="white" />
+          <Spinner size="lg" color="current" className="text-white" />
         </div>
       )}
 
@@ -371,7 +371,7 @@ export default function SimpleCloudinaryWidget({
 
       {!scriptLoaded && !isLoading && (
         <div className="py-8 flex justify-center flex-col items-center">
-          <Spinner size="md" color="white" className="mb-2" />
+          <Spinner size="md" color="current" className="text-white mb-2" />
           <span>Indlæser Cloudinary...</span>
         </div>
       )}

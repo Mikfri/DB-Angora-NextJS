@@ -32,7 +32,6 @@ export function renderUserCell(
         return (
             <Input
                 id={`${key}-input`}
-                size="sm"
                 type="number"
                 value={
                     editedData.zipCode !== undefined
@@ -51,7 +50,6 @@ export function renderUserCell(
     return (
         <Input
             id={`${key}-input`}
-            size="sm"
             value={editedData[key]?.toString() ?? value?.toString() ?? ""}
             onChange={e => setEditedData({ ...editedData, [key]: e.target.value })}
             className={inputClassName}

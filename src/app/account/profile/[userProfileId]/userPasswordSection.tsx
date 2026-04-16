@@ -58,21 +58,20 @@ export default function PasswordSection({
         {!isEditing ? (
           <Button
             size="sm"
-            variant="light"
-            color="warning"
+            variant="ghost"
+            className="text-warning"
             onPress={() => setIsEditing(true)}
-            startContent={<FaEdit size={16} />}
           >
-            Rediger
+            <FaEdit size={16} /> Rediger
           </Button>
         ) : (
           <div className="space-x-2">
             <Button
               type="submit"
               size="sm"
-              color="success"
-              className="text-light"
-              isLoading={isChangingPassword}
+              variant="secondary"
+              className="text-success-foreground bg-success"
+              isPending={isChangingPassword}
               isDisabled={
                 isNewPasswordInvalid ||
                 newPassword.length === 0 ||
@@ -83,8 +82,7 @@ export default function PasswordSection({
             </Button>
             <Button
               size="sm"
-              color="secondary"
-              variant="solid"
+              variant="secondary"
               onPress={() => {
                 setIsEditing(false);
                 setCurrentPassword("");
@@ -103,13 +101,9 @@ export default function PasswordSection({
             type={showCurrent ? "text" : "password"}
             placeholder="Nuværende adgangskode"
             value={isEditing ? currentPassword : fakeDots}
-            onValueChange={handleCurrentPasswordChange}
+            onChange={(e) => handleCurrentPasswordChange(e.target.value)}
             required
             autoComplete="current-password"
-            size="md"
-            startContent={
-              <FaKey className="text-lg text-default-400 pointer-events-none shrink-0" />
-            }
             disabled={!isEditing}
           />
           {isEditing && (
@@ -128,14 +122,9 @@ export default function PasswordSection({
             type={showNew ? "text" : "password"}
             placeholder="Ny adgangskode"
             value={isEditing ? newPassword : fakeDots}
-            onValueChange={handleNewPasswordChange}
+            onChange={(e) => handleNewPasswordChange(e.target.value)}
             required
             autoComplete="new-password"
-            isInvalid={isEditing && isNewPasswordInvalid}
-            size="md"
-            startContent={
-              <FaKey className="text-lg text-default-400 pointer-events-none shrink-0" />
-            }
             disabled={!isEditing}
           />
           {isEditing && (
@@ -156,7 +145,7 @@ export default function PasswordSection({
               <Chip
                 key={req.label}
                 color={req.test(newPassword) ? "success" : "default"}
-                variant={req.test(newPassword) ? "solid" : "bordered"}
+              variant={req.test(newPassword) ? "soft" : "secondary"}
                 size="sm"
                 className="text-xs"
               >

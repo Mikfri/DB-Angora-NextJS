@@ -89,10 +89,10 @@ const handleDeletePhoto = async (photoId: number) => {
         <h3 className="text-zinc-100 font-medium">Profilbilleder</h3>
         <Button
           size="sm"
-          color="primary"
+          variant="primary"
           onPress={handleShowWidget}
           isDisabled={isLoadingUploadConfig}
-          isLoading={isLoadingUploadConfig}
+          isPending={isLoadingUploadConfig}
         >
           {isLoadingUploadConfig ? 'Indlæser...' : 'Upload'}
         </Button>

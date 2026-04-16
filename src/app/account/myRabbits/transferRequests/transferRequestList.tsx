@@ -1,17 +1,6 @@
 'use client';
-import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from "@heroui/react";
+import { Modal, Chip, Tooltip, Button } from '@/components/ui/heroui';
 import React from "react";
-import {
-    Table,
-    TableHeader,
-    TableColumn,
-    TableBody,
-    TableRow,
-    TableCell,
-    Chip,
-    Tooltip,
-    Button,
-} from "@heroui/react";
 import { FaCheck, FaTimes, FaTrash } from "react-icons/fa";
 import { useTransferRequests } from "@/hooks/transferRequests/useTransferRequest";
 import { TransferRequestPreviewDTO } from "@/api/types/AngoraDTOs";
@@ -19,23 +8,23 @@ import { toast } from "react-toastify";
 import { RiUserReceivedLine, RiUserSharedLine } from "react-icons/ri";
 
 const baseColumns = [
-    { name: "Status", uid: "status" },
-    { name: "Navn", uid: "rabbit_NickName" },
-    { name: "Øremærke", uid: "rabbit_EarCombId" },
+    { name: "Status", uid: "status", key: "status" },
+    { name: "Navn", uid: "rabbit_NickName", key: "rabbit_NickName" },
+    { name: "Øremærke", uid: "rabbit_EarCombId", key: "rabbit_EarCombId" },
 ];
 
 const receivedColumns = [
     ...baseColumns,
-    { name: "Udsteder (regnr)", uid: "issuer_BreederRegNo" },
-    { name: "Udsteder (navn)", uid: "issuer_FirstName" },
-    { name: "Handling", uid: "actions" },
+    { name: "Udsteder (regnr)", uid: "issuer_BreederRegNo", key: "issuer_BreederRegNo" },
+    { name: "Udsteder (navn)", uid: "issuer_FirstName", key: "issuer_FirstName" },
+    { name: "Handling", uid: "actions", key: "actions" },
 ];
 
 const sentColumns = [
     ...baseColumns,
-    { name: "Modtager (regnr)", uid: "recipient_BreederRegNo" },
-    { name: "Modtager (navn)", uid: "recipient_FirstName" },
-    { name: "Handling", uid: "actions" },
+    { name: "Modtager (regnr)", uid: "recipient_BreederRegNo", key: "recipient_BreederRegNo" },
+    { name: "Modtager (navn)", uid: "recipient_FirstName", key: "recipient_FirstName" },
+    { name: "Handling", uid: "actions", key: "actions" },
 ];
 
 const statusColorMap: Record<string, "success" | "danger" | "warning" | "default"> = {
@@ -100,7 +89,7 @@ export default function TransferRequestList() {
                             className="capitalize"
                             color={statusColorMap[item.status ?? ""] || "default"}
                             size="sm"
-                            variant="flat"
+                            variant="soft"
                         >
                             {cellValue}
                         </Chip>
@@ -110,28 +99,36 @@ export default function TransferRequestList() {
                         const isPending = item.status === "Pending";
                         return (
                             <div className="flex gap-2 justify-center">
-                                <Tooltip className="bg-success-300" content="Acceptér">
-                                    <Button
-                                        isIconOnly
-                                        size="sm"
-                                        color="success"
-                                        onPress={() => setConfirm({ id: item.id, accept: true })}
-                                        isDisabled={!isPending}
-                                    >
-                                        <FaCheck />
-                                    </Button>
-                                </Tooltip>
-                                <Tooltip className="bg-danger-300" content="Afvis">
-                                    <Button
-                                        isIconOnly
-                                        size="sm"
-                                        color="danger"
-                                        onPress={() => setConfirm({ id: item.id, accept: false })}
-                                        isDisabled={!isPending}
-                                    >
-                                        <FaTimes />
-                                    </Button>
-                                </Tooltip>
+                                <Tooltip.Root>
+                                    <Tooltip.Trigger>
+                                        <Button
+                                            isIconOnly
+                                            aria-label="Acceptér"
+                                            size="sm"
+                                            variant="secondary"
+                                            onPress={() => setConfirm({ id: item.id, accept: true })}
+                                            isDisabled={!isPending}
+                                        >
+                                            <FaCheck />
+                                        </Button>
+                                    </Tooltip.Trigger>
+                                    <Tooltip.Content>Acceptér</Tooltip.Content>
+                                </Tooltip.Root>
+                                <Tooltip.Root>
+                                    <Tooltip.Trigger>
+                                        <Button
+                                            isIconOnly
+                                            aria-label="Afvis"
+                                            size="sm"
+                                            variant="danger"
+                                            onPress={() => setConfirm({ id: item.id, accept: false })}
+                                            isDisabled={!isPending}
+                                        >
+                                            <FaTimes />
+                                        </Button>
+                                    </Tooltip.Trigger>
+                                    <Tooltip.Content>Afvis</Tooltip.Content>
+                                </Tooltip.Root>
                             </div>
                         );
                     } else {
@@ -139,17 +136,21 @@ export default function TransferRequestList() {
                         const isPending = item.status === "Pending";
                         return (
                             <div className="flex gap-2 justify-center">
-                                <Tooltip color="danger" content="Annullér">
-                                    <Button
-                                        isIconOnly
-                                        size="sm"
-                                        color="danger"
-                                        onPress={() => handleDelete(item.id)}
-                                        isDisabled={!isPending}
-                                    >
-                                        <FaTrash />
-                                    </Button>
-                                </Tooltip>
+                                <Tooltip.Root>
+                                    <Tooltip.Trigger>
+                                        <Button
+                                            isIconOnly
+                                            aria-label="Annullér"
+                                            size="sm"
+                                            variant="danger"
+                                            onPress={() => handleDelete(item.id)}
+                                            isDisabled={!isPending}
+                                        >
+                                            <FaTrash />
+                                        </Button>
+                                    </Tooltip.Trigger>
+                                    <Tooltip.Content>Annullér</Tooltip.Content>
+                                </Tooltip.Root>
                             </div>
                         );
                     }
@@ -165,65 +166,73 @@ export default function TransferRequestList() {
             <div className="flex gap-2 mb-4">
                 <Button
                     size="sm"
-                    color={tab === "received" ? "primary" : "default"}
+                    variant={tab === "received" ? "primary" : "ghost"}
                     onPress={() => setTab("received")}
-                    startContent={<RiUserReceivedLine className="text-large" />}
                 >
-                    Modtaget
+                    <RiUserReceivedLine className="text-large" /> Modtaget
                 </Button>
                 <Button
                     size="sm"
-                    color={tab === "sent" ? "primary" : "default"}
+                    variant={tab === "sent" ? "primary" : "ghost"}
                     onPress={() => setTab("sent")}
-                    startContent={<RiUserSharedLine className="text-large" />}
                 >
-                    Sendt
+                    <RiUserSharedLine className="text-large" /> Sendt
                 </Button>
             </div>
             {isLoading && <div className="py-8"><span>Indlæser...</span></div>}
             {error && <div className="text-red-400">{error}</div>}
             {!isLoading && !error && (
-                <Table
-                    aria-label="Overførselsanmodninger"
-                    className="bg-zinc-800 text-zinc-100 rounded-lg dark"
-                >
-                    <TableHeader columns={columns}>
-                        {(column) => (
-                            <TableColumn key={column.uid} align={column.uid === "actions" ? "center" : "start"}>
-                                {column.name}
-                            </TableColumn>
-                        )}
-                    </TableHeader>
-                    <TableBody items={list}>
-                        {(item) => (
-                            <TableRow key={item.id}>
-                                {(columnKey) => <TableCell>{renderCell(item, columnKey as string)}</TableCell>}
-                            </TableRow>
-                        )}
-                    </TableBody>
-                </Table>
+                <div className="overflow-hidden rounded-lg bg-zinc-900 text-zinc-100">
+                    <table className="min-w-full border-separate border-spacing-0 text-left text-zinc-100">
+                        <thead>
+                            <tr>
+                                {columns.map((column) => (
+                                    <th key={column.key} className={`${column.uid === "actions" ? "text-center" : "text-left"} px-4 py-3 text-xs font-semibold uppercase tracking-[0.12em] text-zinc-400`}>
+                                        {column.name}
+                                    </th>
+                                ))}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {list.map((item) => (
+                                <tr key={item.id} className="border-t border-zinc-800">
+                                    {columns.map((column) => (
+                                        <td key={column.key} className={`${column.uid === "actions" ? "px-4 py-3 text-center" : "px-4 py-3"} text-sm leading-6`}>
+                                            {renderCell(item, column.uid)}
+                                        </td>
+                                    ))}
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             )}
             {!isLoading && !error && list.length === 0 && (
                 <div className="text-zinc-400 mt-4">Ingen anmodninger fundet.</div>
             )}
 
-            {/* Modal skal kun renderes én gang! */}
-            <Modal className="dark" isOpen={!!confirm} onClose={() => setConfirm(null)}>
-                <ModalContent>
-                    <ModalHeader>Bekræft handling</ModalHeader>
-                    <ModalBody>
-                        Er du sikker på, at du vil {confirm?.accept ? "acceptere" : "afvise"} denne anmodning?
-                    </ModalBody>
-                    <ModalFooter>
-                        <Button color="secondary" onPress={() => setConfirm(null)}>
-                            Annuller
-                        </Button>
-                        <Button color={confirm?.accept ? "success" : "danger"} onPress={handleConfirm}>
-                            Bekræft
-                        </Button>
-                    </ModalFooter>
-                </ModalContent>
-            </Modal>
+            {/* Modal kun mounted når confirm er sat */}
+            {!!confirm && <Modal isOpen={!!confirm} onOpenChange={(open) => { if (!open) setConfirm(null); }}>
+                <Modal.Backdrop />
+                <Modal.Container>
+                    <Modal.Dialog>
+                        <Modal.Header>
+                            <Modal.Heading>Bekræft handling</Modal.Heading>
+                        </Modal.Header>
+                        <Modal.Body>
+                            Er du sikker på, at du vil {confirm?.accept ? "acceptere" : "afvise"} denne anmodning?
+                        </Modal.Body>
+                        <Modal.Footer>
+                            <Button variant="secondary" onPress={() => setConfirm(null)}>
+                                Annuller
+                            </Button>
+                            <Button variant={confirm?.accept ? "secondary" : "danger"} onPress={handleConfirm}>
+                                Bekræft
+                            </Button>
+                        </Modal.Footer>
+                    </Modal.Dialog>
+                </Modal.Container>
+            </Modal>}
         </div>
     );
 }

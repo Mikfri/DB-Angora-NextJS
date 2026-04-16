@@ -3,12 +3,12 @@
 
 import { BreederAccount_PrivateProfileDTO } from "@/api/types/AngoraDTOs";
 import { useBreederAccount } from "@/hooks/breeders/useBreederAccount";
-import { Button } from "@heroui/react";
+import { Button } from '@/components/ui/heroui';
 import { FaEdit } from "react-icons/fa";
 import { useState, useEffect } from "react";
 import { editableBreederFieldLabels, renderBreederCell } from "./breederFormFields";
 
-type BreederProfileUpdate = Partial<Pick<BreederAccount_PrivateProfileDTO, "breederBrandName" | "breederBrandDescription" | "isFindable">>;
+type BreederProfileUpdate = Partial<Pick<BreederAccount_PrivateProfileDTO, "brandName" | "brandDescription" | "isFindable">>;
 
 interface Props {
   breederAccount: BreederAccount_PrivateProfileDTO;
@@ -63,27 +63,26 @@ export default function BreederAccountDetails({ breederAccount, userId, setBreed
           {!isEditing ? (
             <Button
               size="sm"
-              variant="light"
-              color="warning"
+              variant="ghost"
+              className="text-warning"
               onPress={() => setIsEditing(true)}
-              startContent={<FaEdit size={16} />}
             >
-              Rediger
+              <FaEdit size={16} /> Rediger
             </Button>
           ) : (
             <div className="space-x-2">
               <Button
                 size="sm"
-                color="success"
+                variant="secondary"
+                className="text-success-foreground bg-success"
                 onPress={handleSave}
                 isDisabled={isSaving || !hasUnsavedChanges}
-                className="text-white"
               >
                 {isSaving ? "Gemmer..." : "Gem"}
               </Button>
               <Button
                 size="sm"
-                color="secondary"
+                variant="secondary"
                 onPress={handleCancel}
                 isDisabled={isSaving}
               >

@@ -15,7 +15,7 @@
  */
 
 import { notFound } from "next/navigation";
-import { Spinner } from "@heroui/react";
+import { Spinner } from '@/components/ui/heroui';
 import { useRabbitProfile } from '@/contexts/RabbitProfileContext';
 import RabbitProfile from "./rabbitProfile";
 
@@ -26,7 +26,7 @@ export default function RabbitProfilePage() {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-[50vh]">
-        <Spinner size="lg" color="primary" />
+        <Spinner size="lg" color="accent" />
       </div>
     );
   }

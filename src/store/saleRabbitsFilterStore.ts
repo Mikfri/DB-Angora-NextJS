@@ -1,7 +1,7 @@
 // src/store/saleRabbitsFilterStore.ts
 import { create } from 'zustand';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import { RabbitSaleFilterDTO } from '@/api/types/filterTypes';
+import { RabbitSaleFilterDTO } from '@/api/types/AngoraDTOs';
 
 // Lav en type for værdier der kan bruges i filters
 type FilterValue = string | number | boolean | null | undefined;
@@ -41,6 +41,9 @@ export const saleRabbitsFilterStore = create<RabbitFilterState>()((set) => ({
     if (searchParams.has('Race')) newFilters.race = searchParams.get('Race') || undefined;
     if (searchParams.has('Color')) newFilters.color = searchParams.get('Color') || undefined;
     if (searchParams.has('Gender')) newFilters.gender = searchParams.get('Gender') || undefined;
+    if (searchParams.has('SortBy')) newFilters.sortBy = searchParams.get('SortBy') || undefined;
+    if (searchParams.has('CanBeShipped')) newFilters.canBeShipped = searchParams.get('CanBeShipped') === 'true';
+    if (searchParams.has('City')) newFilters.city = searchParams.get('City') || undefined;
     
     // Numeric values
     if (searchParams.has('MinZipCode')) {
@@ -51,6 +54,16 @@ export const saleRabbitsFilterStore = create<RabbitFilterState>()((set) => ({
     if (searchParams.has('MaxZipCode')) {
       const val = parseInt(searchParams.get('MaxZipCode') || '0');
       if (!isNaN(val)) newFilters.maxZipCode = val;
+    }
+
+    if (searchParams.has('MinPrice')) {
+      const val = parseFloat(searchParams.get('MinPrice') || '0');
+      if (!isNaN(val)) newFilters.minPrice = val;
+    }
+
+    if (searchParams.has('MaxPrice')) {
+      const val = parseFloat(searchParams.get('MaxPrice') || '0');
+      if (!isNaN(val)) newFilters.maxPrice = val;
     }
     
     set({ filters: newFilters });

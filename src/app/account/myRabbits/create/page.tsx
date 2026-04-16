@@ -26,13 +26,15 @@ export default function CreateRabbitPage() {
       <div className="flex justify-center items-center min-h-[50vh]">
         <div className="flex flex-col items-center gap-4">
           <span className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
-          <p className="text-zinc-300">Indlæser brugerdata...</p>
+          <p className="text-muted">Indlæser brugerdata...</p>
         </div>
       </div>
     );
   }
 
-  if (!userIdentity?.id) {
+  const userId = userIdentity?.id;
+
+  if (!userId) {
     return (
       <div className="main-content-container">
         <p className="text-red-500">Bruger-ID mangler. Du skal være logget ind.</p>
@@ -40,5 +42,5 @@ export default function CreateRabbitPage() {
     );
   }
 
-  return <CreateRabbitForm targetedUserId={userIdentity.id} />;
+  return <CreateRabbitForm targetedUserId={userId} />;
 }

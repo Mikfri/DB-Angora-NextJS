@@ -1,18 +1,24 @@
 // src/app/annoncer/kaniner/page.tsx
 import { Metadata } from 'next';
 import { Suspense } from 'react';
-import { Spinner } from "@heroui/react";
+import { Spinner } from "@/components/ui/heroui";
 import SaleList from './rabbitSaleList';
 import { getRabbitSaleItems } from '@/app/actions/sales/salesActions';
-import { RabbitSaleFilterDTO } from '@/api/types/filterTypes';
+import { RabbitSaleFilterDTO } from '@/api/types/RabbitSaleDTOs';
+import BannerCard from '@/components/cards/bannerCard';
+import SaleCategoryCards from '@/components/cards/saleCategoryCards';
 
-// Opdateret type definition for Next.js 15
 type SearchParamsType = {
   Race?: string;
   Color?: string;
   Gender?: string;
+  City?: string;
   MinZipCode?: string;
   MaxZipCode?: string;
+  MinPrice?: string;
+  MaxPrice?: string;
+  CanBeShipped?: string;
+  SortBy?: string;
   Page?: string;
   PageSize?: string;
 };
@@ -46,9 +52,9 @@ export async function generateMetadata({ searchParams }: KaninerPageProps): Prom
 // Centreret loading indikator - vises mens data hentes
 function CenteredLoading() {
   return (
-    <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-6 flex justify-center items-center min-h-[300px]">
+    <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-xl border border-zinc-700/50 p-6 flex justify-center items-center min-h-75">
       <div className="flex flex-col items-center gap-4">
-        <Spinner size="lg" color="primary" />
+        <Spinner size="lg" color="accent" />
         <p className="text-zinc-300">Indlæser kaniner til salg...</p>
       </div>
     </div>
@@ -68,32 +74,44 @@ async function ItemLoader({ searchParams }: { searchParams: KaninerPageProps['se
     Color: colorParam,
     Gender: genderParam,
     MinZipCode: minZipParam,
-    MaxZipCode: maxZipParam
+    MaxZipCode: maxZipParam,
+    MinPrice: minPriceParam,
+    MaxPrice: maxPriceParam,
+    CanBeShipped: canBeShippedParam,
+    SortBy: sortByParam,
+    City: cityParam,
   } = params;
   
-  // Opret standard søge-/filtreringsparametre med RabbitSaleFilterDTO
-  const filter: RabbitSaleFilterDTO = {
-    page: pageParam ? parseInt(pageParam) : 1,
-    pageSize: pageSizeParam ? parseInt(pageSizeParam) : 12
-  };
+  const page = pageParam ? parseInt(pageParam) : 1;
+  const pageSize = pageSizeParam ? parseInt(pageSizeParam) : 12;
+  const filter: RabbitSaleFilterDTO = {};
 
-  // Tilføj kendte filter-værdier direkte
   if (raceParam) filter.race = raceParam;
   if (colorParam) filter.color = colorParam;
   if (genderParam) filter.gender = genderParam;
-  
+  if (sortByParam) filter.sortBy = sortByParam;
+  if (cityParam) filter.city = cityParam;
+  if (canBeShippedParam === 'true') filter.canBeShipped = true;
+
   if (minZipParam) {
-    const minZip = parseInt(minZipParam);
-    if (!isNaN(minZip)) filter.minZipCode = minZip;
+    const val = parseInt(minZipParam);
+    if (!isNaN(val)) filter.minZipCode = val;
   }
-  
   if (maxZipParam) {
-    const maxZip = parseInt(maxZipParam);
-    if (!isNaN(maxZip)) filter.maxZipCode = maxZip;
+    const val = parseInt(maxZipParam);
+    if (!isNaN(val)) filter.maxZipCode = val;
+  }
+  if (minPriceParam) {
+    const val = parseFloat(minPriceParam);
+    if (!isNaN(val)) filter.minPrice = val;
+  }
+  if (maxPriceParam) {
+    const val = parseFloat(maxPriceParam);
+    if (!isNaN(val)) filter.maxPrice = val;
   }
 
   // Brug Server Action til at hente data
-  const result = await getRabbitSaleItems(filter);
+  const result = await getRabbitSaleItems(filter, page, pageSize);
 
   if (!result.success) {
     return (
@@ -121,8 +139,19 @@ async function ItemLoader({ searchParams }: { searchParams: KaninerPageProps['se
 
 export default async function Page({ searchParams }: KaninerPageProps) {
   return (
-    <Suspense fallback={<CenteredLoading />}>
-      <ItemLoader searchParams={searchParams} />
-    </Suspense>
+    <div className="space-y-6">
+      <BannerCard
+        title="Kaniner til salg"
+        description="Udforsk angora-kaniner fra passionerede avlere i hele Danmark. Find din næste avler- eller kæledyrskanin direkte fra kilden."
+        imageSrc="/images/sideNavigationCard_SaleRabbits.jpg"
+        imageAlt="Kaniner til salg fra DB-Angora"
+      />
+
+      <SaleCategoryCards />
+
+      <Suspense fallback={<CenteredLoading />}>
+        <ItemLoader searchParams={searchParams} />
+      </Suspense>
+    </div>
   );
 }
