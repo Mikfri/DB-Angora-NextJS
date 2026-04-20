@@ -15,8 +15,9 @@ import { SaleDetailsBasePostPutDTO } from '@/api/types/SaleDetailsDTOs';
 import { createRabbitSaleDetails } from '@/app/actions/sales/salesRabbitActions';
 import SaleCreateBase from './_shared/saleCreateBase';
 import { PropertyTable, type PropertyTableItem } from '@/components/ui/custom/tables';
-import { Input, Switch } from '@/components/ui/heroui';
+import { Switch } from '@/components/ui/heroui';
 import EnumAutocomplete from '@/components/ui/custom/autocomplete/EnumAutocomplete';
+import { RabbitOwnedAutocomplete } from '@/components/features/rabbit';
 
 export default function RabbitSaleCreateForm() {
     const router = useRouter();
@@ -63,12 +64,10 @@ export default function RabbitSaleCreateForm() {
         {
             label: 'Kanin (øremærke)',
             editNode: (
-                <Input
-                    variant="secondary"
-                    value={earCombId}
-                    onChange={(e) => setEarCombId(e.target.value)}
-                    placeholder="fx 001K/DK"
-                    aria-label="Kaninens øremærke-ID"
+                <RabbitOwnedAutocomplete
+                    value={earCombId || null}
+                    onChange={(val) => setEarCombId(val ?? '')}
+                    id="rabbit-sale-earCombId"
                 />
             ),
         },
