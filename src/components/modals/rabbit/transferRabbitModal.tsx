@@ -62,12 +62,10 @@ export default function TransferOwnershipModal({
     }
   }, [formData, rabbitEarCombId, onSubmit]);
 
-  if (!isOpen) return null;
-
   return (
     <Modal
       isOpen={isOpen}
-      onOpenChange={(open) => !open && onClose()}
+      onOpenChange={(open) => { if (!open) onClose(); }}
     >
       <Modal.Backdrop variant="blur">
         <Modal.Container>

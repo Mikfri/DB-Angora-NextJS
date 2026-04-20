@@ -8,7 +8,9 @@ import { ROUTES } from '@/constants/navigationConstants';
 // Ikoner og UI
 import RabbitPreviewCard from '@/components/cards/rabbitOwnPreviewCard';
 import CustomTabs from '@/components/ui/custom/tabs/Tabs';
+import { Tooltip } from '@/components/ui/heroui';
 import { TbFolderHeart, TbFolderPin, TbFolderQuestion } from 'react-icons/tb';
+import { PiInfo } from 'react-icons/pi';
 
 export default function RabbitOwnList({ userId }: { userId: string }) {
     const router = useRouter();
@@ -307,7 +309,7 @@ export default function RabbitOwnList({ userId }: { userId: string }) {
                     label: (
                         <span className="flex items-center gap-2">
                             <TbFolderPin className="text-lg" />
-                            I-folden
+                            I folden
                         </span>
                     ),
                     content: mineKaninerTab,
@@ -327,7 +329,17 @@ export default function RabbitOwnList({ userId }: { userId: string }) {
                     label: (
                         <span className="flex items-center gap-2">
                             <TbFolderQuestion className="text-lg" />
-                            Udenfor-folden
+                            Udenfor folden
+                            <Tooltip.Root delay={0}>
+                                <Tooltip.Trigger>
+                                    <span className="flex items-center text-foreground/40 hover:text-foreground/70 transition-colors">
+                                        <PiInfo className="text-base" />
+                                    </span>
+                                </Tooltip.Trigger>
+                                <Tooltip.Content className="max-w-60 text-xs">
+                                    Kaniner med dit avler# i højre - men som du ikke ejer og derfor ikke kan redigere.
+                                </Tooltip.Content>
+                            </Tooltip.Root>
                         </span>
                     ),
                     content: bestandTab,

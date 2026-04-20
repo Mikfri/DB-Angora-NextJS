@@ -1,13 +1,13 @@
 // src/components/nav/side/RabbitOwnNavClient.tsx
 'use client';
 
-import { Input, Switch, Button, Separator, Tooltip, Chip, Slider } from '@/components/ui/heroui';
+import { Input, Switch, Button, Separator, Tooltip, Badge, Slider } from '@/components/ui/heroui';
 import { useRouter } from 'next/navigation';
 import EnumAutocomplete from '@/components/ui/custom/autocomplete/EnumAutocomplete';
 import { useState, useEffect, useCallback } from 'react';
 import { useEnums, EnumType } from '@/contexts/EnumContext';
-import { useTransferRequests } from "@/hooks/transferRequests/useTransferRequest";
 import { useRabbitsOwnedStore } from '@/store/rabbitsOwnedStore';
+import { useTransferRequests } from '@/hooks/transferRequests/useTransferRequest';
 import { ROUTES } from '@/constants/navigationConstants';
 
 // Importer de nødvendige ikoner
@@ -20,8 +20,8 @@ import { FaInfoCircle } from "react-icons/fa";
 import { BiPurchaseTagAlt } from "react-icons/bi";
 import { SiMicrogenetics } from "react-icons/si";
 import { GiHealthNormal } from "react-icons/gi";
-import { PiSelectionPlus } from "react-icons/pi";
-import { TbGrave2, TbPercentage } from "react-icons/tb";
+import { PiDna, PiSelectionPlus } from "react-icons/pi";
+import { TbGrave2 } from "react-icons/tb";
 
 // De enum typer der bruges i denne komponent
 const REQUIRED_ENUMS: EnumType[] = ['Race', 'Color', 'Gender'];
@@ -46,14 +46,13 @@ export function RabbitOwnNavClient() {
     const { getMultipleEnumValues } = useEnums();
     const [enumsLoaded, setEnumsLoaded] = useState(false);
 
-    // Hent både received og load fra hooket
-    const { received, load } = useTransferRequests();
-    const pendingCount = received.filter(r => r.status === "Pending").length;
+    // Hent pending count fra hooket
+    const { pendingCount, loadPendingCount } = useTransferRequests();
 
-    // Kald load() når komponenten mountes
+    // Kald loadPendingCount() når komponenten mountes
     useEffect(() => {
-        load();
-    }, [load]);
+        loadPendingCount();
+    }, [loadPendingCount]);
 
     // Hent alt fra storen
     const {
@@ -135,18 +134,18 @@ export function RabbitOwnNavClient() {
                     variant="ghost"
                     fullWidth
                     size="sm"
-                    className="mt-2 justify-start relative"
+                    className="mt-2 justify-start"
                     onPress={() => router.push('/account/myRabbits/transferRequests')}
                 >
-                    <RiExchangeLine className="text-lg" /> Overførsels anmodninger
-                    {pendingCount > 0 && (
-                        <Chip
-                            size="sm"
-                            className="ml-auto mr-2"
-                        >
-                            {pendingCount}
-                        </Chip>
-                    )}
+                    <Badge.Anchor>
+                        <RiExchangeLine className="text-lg" />
+                        {pendingCount > 0 && (
+                            <Badge color="danger" size="sm">
+                                {pendingCount}
+                            </Badge>
+                        )}
+                    </Badge.Anchor>
+                    Overførsels anmodninger
                 </Button>
             </div>
 
@@ -343,7 +342,7 @@ export function RabbitOwnNavClient() {
                     <div className="space-y-1">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-1.5">
-                                <TbPercentage className="text-base text-muted" />
+                                <PiDna className="text-base text-muted" />
                                 <span className="text-label">Indavl</span>
                             </div>
                             <span className="text-xs text-muted">

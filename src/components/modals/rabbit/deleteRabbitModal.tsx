@@ -1,6 +1,6 @@
-// src/components/modals/deleteRabbitModal.tsx
-'use client'
-import { Modal, Button } from '@/components/ui/heroui';
+// src/components/modals/rabbit/deleteRabbitModal.tsx
+'use client';
+import { ConfirmModal } from '@/components/ui/custom/modals';
 
 interface Props {
     isOpen: boolean;
@@ -11,39 +11,18 @@ interface Props {
 }
 
 export default function DeleteRabbitModal({ isOpen, onClose, onConfirm, rabbitName, isDeleting }: Props) {
-    if (!isOpen) return null;
-
     return (
-        <Modal isOpen={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <Modal.Backdrop variant="blur">
-                <Modal.Container>
-                    <Modal.Dialog className="dark">
-                        <Modal.Header>
-                            <Modal.Heading>Bekræft sletning</Modal.Heading>
-                        </Modal.Header>
-                        <Modal.Body>
-                            <p className="text-gray-700 font-bold">Er du sikker på, at du vil slette kaninen &quot;{rabbitName}&quot;?</p>
-                            <p className="text-danger font-bold">Denne handling kan ikke fortrydes.</p>
-                        </Modal.Body>
-                        <Modal.Footer>
-                            <Button
-                                variant="ghost"
-                                onPress={onClose}
-                                isDisabled={isDeleting}
-                            >
-                                Annuller
-                            </Button>
-                            <Button
-                                variant="danger"
-                                onPress={onConfirm}
-                                isPending={isDeleting}
-                            >
-                                {isDeleting ? 'Sletter...' : 'Slet kanin'}
-                            </Button>
-                        </Modal.Footer>
-                    </Modal.Dialog>
-                </Modal.Container>
-            </Modal.Backdrop>
-        </Modal>
+        <ConfirmModal
+            isOpen={isOpen}
+            onClose={onClose}
+            onConfirm={onConfirm}
+            title="Bekræft sletning"
+            status="danger"
+            confirmLabel="Slet kanin"
+            isPending={isDeleting}
+        >
+            <p className="text-foreground/80 font-bold">Er du sikker på, at du vil slette kaninen &quot;{rabbitName}&quot;?</p>
+            <p className="text-danger font-bold">Denne handling kan ikke fortrydes.</p>
+        </ConfirmModal>
     );
 }

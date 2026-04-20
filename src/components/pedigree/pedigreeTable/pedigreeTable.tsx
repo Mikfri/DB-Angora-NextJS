@@ -1,4 +1,10 @@
 // src/components/pedigree/pedigreeTable/pedigreeTable.tsx
+/**
+ * PedigreeTable — Tabelbaseret stamtavlevisning.
+ * Ansvar: Renderer et rekursivt stamtræ som en HTML-tabel med rowSpan-logik,
+ * hvor hver kolonne repræsenterer en generation. Bruger RabbitPedigreeCard
+ * til at vise individuelle kaniner i cellerne.
+ */
 
 'use client';
 
@@ -13,10 +19,12 @@ interface PedigreeTableProps {
 }
 
 function buildPedigreeRows(
-  pedigree: Rabbit_PedigreeDTO | null,
-  numColumns: number
+  father: Rabbit_PedigreeDTO | null,
+  mother: Rabbit_PedigreeDTO | null,
+  numColumns: number,
+  repeatColorMap: Map<string, number>
 ) {
-  const totalRows = 2 ** (numColumns - 1);
+  const totalRows = 2 ** numColumns;
 
   // 2D array: rows x columns, each cell is either a rabbit or null
   const table: (Rabbit_PedigreeDTO | null)[][] = Array.from(
@@ -39,7 +47,8 @@ function buildPedigreeRows(
     }
   }
 
-  fillTable(pedigree, 0, 0, totalRows);
+  fillTable(father, 0, 0, totalRows / 2);
+  fillTable(mother, 0, totalRows / 2, totalRows / 2);
 
   const renderedRows: JSX.Element[] = [];
   const rendered: boolean[][] = Array.from(
@@ -61,9 +70,9 @@ function buildPedigreeRows(
           <td
             key={`col${colIdx}-row${rowIdx}`}
             rowSpan={span}
-            className="border border-zinc-700 align-middle text-center px-2 py-2 bg-zinc-800"
+            className="border border-border align-middle text-center px-2 py-2 bg-surface"
           >
-            <RabbitPedigreeCard rabbit={rabbit} />
+            <RabbitPedigreeCard rabbit={rabbit} repeatColorIndex={repeatColorMap.get(rabbit.EarCombId)} />
           </td>
         );
       } else {
@@ -83,7 +92,7 @@ function buildPedigreeRows(
             <td
               key={`col${colIdx}-row${rowIdx}`}
               rowSpan={span}
-              className="border border-zinc-700 align-middle text-center px-2 py-2 bg-zinc-900 text-zinc-500"
+              className="border border-border align-middle text-center px-2 py-2 bg-surface-secondary text-foreground/40"
             >
               <span className="italic">-</span>
             </td>
@@ -108,29 +117,49 @@ export default function PedigreeTable({
   //   }
   // };
 
-  // API returnerer generations + 1 kolonner (inkl. afkom som generation 0)
-  const actualColumns = generations + 1;
-  const columns = Array.from({ length: actualColumns }, (_, index) => 
-    index === 0 ? 'Afkom' : `Generation ${index}`
+  // API returnerer 'generations' kolonner (Afkom vises nu som separat kort ovenfor)
+  const actualColumns = generations;
+  const columns = Array.from({ length: actualColumns }, (_, index) =>
+    `Generation ${index + 1}`
   );
+
+  // Find EarCombIds der optræder mere end én gang i stamtræet
+  function collectIds(rabbit: Rabbit_PedigreeDTO | null, ids: string[]) {
+    if (!rabbit) return;
+    ids.push(rabbit.EarCombId);
+    collectIds(rabbit.Father ?? null, ids);
+    collectIds(rabbit.Mother ?? null, ids);
+  }
+  const allIds: string[] = [];
+  collectIds(pedigree, allIds);
+  const seen = new Set<string>();
+  const repeatColorMap = new Map<string, number>();
+  let colorIdx = 0;
+  for (const id of allIds) {
+    if (seen.has(id)) {
+      if (!repeatColorMap.has(id)) repeatColorMap.set(id, colorIdx++);
+    } else {
+      seen.add(id);
+    }
+  }
 
   return (
     <div className="space-y-4">
       {/* Generation input removed from here — parent (rabbitPedigree.tsx) controls it */}
 
-      <div className="overflow-auto rounded-lg bg-zinc-800/50 border border-zinc-700/30 p-2">
+      <div className="overflow-auto rounded-lg border border-border">
         <table className="min-w-full border-collapse">
           <thead>
             <tr>
               {columns.map((col) => (
-                <th key={col} className="border border-zinc-700 px-4 py-2 bg-zinc-900 text-zinc-400 text-center font-semibold">
+                <th key={col} className="border border-border px-4 py-2 bg-surface-secondary text-foreground/60 text-center font-semibold">
                   {col}
                 </th>
               ))}
             </tr>
           </thead>
           <tbody>
-            {buildPedigreeRows(pedigree, actualColumns)}
+            {buildPedigreeRows(pedigree.Father ?? null, pedigree.Mother ?? null, actualColumns, repeatColorMap)}
           </tbody>
         </table>
       </div>

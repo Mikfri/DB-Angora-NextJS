@@ -1,3 +1,11 @@
+// src/components/pedigree/ReactFlowPedigree.tsx
+/**
+ * ReactFlowPedigree — Interaktiv stamtavlevisning baseret på ReactFlow.
+ * Ansvar: Konverterer PedigreeResultDTO til ReactFlow nodes/edges og renderer
+ * et navigerbart, zoombart stamtræ. Viser indavlskoefficient og COI-bidragydere
+ * i en header. Fremhæver indavlsforekomster. Bruges pt. ikke i produktionen
+ * (PedigreeTable benyttes i stedet på rabbitPedigree-siden).
+ */
 'use client';
 
 import { useMemo, useEffect } from 'react';
@@ -114,16 +122,16 @@ export default function ReactFlowPedigree({ pedigreeResult, maxGenerations = 3 }
   const nodeTypes = useMemo(() => ({ rabbitNode: RabbitNode }), []);
 
   return (
-    <div className="flex flex-col h-[650px] w-full bg-zinc-900/20 rounded-lg border border-zinc-700/50">
+    <div className="flex flex-col h-[650px] w-full bg-surface-secondary rounded-lg border border-border">
       {/* Forbedret header med mere detaljeret COI-info */}
-      <div className="mb-4 p-4 bg-gradient-to-r from-zinc-800/80 to-zinc-700/80 backdrop-blur-md rounded-t-lg border-b border-zinc-600/50">
+      <div className="mb-4 p-4 bg-surface backdrop-blur-md rounded-t-lg border-b border-border">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-semibold text-zinc-100">Indavlskoefficient</h3>
+            <h3 className="text-lg font-semibold text-foreground">Indavlskoefficient</h3>
             <p className="text-3xl font-bold text-blue-400 mt-1">
               {(CalculatedInbreedingCoefficient * 100).toFixed(2)}%
             </p>
-            <p className="text-sm text-zinc-400 mt-1">
+            <p className="text-sm text-foreground/55 mt-1">
               {CalculatedInbreedingCoefficient > 0.125
                 ? "Højt niveau af indavl - overvej diversitet"
                 : CalculatedInbreedingCoefficient > 0
@@ -133,10 +141,10 @@ export default function ReactFlowPedigree({ pedigreeResult, maxGenerations = 3 }
           </div>
           {COIContributors && COIContributors.length > 0 && (
             <div className="text-right">
-              <h4 className="text-sm font-medium text-zinc-300">Top-bidragydere</h4>
+              <h4 className="text-sm font-medium text-foreground/80">Top-bidragydere</h4>
               <div className="mt-2 space-y-1">
                 {COIContributors.slice(0, 3).map((contrib, idx) => (
-                  <div key={idx} className="text-xs text-zinc-400 bg-zinc-800/50 px-2 py-1 rounded">
+                  <div key={idx} className="text-xs text-foreground/55 bg-(--surface-muted) px-2 py-1 rounded">
                     {contrib.NickName || contrib.EarCombId}: {(contrib.ContributionPercent).toFixed(1)}%
                   </div>
                 ))}
@@ -146,7 +154,7 @@ export default function ReactFlowPedigree({ pedigreeResult, maxGenerations = 3 }
         </div>
       </div>
 
-      <div className="flex-1 border border-zinc-700/50 rounded-b-lg overflow-hidden">
+      <div className="flex-1 border border-border rounded-b-lg overflow-hidden">
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -170,7 +178,7 @@ export default function ReactFlowPedigree({ pedigreeResult, maxGenerations = 3 }
           }}
           proOptions={{ hideAttribution: true }}
           zoomOnDoubleClick={false}
-          className="bg-zinc-900/10"
+          className="bg-background"
         >
           <Background
             color="#374151"
@@ -179,32 +187,32 @@ export default function ReactFlowPedigree({ pedigreeResult, maxGenerations = 3 }
           //variant="lines"
           />
           <Controls
-            className="bg-zinc-800/80 border-zinc-600"
+            className="bg-surface border-border"
             showZoom
             showFitView
             showInteractive={false}
           />
-          <Panel position="top-right" className="bg-zinc-900/80 backdrop-blur-sm border border-zinc-700 rounded-md p-2">
-            <div className="text-xs text-zinc-300">
+          <Panel position="top-right" className="bg-surface backdrop-blur-sm border border-border rounded-md p-2">
+            <div className="text-xs text-foreground/70">
               <p>Generationer: {maxGenerations}</p>
               <p>Nodes: {nodes.length}</p>
             </div>
           </Panel>
-          <Panel position="bottom-left" className="bg-zinc-900/80 backdrop-blur-sm border border-zinc-700 rounded-md p-3">
+          <Panel position="bottom-left" className="bg-surface backdrop-blur-sm border border-border rounded-md p-3">
             <div className="space-y-2">
-              <div className="text-xs font-medium text-zinc-200 mb-2">Stamtræs-guide:</div>
+              <div className="text-xs font-medium text-foreground/90 mb-2">Stamtræs-guide:</div>
               <div className="flex items-center gap-2">
                 <div className="w-4 h-1 bg-blue-400 rounded"></div>
-                <span className="text-xs text-zinc-300">Far-linjer</span>
+                <span className="text-xs text-foreground/70">Far-linjer</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-4 h-1 bg-pink-400 rounded"></div>
-                <span className="text-xs text-zinc-300">Mor-linjer</span>
+                <span className="text-xs text-foreground/70">Mor-linjer</span>
               </div>
               {inbreedingRabbits.size > 0 && (
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 bg-purple-600 rounded-full border-2 border-purple-300"></div>
-                  <span className="text-xs text-zinc-300">Indavlsforekomst</span>
+                  <span className="text-xs text-foreground/70">Indavlsforekomst</span>
                 </div>
               )}
             </div>

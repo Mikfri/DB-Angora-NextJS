@@ -121,8 +121,6 @@ export async function GetYarnSaleItemsFiltered(
     if (filter.plyCount              != null) params.append('plyCount',              filter.plyCount.toString());
     if (filter.minNeedleSizeMm       != null) params.append('minNeedleSizeMm',       filter.minNeedleSizeMm.toString());
     if (filter.maxNeedleSizeMm       != null) params.append('maxNeedleSizeMm',       filter.maxNeedleSizeMm.toString());
-    if (filter.minSoftnessScore      != null) params.append('minSoftnessScore',      filter.minSoftnessScore);
-    if (filter.minDurabilityScore    != null) params.append('minDurabilityScore',    filter.minDurabilityScore);
 
     const response = await fetch(getApiUrl(`Sale/yarns?${params}`), {
         method: 'GET',

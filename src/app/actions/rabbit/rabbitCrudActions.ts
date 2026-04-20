@@ -54,8 +54,8 @@ export type ProfileResult =
   | { success: false; error: string; status: number };
 
 export type ParentValidationResult =
-  | { success: true; result: Rabbit_ParentValidationResultDTO }
-  | { success: false; error: string };
+  | { success: true; message: string | null; result: Rabbit_ParentValidationResultDTO | null }
+  | { success: false; message: string; isNotFound: boolean };
 
 export type UpdateRabbitResult =
   | { success: true; message: string }
@@ -363,26 +363,23 @@ export async function validateParentReference(
 ): Promise<ParentValidationResult> {
   try {
     if (!parentId || !expectedGender) {
-      return {
-        success: false,
-        error: "Mangler parentId eller expectedGender"
-      };
+      return { success: false, message: "Mangler parentId eller expectedGender", isNotFound: false };
     }
 
     const accessToken = await getAccessToken();
     if (!accessToken) {
-      return {
-        success: false,
-        error: "Authentication required"
-      };
+      return { success: false, message: "Authentication required", isNotFound: false };
     }
 
-    const result = await ValidateParentReference(accessToken, parentId, expectedGender);
-    return { success: true, result };
+    const { message, data } = await ValidateParentReference(accessToken, parentId, expectedGender);
+    return { success: true, message, result: data };
   } catch (error) {
+    const err = error instanceof Error ? error : new Error('Uventet fejl');
+    const status = (err as Error & { status?: number }).status ?? 500;
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Uventet fejl'
+      message: err.message,
+      isNotFound: status === 404
     };
   }
 }

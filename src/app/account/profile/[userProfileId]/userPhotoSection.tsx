@@ -2,14 +2,14 @@
 
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import {
   CloudinaryUploadConfigDTO,
   CloudinaryPhotoRegistryRequestDTO,
   PhotoPrivateDTO
 } from '@/api/types/AngoraDTOs';
 import { Button } from "@heroui/react";
-import SimpleCloudinaryWidget from '@/components/cloudinary/SimpleCloudinaryWidget';
+import CloudinaryUploadButton from '@/components/cloudinary/CloudinaryUploadButton';
 import UserPhotoGallery from './userPhotoGallery';
 import {
     getUserProfilePhotoUploadPermission,
@@ -30,20 +30,18 @@ export default function UserPhotoSection({ userProfileId, photos, refreshProfile
   const [isLoadingDeleteAction, setIsLoadingDeleteAction] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [uploadConfig, setUploadConfig] = useState<CloudinaryUploadConfigDTO | null>(null);
-  const [showWidget, setShowWidget] = useState(false);
-  const [widgetKey, setWidgetKey] = useState(`widget-${Date.now()}`);
-
-  // Hent upload tilladelse
-  const loadUploadPermission = useCallback(async () => {
+  // Hent upload-tilladelse ved mount så widgetten kan åbne øjeblikkeligt
+  useEffect(() => {
     setIsLoadingUploadConfig(true);
-    setError(null);
-    const result = await getUserProfilePhotoUploadPermission(userProfileId);
-    if (result.success && result.data) {
-      setUploadConfig(result.data);
-    } else {
-      setError(result.error || 'Kunne ikke få upload-tilladelse');
-    }
-    setIsLoadingUploadConfig(false);
+    getUserProfilePhotoUploadPermission(userProfileId)
+      .then((result) => {
+        if (result.success && result.data) {
+          setUploadConfig(result.data);
+        } else {
+          setError(result.error || 'Kunne ikke få upload-tilladelse');
+        }
+      })
+      .finally(() => setIsLoadingUploadConfig(false));
   }, [userProfileId]);
 
   // Håndter foto upload fra Cloudinary
@@ -52,14 +50,6 @@ export default function UserPhotoSection({ userProfileId, photos, refreshProfile
     if (!result.success) setError(result.error || 'Fejl ved registrering');
     await refreshProfile();
   };
-
-  // Widget håndtering
-  const handleWidgetClose = useCallback(() => setShowWidget(false), []);
-  const handleShowWidget = useCallback(async () => {
-    if (!uploadConfig) await loadUploadPermission();
-    setWidgetKey(`widget-${Date.now()}-${Math.random().toString(36).slice(2)}`);
-    setShowWidget(true);
-  }, [uploadConfig, loadUploadPermission]);
 
   // Sæt som profilbillede
   const handleSetAsProfile = async (photoId: number) => {
@@ -87,15 +77,28 @@ const handleDeletePhoto = async (photoId: number) => {
     <div className="bg-zinc-800/80 rounded-lg border border-zinc-700/50 overflow-hidden h-full flex flex-col">
       <div className="flex justify-between items-center p-4 border-b border-zinc-700/50">
         <h3 className="text-zinc-100 font-medium">Profilbilleder</h3>
-        <Button
-          size="sm"
-          variant="primary"
-          onPress={handleShowWidget}
-          isDisabled={isLoadingUploadConfig}
-          isPending={isLoadingUploadConfig}
-        >
-          {isLoadingUploadConfig ? 'Indlæser...' : 'Upload'}
-        </Button>
+        {uploadConfig ? (
+          <CloudinaryUploadButton
+            uploadConfig={uploadConfig}
+            onPhotoUploaded={handlePhotoUploaded}
+            onClose={refreshProfile}
+          >
+            {(open) => (
+              <Button size="sm" variant="primary" onPress={() => open()}>
+                Upload
+              </Button>
+            )}
+          </CloudinaryUploadButton>
+        ) : (
+          <Button
+            size="sm"
+            variant="primary"
+            isDisabled={isLoadingUploadConfig}
+            isPending={isLoadingUploadConfig}
+          >
+            {isLoadingUploadConfig ? 'Indlæser...' : 'Upload'}
+          </Button>
+        )}
       </div>
       {error && (
         <div className="bg-red-500/20 border border-red-500/50 p-3 m-3 rounded-lg">
@@ -114,16 +117,7 @@ const handleDeletePhoto = async (photoId: number) => {
           onDelete={handleDeletePhoto}
         />
       </div>
-      {showWidget && uploadConfig && (
-        <SimpleCloudinaryWidget
-          uploadConfig={uploadConfig}
-          onPhotoUploaded={handlePhotoUploaded}
-          onComplete={refreshProfile}
-          onClose={handleWidgetClose}
-          widgetKey={widgetKey}
-          forceReload={true}
-        />
-      )}
+
     </div>
   );
 }

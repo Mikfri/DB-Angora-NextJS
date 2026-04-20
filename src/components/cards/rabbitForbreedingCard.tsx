@@ -3,15 +3,37 @@
 
 import { Rabbit_ForbreedingPreviewDTO } from '@/api/types/AngoraDTOs';
 import ClickableCard from '@/components/ui/custom/cards/ClickableCard';
-import { Chip, Separator } from '@/components/ui/heroui';
+import { Chip } from '@/components/ui/heroui';
 import Image from 'next/image';
 import { useState, ReactNode } from 'react';
 import { formatDate } from '@/utils/formatters';
-import { LuRabbit } from "react-icons/lu";
-import { BsCalendarDate, BsGenderAmbiguous } from "react-icons/bs";
-import { IoColorPaletteOutline } from "react-icons/io5";
-import { SiMicrogenetics } from "react-icons/si";
+import { LuRabbit } from 'react-icons/lu';
+import { BsCalendarDate, BsGenderAmbiguous } from 'react-icons/bs';
+import { IoColorPaletteOutline, IoLocationOutline } from 'react-icons/io5';
+import { SiMicrogenetics } from 'react-icons/si';
 import { TbHeartSearch } from 'react-icons/tb';
+import { MdVerified } from 'react-icons/md';
+
+interface Props {
+    rabbit: Rabbit_ForbreedingPreviewDTO;
+    onClick?: () => void;
+}
+
+type StatusChip = {
+    key: string;
+    color: "accent" | "default" | "success" | "warning" | "danger";
+    icon: ReactNode;
+    text: string;
+}
+
+const formatNullableValue = (value: string | null | undefined): string => {
+    return value || 'Ikke angivet';
+};
+
+const formatInbreedingCoefficient = (coefficient: number | null | undefined): string => {
+    if (coefficient === null || coefficient === undefined) return 'Ikke beregnet';
+    return `${(coefficient * 100).toFixed(2)}%`;
+};
 
 export default function RabbitForbreedingCard({ rabbit, onClick }: Props) {
     const [imageError, setImageError] = useState(false);
@@ -20,29 +42,31 @@ export default function RabbitForbreedingCard({ rabbit, onClick }: Props) {
 
     const displayName = rabbit.nickName || 'Unavngivet kanin';
 
-    // Status chips
-    const statusChips: StatusChip[] = [];
+    const statusChips: StatusChip[] = [
+        {
+            key: "breeding",
+            color: "success",
+            icon: <TbHeartSearch className="mr-1" />,
+            text: "Til avl"
+        }
+    ];
 
-    // Avl chip (altid relevant for denne type)
-    statusChips.push({
-        key: "breeding",
-        color: "success",
-        icon: <TbHeartSearch className="mr-1" />,
-        text: "Til avl"
-    });
+    if (rabbit.approvedRaceColorCombination) {
+        statusChips.push({
+            key: "approved",
+            color: "accent",
+            icon: <MdVerified className="mr-1" />,
+            text: "Godkendt"
+        });
+    }
 
     return (
         <ClickableCard
             onClick={onClick}
-            style={{
-                cursor: onClick ? 'pointer' : 'default',
-                background: 'transparent',
-                borderColor: 'transparent',
-            }}
-            className="max-w-sm hover:shadow-lg transition-shadow bg-zinc-800/80 backdrop-blur-md 
-            backdrop-saturate-150 border border-zinc-700/50"
+            className="w-full h-full flex flex-col hover:-translate-y-1"
         >
-            <div className="relative w-full h-64">
+            {/* Billede */}
+            <div className="relative w-full h-48 overflow-hidden">
                 <Image
                     src={profileImage}
                     alt={`${displayName} profilbillede`}
@@ -53,78 +77,69 @@ export default function RabbitForbreedingCard({ rabbit, onClick }: Props) {
                     draggable={false}
                 />
 
-                {/* Bund gradient for bedre læsbarhed af chips */}
-                <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-black/70 to-transparent" />
+                {/* Gradient */}
+                <div className="absolute bottom-0 left-0 right-0 h-20 bg-linear-to-t from-black/70 to-transparent" />
 
-                {/* Status chips - nederst til højre */}
+                {/* Status chips — nederst til højre */}
                 <div className="absolute bottom-2 right-2 flex flex-col gap-0.5 z-10">
                     {statusChips.map((chip) => (
                         <Chip
                             key={chip.key}
                             color={chip.color}
                             variant="soft"
-                            size="md"
-                            className="h-6 min-h-0 text-foreground-300"
+                            size="sm"
+                            className="h-5 min-h-0"
                         >
                             {chip.icon}{chip.text}
                         </Chip>
                     ))}
                 </div>
 
-                {/* Race/Farve tag - nederst til venstre */}
+                {/* Race tag — nederst til venstre */}
                 <div className="absolute bottom-2 left-2 z-10">
-                    <div className="inline-flex items-center gap-1 bg-black/40 backdrop-blur-sm text-white text-sm font-medium px-2 py-0.5 rounded-full shadow-sm">
-                        <LuRabbit className="text-sm" />
-                        <span className="truncate max-w-[120px]">{formatNullableValue(rabbit.race)}</span>
+                    <div className="inline-flex items-center gap-1 bg-black/40 backdrop-blur-sm text-white text-xs font-medium px-2 py-0.5 rounded-full">
+                        <LuRabbit size={11} />
+                        <span className="truncate max-w-27.5">{formatNullableValue(rabbit.race)}</span>
                     </div>
                 </div>
             </div>
 
-            <Card.Header className="pb-0 pt-3 px-4">
-                <div className="flex flex-col">
-                    <p className="text-md font-bold text-zinc-100">{displayName}</p>
-                    <p className="text-xs text-zinc-400">{rabbit.earCombId}</p>
-                </div>
-            </Card.Header>
-
-            <Card.Content className="text-zinc-300 py-2 px-4">
-                <div className="space-y-1">
-                    {/* Hovedegenskaber med ikoner - kompakte rækker */}
-                    <div className="flex items-center text-xs">
-                        <BsCalendarDate className="text-zinc-400 mr-2 shrink-0" size={12} />
-                        <div className="grid grid-cols-2 gap-x-2 w-full">
-                            <span className="text-zinc-400">Fødselsdato:</span>
-                            <span>{formatDate(rabbit.dateOfBirth) || 'Ikke angivet'}</span>
-                        </div>
+            {/* Tekst-indhold */}
+            <ClickableCard.Content>
+                <div className="space-y-1.5">
+                    {/* Navn + øremærke */}
+                    <div>
+                        <p className="text-sm font-semibold text-foreground line-clamp-1 leading-snug">{displayName}</p>
+                        <p className="text-xs text-muted">{rabbit.earCombId}</p>
                     </div>
 
-                    <Separator className="my-0.5 bg-zinc-700/30" />
-
-                    <div className="flex items-center text-xs">
-                        <IoColorPaletteOutline className="text-zinc-400 mr-2 shrink-0" size={12} />
-                        <div className="grid grid-cols-2 gap-x-2 w-full">
-                            <span className="text-zinc-400">Farve:</span>
-                            <span>{formatNullableValue(rabbit.color)}</span>
+                    {/* Kompakte info-rækker */}
+                    <div className="space-y-0.5 text-xs text-muted">
+                        <div className="flex items-center gap-1.5">
+                            <BsCalendarDate size={11} className="shrink-0" />
+                            <span>{formatDate(rabbit.dateOfBirth) || 'Fødselsdato ikke angivet'}</span>
                         </div>
-                    </div>
-
-                    <div className="flex items-center text-xs">
-                        <BsGenderAmbiguous className="text-zinc-400 mr-2 shrink-0" size={12} />
-                        <div className="grid grid-cols-2 gap-x-2 w-full">
-                            <span className="text-zinc-400">Køn:</span>
+                        <div className="flex items-center gap-1.5">
+                            <BsGenderAmbiguous size={11} className="shrink-0" />
                             <span>{formatNullableValue(rabbit.gender)}</span>
                         </div>
-                    </div>
-
-                    <div className="flex items-center text-xs">
-                        <SiMicrogenetics className="text-zinc-400 mr-2 shrink-0" size={12} />
-                        <div className="grid grid-cols-2 gap-x-2 w-full">
-                            <span className="text-zinc-400">Indavl:</span>
-                            <span>{formatInbreedingCoefficient(rabbit.inbreedingCoefficient)}</span>
+                        <div className="flex items-center gap-1.5">
+                            <IoColorPaletteOutline size={11} className="shrink-0" />
+                            <span>{formatNullableValue(rabbit.color)}</span>
+                        </div>
+                        {rabbit.inbreedingCoefficient !== null && rabbit.inbreedingCoefficient !== undefined && (
+                            <div className="flex items-center gap-1.5">
+                                <SiMicrogenetics size={11} className="shrink-0" />
+                                <span>Indavl: {formatInbreedingCoefficient(rabbit.inbreedingCoefficient)}</span>
+                            </div>
+                        )}
+                        <div className="flex items-center gap-1.5">
+                            <IoLocationOutline size={11} className="shrink-0" />
+                            <span>{rabbit.zipCode} {rabbit.city}</span>
                         </div>
                     </div>
                 </div>
-            </Card.Content>
+            </ClickableCard.Content>
         </ClickableCard>
     );
 }

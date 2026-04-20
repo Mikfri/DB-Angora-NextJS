@@ -1,22 +1,24 @@
 'use client';
-import { Modal, Chip, Tooltip, Button } from '@/components/ui/heroui';
+import { Chip, Tooltip, Button, Avatar } from '@/components/ui/heroui';
+import { ConfirmModal } from '@/components/ui/custom/modals';
 import React from "react";
 import { FaCheck, FaTimes, FaTrash } from "react-icons/fa";
 import { useTransferRequests } from "@/hooks/transferRequests/useTransferRequest";
 import { TransferRequestPreviewDTO } from "@/api/types/AngoraDTOs";
+import { formatDate, formatCurrency } from "@/utils/formatters";
 import { toast } from "react-toastify";
 import { RiUserReceivedLine, RiUserSharedLine } from "react-icons/ri";
 
 const baseColumns = [
-    { name: "Status", uid: "status", key: "status" },
-    { name: "Navn", uid: "rabbit_NickName", key: "rabbit_NickName" },
-    { name: "Øremærke", uid: "rabbit_EarCombId", key: "rabbit_EarCombId" },
+    { name: "Status", uid: "statusDate", key: "statusDate" },
+    { name: "Kanin", uid: "rabbit", key: "rabbit" },
 ];
 
 const receivedColumns = [
     ...baseColumns,
     { name: "Udsteder (regnr)", uid: "issuer_BreederRegNo", key: "issuer_BreederRegNo" },
     { name: "Udsteder (navn)", uid: "issuer_FirstName", key: "issuer_FirstName" },
+    { name: "Pris", uid: "price", key: "price" },
     { name: "Handling", uid: "actions", key: "actions" },
 ];
 
@@ -24,6 +26,7 @@ const sentColumns = [
     ...baseColumns,
     { name: "Modtager (regnr)", uid: "recipient_BreederRegNo", key: "recipient_BreederRegNo" },
     { name: "Modtager (navn)", uid: "recipient_FirstName", key: "recipient_FirstName" },
+    { name: "Pris", uid: "price", key: "price" },
     { name: "Handling", uid: "actions", key: "actions" },
 ];
 
@@ -83,16 +86,21 @@ export default function TransferRequestList() {
         (item: TransferRequestPreviewDTO, columnKey: string) => {
             const cellValue = item[columnKey as keyof TransferRequestPreviewDTO];
             switch (columnKey) {
-                case "status":
+                case "statusDate":
                     return (
-                        <Chip
-                            className="capitalize"
-                            color={statusColorMap[item.status ?? ""] || "default"}
-                            size="sm"
-                            variant="soft"
-                        >
-                            {cellValue}
-                        </Chip>
+                        <div className="flex flex-col gap-0.5">
+                            <Chip
+                                className="capitalize"
+                                color={statusColorMap[item.status ?? ""] || "default"}
+                                size="sm"
+                                variant="soft"
+                            >
+                                {item.status}
+                            </Chip>
+                            {item.dateAccepted && (
+                                <span className="text-xs text-foreground/50">{formatDate(item.dateAccepted)}</span>
+                            )}
+                        </div>
                     );
                 case "actions":
                     if (tab === "received") {
@@ -154,8 +162,35 @@ export default function TransferRequestList() {
                             </div>
                         );
                     }
+                case "rabbit": {
+                    const name = item.rabbit_NickName ?? null;
+                    const initials = name ? name.charAt(0).toUpperCase() : '?';
+                    return (
+                        <div className="flex items-center gap-2">
+                            <Avatar size="sm">
+                                {item.rabbit_ProfilePhotoUrl && (
+                                    <Avatar.Image
+                                        src={item.rabbit_ProfilePhotoUrl}
+                                        alt={name ?? 'Kanin'}
+                                        loading="lazy"
+                                    />
+                                )}
+                                <Avatar.Fallback>{initials}</Avatar.Fallback>
+                            </Avatar>
+                            <div className="flex flex-col">
+                                <span className="text-sm text-foreground">{name ?? <span className="text-foreground/40 italic">Ukendt</span>}</span>
+                                <span className="text-xs text-foreground/50">{item.rabbit_EarCombId ?? '-'}</span>
+                            </div>
+                        </div>
+                    );
+                }
+                case "price":
+                    return item.price != null
+                        ? <span>{formatCurrency(item.price)}</span>
+                        : <span className="text-foreground/40 italic">-</span>;
+
                 default:
-                    return cellValue ?? <span className="text-zinc-500 italic">-</span>;
+                    return cellValue ?? <span className="text-foreground/40 italic">-</span>;
             }
         },
         [tab, handleDelete]
@@ -180,14 +215,15 @@ export default function TransferRequestList() {
                 </Button>
             </div>
             {isLoading && <div className="py-8"><span>Indlæser...</span></div>}
-            {error && <div className="text-red-400">{error}</div>}
+            {error && <div className="text-danger">{error}</div>}
             {!isLoading && !error && (
-                <div className="overflow-hidden rounded-lg bg-zinc-900 text-zinc-100">
-                    <table className="min-w-full border-separate border-spacing-0 text-left text-zinc-100">
+                <div className="unified-container overflow-hidden">
+                    <div className="overflow-x-auto">
+                    <table className="min-w-full border-separate border-spacing-0 text-left text-foreground">
                         <thead>
                             <tr>
                                 {columns.map((column) => (
-                                    <th key={column.key} className={`${column.uid === "actions" ? "text-center" : "text-left"} px-4 py-3 text-xs font-semibold uppercase tracking-[0.12em] text-zinc-400`}>
+                                    <th key={column.key} className={`${column.uid === "actions" ? "text-center" : "text-left"} px-3 py-2 text-xs font-medium text-foreground/60`}>
                                         {column.name}
                                     </th>
                                 ))}
@@ -195,9 +231,9 @@ export default function TransferRequestList() {
                         </thead>
                         <tbody>
                             {list.map((item) => (
-                                <tr key={item.id} className="border-t border-zinc-800">
+                                <tr key={item.id} className="border-t border-foreground/10">
                                     {columns.map((column) => (
-                                        <td key={column.key} className={`${column.uid === "actions" ? "px-4 py-3 text-center" : "px-4 py-3"} text-sm leading-6`}>
+                                        <td key={column.key} className={`${column.uid === "actions" ? "px-3 py-1.5 text-center" : "px-3 py-1.5"} text-sm text-foreground`}>
                                             {renderCell(item, column.uid)}
                                         </td>
                                     ))}
@@ -205,34 +241,23 @@ export default function TransferRequestList() {
                             ))}
                         </tbody>
                     </table>
+                    </div>
                 </div>
             )}
             {!isLoading && !error && list.length === 0 && (
-                <div className="text-zinc-400 mt-4">Ingen anmodninger fundet.</div>
+                <div className="text-foreground/50 mt-4">Ingen anmodninger fundet.</div>
             )}
 
-            {/* Modal kun mounted når confirm er sat */}
-            {!!confirm && <Modal isOpen={!!confirm} onOpenChange={(open) => { if (!open) setConfirm(null); }}>
-                <Modal.Backdrop />
-                <Modal.Container>
-                    <Modal.Dialog>
-                        <Modal.Header>
-                            <Modal.Heading>Bekræft handling</Modal.Heading>
-                        </Modal.Header>
-                        <Modal.Body>
-                            Er du sikker på, at du vil {confirm?.accept ? "acceptere" : "afvise"} denne anmodning?
-                        </Modal.Body>
-                        <Modal.Footer>
-                            <Button variant="secondary" onPress={() => setConfirm(null)}>
-                                Annuller
-                            </Button>
-                            <Button variant={confirm?.accept ? "secondary" : "danger"} onPress={handleConfirm}>
-                                Bekræft
-                            </Button>
-                        </Modal.Footer>
-                    </Modal.Dialog>
-                </Modal.Container>
-            </Modal>}
+            <ConfirmModal
+                isOpen={!!confirm}
+                onClose={() => setConfirm(null)}
+                onConfirm={handleConfirm}
+                title="Bekræft handling"
+                status={confirm?.accept ? 'accent' : 'danger'}
+                confirmLabel={confirm?.accept ? 'Acceptér' : 'Afvis'}
+            >
+                Er du sikker på, at du vil {confirm?.accept ? 'acceptere' : 'afvise'} denne anmodning?
+            </ConfirmModal>
         </div>
     );
 }

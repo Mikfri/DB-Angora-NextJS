@@ -5,7 +5,7 @@ import { Input, Switch } from '@/components/ui/heroui';
 import { Rabbit_ProfileDTO, Rabbit_UpdateDTO } from "@/api/types/AngoraDTOs";
 import EnumAutocomplete from "@/components/ui/custom/autocomplete/EnumAutocomplete";
 import { validateParentReference } from "@/app/actions/rabbit/rabbitCrudActions";
-import { FaCheckCircle, FaSpinner, FaTimesCircle } from "react-icons/fa";
+import { FaCheckCircle, FaInfoCircle, FaSpinner, FaTimesCircle } from "react-icons/fa";
 
 // Eksporter konstanten, så den kan bruges andre steder
 export const editableFieldLabels: Record<keyof Rabbit_UpdateDTO, string> = {
@@ -41,7 +41,7 @@ function ParentIdInput({
   onChange: (val: string) => void;
   isChanged?: boolean;
 }) {
-  const [status, setStatus] = useState<'idle' | 'loading' | 'valid' | 'invalid'>('idle');
+  const [status, setStatus] = useState<'idle' | 'loading' | 'valid' | 'invalid' | 'notfound'>('idle');
   const [validationHint, setValidationHint] = useState('');
   const [isFocused, setIsFocused] = useState(false);
   const isFocusedRef = useRef(false);
@@ -56,14 +56,14 @@ function ParentIdInput({
       validateParentReference(value, gender).then(res => {
         if (isFocusedRef.current) return;
         if (!res.success) {
-          setStatus('invalid');
-          setValidationHint(res.error ?? 'Ugyldig');
+          setStatus(res.isNotFound ? 'notfound' : 'invalid');
+          setValidationHint(res.message);
         } else if (res.result?.isValidParent) {
           setStatus('valid');
-          setValidationHint('Registreret i systemet');
+          setValidationHint(res.message ?? 'Registreret i systemet');
         } else {
           setStatus('invalid');
-          setValidationHint('Ikke fundet i systemet');
+          setValidationHint(res.message ?? 'Ikke egnet som forælder');
         }
       });
     } else {
@@ -90,14 +90,14 @@ function ParentIdInput({
     setValidationHint('');
     const res = await validateParentReference(value, gender);
     if (!res.success) {
-      setStatus('invalid');
-      setValidationHint(res.error ?? 'Ugyldig');
+      setStatus(res.isNotFound ? 'notfound' : 'invalid');
+      setValidationHint(res.message);
     } else if (res.result?.isValidParent) {
       setStatus('valid');
-      setValidationHint('Registreret i systemet');
+      setValidationHint(res.message ?? 'Registreret i systemet');
     } else {
       setStatus('invalid');
-      setValidationHint('Ikke fundet i systemet');
+      setValidationHint(res.message ?? 'Ikke egnet som forælder');
     }
   };
 
@@ -118,12 +118,13 @@ function ParentIdInput({
         {!isFocused && status === 'loading' && <FaSpinner className="animate-spin text-foreground/50 shrink-0" />}
         {!isFocused && status === 'valid' && <FaCheckCircle className="text-success shrink-0" />}
         {!isFocused && status === 'invalid' && <FaTimesCircle className="text-danger shrink-0" />}
+        {!isFocused && status === 'notfound' && <FaInfoCircle className="text-warning shrink-0" />}
       </div>
       {typingHint && (
         <p className={`text-xs ${typingHint.color}`}>{typingHint.text}</p>
       )}
       {!isFocused && validationHint && (
-        <p className={`text-xs ${status === 'valid' ? 'text-success' : 'text-danger'}`}>{validationHint}</p>
+        <p className={`text-xs ${status === 'valid' ? 'text-success' : status === 'notfound' ? 'text-warning' : 'text-danger'}`}>{validationHint}</p>
       )}
     </div>
   );

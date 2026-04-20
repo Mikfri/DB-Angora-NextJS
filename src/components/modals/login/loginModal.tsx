@@ -9,8 +9,6 @@ interface Props {
 }
 
 export default function LoginModal({ isOpen, onClose }: Props) {
-    if (!isOpen) return null;
-
     return (
         <Modal isOpen={isOpen} onOpenChange={(open) => !open && onClose()}>
             <Modal.Backdrop variant="blur">

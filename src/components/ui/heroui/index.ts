@@ -34,6 +34,7 @@ export {
     Slider,
     // Overlay
     Modal,
+    AlertDialog,
     Dropdown,
     DropdownTrigger,
     DropdownPopover,

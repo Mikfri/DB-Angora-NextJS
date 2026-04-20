@@ -32,15 +32,11 @@ export function UserProfileNavClient() {
     <div className="w-full p-1 space-y-2">
       
       {/* Profilbillede */}
-      <div className="flex justify-center">
-        <div className="w-full max-w-[300px] aspect-square">
-          <ProfileImage
-            imageUrl={profilePhotoUrl}
-            alt={fullName}
-            className="w-full h-full"
-          />
-        </div>
-      </div>
+      <ProfileImage
+        imageUrl={profilePhotoUrl}
+        alt={fullName}
+        className="w-full aspect-square"
+      />
 
       <Separator className="bg-zinc-200/5 my-0.5" />
 
@@ -115,7 +111,7 @@ function InfoRow({
   return (
     <div className="py-0.5">
       <div className="flex items-center">
-        <div className="flex items-center gap-1.5 min-w-[80px]">
+        <div className="flex items-center gap-1.5 min-w-20">
           {icon}
           <span className="text-label">{label}</span>
         </div>

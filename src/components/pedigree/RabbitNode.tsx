@@ -1,3 +1,10 @@
+// src/components/pedigree/RabbitNode.tsx
+/**
+ * RabbitNode — Custom ReactFlow node-komponent.
+ * Ansvar: Viser en enkelt kanins stamtavle-oplysninger som en interaktiv
+ * node i ReactFlowPedigree. Håndterer klik-expand for yderligere detaljer
+ * og fremhæver indavlsforekomster visuelt med lilla farve.
+ */
 import { NodeProps } from 'reactflow';
 import { useState } from 'react';
 import { Rabbit_PedigreeDTO } from '@/api/types/AngoraDTOs';
@@ -29,8 +36,8 @@ export default function RabbitNode({ data }: NodeProps<RabbitNodeData>) {
   
   return (
     <div 
-      className={`${isInbreeding ? 'bg-purple-900/50 border-purple-700' : 'bg-zinc-800 border-zinc-700'}
-                 border rounded-lg p-2 shadow-md text-left transition-all hover:shadow-lg hover:border-blue-500/50`} 
+      className={`${isInbreeding ? 'bg-purple-900/50 border-purple-500/50' : 'bg-surface border-border'}
+                 border rounded-lg p-2 shadow-md text-left transition-all hover:shadow-lg hover:border-(--accent)/40`} 
       style={{ width: 200, minHeight: 80 }}
       onClick={() => setShowDetails(!showDetails)}
     >
@@ -52,7 +59,7 @@ export default function RabbitNode({ data }: NodeProps<RabbitNodeData>) {
       
       <div className="flex items-center gap-2 mt-2">
         {/* Mini profile picture */}
-        <div className="w-9 h-9 flex-shrink-0 rounded-full overflow-hidden bg-zinc-700">
+        <div className="w-9 h-9 shrink-0 rounded-full overflow-hidden bg-(--surface-muted)">
           {rabbit.ProfilePhotoUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img 
@@ -67,18 +74,18 @@ export default function RabbitNode({ data }: NodeProps<RabbitNodeData>) {
           )}
         </div>
         <div>
-          <h4 className="font-medium text-sm text-white truncate">
+          <h4 className="font-medium text-sm text-foreground truncate">
             {rabbit.NickName || 'Unavngivet'}
           </h4>
-          <p className="text-xs text-zinc-400 truncate">{earCombId}</p>
+          <p className="text-xs text-foreground/55 truncate">{earCombId}</p>
         </div>
       </div>
       <div className="mt-1 text-xs">
-        <div className="flex justify-between text-zinc-400">
+        <div className="flex justify-between text-foreground/55">
           <span className="truncate">{rabbit.Race || ''}</span>
           <span className="truncate">{rabbit.Color || ''}</span>
         </div>
-        <div className="text-zinc-500 flex justify-between">
+        <div className="text-foreground/45 flex justify-between">
           <span>{rabbit.DateOfBirth ? new Date(rabbit.DateOfBirth).toLocaleDateString('da-DK') : ''}</span>
           <span>{rabbit.DateOfBirth ? getAge() : ''}</span>
         </div>
@@ -103,32 +110,32 @@ export default function RabbitNode({ data }: NodeProps<RabbitNodeData>) {
       
       {/* Udvidelsesskjult information - fjernet InbreedingDetails da det nu er COIContributors på højere niveau */}
       {showDetails && (
-        <div className="mt-2 pt-2 border-t border-zinc-700/50 text-xs">
+        <div className="mt-2 pt-2 border-t border-border text-xs">
           {/* Opdrætter og ejer information */}
           <div className="grid grid-cols-2 gap-x-2 gap-y-1">
             {rabbit.UserOriginName && (
               <>
-                <span className="text-zinc-500">Opdrætter:</span>
-                <span className="text-zinc-300 truncate">{rabbit.UserOriginName}</span>
+                <span className="text-foreground/45">Opdrætter:</span>
+                <span className="text-foreground/80 truncate">{rabbit.UserOriginName}</span>
               </>
             )}
             
             {rabbit.UserOwnerName && (
               <>
-                <span className="text-zinc-500">Ejer:</span>
-                <span className="text-zinc-300 truncate">{rabbit.UserOwnerName}</span>
+                <span className="text-foreground/45">Ejer:</span>
+                <span className="text-foreground/80 truncate">{rabbit.UserOwnerName}</span>
               </>
             )}
           </div>
           
-          <div className="text-center text-zinc-500 mt-1 text-[10px]">
+          <div className="text-center text-foreground/40 mt-1 text-[10px]">
             (Klik for at skjule detaljer)
           </div>
         </div>
       )}
       
       {!showDetails && (
-        <div className="text-center text-zinc-500 mt-1 text-[10px]">
+        <div className="text-center text-foreground/40 mt-1 text-[10px]">
           (Klik for flere detaljer)
         </div>
       )}

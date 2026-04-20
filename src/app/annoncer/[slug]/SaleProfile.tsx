@@ -1,10 +1,12 @@
 // src/app/annoncer/[slug]/SaleProfile.tsx
 'use client'
 import { SaleDetailsProfileDTO } from '@/api/types/AngoraDTOs';
-import { formatCurrency } from '@/utils/formatters';
+import { formatCurrency, formatDate } from '@/utils/formatters';
 import { PropertyTable, PropertyTableItem } from '@/components/ui/custom/tables';
-import { ReadOnlyTextArea } from '@/components/ui/custom/textareas';
 import { ImageGallery } from '@/components/ui/custom/gallery';
+import { Chip, ScrollShadow } from '@heroui/react';
+import { IoTimeOutline } from 'react-icons/io5';
+import { MdOutlineLocalShipping } from 'react-icons/md';
 
 const ENTITY_TYPE_LABELS: Record<string, string> = {
     'Rabbit':       'Kanin',
@@ -25,7 +27,7 @@ export default function SaleProfile({ profile }: Props) {
 
     const entityLabel = ENTITY_TYPE_LABELS[saleDetails?.entityType] ?? saleDetails?.entityType ?? 'Annonce';
 
-    // Byg gallery-photos: profilePhotoUrl som første billede (hvis ikke allerede i photos[])
+    // Byg galleri-liste (profilePhoto + extra photos, undgå dubletter)
     const extraPhotos = profile.photos ?? [];
     const profilePhotoAlreadyInPhotos = profile.profilePhotoUrl
         && extraPhotos.some(p => p.filePath === profile.profilePhotoUrl);
@@ -36,16 +38,6 @@ export default function SaleProfile({ profile }: Props) {
         ...extraPhotos,
     ];
 
-    // Base salgsdetaljer til PropertyTable
-    const baseItems: PropertyTableItem[] = [
-        { label: 'Pris',         value: saleDetails?.price,       type: 'currency' },
-        { label: 'Kan leveres',  value: saleDetails?.canBeShipped, type: 'boolean' },
-        { label: 'Oprettet',     value: saleDetails?.dateListed,  type: 'date' },
-        { label: 'Visninger',    value: saleDetails?.viewCount ?? 0 },
-        { label: 'Lokation',     value: profile.city ? `${profile.city}, ${profile.zipCode}` : undefined },
-        { label: 'Sælger',       value: profile.sellerName },
-    ];
-
     // Entity-specifikke properties fra backend-dictionary
     const entityPropItems: PropertyTableItem[] = Object.entries(entityProperties)
         .map(([key, value]) => ({ label: key, value: value || undefined }));
@@ -54,48 +46,61 @@ export default function SaleProfile({ profile }: Props) {
         .map(([key, value]) => ({ label: key, value: value || undefined }));
 
     return (
-        <div className="w-full grid grid-cols-1 lg:grid-cols-5 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
 
-            {/* Venstre kolonne — galleri (sticky) */}
-            <div className="lg:col-span-3">
-                <div className="sticky top-20 bg-surface border border-divider rounded-2xl p-3 shadow-sm">
-                    <ImageGallery
-                        photos={galleryPhotos}
-                        alt={saleDetails?.title || `${entityLabel} til salg`}
-                    />
+            {/* VENSTRE: Galleri — sticky */}
+            <div>
+                <div className="sticky top-20">
+                    <div className="content-cell p-3">
+                        <ImageGallery
+                            photos={galleryPhotos}
+                            fallbackUrl={profile.profilePhotoUrl}
+                            alt={saleDetails?.title || entityLabel}
+                        />
+                    </div>
                 </div>
             </div>
 
-            {/* Højre kolonne — titel, pris, beskrivelse, tabeller */}
-            <div className="lg:col-span-2 self-start">
-                <div className="bg-surface border border-divider rounded-2xl p-5 shadow-sm space-y-4">
+            {/* HØJRE: Titel, pris, beskrivelse, specifikationer */}
+            <div className="space-y-4">
 
-                    <div>
+                {/* Titel + pris + beskrivelse — ét samlet kort */}
+                <div className="content-cell p-5 flex flex-col h-[min(55vw,640px)]">
+                    <div className="mb-3">
                         <h1 className="text-2xl font-bold text-foreground leading-tight mb-1">
                             {saleDetails?.title || `${entityLabel} til salg`}
                         </h1>
                         <p className="text-2xl font-bold text-amber-500">
                             {formatCurrency(saleDetails?.price || 0)}
                         </p>
+                        <div className="flex flex-wrap items-center gap-2 mt-2 min-h-7">
+                            {saleDetails?.dateListed && (
+                                <span className="flex items-center gap-1 text-xs text-foreground/50">
+                                    <IoTimeOutline />
+                                    {formatDate(saleDetails.dateListed)}
+                                </span>
+                            )}
+                            {saleDetails?.canBeShipped && (
+                                <Chip color="success" variant="soft" size="sm" className="text-xs">
+                                    <MdOutlineLocalShipping className="inline mr-1" /> Kan sendes
+                                </Chip>
+                            )}
+                        </div>
                     </div>
+                    <div className="flex flex-col flex-1 min-h-0">
+                        <ScrollShadow className="flex-1 min-h-0 rounded-lg border border-divider bg-surface-secondary px-3 py-2">
+                            <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-wrap">
+                                {saleDetails?.description || 'Ingen beskrivelse tilgængelig.'}
+                            </p>
+                        </ScrollShadow>
+                    </div>
+                </div>
 
-                    <ReadOnlyTextArea
-                        value={saleDetails?.description || 'Ingen beskrivelse tilgængelig.'}
-                        label="Beskrivelse"
-                        rows={5}
-                    />
-
-                    <PropertyTable
-                        title="Salgsdetaljer"
-                        items={baseItems}
-                        useCard={false}
-                    />
-
+                {/* Entity-specifikke egenskaber */}
                 {entityPropItems.length > 0 && (
                     <PropertyTable
                         title={`${entityLabel} information`}
                         items={entityPropItems}
-                        useCard={false}
                     />
                 )}
 
@@ -103,11 +108,8 @@ export default function SaleProfile({ profile }: Props) {
                     <PropertyTable
                         title="Specifikationer"
                         items={entitySalePropItems}
-                        useCard={false}
                     />
                 )}
-
-                </div>
             </div>
         </div>
     );

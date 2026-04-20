@@ -93,5 +93,3 @@ export interface TransferRequestPreviewFilterDTO {
     recipient_FirstName?: string | null;
     from_dateAccepted?: string | null;
 }
-
-

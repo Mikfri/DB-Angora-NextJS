@@ -1,7 +1,7 @@
 // src/app/account/rabbitsForbreeding/rabbitBreedingProfile/[earCombId]/rabbitBreedingPhotoCarousel.tsx
 import { useState } from "react";
 import { PhotoPublicDTO } from "@/api/types/AngoraDTOs";
-import { Button } from "@heroui/react";
+import { Button } from '@/components/ui/heroui';
 import Image from 'next/image';
 import { RiArrowLeftSLine, RiArrowRightSLine } from "react-icons/ri";
 
@@ -10,11 +10,8 @@ export default function RabbitBreedingPhotoCarousel({ photos }: { photos: PhotoP
 
   if (!photos || photos.length === 0) {
     return (
-      <div className="flex flex-col justify-center items-center h-64 text-center p-4 bg-zinc-900/50 rounded-lg">
-        <div className="w-16 h-16 mb-4 text-zinc-500">
-          {/* ...SVG eller ikon... */}
-        </div>
-        <p className="text-zinc-400">
+      <div className="flex flex-col justify-center items-center h-64 text-center p-4 bg-surface rounded-lg border border-border">
+        <p className="text-foreground/50">
           Der er endnu ikke uploadet billeder til denne kanin.
         </p>
       </div>
@@ -27,7 +24,7 @@ export default function RabbitBreedingPhotoCarousel({ photos }: { photos: PhotoP
   const photo = photos[current];
 
   return (
-    <div className="relative aspect-square bg-zinc-900/50 rounded-lg overflow-hidden flex items-center justify-center">
+    <div className="relative aspect-square bg-surface rounded-lg overflow-hidden flex items-center justify-center">
       <Image
         src={photo.filePath}
         alt={photo.fileName || "Kanin billede"}

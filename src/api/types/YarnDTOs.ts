@@ -6,9 +6,9 @@ import { SaleDetailsBasePostPutDTO, SaleDetailsFilterDTO, SaleDetailsPrivateDTO 
  * Repræsenterer en enkelt fiberkomponent i en garnsammensætning.
  */
 export interface YarnFiberComponentDTO {
-    type: string;                       // fiber type
-    percentage: number; 
-    fiberLengthInCm?: number | null;    // Valgfri property, relevant for visse fiber typer
+  type: string;                       // enum (FiberType) fx "Uld", "Bomuld", "Alpaca" etc.
+  percentage: number;                 // Procentdel af denne FiberType op imod andre YarnFiberComponentDTO i fiberComponents arrayet. Skal summeres til 100% for hele garnet.
+  fiberLengthInCm?: number | null;    // Valgfri property, relevant for visse fiber typer
 }
 
 /**
@@ -18,43 +18,38 @@ export interface YarnFiberComponentDTO {
  * NOTE: Status opdateres via dedikeret UpdateSaleStatusAsync metode i SaleServices.
  */
 export interface YarnPostPutSaleDetailsDTO {
-    // --- Base SaleDetails properties
-    baseProperties: SaleDetailsBasePostPutDTO;
-    // --- Garn-specifikke properties
-    weightInGrams: number;
-    lengthInMeters: number;
-    // --- Categorization
-    applicationCategory: string;
-    consistency: string;
-    // --- Quality
-    plyCount?: number | null;
-    twistAmount?: string | null;
-    softnessScore?: number | null;      // 1-10 skala, hvor 10 er mest blødt
-    durabilityScore?: number | null;    // 1-10 skala, hvor 10 er mest holdbart
-    // --- Gauge
-    needleSizeRange_MinMm?: number | null;
-    needleSizeRange_MaxMm?: number | null;
-    wpiCategory?: string | null;
-    stitchesPer10cm?: number | null;
-    rowsPer10cm?: number | null;
-    // --- Color
-    naturalColor: string | null;
-    dyedColor: string | null;
-    // --- Fiber components
-    fiberComponents: YarnFiberComponentDTO[];
+  // --- Base SaleDetails properties
+  baseProperties: SaleDetailsBasePostPutDTO;
+  // --- Garn-specifikke properties
+  weightInGrams: number;
+  lengthInMeters: number;
+  // --- Categorization
+  applicationCategory: string;
+  // --- Quality
+  plyCount?: number | null;
+  twistAmount?: string | null;
+  // --- Gauge (Strikkefasthed)
+  needleSizeRange_MinMm?: number | null;      // SKAL sættes
+  needleSizeRange_MaxMm?: number | null;      // SKAL sættes
+  wpiCategory?: string | null;                // Enum (YarnWpiCategory) Alternativ til at angive needleSizeRange_MinMm og needleSizeRange_MaxMm
+  stitchesPer10cm?: number | null;
+  rowsPer10cm?: number | null;
+  // --- Color
+  naturalColor: string | null;
+  dyedColor: string | null;
+  // --- Fiber components
+  fiberComponents: YarnFiberComponentDTO[];
 }
 
 
 export interface YarnSaleFilterDTO extends SaleDetailsFilterDTO {
-    // --- Garn-specifikke filters
-    applicationCategory?: string | null;
-    weightCategory?: string | null;
-    fiberType?: string | null;
-    plyCount?: number | null;
-    minNeedleSizeMm?: number | null;
-    maxNeedleSizeMm?: number | null;
-    minSoftnessScore?: string | null;
-    minDurabilityScore?: string | null;
+  // --- Garn-specifikke filters
+  applicationCategory?: string | null;
+  weightCategory?: string | null;
+  fiberType?: string | null;
+  plyCount?: number | null;
+  minNeedleSizeMm?: number | null;
+  maxNeedleSizeMm?: number | null;
 }
 
 /**
@@ -66,21 +61,29 @@ export interface YarnSaleProfilePrivateDTO extends SaleDetailsPrivateDTO {
   weightInGrams: number;
   lengthInMeters: number;
   // Snapshot/computed
-  gristDescription: string;
+  gristDescription: string;         // Løbelængdebeskrivelse, fx "100m/50g" (beregnet ud fra weightInGrams og lengthInMeters)
   // === KATEGORISERING ===
   applicationCategory: string;      // enum
-  weightCategory: string;           // enum
+  weightCategory: string;           // enum (beregnes ud fra Gauge.NeedleSizeRange)
 
   // === TEKNISKE DETALJER ===
   plyCount?: number | null;
-  gauge: string;
+  gauge: {                          // Strikkefasthed
+    recommendedNeedleSizeRange: {
+      minMm: number | null;
+      maxMm: number | null;
+      midpoint: number | null;
+    } | null;
+    stitchesPer10Cm: number | null;
+    rowsPer10Cm: number | null;
+  };
   twistAmount?: string;
-  // === KVALITATIVE BESKRIVELSER ===
-  consistency: string;              // enum
-  softness?: string;                // enum
-  durability?: string;              // enum
 
   // === FARVE OG FIBER ===
-  color: string;        // enten enum WoolNaturalColor eller WoolDyedColor 
+  color: {
+    naturalColor: string | null;    // enum (WoolNaturalColors)
+    dyedColor: string | null;       // enum (WoolDyedColors)
+    isDyed: boolean;
+  };
   fiberComponents: YarnFiberComponentDTO[];
 }

@@ -2,7 +2,7 @@
 'use client';
 
 import { ReactNode, useState } from 'react';
-import { Separator, Button, Input, TextArea } from '@heroui/react';
+import { Separator, Button, Input, TextArea } from '@/components/ui/heroui';
 import { 
   FaRegEdit, FaUserCircle, FaCalendarAlt, FaEye, FaEyeSlash, 
   FaTrash, FaEdit, FaTimes, FaSave, FaTags, FaListAlt, FaFileAlt 

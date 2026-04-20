@@ -5,12 +5,17 @@ import { getAccessToken } from '@/app/actions/auth/session';
 import {
   TransferRequest_ContractDTO,
   TransferRequest_CreateDTO,
-  TransferRequestPreviewDTO
+  TransferRequestPreviewDTO,
+  TransferRequestPreviewFilterDTO,
+  ResultPagedDTO
 } from '@/api/types/AngoraDTOs';
 import {
   CreateTransferRequest,
   DeleteTransferRequest,
   GetTransferContract,
+  GetTransferRequestsIssued,
+  GetTransferRequestsReceived,
+  GetPendingTransferRequestCount,
   RespondToTransferRequest
 } from '@/api/endpoints/transferRequestsController';
 
@@ -19,8 +24,8 @@ export type TransferRequestCreateResult =
   | { success: true; data: TransferRequest_ContractDTO; message: string }
   | { success: false; error: string };
 
-export type TransferRequestsResult =
-  | { success: true; received: TransferRequestPreviewDTO[]; sent: TransferRequestPreviewDTO[] }
+export type TransferRequestRespondResult =
+  | { success: true; contract: TransferRequest_ContractDTO; message: string }
   | { success: false; error: string };
 
 export type TransferRequestActionResult =
@@ -32,7 +37,15 @@ export type TransferRequestContractResult =
   | { success: false; error: string };
 
 export type TransferRequestDeleteResult =
-  | { success: true; preview: TransferRequestPreviewDTO }
+  | { success: true }
+  | { success: false; error: string };
+
+export type TransferRequestsPagedResult =
+  | { success: true; data: ResultPagedDTO<TransferRequestPreviewDTO> }
+  | { success: false; error: string };
+
+export type PendingTransferCountResult =
+  | { success: true; count: number }
   | { success: false; error: string };
 
 // ====================== POST ======================
@@ -88,12 +101,12 @@ export async function createRabbitTransferRequest(
   * Server Action: Besvar en overførselsanmodning
   * @param transferId ID for overførselsanmodningen
   * @param accept Om anmodningen skal accepteres eller afvises
-  * @returns Resultat af handlingen
+  * @returns Resultat med den opdaterede kontrakt
   */
 export async function respondToTransferRequest(
   transferId: number,
   accept: boolean
-): Promise<TransferRequestActionResult> {
+): Promise<TransferRequestRespondResult> {
   try {
     const accessToken = await getAccessToken();
 
@@ -104,27 +117,17 @@ export async function respondToTransferRequest(
       };
     }
 
-    // Byg DTO til API'et
-    const responseDTO = { accept };
+    const contract = await RespondToTransferRequest(transferId, { accept }, accessToken);
 
-    // Kald det opdaterede endpoint
-    const contract = await RespondToTransferRequest(transferId, responseDTO, accessToken);
-
-    // Hvis contract er null, er anmodningen afvist
-    if (!contract) {
-      return {
-        success: true,
-        message: 'Overførselsanmodning afvist'
-      };
-    }
-
-    // Ellers accepteret
     return {
       success: true,
-      message: 'Overførselsanmodning accepteret'
+      contract,
+      message: contract.status === 'Accepted'
+        ? 'Overførselsanmodning accepteret'
+        : 'Overførselsanmodning afvist'
     };
   } catch (error) {
-    const isForbidden = error instanceof Error && error.message.includes('403 Forbidden');
+    const isForbidden = error instanceof Error && error.message.includes('403');
     return {
       success: false,
       error: isForbidden
@@ -163,6 +166,75 @@ export async function getTransferContract(
   }
 }
 
+export async function getTransferRequestsReceived(
+  targetedUserId: string,
+  filter?: TransferRequestPreviewFilterDTO,
+  page: number = 1,
+  pageSize: number = 20
+): Promise<TransferRequestsPagedResult> {
+  try {
+    const accessToken = await getAccessToken();
+
+    if (!accessToken) {
+      return { success: false, error: 'Du er ikke logget ind' };
+    }
+
+    const data = await GetTransferRequestsReceived(targetedUserId, accessToken, filter, page, pageSize);
+
+    return { success: true, data };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Der skete en uventet fejl'
+    };
+  }
+}
+
+export async function getTransferRequestsIssued(
+  targetedUserId: string,
+  filter?: TransferRequestPreviewFilterDTO,
+  page: number = 1,
+  pageSize: number = 20
+): Promise<TransferRequestsPagedResult> {
+  try {
+    const accessToken = await getAccessToken();
+
+    if (!accessToken) {
+      return { success: false, error: 'Du er ikke logget ind' };
+    }
+
+    const data = await GetTransferRequestsIssued(targetedUserId, accessToken, filter, page, pageSize);
+
+    return { success: true, data };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Der skete en uventet fejl'
+    };
+  }
+}
+
+export async function getPendingTransferRequestCount(
+  targetedUserId: string
+): Promise<PendingTransferCountResult> {
+  try {
+    const accessToken = await getAccessToken();
+
+    if (!accessToken) {
+      return { success: false, error: 'Du er ikke logget ind' };
+    }
+
+    const count = await GetPendingTransferRequestCount(targetedUserId, accessToken);
+
+    return { success: true, count };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Der skete en uventet fejl'
+    };
+  }
+}
+
 // ====================== DELETE ======================
 
 export async function deleteTransferRequest(
@@ -178,12 +250,9 @@ export async function deleteTransferRequest(
       };
     }
 
-    const preview = await DeleteTransferRequest(transferId, accessToken);
+    await DeleteTransferRequest(transferId, accessToken);
 
-    return {
-      success: true,
-      preview
-    };
+    return { success: true };
   } catch (error) {
     return {
       success: false,

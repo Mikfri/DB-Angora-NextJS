@@ -22,6 +22,7 @@ interface Props {
     id?: string;
     'aria-labelledby'?: string;
     placeholder?: string;
+    compact?: boolean;
 }
 
 export default function EnumAutocomplete({ 
@@ -31,7 +32,8 @@ export default function EnumAutocomplete({
     label, 
     id,
     'aria-labelledby': ariaLabelledBy,
-    placeholder 
+    placeholder,
+    compact,
 }: Props) {
     const [options, setOptions] = useState<EnumOption[]>([]);
     const { getEnumValues, isLoading } = useEnums();
@@ -59,7 +61,7 @@ export default function EnumAutocomplete({
     const uniqueId = id || `${enumType.toLowerCase()}-select`;
 
     return (
-        <div className="relative w-full">
+        <div className={compact ? 'flex-1 min-w-0 [&_.autocomplete__trigger]:py-1 [&_.autocomplete__trigger]:text-xs' : 'relative w-full'}>
             <label
                 htmlFor={uniqueId}
                 id={`${uniqueId}-label`}
@@ -75,6 +77,7 @@ export default function EnumAutocomplete({
                 aria-labelledby={ariaLabelledBy || `${uniqueId}-label`}
                 placeholder={placeholder || `Vælg ${label.toLowerCase()}`}
                 fullWidth
+                variant={compact ? 'secondary' : undefined}
             >
                 <Autocomplete.Trigger>
                     <Autocomplete.Value />
@@ -89,18 +92,19 @@ export default function EnumAutocomplete({
                                 <SearchField.Input placeholder="Søg..." />
                             </SearchField.Group>
                         </SearchField>
+                        <div className="max-h-60 overflow-y-auto">
                         <ListBox>
                             {options.map((option) => (
                                 <ListBoxItem
                                     key={option.name}
                                     id={option.name}
                                     textValue={option.name}
+                                    onMouseDown={(event) => event.preventDefault()}
                                 >
                                     {option.name.replace(/_/g, ' ')}
                                 </ListBoxItem>
                             ))}
-                        </ListBox>
-                    </Autocomplete.Filter>
+                        </ListBox>                        </div>                    </Autocomplete.Filter>
                 </Autocomplete.Popover>
             </Autocomplete>
         </div>

@@ -86,13 +86,16 @@ export default function TestMatingTab() {
             {Huns.map(d => (
               <div
                 key={d.earCombId}
-                className={`cursor-pointer transition-shadow ${selectedHun?.earCombId === d.earCombId ? "ring-2 ring-secondary" : "hover:shadow-lg"}`}
+                className="cursor-pointer rounded-lg"
                 onClick={() => {
                   setSelectedHun(d);
                   setManualMotherId(d.earCombId);
                 }}
               >
-                <RabbitPedigreeCard rabbit={mapOwnedPreviewToPedigree(d)} />
+                <RabbitPedigreeCard
+                  rabbit={mapOwnedPreviewToPedigree(d)}
+                  isSelected={selectedHun?.earCombId === d.earCombId}
+                />
               </div>
             ))}
             {!Huns.length && (
@@ -107,13 +110,16 @@ export default function TestMatingTab() {
             {Hans.map(b => (
               <div
                 key={b.earCombId}
-                className={`cursor-pointer transition-shadow ${selectedHan?.earCombId === b.earCombId ? "ring-2 ring-primary" : "hover:shadow-lg"}`}
+                className="cursor-pointer rounded-lg"
                 onClick={() => {
                   setSelectedHan(b);
                   setManualFatherId(b.earCombId);
                 }}
               >
-                <RabbitPedigreeCard rabbit={mapOwnedPreviewToPedigree(b)} />
+                <RabbitPedigreeCard
+                  rabbit={mapOwnedPreviewToPedigree(b)}
+                  isSelected={selectedHan?.earCombId === b.earCombId}
+                />
               </div>
             ))}
             {!Hans.length && (

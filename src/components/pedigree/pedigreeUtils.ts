@@ -1,4 +1,11 @@
 // src/components/pedigree/pedigreeUtils.ts
+/**
+ * pedigreeUtils — Hjælpefunktioner til stamtavleberegning og layout.
+ * Ansvar: Indeholder algoritmer til at finde indavlsforekomster (findInbreedingRabbits),
+ * beregne node-positioner til ReactFlow (calculatePedigreeLayout), generere
+ * unikke node-IDs (generateUniqueNodeId), og formatere kanter med retnings-
+ * og farveinfo (formatEdge). Ingen UI-rendering — ren logik.
+ */
 import { MarkerType } from 'reactflow';
 import { Rabbit_PedigreeDTO } from '@/api/types/AngoraDTOs';
 

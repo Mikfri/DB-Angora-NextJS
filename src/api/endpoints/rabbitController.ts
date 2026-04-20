@@ -112,7 +112,7 @@ export async function ValidateParentReference(
   accessToken: string,
   parentId: string,
   expectedGender: string
-): Promise<Rabbit_ParentValidationResultDTO> {
+): Promise<{ message: string | null; data: Rabbit_ParentValidationResultDTO | null }> {
   const url = getApiUrl(`Rabbit/validate-parent?parentId=${encodeURIComponent(parentId)}&expectedGender=${encodeURIComponent(expectedGender)}`);
   const response = await fetch(url, {
     method: 'GET',
@@ -122,8 +122,13 @@ export async function ValidateParentReference(
     }
   });
 
-  if (!response.ok) throw await parseApiError(response, 'Fejl ved validering af forældre-reference');
-  return response.json();
+  if (!response.ok) throw await parseApiError(response);
+
+  const payload = await response.json() as { message?: string | null; data?: Rabbit_ParentValidationResultDTO | null };
+  return {
+    message: payload.message ?? null,
+    data: payload.data ?? null
+  };
 }
 
 

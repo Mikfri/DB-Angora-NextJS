@@ -11,9 +11,9 @@ import { GiTombstone } from "react-icons/gi";
 import { LuRabbit } from "react-icons/lu";
 import { BsCalendarDate, BsGenderAmbiguous } from "react-icons/bs";
 import { IoColorPaletteOutline } from "react-icons/io5";
-import { SiMicrogenetics } from "react-icons/si";
 import { ImPriceTag } from 'react-icons/im';
 import { TbHeartSearch } from 'react-icons/tb';
+import { PiDna } from 'react-icons/pi';
 
 interface Props {
     rabbit: Rabbit_OwnedPreviewDTO;
@@ -152,7 +152,7 @@ export default function RabbitPreviewCard({ rabbit, onClick }: Props) {
                         </div>
                         {rabbit.inbreedingCoefficient !== null && rabbit.inbreedingCoefficient !== undefined && (
                             <div className="flex items-center gap-1.5">
-                                <SiMicrogenetics size={11} className="shrink-0" />
+                                <PiDna size={11} className="shrink-0" />
                                 <span>Indavl: {formatInbreedingCoefficient(rabbit.inbreedingCoefficient)}</span>
                             </div>
                         )}

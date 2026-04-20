@@ -58,6 +58,7 @@ export default function PropertyTable({
   emptyText = 'Ingen oplysninger tilgængelige',
   useCard = true,
   title,
+  titleBadge,
   isEditing = false,
 }: PropertyTableProps) {
   const containerClass = [
@@ -69,15 +70,12 @@ export default function PropertyTable({
   return (
     <div className={containerClass}>
       {title && (
-        <p className="px-3 py-2 text-sm font-semibold text-foreground border-b border-divider">{title}</p>
+        <div className="flex items-center justify-between px-3 py-2 border-b border-divider">
+          <p className="text-sm font-semibold text-foreground">{title}</p>
+          {titleBadge}
+        </div>
       )}
-      <table className="w-full">
-        <thead>
-          <tr className="border-b border-divider">
-            <th className="px-3 py-1.5 text-left text-xs font-medium text-foreground/60 w-1/3">Egenskab</th>
-            <th className="px-3 py-1.5 text-left text-xs font-medium text-foreground/60">Værdi</th>
-          </tr>
-        </thead>
+      <table className="w-full table-fixed">
         <tbody className="divide-y divide-divider">
           {items.length === 0 && (
             <tr><td colSpan={2} className="px-3 py-3 text-sm italic text-foreground/40">{emptyText}</td></tr>
@@ -87,7 +85,7 @@ export default function PropertyTable({
               <td className="px-3 py-1.5 text-xs font-medium text-foreground/60 w-1/3 align-middle">
                 {item.label}
               </td>
-              <td className="px-3 py-1.5 text-sm text-foreground align-middle">
+              <td className="px-3 py-1.5 text-sm text-foreground align-middle overflow-hidden">
                 <div className="flex flex-col gap-0.5">
                   <div className={item.editNode && !isEditing ? 'pointer-events-none opacity-50' : undefined}>
                     {item.editNode ? item.editNode : renderHeroValue(item)}

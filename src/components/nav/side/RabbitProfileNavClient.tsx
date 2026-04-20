@@ -2,11 +2,14 @@
 'use client';
 
 import { useState, ReactNode } from 'react';
+import { useRouter } from 'next/navigation';
 import { Separator, Button } from '@/components/ui/heroui';
 import ProfileImage from '@/components/ui/custom/images/ProfileImage';
 import { useRabbitProfile } from '@/contexts/RabbitProfileContext';
 import { IoColorPaletteOutline } from "react-icons/io5";
 import { FaInfoCircle, FaPercent, FaUserCircle, FaIdCard, FaTrash, FaExchangeAlt } from "react-icons/fa";
+import { FiArrowLeft } from "react-icons/fi";
+import { ROUTES } from '@/constants/navigationConstants';
 import DeleteRabbitModal from '@/components/modals/rabbit/deleteRabbitModal';
 import TransferOwnershipModal from '@/components/modals/rabbit/transferRabbitModal';
 import { TransferRequest_CreateDTO } from '@/api/types/AngoraDTOs';
@@ -33,6 +36,7 @@ export function RabbitProfileNavClient() {
     handleTransfer 
   } = useRabbitProfile();
 
+  const router = useRouter();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [showTransferModal, setShowTransferModal] = useState(false);
   
@@ -78,6 +82,17 @@ export function RabbitProfileNavClient() {
   return (
     <>
       <div className="w-full p-1 space-y-2">
+        {/* Tilbage */}
+        <button
+          onClick={() => router.push(ROUTES.ACCOUNT.MY_RABBITS)}
+          className="flex items-center gap-1.5 text-sm text-foreground/70 hover:text-foreground transition-colors"
+        >
+          <FiArrowLeft className="shrink-0" />
+          Mine kaniner
+        </button>
+
+        <Separator className="divider my-0.5" />
+
         {/* Action buttons section */}
         <div>
           <h3 className="text-label mb-1">Handlinger</h3>
@@ -103,21 +118,15 @@ export function RabbitProfileNavClient() {
               <FaTrash /> Slet kanin
             </Button>
           </div>
-          <Separator className="Separator my-0.5" />
         </div>
 
         {/* Profile image */}
-        <div className="flex justify-center">
-          <div className="w-full max-w-[300px] aspect-square">
-            <ProfileImage 
-              imageUrl={profile.profilePhotoUrl} 
-              alt={displayName}
-              className="w-full h-full"
-            />
-          </div>
-        </div>
+        <ProfileImage 
+          imageUrl={profile.profilePhotoUrl} 
+          alt={displayName}
+          className="w-full aspect-square"
+        />
 
-        <Separator className="Separator my-0.5" />
 
         {/* Info section */}
         <div>
@@ -216,7 +225,7 @@ function InfoRow({ icon, label, value, isDefaultValue = false }: {
   return (
     <div className="py-0.5">
       <div className="flex items-center">
-        <div className="flex items-center gap-1.5 min-w-[110px]">
+        <div className="flex items-center gap-1.5 min-w-27.5">
           {icon}
           <span className="text-label">{label}</span>
         </div>

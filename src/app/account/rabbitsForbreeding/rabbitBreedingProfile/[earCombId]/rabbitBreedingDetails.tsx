@@ -1,35 +1,35 @@
 // RabbitBreedingDetails.tsx
+'use client';
+
 import { Rabbit_ForbreedingProfileDTO } from "@/api/types/AngoraDTOs";
+import { PropertyTable } from "@/components/ui/custom/tables";
 
 export default function RabbitBreedingDetails({ rabbit }: { rabbit: Rabbit_ForbreedingProfileDTO }) {
-  return (
-    <div className="bg-zinc-800/80 backdrop-blur-md backdrop-saturate-150 rounded-lg border border-zinc-700/50 overflow-hidden h-full">
-      {/* Header */}
-      <div className="flex justify-between items-center p-4 border-b border-zinc-700/50">
-        <h3 className="text-zinc-100 font-medium">Kanin Information</h3>
-      </div>
+  const items = [
+    { label: 'Øremærke', value: rabbit.earCombId },
+    { label: 'Kaldenavn', value: rabbit.nickName },
+    { label: 'Race', value: rabbit.race, type: 'badge' as const },
+    { label: 'Køn', value: rabbit.gender, type: 'badge' as const },
+    { label: 'Farve', value: rabbit.color, type: 'badge' as const },
+    { label: 'Godkendt race/farve', value: rabbit.approvedRaceColorCombination, type: 'boolean' as const },
+    { label: 'Fødselsdato', value: rabbit.dateOfBirth, type: 'date' as const },
+    { label: 'Ungdyrgruppe M', value: rabbit.ungdyrGruppe_M, type: 'boolean' as const },
+    { label: 'Fader', value: rabbit.father_EarCombId ?? rabbit.fatherId_Placeholder },
+    { label: 'Moder', value: rabbit.mother_EarCombId ?? rabbit.motherId_Placeholder },
+    {
+      label: 'Indavlskoefficient',
+      value: rabbit.inbreedingCoefficient != null
+        ? `${(rabbit.inbreedingCoefficient * 100).toFixed(2)}%`
+        : null
+    },
+  ];
 
-      {/* Content */}
-      <div className="grid gap-4 p-4">
-        <DetailRow label="Øremærke" value={rabbit.earCombId} />
-        <DetailRow label="Kaldenavn" value={rabbit.nickName} />
-        <DetailRow label="Race" value={rabbit.race} />
-        <DetailRow label="Køn" value={rabbit.gender} />
-        <DetailRow label="Farve" value={rabbit.color} />
-        <DetailRow label="Fødselsdato" value={rabbit.dateOfBirth} />
-        <DetailRow label="Indavlskoefficient" value={rabbit.inbreedingCoefficient?.toFixed(4)} />
-      </div>
-    </div>
-  );
-}
-
-function DetailRow({ label, value }: { label: string; value?: string | number | null }) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-[200px,1fr] gap-2 items-center">
-      <label className="font-medium text-zinc-300">{label}</label>
-      <div className="text-zinc-100">
-        {value ?? <span className="text-zinc-500 italic">Ikke angivet</span>}
+    <div className="bg-surface border border-divider rounded-lg overflow-hidden h-full">
+      <div className="flex justify-between items-center px-3 py-2 border-b border-divider">
+        <h3 className="text-sm font-semibold text-foreground">Kanin Information</h3>
       </div>
+      <PropertyTable items={items} useCard={false} />
     </div>
   );
 }

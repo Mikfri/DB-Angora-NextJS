@@ -30,6 +30,8 @@ export async function parseApiError(response: Response, customPrefix?: string): 
     if (text && text.trim()) msg = text;
   }
   const finalMsg = customPrefix ? `${customPrefix}: ${msg}` : msg;
+  const error = new Error(finalMsg) as Error & { status: number };
+  error.status = response.status;
   console.error('API Error', { status: response.status, body: text });
-  return new Error(finalMsg);
+  return error;
 }

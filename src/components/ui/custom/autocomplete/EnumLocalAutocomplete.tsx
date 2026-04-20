@@ -14,9 +14,10 @@ interface Props {
     label: string;
     id?: string;
     isDisabled?: boolean;
+    compact?: boolean;
 }
 
-export default function EnumLocalAutocomplete({ enumType, value, onChange, label, id, isDisabled }: Props) {
+export default function EnumLocalAutocomplete({ enumType, value, onChange, label, id, isDisabled, compact }: Props) {
     const { contains } = useFilter({ sensitivity: 'base' });
 
     return (
@@ -27,8 +28,9 @@ export default function EnumLocalAutocomplete({ enumType, value, onChange, label
             aria-label={label}
             placeholder={`Vælg ${label.toLowerCase()}`}
             isDisabled={isDisabled}
+            variant={compact ? 'secondary' : undefined}
         >
-            <Autocomplete.Trigger>
+            <Autocomplete.Trigger className={compact ? 'py-1 text-xs' : undefined}>
                 <Autocomplete.Value />
                 <Autocomplete.ClearButton />
                 <Autocomplete.Indicator />
@@ -41,18 +43,19 @@ export default function EnumLocalAutocomplete({ enumType, value, onChange, label
                             <SearchField.Input placeholder="Søg..." />
                         </SearchField.Group>
                     </SearchField>
+                    <div className="max-h-60 overflow-y-auto">
                     <ListBox>
                         {Object.entries(enumType).map(([key, displayLabel]) => (
                             <ListBoxItem
                                 key={key}
                                 id={key}
                                 textValue={displayLabel}
+                                onMouseDown={(event) => event.preventDefault()}
                             >
                                 {displayLabel}
                             </ListBoxItem>
                         ))}
-                    </ListBox>
-                </Autocomplete.Filter>
+                    </ListBox>                    </div>                </Autocomplete.Filter>
             </Autocomplete.Popover>
         </Autocomplete>
     );

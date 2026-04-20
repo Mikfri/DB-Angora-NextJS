@@ -25,5 +25,6 @@ export interface PropertyTableProps {
   emptyText?: string;
   useCard?: boolean;
   title?: string;
+  titleBadge?: ReactNode;
   isEditing?: boolean;
 }

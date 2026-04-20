@@ -1,13 +1,13 @@
 // src/app/account/myRabbits/rabbitProfile/[earCombId]/rabbitPhotoSection.tsx
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import {
   CloudinaryUploadConfigDTO,
   CloudinaryPhotoRegistryRequestDTO
 } from '@/api/types/AngoraDTOs';
 import { Button } from '@/components/ui/heroui';
-import SimpleCloudinaryWidget from '@/components/cloudinary/SimpleCloudinaryWidget';
+import CloudinaryUploadButton from '@/components/cloudinary/CloudinaryUploadButton';
 import { useRabbitProfile } from '@/contexts/RabbitProfileContext';
 import { useAuthStore } from '@/store/authStore';
 import RabbitPhotoCarousel from './rabbitPhotoCarousel';
@@ -35,28 +35,22 @@ export default function PhotoSection({ earCombId }: PhotoSectionProps) {
   const [error, setError] = useState<string | null>(null);
   const [uploadConfig, setUploadConfig] = useState<CloudinaryUploadConfigDTO | null>(null);
   const maxImageCount = userIdentity?.claims?.rabbitImageCount || 0;
-  const [showWidget, setShowWidget] = useState(false);
-  const [widgetKey, setWidgetKey] = useState(`widget-${Date.now()}`);
-
-  // Hent upload tilladelse
-  const loadUploadPermission = useCallback(async () => {
-    try {
-      setIsLoadingUploadConfig(true);
-      setError(null);
-
-      const result = await getRabbitPhotoUploadPermission(earCombId);
-
-      if (result.success && result.config) {
-        setUploadConfig(result.config);
-      } else if (!result.success) {
-        setError(result.error || 'Kunne ikke få upload-tilladelse');
-      }
-    } catch (err) {
-      console.error('Error getting upload permission:', err);
-      setError('Der opstod en fejl ved anmodning om upload-tilladelse');
-    } finally {
-      setIsLoadingUploadConfig(false);
-    }
+  // Hent upload-tilladelse ved mount så widgetten kan åbne øjeblikkeligt
+  useEffect(() => {
+    setIsLoadingUploadConfig(true);
+    getRabbitPhotoUploadPermission(earCombId)
+      .then((result) => {
+        if (result.success && result.config) {
+          setUploadConfig(result.config);
+        } else if (!result.success) {
+          setError(result.error || 'Kunne ikke få upload-tilladelse');
+        }
+      })
+      .catch((err) => {
+        console.error('Error getting upload permission:', err);
+        setError('Der opstod en fejl ved anmodning om upload-tilladelse');
+      })
+      .finally(() => setIsLoadingUploadConfig(false));
   }, [earCombId]);
 
   // Håndter foto upload fra Cloudinary
@@ -72,19 +66,6 @@ export default function PhotoSection({ earCombId }: PhotoSectionProps) {
       setError('Der opstod en fejl ved registrering af billedet');
     }
   };
-
-  // Widget håndtering
-  const handleWidgetClose = useCallback(() => {
-    setShowWidget(false);
-  }, []);
-
-  const handleShowWidget = useCallback(async () => {
-    if (!uploadConfig) {
-      await loadUploadPermission();
-    }
-    setWidgetKey(`widget-${Date.now()}-${Math.random().toString(36).slice(2)}`);
-    setShowWidget(true);
-  }, [uploadConfig, loadUploadPermission]);
 
   // Sæt som profilbillede
   const handleSetAsProfile = async (photoId: number) => {
@@ -141,20 +122,33 @@ export default function PhotoSection({ earCombId }: PhotoSectionProps) {
             </span>
           )}
         </div>
-        <Button
-          size="sm"
-          variant="primary"
-          onPress={handleShowWidget}
-          isDisabled={isLoadingUploadConfig || isMaxImagesReached}
-          isPending={isLoadingUploadConfig}
-        >
-          {isLoadingUploadConfig
-            ? 'Indlæser...'
-            : isMaxImagesReached
-              ? 'Max nået'
-              : 'Upload'
-          }
-        </Button>
+        {uploadConfig ? (
+          <CloudinaryUploadButton
+            uploadConfig={uploadConfig}
+            onPhotoUploaded={handlePhotoUploaded}
+            onClose={refreshProfile}
+          >
+            {(open) => (
+              <Button
+                size="sm"
+                variant="primary"
+                onPress={() => open()}
+                isDisabled={isMaxImagesReached}
+              >
+                {isMaxImagesReached ? 'Max nået' : 'Upload'}
+              </Button>
+            )}
+          </CloudinaryUploadButton>
+        ) : (
+          <Button
+            size="sm"
+            variant="primary"
+            isDisabled={isLoadingUploadConfig || isMaxImagesReached}
+            isPending={isLoadingUploadConfig}
+          >
+            {isLoadingUploadConfig ? 'Indlæser...' : isMaxImagesReached ? 'Max nået' : 'Upload'}
+          </Button>
+        )}
       </div>
 
       {/* Fejlmeddelelse hvis nødvendigt */}
@@ -179,17 +173,7 @@ export default function PhotoSection({ earCombId }: PhotoSectionProps) {
         />
       </div>
 
-      {/* Cloudinary upload widget */}
-      {showWidget && uploadConfig && (
-        <SimpleCloudinaryWidget
-          uploadConfig={uploadConfig}
-          onPhotoUploaded={handlePhotoUploaded}
-          onComplete={refreshProfile}
-          onClose={handleWidgetClose}
-          widgetKey={widgetKey}
-          forceReload={true}
-        />
-      )}
+
     </div>
   );
 }

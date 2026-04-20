@@ -23,6 +23,7 @@ export const ROUTES = {
     PROFILE: '/account/profile',
     USER_PROFILE: (userProfileId: string) => `/account/profile/${userProfileId}`,
     MY_SALES: '/account/mySales',
+    MY_SALES_CREATE: '/account/mySales/create',
     MY_RABBITS: '/account/myRabbits',
     TRANSFER_REQUESTS: '/account/myRabbits/transferRequests',
     RABBIT_PROFILE: (earCombId: string) => `/account/myRabbits/rabbitProfile/${earCombId}`,
@@ -38,6 +39,7 @@ export const ROUTES = {
   SALE: {
     BASE: '/annoncer',
     RABBITS: '/annoncer/kaniner',
+    YARN: '/annoncer/garn',
     WOOLS: '/annoncer/wool',
     SALEPROFILE: (slug: string) => `/annoncer/${slug}`,
   },
@@ -67,7 +69,7 @@ export interface SaleCategoryLink {
 export const saleCategoryLinks: SaleCategoryLink[] = [
   { label: 'Kaniner', href: ROUTES.SALE.RABBITS,                     icon: LuRabbit },
   { label: 'Uld',     href: `${ROUTES.SALE.BASE}?EntityType=WoolSD`, icon: GiWool,  disabled: true },
-  { label: 'Garn',    href: `${ROUTES.SALE.BASE}?EntityType=YarnSD`, icon: PiYarn,  disabled: true },
+  { label: 'Garn',    href: ROUTES.SALE.YARN,                          icon: PiYarn },
   { label: 'Skind',   href: `${ROUTES.SALE.BASE}?EntityType=PeltSD`, icon: MdPets,  disabled: true },
 ];
 

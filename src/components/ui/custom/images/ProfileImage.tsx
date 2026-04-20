@@ -12,7 +12,7 @@ interface ProfileImageProps {
 export default function ProfileImage({
   imageUrl,
   alt = '',
-  size = 'medium',
+  size,
   className = '',
   initials,
 }: ProfileImageProps) {
@@ -42,11 +42,12 @@ export default function ProfileImage({
     medium: 'w-12 h-12 text-sm',
     large: 'w-20 h-20 text-lg'
   };
+  const sizeClass = size ? sizeClasses[size] : '';
 
   // Ved rendering
   if (imageUrl) {
     return (
-      <div className={`rounded-full overflow-hidden bg-zinc-700 ${sizeClasses[size]} ${className}`}>
+      <div className={`rounded-2xl overflow-hidden bg-zinc-700 ${sizeClass} ${className}`}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img 
           src={imageUrl} 
@@ -60,7 +61,7 @@ export default function ProfileImage({
   // Hvis intet billede, vis initialer
   return (
     <div 
-      className={`rounded-full bg-zinc-700 flex items-center justify-center ${sizeClasses[size]} ${className}`}
+      className={`rounded-2xl bg-zinc-700 flex items-center justify-center ${sizeClass} ${className}`}
     >
       <span className="font-medium text-zinc-300">
         {getInitials()}

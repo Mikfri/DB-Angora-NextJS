@@ -17,7 +17,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { getRabbitForbreedingProfile } from "@/app/actions/rabbit/rabbitCrudActions";
-import { Spinner } from "@heroui/react";
+import { Spinner } from '@/components/ui/heroui';
 import { Rabbit_ForbreedingProfileDTO } from "@/api/types/AngoraDTOs";
 import RabbitBreedingProfile from "./rabbitBreedingProfile";
 

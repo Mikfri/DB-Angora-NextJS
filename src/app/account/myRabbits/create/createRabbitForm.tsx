@@ -6,7 +6,7 @@ import EnumAutocomplete from '@/components/ui/custom/autocomplete/EnumAutocomple
 import { useRouter } from 'next/navigation';
 import { useCallback, useState } from 'react';
 import { validateParentReference } from '@/app/actions/rabbit/rabbitCrudActions';
-import { FaCheckCircle, FaSpinner, FaTimesCircle } from 'react-icons/fa';
+import { FaCheckCircle, FaInfoCircle, FaSpinner, FaTimesCircle } from 'react-icons/fa';
 
 export default function CreateRabbitForm({ targetedUserId }: { targetedUserId?: string }) {
     const router = useRouter();
@@ -16,8 +16,8 @@ export default function CreateRabbitForm({ targetedUserId }: { targetedUserId?: 
     const [fatherValidation, setFatherValidation] = useState<string | null>(null);
     const [motherValidation, setMotherValidation] = useState<string | null>(null);
 
-    const [fatherIsValid, setFatherIsValid] = useState<boolean | null>(null);
-    const [motherIsValid, setMotherIsValid] = useState<boolean | null>(null);
+    const [fatherValidationStatus, setFatherValidationStatus] = useState<'idle' | 'valid' | 'invalid' | 'notfound'>('idle');
+    const [motherValidationStatus, setMotherValidationStatus] = useState<'idle' | 'valid' | 'invalid' | 'notfound'>('idle');
 
 
     // Wrap handleSubmit in a type-safe handler for the Button's onPress
@@ -39,34 +39,28 @@ export default function CreateRabbitForm({ targetedUserId }: { targetedUserId?: 
     const handleValidateFather = async () => {
         if (!formData.fatherId_Placeholder) return;
         setFatherValidation('Validerer...');
-        setFatherIsValid(null);
+        setFatherValidationStatus('idle');
         const res = await validateParentReference(formData.fatherId_Placeholder, 'Han');
         if (!res.success) {
-            setFatherValidation(res.error || 'Ugyldig far');
-            setFatherIsValid(false);
-        } else if (res.result) {
-            setFatherValidation(res.result.isValidParent ? '✔️ Gyldig far' : '❌ Ugyldig far');
-            setFatherIsValid(res.result.isValidParent);
+            setFatherValidation(res.message);
+            setFatherValidationStatus(res.isNotFound ? 'notfound' : 'invalid');
         } else {
-            setFatherValidation('Ukendt valideringsfejl');
-            setFatherIsValid(false);
+            setFatherValidation(res.message);
+            setFatherValidationStatus(res.result?.isValidParent ? 'valid' : 'invalid');
         }
     };
 
     const handleValidateMother = async () => {
         if (!formData.motherId_Placeholder) return;
         setMotherValidation('Validerer...');
-        setMotherIsValid(null);
+        setMotherValidationStatus('idle');
         const res = await validateParentReference(formData.motherId_Placeholder, 'Hun');
         if (!res.success) {
-            setMotherValidation(res.error || 'Ugyldig mor');
-            setMotherIsValid(false);
-        } else if (res.result) {
-            setMotherValidation(res.result.isValidParent ? '✔️ Gyldig mor' : '❌ Ugyldig mor');
-            setMotherIsValid(res.result.isValidParent);
+            setMotherValidation(res.message);
+            setMotherValidationStatus(res.isNotFound ? 'notfound' : 'invalid');
         } else {
-            setMotherValidation('Ukendt valideringsfejl');
-            setMotherIsValid(false);
+            setMotherValidation(res.message);
+            setMotherValidationStatus(res.result?.isValidParent ? 'valid' : 'invalid');
         }
     };
 
@@ -288,13 +282,21 @@ export default function CreateRabbitForm({ targetedUserId }: { targetedUserId?: 
                             <div className="pl-[33%] pb-2 text-xs flex items-center gap-1">
                                 {fatherValidation === 'Validerer...' ? (
                                     <FaSpinner className="animate-spin text-blue-400 w-4 h-4" />
-                                ) : fatherIsValid ? (
+                                ) : fatherValidationStatus === 'valid' ? (
                                     <FaCheckCircle className="text-green-500 w-4 h-4" />
+                                ) : fatherValidationStatus === 'notfound' ? (
+                                    <FaInfoCircle className="text-amber-400 w-4 h-4" />
                                 ) : (
                                     <FaTimesCircle className="text-red-500 w-4 h-4" />
                                 )}
-                                <span className={fatherIsValid ? "text-green-400" : "text-red-400"}>
-                                    {fatherValidation.replace(/^✔️\s?/, '')}
+                                <span className={
+                                    fatherValidationStatus === 'valid'
+                                        ? 'text-green-400'
+                                        : fatherValidationStatus === 'notfound'
+                                            ? 'text-amber-400'
+                                            : 'text-red-400'
+                                }>
+                                    {fatherValidation}
                                 </span>
                             </div>
                         )}
@@ -337,13 +339,21 @@ export default function CreateRabbitForm({ targetedUserId }: { targetedUserId?: 
                             <div className="pl-[33%] pb-2 text-xs flex items-center gap-1">
                                 {motherValidation === 'Validerer...' ? (
                                     <FaSpinner className="animate-spin text-blue-400 w-4 h-4" />
-                                ) : motherIsValid ? (
+                                ) : motherValidationStatus === 'valid' ? (
                                     <FaCheckCircle className="text-green-500 w-4 h-4" />
+                                ) : motherValidationStatus === 'notfound' ? (
+                                    <FaInfoCircle className="text-amber-400 w-4 h-4" />
                                 ) : (
                                     <FaTimesCircle className="text-red-500 w-4 h-4" />
                                 )}
-                                <span className={motherIsValid ? "text-green-400" : "text-red-400"}>
-                                    {motherValidation.replace(/^✔️\s?/, '')}
+                                <span className={
+                                    motherValidationStatus === 'valid'
+                                        ? 'text-green-400'
+                                        : motherValidationStatus === 'notfound'
+                                            ? 'text-amber-400'
+                                            : 'text-red-400'
+                                }>
+                                    {motherValidation}
                                 </span>
                             </div>
                         )}

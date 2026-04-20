@@ -44,7 +44,7 @@ export function MySalesNavClient() {
                     fullWidth
                     size="sm"
                     className="justify-start"
-                    onPress={() => router.push(ROUTES.ACCOUNT.MY_RABBITS)}
+                    onPress={() => router.push(ROUTES.ACCOUNT.MY_SALES_CREATE)}
                 >
                     <RiAddCircleLine className="text-lg" /> Opret ny annonce
                 </Button>

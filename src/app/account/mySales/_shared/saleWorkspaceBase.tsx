@@ -50,6 +50,7 @@ export default function SaleWorkspaceBase({
       label: 'Titel',
       editNode: (
         <Input
+          variant="secondary"
           value={formData.title}
           onChange={(e) => set('title', e.target.value)}
           placeholder="Salgstitel..."
@@ -62,6 +63,7 @@ export default function SaleWorkspaceBase({
       label: 'Pris (DKK)',
       editNode: (
         <Input
+          variant="secondary"
           type="number"
           value={formData.price.toString()}
           onChange={(e) => set('price', Number(e.target.value))}
@@ -87,7 +89,7 @@ export default function SaleWorkspaceBase({
   ];
 
   return (
-    <div className="bg-surface rounded-lg border border-divider overflow-hidden">
+    <div className="main-content-container">
       {/* Header med redigerings-knapper */}
       <div className="flex justify-between items-center p-4 border-b border-divider">
         <h3 className="text-foreground font-medium">Salgsdetaljer</h3>
@@ -131,27 +133,40 @@ export default function SaleWorkspaceBase({
         </div>
       </div>
 
-      {/* Tabeller */}
-      <div className="p-4 space-y-4">
-        <SalePhotoManager />
+      {/* To-kolonne layout: billeder til venstre, base-felter til højre */}
+      <div className="p-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
 
-        <PropertyTable items={baseItems} useCard={false} isEditing={isEditing} />
+          {/* VENSTRE: Billeder — sticky */}
+          <div className="sticky top-20 self-start">
+            <SalePhotoManager />
+          </div>
 
-        {/* Beskrivelse — full-width under tabellen for mere plads */}
-        <div className={`space-y-1.5 border-t border-divider pt-3 ${!isEditing ? 'pointer-events-none opacity-50' : ''}`}>
-          <p className="px-3 text-xs font-medium text-foreground/60">Beskrivelse</p>
-          <TextArea
-            fullWidth
-            variant="secondary"
-            value={formData.description}
-            onChange={(e) => set('description', e.target.value)}
-            placeholder="Beskriv annoncen..."
-            rows={8}
-            aria-label="Beskrivelse"
-          />
+          {/* HØJRE: Titel, pris, levering, beskrivelse */}
+          <div className="space-y-4">
+            <PropertyTable items={baseItems} useCard={false} isEditing={isEditing} />
+
+            <div className={`space-y-1.5 border-t border-divider pt-3 ${!isEditing ? 'pointer-events-none opacity-50' : ''}`}>
+              <p className="px-3 text-xs font-medium text-foreground/60">Beskrivelse</p>
+              <TextArea
+                fullWidth
+                variant="secondary"
+                value={formData.description}
+                onChange={(e) => set('description', e.target.value)}
+                placeholder="Beskriv annoncen..."
+                rows={8}
+                aria-label="Beskrivelse"
+              />
+            </div>
+          </div>
         </div>
 
-        {children}
+        {/* Entity-specifikke felter (garn, kanin osv.) — fuld bredde under grid */}
+        {children && (
+          <div className="space-y-4">
+            {children}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -5,14 +5,12 @@ import { formatDate } from '@/utils/formatters';
 import { useSaleProfile } from '@/contexts/SaleProfileContext';
 import { ReactNode } from 'react';
 import ProfileImage from '@/components/ui/custom/images/ProfileImage';
-import { Separator, Chip, Spinner } from '@heroui/react';
-import { IoLocationOutline, IoCallOutline, IoTimeOutline, IoEyeOutline } from "react-icons/io5";
-import { MdOutlineLocalShipping } from 'react-icons/md';
+import { Separator, Spinner } from '@heroui/react';
+import { IoLocationOutline, IoCallOutline } from "react-icons/io5";
 import { FaUserCircle } from "react-icons/fa";
 
 const SECTIONS = {
   SELLER: 'Sælger',
-  SALE_INFO: 'Salgs Information',
   CONTACT: 'Kontakt'
 } as const;
 
@@ -57,54 +55,11 @@ export function SaleProfileNavClient() {
     <div className="w-full p-1 space-y-2">
       
       {/* Kanin billede */}
-      <div className="flex justify-center">
-        <div className="w-full max-w-[300px] aspect-square">
-          <ProfileImage 
-            imageUrl={profile.sellerPhotoUrl || profile.profilePhotoUrl}
-            alt={displayName}
-            className="w-full h-full"
-          />
-        </div>
-      </div>
-
-      <Separator className="bg-zinc-200/5 my-0.5" />
-
-      {/* Salgs information sektion */}
-      <div>
-        <h3 className="text-[13px] font-medium text-muted mb-0.5">
-          {SECTIONS.SALE_INFO}
-        </h3>
-
-        <div className="space-y-1">
-          {/* Oprettet dato */}
-          <InfoRow 
-            icon={<IoTimeOutline className="text-lg icon-default" />}
-            label="Oprettet" 
-            value={saleDetails?.dateListed ? formatDate(saleDetails.dateListed) : DEFAULT_TEXTS.SELLER_NOT_FOUND}
-          />
-          
-          {/* Visninger */}
-          <InfoRow 
-            icon={<IoEyeOutline className="text-lg icon-default" />}
-            label="Visninger" 
-            value={`${saleDetails?.viewCount || 0} visninger`}
-          />
-        </div>
-        
-        {/* Forsendelse chip */}
-        {saleDetails?.canBeShipped && (
-          <div className="mt-2">
-            <Chip 
-              color="success" 
-              variant="soft" 
-              size="sm" 
-              className="text-xs"
-            >
-              <MdOutlineLocalShipping /> Kan sendes
-            </Chip>
-          </div>
-        )}
-      </div>
+      <ProfileImage 
+        imageUrl={profile.sellerPhotoUrl || profile.profilePhotoUrl}
+        alt={displayName}
+        className="w-full aspect-square"
+      />
 
       <Separator className="bg-zinc-200/5 my-0.5" />
 
@@ -172,7 +127,7 @@ function InfoRow({
   return (
     <div className="py-0.5">
       <div className="flex items-center">
-        <div className="flex items-center gap-1.5 min-w-[80px]">
+        <div className="flex items-center gap-1.5 min-w-20">
           {icon}
           <span className="text-label">{label}</span>
         </div>

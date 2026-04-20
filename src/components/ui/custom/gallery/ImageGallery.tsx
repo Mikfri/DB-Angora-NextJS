@@ -45,7 +45,7 @@ export default function ImageGallery({ photos, fallbackUrl, alt = 'Billede' }: P
     return (
         <div className="space-y-3">
             {/* Hoofdbillede */}
-            <div className="relative w-full aspect-4/3 rounded-xl overflow-hidden group">
+            <div className="relative w-full aspect-square rounded-xl overflow-hidden group">
                 <Image
                     src={mainImageUrl}
                     alt={alt}

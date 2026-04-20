@@ -1,10 +1,10 @@
 // src/app/account/myBlogs/blogWorkspace/[blogId]/blogImages.tsx
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { Button, Card, Spinner } from '@heroui/react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { Button, Card } from '@heroui/react';
 import { FaUpload, FaTrash, FaStar, FaRegStar } from 'react-icons/fa';
-import SimpleCloudinaryWidget from '@/components/cloudinary/SimpleCloudinaryWidget';
+import CloudinaryUploadButton from '@/components/cloudinary/CloudinaryUploadButton';
 import CloudinaryImage from '@/components/cloudinary/CloudinaryImage';
 import { 
     fetchBlogImageUploadConfigAction, 
@@ -29,52 +29,44 @@ export default function BlogImageSection({
     onPhotosUpdated 
 }: BlogImageSectionProps) {
     const [photos, setPhotos] = useState<PhotoPrivateDTO[]>(currentPhotos);
-    const [showUpload, setShowUpload] = useState(false);
     const [uploadConfig, setUploadConfig] = useState<CloudinaryUploadConfigDTO | null>(null);
     const [isLoadingConfig, setIsLoadingConfig] = useState(false);
     const [isDeleting, setIsDeleting] = useState<number | null>(null);
     const [isSettingFeatured, setIsSettingFeatured] = useState<number | null>(null);
-    const [isRegistering, setIsRegistering] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const openWidgetRef = useRef<(() => void) | null>(null);
 
     useEffect(() => {
         setPhotos(currentPhotos);
     }, [currentPhotos]);
 
-    const handleUploadClick = useCallback(async () => {
+    // Hent upload-config ved mount så widgetten kan åbne øjeblikkeligt
+    useEffect(() => {
         setIsLoadingConfig(true);
         setError(null);
-        
-        try {
-            const result = await fetchBlogImageUploadConfigAction(blogId);
-            if (result.success) {
-                setUploadConfig(result.data);
-                setShowUpload(true);
-                toast.success('Upload konfiguration hentet');
-            } else {
-                const errorMsg = `Kunne ikke hente upload konfiguration: ${result.error}`;
+        fetchBlogImageUploadConfigAction(blogId)
+            .then((result) => {
+                if (result.success) {
+                    setUploadConfig(result.data);
+                } else {
+                    const errorMsg = `Kunne ikke hente upload konfiguration: ${result.error}`;
+                    setError(errorMsg);
+                    toast.error(errorMsg);
+                }
+            })
+            .catch(() => {
+                const errorMsg = 'Der skete en fejl ved forberedelse af upload';
                 setError(errorMsg);
                 toast.error(errorMsg);
-            }
-        } catch (error) {
-            const errorMsg = 'Der skete en fejl ved forberedelse af upload';
-            setError(errorMsg);
-            toast.error(errorMsg);
-            console.error('Upload config fejl:', error);
-        } finally {
-            setIsLoadingConfig(false);
-        }
+            })
+            .finally(() => setIsLoadingConfig(false));
     }, [blogId]);
 
     const handlePhotoUploaded = useCallback(async (photoData: CloudinaryPhotoRegistryRequestDTO) => {
-        setIsRegistering(true);
-        
         try {
             const result = await registerCloudinaryBlogPhotoAction(blogId, photoData);
             if (result.success) {
                 setPhotos(prev => [...prev, result.data]);
-                setShowUpload(false);
-                setUploadConfig(null);
                 if (onPhotosUpdated) onPhotosUpdated();
                 toast.success('Billede uploadet og registreret!');
             } else {
@@ -85,9 +77,6 @@ export default function BlogImageSection({
             setError(errorMsg);
             toast.error(errorMsg);
             console.error('Registrering fejl:', error);
-            throw error; // Lad widget håndtere fejlen
-        } finally {
-            setIsRegistering(false);
         }
     }, [blogId, onPhotosUpdated]);
 
@@ -147,12 +136,6 @@ export default function BlogImageSection({
         }
     }, [blogId, onPhotosUpdated]);
 
-    const handleCloseUpload = useCallback(() => {
-        setShowUpload(false);
-        setUploadConfig(null);
-        setError(null);
-    }, []);
-
     return (
         <div className="space-y-6">
             {/* Header */}
@@ -160,9 +143,9 @@ export default function BlogImageSection({
                 <h3 className="text-lg font-semibold text-heading">Blog Billeder</h3>
                 <Button
                     variant="primary"
-                    onPress={handleUploadClick}
+                    onPress={() => openWidgetRef.current?.()}
                     isPending={isLoadingConfig}
-                    isDisabled={isLoadingConfig}
+                    isDisabled={isLoadingConfig || !uploadConfig}
                 >
                     <FaUpload /> Upload Billede
                 </Button>
@@ -177,39 +160,17 @@ export default function BlogImageSection({
                 </Card>
             )}
 
-            {/* Upload Widget */}
-            {showUpload && uploadConfig && (
-                <Card className="bg-content2 border-divider">
-                    <Card.Header>
-                        <div className="flex justify-between items-center w-full">
-                            <h4 className="text-heading">Upload Nyt Billede</h4>
-                            <Button
-                                size="sm"
-                                variant="ghost"
-                                onPress={handleCloseUpload}
-                                isDisabled={isRegistering}
-                            >
-                                Luk
-                            </Button>
-                        </div>
-                    </Card.Header>
-                    <Card.Content>
-                        {isRegistering && (
-                            <div className="flex items-center gap-2 mb-4 text-primary">
-                                <Spinner size="sm" color="accent" />
-                                <span>Registrerer billede...</span>
-                            </div>
-                        )}
-                        <SimpleCloudinaryWidget
-                            uploadConfig={uploadConfig}
-                            onPhotoUploaded={handlePhotoUploaded}
-                            onComplete={handleCloseUpload}
-                            onClose={handleCloseUpload}
-                            widgetKey={`blog-${blogId}-${Date.now()}`}
-                            forceReload={true}
-                        />
-                    </Card.Content>
-                </Card>
+            {/* CloudinaryUploadButton er usynligt mountet — open() bruges af upload-knapper */}
+            {uploadConfig && (
+                <CloudinaryUploadButton
+                    uploadConfig={uploadConfig}
+                    onPhotoUploaded={handlePhotoUploaded}
+                >
+                    {(open) => {
+                        openWidgetRef.current = open;
+                        return null;
+                    }}
+                </CloudinaryUploadButton>
             )}
 
             {/* Photos Grid */}
@@ -276,8 +237,9 @@ export default function BlogImageSection({
                         <p className="text-muted mb-4">Ingen billeder uploadet endnu</p>
                         <Button
                             variant="primary"
-                            onPress={handleUploadClick}
+                            onPress={() => openWidgetRef.current?.()}
                             isPending={isLoadingConfig}
+                            isDisabled={isLoadingConfig || !uploadConfig}
                         >
                             <FaUpload /> Upload Dit Første Billede
                         </Button>

@@ -37,7 +37,7 @@ const ENUM_ENDPOINTS = {
     // Yarn-relaterede enums
     YarnWeightCategory: 'Enum/YarnWeightCategory',
     YarnWpiCategory: 'Enum/YarnWpiCategory',
-    YarnApplicationCategory: 'Enum/YarnApplicationCategory',
+    YarnMainCategory: 'Enum/YarnMainCategory',
     YarnConsistency: 'Enum/YarnConsistency',
     YarnTwistAmount: 'Enum/YarnTwistAmount',
     SoftnessScore: 'Enum/SoftnessScore',

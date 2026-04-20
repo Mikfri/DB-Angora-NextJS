@@ -40,7 +40,7 @@ import {
   registerCloudinaryBlogPhotoAction
 } from '@/app/actions/blog/blogActions';
 import type { CloudinaryUploadConfigDTO, CloudinaryPhotoRegistryRequestDTO, PhotoPrivateDTO } from '@/api/types/AngoraDTOs';
-import SimpleCloudinaryWidget from '@/components/cloudinary/SimpleCloudinaryWidget';
+import CloudinaryUploadButton from '@/components/cloudinary/CloudinaryUploadButton';
 import CloudinaryImage from '@/components/cloudinary/CloudinaryImage';
 import { toast } from 'react-toastify';
 import { ContextMenu } from "./LexicalContextMenu"; // Tilføj denne import
@@ -55,37 +55,31 @@ interface ImageSelectorProps {
 }
 
 function ImageSelector({ blogId, isOpen, onClose, onImageSelect, existingPhotos }: ImageSelectorProps) {
-  const [showUpload, setShowUpload] = useState(false);
   const [uploadConfig, setUploadConfig] = useState<CloudinaryUploadConfigDTO | null>(null);
   const [isLoadingConfig, setIsLoadingConfig] = useState(false);
 
-  const handleUploadClick = async () => {
+  // Hent upload-config når modalen åbnes
+  useEffect(() => {
+    if (!isOpen) return;
     setIsLoadingConfig(true);
-    try {
-      const result = await fetchBlogImageUploadConfigAction(blogId);
-      if (result.success) {
-        setUploadConfig(result.data);
-        setShowUpload(true);
-      } else {
-        toast.error(`Kunne ikke hente upload konfiguration: ${result.error}`);
-      }
-    } catch {
-      toast.error('Der skete en fejl ved forberedelse af upload');
-    } finally {
-      setIsLoadingConfig(false);
-    }
-  };
+    fetchBlogImageUploadConfigAction(blogId)
+      .then((result) => {
+        if (result.success) {
+          setUploadConfig(result.data);
+        } else {
+          toast.error(`Kunne ikke hente upload konfiguration: ${result.error}`);
+        }
+      })
+      .catch(() => toast.error('Der skete en fejl ved forberedelse af upload'))
+      .finally(() => setIsLoadingConfig(false));
+  }, [isOpen, blogId]);
 
   const handlePhotoUploaded = async (photoData: CloudinaryPhotoRegistryRequestDTO) => {
     try {
       const result = await registerCloudinaryBlogPhotoAction(blogId, photoData);
       if (result.success) {
         const photo = result.data;
-        const imageUrl = photo.filePath;
-
-        onImageSelect(imageUrl, photo.fileName || 'Blog billede');
-        setShowUpload(false);
-        setUploadConfig(null);
+        onImageSelect(photo.filePath, photo.fileName || 'Blog billede');
         onClose();
         toast.success('Billede indsat i editor!');
       } else {
@@ -93,7 +87,6 @@ function ImageSelector({ blogId, isOpen, onClose, onImageSelect, existingPhotos 
       }
     } catch (error) {
       toast.error('Fejl ved registrering af billede');
-      throw error;
     }
   };
 
@@ -106,17 +99,34 @@ function ImageSelector({ blogId, isOpen, onClose, onImageSelect, existingPhotos 
             <Modal.Heading>Vælg eller Upload Billede</Modal.Heading>
           </Modal.Header>
           <Modal.Body className="pb-6">
-            {!showUpload ? (
-              <div className="space-y-4">
-                {/* Upload knap */}
+            <div className="space-y-4">
+              {/* Upload knap */}
+              {uploadConfig ? (
+                <CloudinaryUploadButton
+                  uploadConfig={uploadConfig}
+                  onPhotoUploaded={handlePhotoUploaded}
+                  onClose={onClose}
+                >
+                  {(open) => (
+                    <Button
+                      variant="primary"
+                      onPress={() => open()}
+                      className="w-full"
+                    >
+                      <FaImage /> Upload Nyt Billede
+                    </Button>
+                  )}
+                </CloudinaryUploadButton>
+              ) : (
                 <Button
                   variant="primary"
-                  onPress={handleUploadClick}
                   isPending={isLoadingConfig}
+                  isDisabled={isLoadingConfig}
                   className="w-full"
                 >
                   <FaImage /> Upload Nyt Billede
                 </Button>
+              )}
 
               {/* Eksisterende billeder */}
               {existingPhotos.length > 0 && (
@@ -152,37 +162,6 @@ function ImageSelector({ blogId, isOpen, onClose, onImageSelect, existingPhotos 
                 </div>
               )}
             </div>
-            ) : (
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <h4 className="text-lg font-semibold text-zinc-100">Upload Nyt Billede</h4>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onPress={() => setShowUpload(false)}
-                  >
-                    Tilbage
-                  </Button>
-                </div>
-
-              {uploadConfig && (
-                <SimpleCloudinaryWidget
-                  uploadConfig={uploadConfig}
-                  onPhotoUploaded={handlePhotoUploaded}
-                  onComplete={() => {
-                    setShowUpload(false);
-                    setUploadConfig(null);
-                  }}
-                  onClose={() => {
-                    setShowUpload(false);
-                    setUploadConfig(null);
-                  }}
-                  widgetKey={`blog-editor-${blogId}-${Date.now()}`}
-                  forceReload={true}
-                />
-              )}
-            </div>
-            )}
           </Modal.Body>
         </Modal.Dialog>
       </Modal.Container>
