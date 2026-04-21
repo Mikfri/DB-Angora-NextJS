@@ -10,7 +10,7 @@ import { useRabbitFilters } from '@/store/saleRabbitsFilterStore';
 import { useRouter } from 'next/navigation';
 import { ROUTES } from '@/constants/navigationConstants';
 import { IoMdClose } from "react-icons/io";
-import { MdOutlineLocationOn, MdSort, MdCategory } from "react-icons/md";
+import { MdOutlineLocationOn, MdSort } from "react-icons/md";
 import { LuRabbit } from "react-icons/lu";
 import { IoColorPaletteOutline } from "react-icons/io5";
 import { RiGenderlessLine } from "react-icons/ri";
@@ -23,14 +23,6 @@ const REQUIRED_ENUMS: EnumType[] = ['Race', 'Color', 'Gender'];
 const SORT_ENUM: Record<string, string> = {
     'Newest':     'Nyeste først',
     'MostViewed': 'Mest sete',
-};
-
-const ENTITY_TYPE_ENUM: Record<string, string> = {
-    'RabbitSD': 'Kaniner',
-    'WoolCardedSD': 'Kardet uld',
-    'WoolRawSD': 'Rå uld',
-    'YarnSD': 'Garn',
-    'PeltSD': 'Skind',
 };
 
 const FILTER_SECTIONS = {
@@ -114,24 +106,6 @@ export const RabbitSaleNavClient = memo(function RabbitSaleNavClient() {
             </Button>
 
             <Separator className="divider my-0.5" />
-
-            {/* Kategori (disabled - side er låst til Kaniner) */}
-            <div className="flex items-center gap-1 opacity-50 pointer-events-none">
-                <div className="flex items-center gap-1.5 min-w-17.5">
-                    <MdCategory className="text-lg text-muted" />
-                    <span className="text-label">Kategori</span>
-                </div>
-                <div className="flex-1">
-                    <EnumLocalAutocomplete
-                        enumType={ENTITY_TYPE_ENUM}
-                        value="RabbitSD"
-                        onChange={() => undefined}
-                        label="Kategori"
-                        id="rabbit-kategori"
-                        isDisabled
-                    />
-                </div>
-            </div>
 
             {/* Sortering */}
             <div className="flex items-center gap-1">

@@ -10,7 +10,7 @@ import { useYarnFilters } from '@/store/saleYarnFilterStore';
 import { useRouter } from 'next/navigation';
 import { ROUTES } from '@/constants/navigationConstants';
 import { IoMdClose } from 'react-icons/io';
-import { MdOutlineLocationOn, MdSort, MdCategory } from 'react-icons/md';
+import { MdOutlineLocationOn, MdSort } from 'react-icons/md';
 import { FiArrowLeft } from 'react-icons/fi';
 import { FaTruck } from 'react-icons/fa';
 import { PiYarn } from 'react-icons/pi';
@@ -22,14 +22,6 @@ const REQUIRED_ENUMS: EnumType[] = ['YarnMainCategory', 'YarnWeightCategory', 'W
 const SORT_ENUM: Record<string, string> = {
     'Newest':     'Nyeste først',
     'MostViewed': 'Mest sete',
-};
-
-const ENTITY_TYPE_ENUM: Record<string, string> = {
-    'RabbitSD':     'Kaniner',
-    'WoolCardedSD': 'Kardet uld',
-    'WoolRawSD':    'Rå uld',
-    'YarnSD':       'Garn',
-    'PeltSD':       'Skind',
 };
 
 const FILTER_SECTIONS = {
@@ -117,24 +109,6 @@ export const SaleYarnNavClient = memo(function SaleYarnNavClient() {
             </Button>
 
             <Separator className="divider my-0.5" />
-
-            {/* Kategori (låst til Garn) */}
-            <div className="flex items-center gap-1 opacity-50 pointer-events-none">
-                <div className="flex items-center gap-1.5 min-w-17.5">
-                    <MdCategory className="text-lg text-muted" />
-                    <span className="text-label">Kategori</span>
-                </div>
-                <div className="flex-1">
-                    <EnumLocalAutocomplete
-                        enumType={ENTITY_TYPE_ENUM}
-                        value="YarnSD"
-                        onChange={() => undefined}
-                        label="Kategori"
-                        id="yarn-kategori"
-                        isDisabled
-                    />
-                </div>
-            </div>
 
             {/* Sortering */}
             <div className="flex items-center gap-1">

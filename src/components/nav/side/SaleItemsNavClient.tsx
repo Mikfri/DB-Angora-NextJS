@@ -8,18 +8,10 @@ import { useSaleFilters } from '@/store/saleFilterStore';
 import { ROUTES } from '@/constants/navigationConstants';
 import { IoMdClose } from 'react-icons/io';
 import { FiArrowLeft } from 'react-icons/fi';
-import { MdOutlineLocationOn, MdSort, MdCategory } from 'react-icons/md';
+import { MdOutlineLocationOn, MdSort } from 'react-icons/md';
 import { FaTruck } from 'react-icons/fa';
 import EnumLocalAutocomplete from '@/components/ui/custom/autocomplete/EnumLocalAutocomplete';
 import { PriceRangeSlider } from '@/components/ui/custom/range';
-
-const ENTITY_TYPE_ENUM: Record<string, string> = {
-    'RabbitSD': 'Kaniner',
-    'WoolCardedSD': 'Kardet uld',
-    'WoolRawSD': 'Rå uld',
-    'YarnSD': 'Garn',
-    'PeltSD': 'Skind',
-};
 
 const SORT_ENUM: Record<string, string> = {
     'Newest': 'Nyeste først',
@@ -94,23 +86,6 @@ export const SaleItemsNavClient = memo(function SaleItemsNavClient() {
             </Button>
 
             <Separator className="divider my-0.5" />
-
-            {/* Kategori */}
-            <div className="flex items-center gap-1">
-                <div className="flex items-center gap-1.5 min-w-17.5">
-                    <MdCategory className="text-lg text-muted" />
-                    <span className="text-label">Kategori</span>
-                </div>
-                <div className="flex-1">
-                    <EnumLocalAutocomplete
-                        enumType={ENTITY_TYPE_ENUM}
-                        value={filters.entityType ?? null}
-                        onChange={(v) => updateFilter('entityType', v || null)}
-                        label="Kategori"
-                        id="sale-kategori"
-                    />
-                </div>
-            </div>
 
             {/* Sortering */}
             <div className="flex items-center gap-1">
