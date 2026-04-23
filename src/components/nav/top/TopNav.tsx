@@ -85,6 +85,16 @@ export default function TopNav() {
             >
               v0.28 ALPHA
             </Chip>
+            {process.env.NEXT_PUBLIC_API_ENV === 'development' && (
+              <Chip
+                color="success"
+                variant="solid"
+                size="sm"
+                className="ml-1 font-bold tracking-wide hidden sm:inline-block"
+              >
+                DEV
+              </Chip>
+            )}
           </Link>
 
           {/* Nav Links (desktop) */}

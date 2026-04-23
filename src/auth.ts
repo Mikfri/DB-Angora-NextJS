@@ -65,6 +65,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
 
+  secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
+
   session: {
     strategy: 'jwt',
     // Session max age matcher refresh token lifetime (30 dage)
