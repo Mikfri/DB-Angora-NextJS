@@ -88,7 +88,7 @@ export default function TopNav() {
             {process.env.NEXT_PUBLIC_API_ENV === 'development' && (
               <Chip
                 color="success"
-                variant="solid"
+                variant="soft"
                 size="sm"
                 className="ml-1 font-bold tracking-wide hidden sm:inline-block"
               >
