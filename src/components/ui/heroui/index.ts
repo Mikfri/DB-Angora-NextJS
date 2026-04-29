@@ -14,7 +14,10 @@ export {
     // Inputs
     Button,
     Input,
+    InputGroup,
     TextArea,
+    TextField,
+    Label,
     NumberField,
     Switch,
     RadioGroup,

@@ -10,12 +10,17 @@ interface Props {
 
 export default function LoginModal({ isOpen, onClose }: Props) {
     return (
-        <Modal isOpen={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <Modal.Backdrop variant="blur">
-                <Modal.Container>
+        <Modal>
+            <Modal.Backdrop
+                variant="blur"
+                isOpen={isOpen}
+                onOpenChange={(open) => { if (!open) onClose(); }}
+            >
+                <Modal.Container size="md" placement="center">
                     <Modal.Dialog>
+                        <Modal.CloseTrigger />
                         <Modal.Header>
-                            <Modal.Heading className="text-2xl text-gray-700">Log ind</Modal.Heading>
+                            <Modal.Heading>Log ind</Modal.Heading>
                         </Modal.Header>
                         <Modal.Body>
                             <LoginForm onSuccess={onClose} />
