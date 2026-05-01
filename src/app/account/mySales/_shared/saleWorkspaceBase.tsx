@@ -48,6 +48,7 @@ export default function SaleWorkspaceBase({
   const baseItems: PropertyTableItem[] = [
     {
       label: 'Titel',
+      required: true,
       editNode: (
         <Input
           variant="secondary"
@@ -61,6 +62,7 @@ export default function SaleWorkspaceBase({
     },
     {
       label: 'Pris (DKK)',
+      required: true,
       editNode: (
         <Input
           variant="secondary"

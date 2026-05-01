@@ -38,6 +38,7 @@ export default function SaleCreateBase({
     const baseItems: PropertyTableItem[] = [
         {
             label: 'Titel',
+            required: true,
             editNode: (
                 <Input
                     variant="secondary"
@@ -51,6 +52,7 @@ export default function SaleCreateBase({
         },
         {
             label: 'Pris (DKK)',
+            required: true,
             editNode: (
                 <Input
                     variant="secondary"

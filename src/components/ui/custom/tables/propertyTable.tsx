@@ -84,6 +84,7 @@ export default function PropertyTable({
             <tr key={item.label} className={item.className}>
               <td className="px-3 py-1.5 text-xs font-medium text-foreground/60 w-1/3 align-middle">
                 {item.label}
+                {item.required && <span className="ml-0.5 text-danger" aria-hidden="true">*</span>}
               </td>
               <td className="px-3 py-1.5 text-sm text-foreground align-middle overflow-hidden">
                 <div className="flex flex-col gap-0.5">

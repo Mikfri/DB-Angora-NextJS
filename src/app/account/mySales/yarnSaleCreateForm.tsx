@@ -85,6 +85,7 @@ export default function YarnSaleCreateForm() {
     const mainTableItems: PropertyTableItem[] = [
         {
             label: 'Farve',
+            required: true,
             editNode: (
                 <div className="flex items-center gap-2 min-w-0">
                     <EnumAutocomplete
@@ -109,6 +110,7 @@ export default function YarnSaleCreateForm() {
         },
         {
             label: 'Vægt (g)',
+            required: true,
             editNode: (
                 <Input
                     variant="secondary"
@@ -122,6 +124,7 @@ export default function YarnSaleCreateForm() {
         },
         {
             label: 'Længde (m)',
+            required: true,
             editNode: (
                 <Input
                     variant="secondary"
@@ -165,6 +168,7 @@ export default function YarnSaleCreateForm() {
     const needleSizeItems: PropertyTableItem[] = [
         {
             label: 'Pindestørrelse',
+            required: true,
             editNode: (
                 <div className="flex items-center gap-1">
                     <CompactInput
@@ -220,6 +224,7 @@ export default function YarnSaleCreateForm() {
     const categorizationItems: PropertyTableItem[] = [
         {
             label: 'Anvendelseskategori',
+            required: true,
             editNode: (
                 <EnumAutocomplete
                     enumType="YarnMainCategory"
@@ -278,6 +283,7 @@ export default function YarnSaleCreateForm() {
                 components={yarnData.fiberComponents}
                 onChange={(components) => setYarnData(prev => ({ ...prev, fiberComponents: components }))}
                 isEditing
+                required
             />
         </SaleCreateBase>
     );

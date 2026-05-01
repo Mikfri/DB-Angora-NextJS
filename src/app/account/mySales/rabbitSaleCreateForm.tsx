@@ -63,6 +63,7 @@ export default function RabbitSaleCreateForm() {
     const rabbitTableItems: PropertyTableItem[] = [
         {
             label: 'Kanin (øremærke)',
+            required: true,
             editNode: (
                 <RabbitOwnedAutocomplete
                     value={earCombId || null}
@@ -73,6 +74,7 @@ export default function RabbitSaleCreateForm() {
         },
         {
             label: 'Bosted',
+            required: true,
             editNode: (
                 <EnumAutocomplete
                     enumType="RabbitHomeEnvironment"

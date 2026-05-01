@@ -117,6 +117,7 @@ export default function YarnSaleWorkspace({ profile }: Props) {
     const mainTableItems: PropertyTableItem[] = [
         {
             label: 'Farve',
+            required: true,
             value: (() => {
                 const nat = profile.color?.naturalColor;
                 const dyed = profile.color?.dyedColor;
@@ -148,6 +149,7 @@ export default function YarnSaleWorkspace({ profile }: Props) {
         },
         {
             label: 'Vægt (g)',
+            required: true,
             value: profile.weightInGrams,
             editNode: (
                 <Input
@@ -162,6 +164,7 @@ export default function YarnSaleWorkspace({ profile }: Props) {
         },
         {
             label: 'Længde (m)',
+            required: true,
             value: profile.lengthInMeters,
             editNode: (
                 <Input
@@ -208,6 +211,7 @@ export default function YarnSaleWorkspace({ profile }: Props) {
     const needleSizeItems: PropertyTableItem[] = [
         {
             label: 'Pindestørrelse',
+            required: true,
             value: (() => {
                 const min = profile.gauge?.recommendedNeedleSizeRange?.minMm;
                 const max = profile.gauge?.recommendedNeedleSizeRange?.maxMm;
@@ -282,6 +286,7 @@ export default function YarnSaleWorkspace({ profile }: Props) {
     const categorizationItems: PropertyTableItem[] = [
         {
             label: 'Anvendelseskategori',
+            required: true,
             value: profile.applicationCategory,
             editNode: (
                 <EnumAutocomplete
@@ -343,6 +348,7 @@ export default function YarnSaleWorkspace({ profile }: Props) {
                 components={yarnData.fiberComponents}
                 onChange={(components) => setYarnData(prev => ({ ...prev, fiberComponents: components }))}
                 isEditing={isEditing}
+                required
             />
         </SaleWorkspaceBase>
     );

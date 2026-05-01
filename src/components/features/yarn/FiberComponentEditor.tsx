@@ -20,13 +20,14 @@ interface Props {
     components: YarnFiberComponentDTO[];
     onChange: (components: YarnFiberComponentDTO[]) => void;
     isEditing?: boolean;
+    required?: boolean;
 }
 
 function totalPercentage(components: YarnFiberComponentDTO[]): number {
     return components.reduce((sum, c) => sum + (c.percentage ?? 0), 0);
 }
 
-export default function FiberComponentEditor({ components, onChange, isEditing = false }: Props) {
+export default function FiberComponentEditor({ components, onChange, isEditing = false, required = false }: Props) {
     const total = totalPercentage(components);
     const isValid = total === 100 || components.length === 0;
 
@@ -48,7 +49,10 @@ export default function FiberComponentEditor({ components, onChange, isEditing =
 
             {/* Header */}
             <div className="flex items-center justify-between px-3 py-2 border-b border-divider">
-                <p className="text-sm font-semibold text-foreground">Fiber sammensætning</p>
+                <p className="text-sm font-semibold text-foreground">
+                    Fiber sammensætning
+                    {required && <span className="ml-0.5 text-danger" aria-hidden="true">*</span>}
+                </p>
                 <div className="flex items-center gap-2">
                     {components.length > 0 && (
                         <Chip

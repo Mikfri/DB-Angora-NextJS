@@ -16,6 +16,7 @@ export interface PropertyTableItem {
   type?: PropertyTableValueType;
   hint?: string;
   className?: string;
+  required?: boolean;
 }
 
 export interface PropertyTableProps {
