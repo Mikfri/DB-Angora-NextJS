@@ -9,12 +9,18 @@
 import { useState } from 'react';
 import YarnSaleCreateForm from '../yarnSaleCreateForm';
 import RabbitSaleCreateForm from '../rabbitSaleCreateForm';
+import WoolRawSaleCreateForm from '../woolRawSaleCreateForm';
+import WoolCardedSaleCreateForm from '../woolCardedSaleCreateForm';
+import PeltSaleCreateForm from '../peltSaleCreateForm';
 
-type EntityType = 'yarn' | 'rabbit';
+type EntityType = 'yarn' | 'rabbit' | 'woolRaw' | 'woolCarded' | 'pelt';
 
 const ENTITY_OPTIONS: { key: EntityType; label: string; description: string }[] = [
     { key: 'yarn', label: 'Garn', description: 'Sælg et nøgle eller parti garn' },
     { key: 'rabbit', label: 'Kanin', description: 'Sælg en angora- eller krydsningskanin' },
+    { key: 'woolRaw', label: 'Råuld', description: 'Sælg rå, ubehandlet uld' },
+    { key: 'woolCarded', label: 'Kartet uld', description: 'Sælg kartet, behandlet uld' },
+    { key: 'pelt', label: 'Skind', description: 'Sælg et kaninskind' },
 ];
 
 export default function CreateSalePage() {
@@ -46,6 +52,9 @@ export default function CreateSalePage() {
             {/* Form baseret på valgt type */}
             {selected === 'yarn' && <YarnSaleCreateForm />}
             {selected === 'rabbit' && <RabbitSaleCreateForm />}
+            {selected === 'woolRaw' && <WoolRawSaleCreateForm />}
+            {selected === 'woolCarded' && <WoolCardedSaleCreateForm />}
+            {selected === 'pelt' && <PeltSaleCreateForm />}
         </div>
     );
 }

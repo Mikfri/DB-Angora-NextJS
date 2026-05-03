@@ -27,7 +27,7 @@ export default function ClickableCard({ className = '', style, onClick, ...props
         gap: 0,
         ...style,
       }}
-      className={`transition-all duration-300 backdrop-blur-md backdrop-saturate-150 border select-none group overflow-hidden shadow-[var(--card-shadow)] hover:shadow-[var(--card-shadow-hover)] ${className}`}
+      className={`h-full transition-all duration-300 backdrop-blur-md backdrop-saturate-150 border select-none group overflow-hidden shadow-[var(--card-shadow)] hover:shadow-[var(--card-shadow-hover)] ${className}`}
     />
   );
 

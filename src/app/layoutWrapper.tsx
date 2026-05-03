@@ -48,6 +48,9 @@ import SaleProfileNav from "@/components/nav/side/SaleProfileNav";
 import SaleWorkspaceNav from "@/components/nav/side/SaleWorkspaceNav";
 import UserProfileNav from "@/components/nav/side/UserProfileNav";
 import MySalesNav from "@/components/nav/side/MySalesNav";
+import SaleRawWoolNav from "@/components/nav/side/SaleWoolRawNav";
+import SaleWoolCardedNav from "@/components/nav/side/SaleWoolCardedNav";
+import SalePeltNav from "@/components/nav/side/SalePeltNav";
 
 // Sidenav loading skeleton
 function SideNavLoading() {
@@ -79,7 +82,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
   // Brug ROUTES konstanter i stedet for hardcoded paths
   const isBlogWorkspace = pathname.startsWith(ROUTES.ACCOUNT.BLOG_WORKSPACE_BASE);
   const isRabbitProfile = pathname.startsWith(ROUTES.ACCOUNT.RABBIT_PROFILE(''));
-  const SALE_CATEGORY_PREFIXES = [ROUTES.SALE.RABBITS, ROUTES.SALE.WOOLS, ROUTES.SALE.YARN];
+  const SALE_CATEGORY_PREFIXES = [ROUTES.SALE.RABBITS, ROUTES.SALE.WOOLS, ROUTES.SALE.YARN, ROUTES.SALE.WOOL_RAW, ROUTES.SALE.WOOL_CARDED, ROUTES.SALE.PELTS];
   const isSaleProfile = pathname.startsWith(ROUTES.SALE.BASE + '/')
     && !SALE_CATEGORY_PREFIXES.some(p => pathname === p || pathname.startsWith(p + '/'));
   const isSaleWorkspace = pathname.startsWith(ROUTES.ACCOUNT.MY_SALES + '/');
@@ -98,6 +101,9 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
     if (pathname === ROUTES.SALE.BASE) return <SaleItemsNav />;
     if (pathname === ROUTES.SALE.RABBITS) return <RabbitSaleNav />;
     if (pathname === ROUTES.SALE.YARN) return <SaleYarnNav />;
+    if (pathname === ROUTES.SALE.WOOL_RAW) return <SaleRawWoolNav />;
+    if (pathname === ROUTES.SALE.WOOL_CARDED) return <SaleWoolCardedNav />;
+    if (pathname === ROUTES.SALE.PELTS) return <SalePeltNav />;
     if (pathname === ROUTES.ACCOUNT.MY_SALES) return <MySalesNav />;
     if (isSaleWorkspace) return <SaleWorkspaceNav />;
     if (pathname === ROUTES.ACCOUNT.RABBITS_FOR_BREEDING) return <RabbitForbreedingNav />;

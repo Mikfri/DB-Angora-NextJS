@@ -10,13 +10,14 @@ export default function SaleCategoryCards() {
 
     return (
         <div className="unified-container p-4">
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {saleCategoryLinks.map(({ label, href, icon, disabled }) => (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+                {saleCategoryLinks.map(({ label, href, icon, iconSrc, disabled }) => (
                     <IconCard
                         key={label}
                         label={label}
                         href={href}
                         icon={icon}
+                        iconSrc={iconSrc}
                         disabled={disabled}
                         isActive={pathname === href || pathname.startsWith(href + '/')}
                     />

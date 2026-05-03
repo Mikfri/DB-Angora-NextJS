@@ -14,7 +14,8 @@ import type { IconType } from 'react-icons';
 interface IconCardProps {
     label: string;
     href: string;
-    icon: IconType;
+    icon?: IconType;
+    iconSrc?: string;
     disabled?: boolean;
     disabledMessage?: string;
     isActive?: boolean;
@@ -24,10 +25,29 @@ export default function IconCard({
     label,
     href,
     icon: Icon,
+    iconSrc,
     disabled = false,
     disabledMessage = 'Denne kategori er ikke tilgængelig endnu',
     isActive = false,
 }: IconCardProps) {
+    const renderIcon = () => {
+        if (iconSrc) {
+            return (
+                <img
+                    src={iconSrc}
+                    alt={`${label} ikon`}
+                    className="h-8 w-8 object-contain icon-img"
+                />
+            );
+        }
+
+        if (Icon) {
+            return <Icon className={isActive ? 'text-3xl text-accent' : 'text-3xl text-foreground/70'} />;
+        }
+
+        return null;
+    };
+
     if (disabled) {
         return (
             <button
@@ -35,7 +55,11 @@ export default function IconCard({
                 onClick={() => toast.info(disabledMessage)}
                 className="flex flex-col items-center gap-2 p-4 rounded-xl border border-(--card-border) bg-(--card-bg) opacity-50 cursor-not-allowed w-full"
             >
-                <Icon className="text-3xl text-foreground/40" />
+                {iconSrc ? (
+                    <img src={iconSrc} alt={`${label} ikon`} className="h-8 w-8 object-contain opacity-40 icon-img" />
+                ) : (
+                    Icon ? <Icon className="text-3xl text-foreground/40" /> : null
+                )}
                 <span className="text-sm font-medium text-foreground/40">{label}</span>
             </button>
         );
@@ -51,7 +75,7 @@ export default function IconCard({
                     : 'border-(--card-border) bg-(--card-bg) shadow-(--card-shadow) hover:shadow-(--card-shadow-hover) hover:border-(--accent)',
             ].join(' ')}
         >
-            <Icon className={isActive ? 'text-3xl text-accent' : 'text-3xl text-foreground/70'} />
+            {renderIcon()}
             <span className={isActive ? 'text-sm font-semibold text-accent' : 'text-sm font-medium text-foreground/80'}>{label}</span>
         </Link>
     );

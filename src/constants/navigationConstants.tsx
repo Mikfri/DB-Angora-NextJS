@@ -40,6 +40,9 @@ export const ROUTES = {
     BASE: '/annoncer',
     RABBITS: '/annoncer/kaniner',
     YARN: '/annoncer/garn',
+    WOOL_RAW: '/annoncer/raa-uld',
+    WOOL_CARDED: '/annoncer/kartet-uld',
+    PELTS: '/annoncer/skind',
     WOOLS: '/annoncer/wool',
     SALEPROFILE: (slug: string) => `/annoncer/${slug}`,
   },
@@ -62,15 +65,17 @@ export const ROUTES = {
 export interface SaleCategoryLink {
   label: string;
   href: string;
-  icon: IconType;
+  icon?: IconType;
+  iconSrc?: string;
   disabled?: boolean;
 }
 
 export const saleCategoryLinks: SaleCategoryLink[] = [
-  { label: 'Kaniner', href: ROUTES.SALE.RABBITS,                     icon: LuRabbit },
-  { label: 'Uld',     href: `${ROUTES.SALE.BASE}?EntityType=WoolSD`, icon: GiWool,  disabled: true },
-  { label: 'Garn',    href: ROUTES.SALE.YARN,                          icon: PiYarn },
-  { label: 'Skind',   href: `${ROUTES.SALE.BASE}?EntityType=PeltSD`, icon: MdPets,  disabled: true },
+  { label: 'Kaniner',     href: ROUTES.SALE.RABBITS,     icon: LuRabbit },
+  { label: 'Rå uld',     href: ROUTES.SALE.WOOL_RAW,    iconSrc: '/icons/woolRaw-svgrepo-com.svg' },
+  { label: 'Kartet uld', href: ROUTES.SALE.WOOL_CARDED, iconSrc: '/icons/woolCarded-svgrepo-com.svg' },
+  { label: 'Garn',       href: ROUTES.SALE.YARN,        icon: PiYarn },
+  { label: 'Skind',      href: ROUTES.SALE.PELTS,       iconSrc: '/icons/pelt-svgrepo-com.svg' },
 ];
 
 // ============= UI KONSTANTER =============
@@ -187,7 +192,9 @@ export const saleNavigationLinks: NavGroup[] = [
     links: [
       { href: ROUTES.SALE.BASE, label: 'Salg' },
       { href: ROUTES.SALE.RABBITS, label: 'Kaniner', requiresAuth: false },
-      { href: ROUTES.SALE.WOOLS, label: 'Uld', disabled: true }
+      { href: ROUTES.SALE.WOOL_RAW, label: 'Rå uld' },
+      { href: ROUTES.SALE.WOOL_CARDED, label: 'Kartet uld' },
+      { href: ROUTES.SALE.PELTS, label: 'Skind' },
     ]
   }
 ];

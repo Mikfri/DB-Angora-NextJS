@@ -20,6 +20,9 @@ import { useParams, useRouter } from 'next/navigation';
 import { SaleDetailsPrivateDTO } from '@/api/types/SaleDetailsDTOs';
 import { getRabbitSaleDetails, deleteRabbitSaleDetails } from '@/app/actions/sales/salesRabbitActions';
 import { getYarnSaleDetails, deleteYarnSaleDetails } from '@/app/actions/sales/salesYarnActions';
+import { getWoolRawSaleDetails, deleteWoolRawSaleDetails } from '@/app/actions/sales/salesWoolRawActions';
+import { getWoolCardedSaleDetails, deleteWoolCardedSaleDetails } from '@/app/actions/sales/salesWoolCardedActions';
+import { getPeltSaleDetails, deletePeltSaleDetails } from '@/app/actions/sales/salesPeltActions';
 import { updateSaleStatus } from '@/app/actions/sales/salesManagementAcions';
 import { ROUTES } from '@/constants/navigationConstants';
 import { toast } from 'react-toastify';
@@ -70,6 +73,12 @@ export function SaleWorkspaceProvider({ children }: { children: ReactNode }) {
                 result = await getRabbitSaleDetails(numId);
             } else if (entityType === 'yarnsd') {
                 result = await getYarnSaleDetails(numId);
+            } else if (entityType === 'woolrawsd') {
+                result = await getWoolRawSaleDetails(numId);
+            } else if (entityType === 'woolcardedsd') {
+                result = await getWoolCardedSaleDetails(numId);
+            } else if (entityType === 'peltsd') {
+                result = await getPeltSaleDetails(numId);
             } else {
                 setError('Ukendt entitetstype');
                 setIsLoading(false);
@@ -100,6 +109,12 @@ export function SaleWorkspaceProvider({ children }: { children: ReactNode }) {
             result = await deleteRabbitSaleDetails(profile.id);
         } else if (entityType === 'yarnsd') {
             result = await deleteYarnSaleDetails(profile.id);
+        } else if (entityType === 'woolrawsd') {
+            result = await deleteWoolRawSaleDetails(profile.id);
+        } else if (entityType === 'woolcardedsd') {
+            result = await deleteWoolCardedSaleDetails(profile.id);
+        } else if (entityType === 'peltsd') {
+            result = await deletePeltSaleDetails(profile.id);
         } else {
             setIsDeleting(false);
             return;

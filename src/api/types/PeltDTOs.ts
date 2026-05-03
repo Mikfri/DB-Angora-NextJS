@@ -17,7 +17,7 @@ export interface PeltPostPutSaleDetailsDTO {
     color: string;
     race: string;
     tanningMethod: string;
-    peltCondition: string;
+    condition: string;
     lengthCm: number;
     widthCm: number;
 }

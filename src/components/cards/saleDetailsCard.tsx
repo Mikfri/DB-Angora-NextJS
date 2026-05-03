@@ -37,7 +37,7 @@ const SaleDetailsCard = memo(function SaleDetailsCard({
     const formattedRelativeDate = formatRelativeDate(item.dateListed);
 
     return (
-        <div className="relative hover:-translate-y-1 transition-transform duration-300">
+        <div className="relative h-full hover:-translate-y-1 transition-transform duration-300">
         <ClickableCard
             onClick={handleCardPress}
             className="max-w-sm"
@@ -65,11 +65,11 @@ const SaleDetailsCard = memo(function SaleDetailsCard({
             <ClickableCard.Content>
                 <div className="space-y-1">
                     {/* Lokation + dato */}
-                    <div className="flex items-center gap-1 text-xs text-muted">
+                    <div className="flex items-center gap-1 text-xs text-muted min-w-0">
                         <IoLocationOutline size={12} className="shrink-0" />
-                        <span>{item.zipCode} {item.city}</span>
-                        <span>·</span>
-                        <span>{formattedRelativeDate}</span>
+                        <span className="truncate min-w-0">{item.zipCode} {item.city}</span>
+                        <span className="shrink-0">·</span>
+                        <span className="shrink-0 whitespace-nowrap">{formattedRelativeDate}</span>
                     </div>
 
                     {/* Titel */}
