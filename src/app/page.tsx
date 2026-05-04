@@ -30,3 +30,12 @@ export default async function Home() {
 
   return <HomeContent newsData={newsData} updatesData={updatesData} />;
 }
+/**
+ * Nedenfor en Next.js feature, der fortæller Next.js at denne side skal genopbygges (revalidate)
+ * max hver 60. sekund. Det betyder at siden kan cache resultater i op til 60 sekunder, 
+ * før den henter nye data og genopbygger siden. 
+ * Dette er en form for ISR (Incremental Static Regeneration), 
+ * som giver en god balance mellem performance og opdateret indhold, 
+ * uden at kræve fuld server-side rendering på hvert request.
+ */
+export const revalidate = 60;

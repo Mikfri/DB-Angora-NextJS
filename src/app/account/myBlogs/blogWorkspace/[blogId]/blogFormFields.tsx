@@ -1,19 +1,13 @@
 // src/app/account/myBlogs/blogWorkspace/[blogId]/blogFormFields.tsx
 
 /**
- * blogFormFields.tsx
- * 
  * Ansvar:
- * Håndterer rendering af METADATA-felter for en blog (synlighed, kategori, tags, metaDescription).
- * Titel, undertitel og content håndteres IKKE her - de håndteres i BlogContentEditor.tsx.
- * 
- * Funktioner:
- * - renderBlogField(): Renderer et enkelt metadata-felt (view eller edit mode)
- * - renderViewMode(): Viser read-only visning af metadata
- * - renderEditMode(): Viser redigerbare input-felter for metadata
- * - editableFieldLabels: Definerer danske labels for metadata-felter
- * 
- * Bruges af: blogWorkspace.tsx (til metadata-sektionen)
+ * Centraliserer rendering af blog-metadatafelter (ikke selve content-editoren).
+ *
+ * Funktion:
+ * - Definerer labels og visningslogik for metadatafelter
+ * - Renderer read-only eller redigerbar variant pr. felt
+ * - Holder felt-specifikke input-komponenter samlet ét sted
  */
 
 import { ReactNode } from "react";

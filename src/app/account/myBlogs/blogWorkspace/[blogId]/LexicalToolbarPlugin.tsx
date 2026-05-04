@@ -1,4 +1,14 @@
 // src/app/account/myBlogs/blogWorkspace/[blogId]/LexicalToolbarPlugin.tsx
+
+/**
+ * Ansvar:
+ * Leverer toolbar og hjælpefunktioner til formatering i blog-editoren.
+ *
+ * Funktion:
+ * - Håndterer text/block-formattering (bold, headings, lister, citat)
+ * - Åbner image-selector modal og indsætter valgte billeder
+ * - Understøtter YouTube-indsættelse og højrekliksmenu
+ */
 'use client';
 
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
@@ -92,14 +102,14 @@ function ImageSelector({ blogId, isOpen, onClose, onImageSelect, existingPhotos 
 
   return (
     <Modal isOpen={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
-      <Modal.Backdrop />
-      <Modal.Container>
-        <Modal.Dialog>
-          <Modal.Header>
-            <Modal.Heading>Vælg eller Upload Billede</Modal.Heading>
-          </Modal.Header>
-          <Modal.Body className="pb-6">
-            <div className="space-y-4">
+      <Modal.Backdrop>
+        <Modal.Container>
+          <Modal.Dialog>
+            <Modal.Header>
+              <Modal.Heading>Vælg eller Upload Billede</Modal.Heading>
+            </Modal.Header>
+            <Modal.Body className="pb-6">
+              <div className="space-y-4">
               {/* Upload knap */}
               {uploadConfig ? (
                 <CloudinaryUploadButton
@@ -137,7 +147,9 @@ function ImageSelector({ blogId, isOpen, onClose, onImageSelect, existingPhotos 
                       <div
                         key={photo.id}
                         className="cursor-pointer hover:ring-2 hover:ring-primary transition-all bg-content2 border-divider rounded-lg"
-                        onClick={() => {
+                        onClick={(event) => {
+                          event.preventDefault();
+                          event.stopPropagation();
                           const imageUrl = photo.filePath;
                           onImageSelect(imageUrl, photo.fileName || 'Blog billede');
                           onClose();
@@ -161,10 +173,11 @@ function ImageSelector({ blogId, isOpen, onClose, onImageSelect, existingPhotos 
                   </div>
                 </div>
               )}
-            </div>
-          </Modal.Body>
-        </Modal.Dialog>
-      </Modal.Container>
+              </div>
+            </Modal.Body>
+          </Modal.Dialog>
+        </Modal.Container>
+      </Modal.Backdrop>
     </Modal>
   );
 }

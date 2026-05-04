@@ -15,7 +15,7 @@ import { RabbitSaleProfilePrivateDTO, RabbitPostPutSaleDetailsDTO } from '@/api/
 import { SaleDetailsBasePostPutDTO } from '@/api/types/SaleDetailsDTOs';
 import { updateRabbitSaleDetails } from '@/app/actions/sales/salesRabbitActions';
 import { useSaleWorkspace } from '@/contexts/SaleWorkspaceContext';
-import SaleWorkspaceBase from './_shared/saleWorkspaceBase';
+import SaleWorkspaceBase from '../../_shared/saleWorkspaceBase';
 import { PropertyTableItem, PropertyTable } from '@/components/ui/custom/tables';
 import { Switch } from '@/components/ui/heroui';
 import EnumAutocomplete from '@/components/ui/custom/autocomplete/EnumAutocomplete';

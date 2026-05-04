@@ -1,4 +1,14 @@
 // src/app/account/myBlogs/blogWorkspace/[blogId]/LexicalImageNode.tsx
+
+/**
+ * Ansvar:
+ * Definerer custom Lexical ImageNode og UI'et for et billede i editoren.
+ *
+ * Funktion:
+ * - Håndterer serialisering/import/eksport af billededata
+ * - Renderer billede med valg-, resize- og delete-kontroller
+ * - Oversætter DOM <img> elementer til editor-nodes ved import
+ */
 'use client';
 
 import {

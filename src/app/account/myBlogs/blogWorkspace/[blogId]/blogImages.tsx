@@ -1,4 +1,15 @@
 // src/app/account/myBlogs/blogWorkspace/[blogId]/blogImages.tsx
+
+/**
+ * Ansvar:
+ * Håndterer bloggens billedbibliotek i workspace (upload, visning, featured og sletning).
+ *
+ * Funktion:
+ * - Henter upload-konfiguration og åbner Cloudinary-widget
+ * - Registrerer uploadede billeder på bloggen
+ * - Viser eksisterende billeder og tillader featured/slet
+ * - Udstiller opdateringshooks tilbage til parent ved ændringer
+ */
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';

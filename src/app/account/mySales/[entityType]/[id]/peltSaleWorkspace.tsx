@@ -14,7 +14,7 @@ import { PeltSaleProfilePrivateDTO, PeltPostPutSaleDetailsDTO } from '@/api/type
 import { SaleDetailsBasePostPutDTO } from '@/api/types/SaleDetailsDTOs';
 import { updatePeltSaleDetails } from '@/app/actions/sales/salesPeltActions';
 import { useSaleWorkspace } from '@/contexts/SaleWorkspaceContext';
-import SaleWorkspaceBase from './_shared/saleWorkspaceBase';
+import SaleWorkspaceBase from '../../_shared/saleWorkspaceBase';
 import { PropertyTable, type PropertyTableItem } from '@/components/ui/custom/tables';
 import { Input } from '@/components/ui/heroui';
 import EnumAutocomplete from '@/components/ui/custom/autocomplete/EnumAutocomplete';

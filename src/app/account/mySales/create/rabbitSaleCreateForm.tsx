@@ -1,4 +1,4 @@
-// src/app/account/mySales/rabbitSaleCreateForm.tsx
+// src/app/account/mySales/create/rabbitSaleCreateForm.tsx
 
 /**
  * Formular til oprettelse af en ny kaninsalgsannonce.
@@ -13,7 +13,7 @@ import { toast } from 'react-toastify';
 import { RabbitPostPutSaleDetailsDTO } from '@/api/types/RabbitSaleDTOs';
 import { SaleDetailsBasePostPutDTO } from '@/api/types/SaleDetailsDTOs';
 import { createRabbitSaleDetails } from '@/app/actions/sales/salesRabbitActions';
-import SaleCreateBase from './_shared/saleCreateBase';
+import SaleCreateBase from '../_shared/saleCreateBase';
 import { PropertyTable, type PropertyTableItem } from '@/components/ui/custom/tables';
 import { Switch } from '@/components/ui/heroui';
 import EnumAutocomplete from '@/components/ui/custom/autocomplete/EnumAutocomplete';

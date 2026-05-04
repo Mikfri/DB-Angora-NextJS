@@ -5,11 +5,11 @@ import { getYarnSaleDetails } from '@/app/actions/sales/salesYarnActions';
 import { getWoolRawSaleDetails } from '@/app/actions/sales/salesWoolRawActions';
 import { getWoolCardedSaleDetails } from '@/app/actions/sales/salesWoolCardedActions';
 import { getPeltSaleDetails } from '@/app/actions/sales/salesPeltActions';
-import RabbitSaleWorkspace from '../../rabbitSaleWorkspace';
-import YarnSaleWorkspace from '../../yarnSaleWorkspace';
-import WoolRawSaleWorkspace from '../../woolRawSaleWorkspace';
-import WoolCardedSaleWorkspace from '../../woolCardedSaleWorkspace';
-import PeltSaleWorkspace from '../../peltSaleWorkspace';
+import RabbitSaleWorkspace from './rabbitSaleWorkspace';
+import YarnSaleWorkspace from './yarnSaleWorkspace';
+import WoolRawSaleWorkspace from './woolRawSaleWorkspace';
+import WoolCardedSaleWorkspace from './woolCardedSaleWorkspace';
+import PeltSaleWorkspace from './peltSaleWorkspace';
 
 type Props = { params: Promise<{ entityType: string; id: string }> };
 

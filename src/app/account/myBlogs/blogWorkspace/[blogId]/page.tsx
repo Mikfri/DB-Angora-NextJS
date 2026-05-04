@@ -1,18 +1,14 @@
 // src/app/account/myBlogs/blogWorkspace/[blogId]/page.tsx
 
 /**
- * VIGTIG NOTE OM RENDERING:
- * ========================
- * Denne side bruger bevidst Client-Side Rendering (CSR) af følgende grunde:
- * 
- * 1. Siden er beskyttet bag login, så SEO er ikke relevant
- * 2. CSR løser TypeScript type problemer med Next.js page props
- * 3. Siden behøver ikke server-rendering for at fungere effektivt
- * 4. Blog editor kræver kompleks client-side interaktion
- * 
- * Derfor skal denne implementering IKKE ændres tilbage til SSR uden
- * at tage højde for TypeScript komplikationerne.
-*/
+ * Ansvar:
+ * Entry route for blog workspace siden for et givent blogId.
+ *
+ * Funktion:
+ * - Håndterer loading/fejl/notFound states fra workspace-context
+ * - Delegérer selve redigerings-UI'et til BlogWorkspace komponenten
+ * - Kører bevidst som client component pga. editorens interaktive natur
+ */
 'use client';
 
 import { notFound } from "next/navigation";

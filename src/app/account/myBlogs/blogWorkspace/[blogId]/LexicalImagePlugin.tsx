@@ -1,8 +1,25 @@
 // src/app/account/myBlogs/blogWorkspace/[blogId]/LexicalImagePlugin.tsx
+
+/**
+ * Ansvar:
+ * Registrerer kommandoen der indsætter billeder i Lexical editoren.
+ *
+ * Funktion:
+ * - Definerer INSERT_IMAGE_COMMAND payload-format
+ * - Opretter ImageNode og indsætter ved aktiv selection
+ * - Har fallback ved tabt selection (fx efter modal-fokus)
+ */
 'use client';
 
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
-import { $insertNodes, COMMAND_PRIORITY_EDITOR } from "lexical";
+import {
+  $insertNodes,
+  COMMAND_PRIORITY_EDITOR,
+  $getSelection,
+  $isRangeSelection,
+  $getRoot,
+  $createParagraphNode,
+} from "lexical";
 import { useEffect } from "react";
 import { createCommand, LexicalCommand } from "lexical";
 import { $createImageNode, ImageNode } from "./LexicalImageNode";
@@ -31,7 +48,20 @@ export function ImagePlugin(): null {
       INSERT_IMAGE_COMMAND,
       (payload) => {
         const imageNode = $createImageNode(payload);
-        $insertNodes([imageNode]);
+        const selection = $getSelection();
+
+        if ($isRangeSelection(selection)) {
+          $insertNodes([imageNode]);
+          return true;
+        }
+
+        // If modal interaction moved focus away from the editor, append safely at root.
+        const root = $getRoot();
+        root.append(imageNode);
+
+        const paragraphNode = $createParagraphNode();
+        root.append(paragraphNode);
+        paragraphNode.selectStart();
         return true;
       },
       COMMAND_PRIORITY_EDITOR,

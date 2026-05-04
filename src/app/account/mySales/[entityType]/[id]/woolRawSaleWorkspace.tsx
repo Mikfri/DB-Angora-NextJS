@@ -15,7 +15,7 @@ import { WoolRawSaleProfilePrivateDTO, WoolRawPostPutSaleDetailsDTO } from '@/ap
 import { SaleDetailsBasePostPutDTO } from '@/api/types/SaleDetailsDTOs';
 import { updateWoolRawSaleDetails } from '@/app/actions/sales/salesWoolRawActions';
 import { useSaleWorkspace } from '@/contexts/SaleWorkspaceContext';
-import SaleWorkspaceBase from './_shared/saleWorkspaceBase';
+import SaleWorkspaceBase from '../../_shared/saleWorkspaceBase';
 import { PropertyTableItem, PropertyTable } from '@/components/ui/custom/tables';
 import { Input } from '@/components/ui/heroui';
 import EnumAutocomplete from '@/components/ui/custom/autocomplete/EnumAutocomplete';

@@ -1,26 +1,13 @@
 // src/app/account/myBlogs/blogWorkspace/[blogId]/LexicalEditor.tsx
 /**
- * LexicalEditor.tsx
- * 
  * Ansvar:
- * Konfigurerer og renderer Lexical rich text editor til blog content.
- * Håndterer initialisering af editor med eksisterende HTML-indhold.
- * 
- * Funktioner:
- * - Initialiserer Lexical editor med custom nodes (heading, list, image, YouTube, etc.)
- * - Konverterer HTML til Lexical nodes ved indlæsning
- * - Konverterer Lexical nodes til HTML ved ændringer
- * - Tilbyder toolbar med formateringsmuligheder (bold, italic, headings, lists, etc.)
- * - Understøtter billede-indsættelse fra blog's photo gallery
- * 
- * Plugins:
- * - InitializeContentPlugin: Indlæser eksisterende HTML-content
- * - ToolbarPlugin: Formateringsværktøjer
- * - ImagePlugin: Håndterer billeder i content
- * - HistoryPlugin: Undo/redo funktionalitet
- * - OnChangePlugin: Synkroniserer ændringer til parent component
- * 
- * Bruges af: BlogContentEditor.tsx
+ * Er editor-shell for blog content baseret på Lexical.
+ *
+ * Funktion:
+ * - Registrerer editor-konfiguration, tema og custom nodes
+ * - Initialiserer editor-state fra eksisterende HTML
+ * - Monterer toolbar/plugins (history, list, image, onChange)
+ * - Eksporterer løbende editor-indhold tilbage som HTML
  */
 
 'use client';

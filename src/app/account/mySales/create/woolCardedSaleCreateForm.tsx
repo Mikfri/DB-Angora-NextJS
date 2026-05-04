@@ -1,4 +1,4 @@
-// src/app/account/mySales/woolCardedSaleCreateForm.tsx
+// src/app/account/mySales/create/woolCardedSaleCreateForm.tsx
 
 /**
  * Formular til oprettelse af en ny kartet-uld-salgsannonce.
@@ -12,7 +12,7 @@ import { toast } from 'react-toastify';
 import { WoolCardedPostPutSaleDetailsDTO, WoolCardedFiberComponentDTO } from '@/api/types/WoolCardedDTOs';
 import { SaleDetailsBasePostPutDTO } from '@/api/types/SaleDetailsDTOs';
 import { createWoolCardedSaleDetails } from '@/app/actions/sales/salesWoolCardedActions';
-import SaleCreateBase from './_shared/saleCreateBase';
+import SaleCreateBase from '../_shared/saleCreateBase';
 import { PropertyTable, type PropertyTableItem } from '@/components/ui/custom/tables';
 import { Input } from '@/components/ui/heroui';
 import EnumAutocomplete from '@/components/ui/custom/autocomplete/EnumAutocomplete';

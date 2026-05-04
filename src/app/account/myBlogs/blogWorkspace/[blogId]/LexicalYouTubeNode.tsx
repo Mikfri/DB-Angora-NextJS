@@ -1,5 +1,14 @@
 // src/app/account/myBlogs/blogWorkspace/[blogId]/LexicalYouTubeNode.tsx
 
+/**
+ * Ansvar:
+ * Definerer custom Lexical node for YouTube embeds i blog-indhold.
+ *
+ * Funktion:
+ * - Renderer iframe-baseret YouTube embed i editoren
+ * - Gemmer og gendanner videoId/bredde via serialization
+ * - Muliggør dynamisk breddejustering via slider
+ */
 'use client';
 
 import {

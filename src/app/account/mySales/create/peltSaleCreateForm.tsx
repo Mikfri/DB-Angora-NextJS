@@ -1,4 +1,4 @@
-// src/app/account/mySales/peltSaleCreateForm.tsx
+// src/app/account/mySales/create/peltSaleCreateForm.tsx
 
 /**
  * Formular til oprettelse af en ny skind-salgsannonce.
@@ -12,7 +12,7 @@ import { toast } from 'react-toastify';
 import { PeltPostPutSaleDetailsDTO } from '@/api/types/PeltDTOs';
 import { SaleDetailsBasePostPutDTO } from '@/api/types/SaleDetailsDTOs';
 import { createPeltSaleDetails } from '@/app/actions/sales/salesPeltActions';
-import SaleCreateBase from './_shared/saleCreateBase';
+import SaleCreateBase from '../_shared/saleCreateBase';
 import { PropertyTable, type PropertyTableItem } from '@/components/ui/custom/tables';
 import { Input } from '@/components/ui/heroui';
 import EnumAutocomplete from '@/components/ui/custom/autocomplete/EnumAutocomplete';

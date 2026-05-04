@@ -1,22 +1,13 @@
 // src/app/account/myBlogs/blogWorkspace/[blogId]/BlogContentEditor.tsx
 
 /**
- * BlogContentEditor.tsx
- * 
  * Ansvar:
- * Håndterer INDHOLD-sektionen af en blog: titel, undertitel og content (HTML).
- * Skifter mellem view mode (læsning) og edit mode (redigering).
- * 
- * Funktioner:
- * - View mode: Viser titel, undertitel og content som formateret HTML
- * - Edit mode: Viser input-felter for titel/undertitel + Lexical editor til content
- * - Tegnantal-visning for titel og undertitel (max 160 tegn)
- * - Validering: Titel er påkrævet
- * 
- * Komponenter:
- * - BlogLexicalEditor: Rich text editor til blog content
- * 
- * Bruges af: blogWorkspace.tsx (i Editor tab)
+ * Renderer blog-indhold i view/edit mode og binder titel, undertitel og content til workspace-state.
+ *
+ * Funktion:
+ * - Viser læsevisning af indhold med billedemetadata i view mode
+ * - Viser formularfelter og Lexical editor i edit mode
+ * - Sender ændringer videre via updateField i BlogWorkspaceContext
  */
 
 'use client';

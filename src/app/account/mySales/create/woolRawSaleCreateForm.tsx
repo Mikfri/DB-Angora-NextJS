@@ -1,4 +1,4 @@
-// src/app/account/mySales/woolRawSaleCreateForm.tsx
+// src/app/account/mySales/create/woolRawSaleCreateForm.tsx
 
 /**
  * Formular til oprettelse af en ny råuld-salgsannonce.
@@ -12,7 +12,7 @@ import { toast } from 'react-toastify';
 import { WoolRawPostPutSaleDetailsDTO } from '@/api/types/WoolRawDTOs';
 import { SaleDetailsBasePostPutDTO } from '@/api/types/SaleDetailsDTOs';
 import { createWoolRawSaleDetails } from '@/app/actions/sales/salesWoolRawActions';
-import SaleCreateBase from './_shared/saleCreateBase';
+import SaleCreateBase from '../_shared/saleCreateBase';
 import { PropertyTable, type PropertyTableItem } from '@/components/ui/custom/tables';
 import { Input } from '@/components/ui/heroui';
 import EnumAutocomplete from '@/components/ui/custom/autocomplete/EnumAutocomplete';

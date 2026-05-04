@@ -1,11 +1,13 @@
 // src/app/account/myBlogs/blogWorkspace/[blogId]/blogWorkspace.tsx
 
 /**
- * blogWorkspace.tsx
- * 
  * Ansvar:
- * Hoved-layout for blog workspace med tab-navigation (Editor, Billeder, Forhåndsvisning, Publicering).
- * Koordinerer brugerens interaktion med blog editing og gemmer data via BlogWorkspaceContext.
+ * Orkestrerer hele blog-workspace UI'et for redigering af et enkelt indlæg.
+ *
+ * Funktion:
+ * - Viser global header med navigation, auto-save og actions
+ * - Monterer content-editor og billedesektion
+ * - Læser og styrer editor-state via BlogWorkspaceContext
  */
 
 'use client';

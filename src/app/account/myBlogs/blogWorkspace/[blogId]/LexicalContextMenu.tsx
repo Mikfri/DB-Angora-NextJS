@@ -1,4 +1,14 @@
 // src/app/account/myBlogs/blogWorkspace/[blogId]/LexicalContextMenu.tsx
+
+/**
+ * Ansvar:
+ * Renderer editorens højrekliksmenu for hurtig formatering.
+ *
+ * Funktion:
+ * - Positionerer contextmenu relativt til klikpunkt
+ * - Kalder onFormat med valgt handling
+ * - Lukker menuen automatisk ved klik udenfor
+ */
 'use client';
 
 import { useEffect } from "react";
